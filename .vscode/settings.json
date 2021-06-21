@@ -1,0 +1,11 @@
+{
+    "deno.enable": false,
+    "editor.detectIndentation": false,
+    "editor.codeActionsOnSave": {
+        "source.fixAll.eslint": true
+    },
+    "files.autoSave": "onFocusChange",
+    "eslint.validate": [
+        "typescript"
+    ]
+}
