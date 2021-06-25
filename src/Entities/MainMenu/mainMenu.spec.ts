@@ -5,19 +5,23 @@ import { InMemoryEntityRepository } from '../GenericEntity/infra/InMemoryEntityR
 import { Visible } from '../../Component/Visible'
 import { InMemoryDrawingAdapter } from '../../Systems/Drawing/infra/InMemoryDrawingAdapter'
 import { ClientGameEventDispatcherSystem } from '../../Systems/GameEventDispatcher/ClientGameEventDispatcherSystem'
-import { createMainMenuEvent, MainMenuHide, MainMenuShow } from '../../Events/port/GameEvents'
+import { newEvent } from '../../Events/port/GameEvents'
 import { InMemorySystemRepository } from '../../Systems/Generic/infra/InMemorySystemInteractor'
 import { ClientLifeCycleSystem } from '../../Systems/LifeCycle/ClientLifeCycleSystem'
 import { DrawingSystem } from '../../Systems/Drawing/DrawingSystem'
 import { LifeCycle } from '../../Component/LifeCycle'
 import { FakeIdentifierAdapter } from '../../Systems/LifeCycle/infra/FakeIdentifierAdapter'
+import { EntityType } from '../../Events/port/EntityType'
+import { Action } from '../../Events/port/Action'
 
 describe('Feature Main Menu', () => {
+    const createMainMenuEvent = newEvent(Action.create, EntityType.mainMenu)
+    const mainMenuShowEvent = newEvent(Action.show, EntityType.mainMenu, 'mainMenu')
     describe('Scenario : Main Menu create', () => {
         const entityRepository = new InMemoryEntityRepository()
         const systemRepository = new InMemorySystemRepository()
         const clientGameEventSystem = new ClientGameEventDispatcherSystem(entityRepository, systemRepository)
-        systemRepository.addSystem(new ClientLifeCycleSystem(entityRepository, systemRepository, new FakeIdentifierAdapter(['Main Menu'])))
+        systemRepository.addSystem(new ClientLifeCycleSystem(entityRepository, systemRepository, new FakeIdentifierAdapter(['mainMenu'])))
         systemRepository.addSystem(clientGameEventSystem)
         it('When the Main Menu is created', () => {
             return clientGameEventSystem.onGameEvent(createMainMenuEvent)
@@ -32,7 +36,8 @@ describe('Feature Main Menu', () => {
             expect(entityRepository.retrieveEntityByClass(MainMenu).hasComponent(Visible)).to.be.true
         })
         it('And the event "Draw" with destination "Main Menu" is sent', () => {
-            expect(clientGameEventSystem.hasEvent(MainMenuShow)).is.true
+            console.log(clientGameEventSystem.gameEvents)
+            expect(clientGameEventSystem.hasEvent(mainMenuShowEvent)).is.true
         })
     })
     describe('Scenario : Main Menu on Draw event', () => {
@@ -43,14 +48,12 @@ describe('Feature Main Menu', () => {
         systemRepository.systems.add(new DrawingSystem(entityRepository, systemRepository, drawingAdapter))
         systemRepository.systems.add(new ClientLifeCycleSystem(entityRepository, systemRepository, new FakeIdentifierAdapter(['Main Menu'])))
         systemRepository.systems.add(clientGameEventSystem)
-        before(() => {
-            return clientGameEventSystem.onGameEvent(createMainMenuEvent)
-        })
+        before(() => clientGameEventSystem.onGameEvent(createMainMenuEvent))
         it('Given main is not visible', () => {
             expect(drawingAdapter.drawIds.length).equal(0)
         })
-        it(`When the clientGameEventSystem receive an event "${MainMenuShow.message}" with destination "${MainMenuShow.destination}"`, () => {
-            return clientGameEventSystem.onGameEvent(MainMenuShow)
+        it(`When the clientGameEventSystem receive an event "${mainMenuShowEvent.action}" with destination "${mainMenuShowEvent.targetEntityType}"`, () => {
+            return clientGameEventSystem.onGameEvent(mainMenuShowEvent)
         })
         it('And the Main Menu become visible', () => {
             expect(drawingAdapter.drawIds.length).equal(1)
@@ -63,14 +66,13 @@ describe('Feature Main Menu', () => {
         const clientGameEventSystem = new ClientGameEventDispatcherSystem(entityRepository, systemRepository)
         systemRepository.systems.add(new DrawingSystem(entityRepository, systemRepository, drawingAdapter))
         systemRepository.systems.add(clientGameEventSystem)
-        before(() => {
-            return clientGameEventSystem.onGameEvent(MainMenuShow)
-        })
+        const mainMenuHideEvent = newEvent(Action.hide, EntityType.mainMenu, 'mainMenu')
+        before(() => clientGameEventSystem.onGameEvent(mainMenuShowEvent))
         it('Given main is visible', () => {
             expect(drawingAdapter.drawIds.length).equal(1)
         })
         it('When the clientGameEventSystem receive an event "Hide" with destination "Main Menu"', () => {
-            return clientGameEventSystem.onGameEvent(MainMenuHide)
+            return clientGameEventSystem.onGameEvent(mainMenuHideEvent)
         })
         it('And the Main Menu is not visible', () => {
             expect(drawingAdapter.drawIds.length).equal(0)

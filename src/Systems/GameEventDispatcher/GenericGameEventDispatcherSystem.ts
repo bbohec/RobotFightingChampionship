@@ -4,10 +4,10 @@ import { GenericSystem } from '../Generic/GenericSystem'
 export abstract class GenericGameEventDispatcherSystem extends GenericSystem {
     public hasEvent (expectedEvent: GameEvent): boolean {
         const isEventsIdentical = (event:GameEvent, expectedEvent:GameEvent) => (
-            event.destination === expectedEvent.destination &&
-            event.message === expectedEvent.message &&
-            event.destinationId === expectedEvent.destinationId &&
-            event.sourceRef === expectedEvent.sourceRef
+            event.targetEntityType === expectedEvent.targetEntityType &&
+            event.action === expectedEvent.action &&
+            event.targetEntityId === expectedEvent.targetEntityId &&
+            event.originEntityId === expectedEvent.originEntityId
         )
         return this.gameEvents.some(event => isEventsIdentical(event, expectedEvent))
     }

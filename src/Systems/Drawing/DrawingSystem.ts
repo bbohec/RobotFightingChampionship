@@ -3,7 +3,7 @@ import { DrawingPort } from './port/DrawingPort'
 import { GenericSystem } from '../Generic/GenericSystem'
 import { EntityInteractor } from '../../Entities/GenericEntity/ports/EntityInteractor'
 import { SystemInteractor } from '../Generic/port/SystemInteractor'
-import { errorMessageOnUnknownEventAction } from '../../Events/port/GameEvents'
+import { errorMessageOnUnknownEventAction, MissingTargetEntityId } from '../../Events/port/GameEvents'
 export class DrawingSystem extends GenericSystem {
     constructor (interactWithEntities: EntityInteractor, interactWithSystems: SystemInteractor, drawingPort:DrawingPort) {
         super(interactWithEntities, interactWithSystems)
@@ -11,8 +11,9 @@ export class DrawingSystem extends GenericSystem {
     }
 
     onGameEvent (gameEvent: GameEvent): Promise<void> {
-        if (gameEvent.message === 'Show') return this.drawingPort.drawEntity(gameEvent.sourceRef)
-        if (gameEvent.message === 'Hide') return this.drawingPort.eraseEntity(gameEvent.sourceRef)
+        if (gameEvent.targetEntityId === undefined) throw new Error(MissingTargetEntityId)
+        if (gameEvent.action === 'Show') return this.drawingPort.drawEntity(gameEvent.targetEntityId)
+        if (gameEvent.action === 'Hide') return this.drawingPort.eraseEntity(gameEvent.targetEntityId)
         throw errorMessageOnUnknownEventAction(DrawingSystem.name, gameEvent)
     }
 

@@ -1,21 +1,72 @@
 import { GameEvent } from '../../Events/port/GameEvent'
-import { createSimpleMatchLobbyEvent, errorMessageOnUnknownEventAction, MatchWaitingForPlayers } from '../../Events/port/GameEvents'
+import { errorMessageOnUnknownEventAction, MissingOriginEntityId, newEvent } from '../../Events/port/GameEvents'
 import { ServerGame } from '../../Entities/ServerGame/ServerGame'
 import { ServerGameEventDispatcherSystem } from '../GameEventDispatcher/ServerGameEventDispatcherSystem'
 import { GenericLifeCycleSystem } from './GenericLifeCycleSystem'
 import { SimpleMatchLobby } from '../../Entities/SimpleMatchLobby/SimpleMatchLobby'
 import { Match } from '../../Entities/Match/Match'
 import { Playable } from '../../Component/Playable'
+import { Grid } from '../../Entities/Grid/Grid'
+import { Dimensional } from '../../Component/Dimensional'
+import { Action } from '../../Events/port/Action'
+import { EntityType } from '../../Events/port/EntityType'
+import { Tower } from '../../Entities/Tower/Tower'
 export class ServerLifeCycleSystem extends GenericLifeCycleSystem {
-    protected sendOptionnalNextEvent (nextEvent: GameEvent | undefined): Promise<void> {
-        return (nextEvent !== undefined) ? this.interactWithSystems.retrieveSystemByClass(ServerGameEventDispatcherSystem).sendEvent(nextEvent) : Promise.resolve()
+    onGameEvent (gameEvent: GameEvent): Promise<void> {
+        if (gameEvent.targetEntityType === EntityType.serverGame) return this.createServerGameEntity(this.interactWithIdentiers.nextIdentifier())
+        if (gameEvent.targetEntityType === EntityType.simpleMatchLobby) return this.createSimpleMatchLobbyEntity(this.interactWithIdentiers.nextIdentifier())
+        if (gameEvent.targetEntityType === EntityType.match) return this.createMatchEntity(this.interactWithIdentiers.nextIdentifier())
+        if (gameEvent.targetEntityType === EntityType.grid) return this.createGridEntity(this.interactWithIdentiers.nextIdentifier(), gameEvent)
+        if (gameEvent.targetEntityType === EntityType.tower) return this.createTowerEntity(this.interactWithIdentiers.nextIdentifier(), gameEvent)
+        throw new Error(errorMessageOnUnknownEventAction(ServerLifeCycleSystem.name, gameEvent))
     }
 
-    onGameEvent (gameEvent: GameEvent): Promise<void> {
-        const nextIdentifier = this.interactWithIdentiers.nextIdentifier()
-        if (gameEvent.destination === 'Server Game') return this.createEntity(new ServerGame('Server Game'), [], createSimpleMatchLobbyEvent)
-        if (gameEvent.destination === 'Simple Match Lobby') return this.createEntity(new SimpleMatchLobby('Simple Match Lobby'), [new Playable('Simple Match Lobby')])
-        if (gameEvent.destination === 'Match') return this.createEntity(new Match(nextIdentifier), [new Playable(nextIdentifier)], MatchWaitingForPlayers(nextIdentifier))
-        throw new Error(errorMessageOnUnknownEventAction(ServerLifeCycleSystem.name, gameEvent))
+    protected sendOptionnalNextEvent (nextEvent?: GameEvent | GameEvent[]): Promise<void> {
+        return (nextEvent === undefined)
+            ? Promise.resolve()
+            : (!Array.isArray(nextEvent))
+                ? this.interactWithSystems.retrieveSystemByClass(ServerGameEventDispatcherSystem).sendEvent(nextEvent)
+                : this.sendNextEvents(nextEvent)
+    }
+
+    private createServerGameEntity (serverGameEntityId: string): Promise<void> {
+        return this.createEntity(
+            new ServerGame(serverGameEntityId),
+            [],
+            newEvent(Action.create, EntityType.simpleMatchLobby)
+        )
+    }
+
+    private createSimpleMatchLobbyEntity (simpleMatchLobbyEntityId: string): Promise<void> {
+        return this.createEntity(
+            new SimpleMatchLobby(simpleMatchLobbyEntityId),
+            [new Playable(simpleMatchLobbyEntityId)]
+        )
+    }
+
+    private createMatchEntity (matchEntityId: string): Promise<void> {
+        return this.createEntity(
+            new Match(matchEntityId),
+            [new Playable(matchEntityId)],
+            newEvent(Action.waitingForPlayers, EntityType.simpleMatchLobby, undefined, matchEntityId)
+        )
+    }
+
+    private createGridEntity (gridEntityId: string, gameEvent: GameEvent): Promise<void> {
+        if (gameEvent.originEntityId === undefined) throw new Error(MissingOriginEntityId)
+        return this.createEntity(
+            new Grid(gridEntityId),
+            [new Dimensional(gridEntityId, { x: 25, y: 25 })],
+            newEvent(Action.register, EntityType.match, gameEvent.originEntityId, gridEntityId)
+        )
+    }
+
+    private createTowerEntity (towerEntityId:string, gameEvent:GameEvent): Promise<void> {
+        if (gameEvent.originEntityId === undefined) throw new Error(MissingOriginEntityId)
+        return this.createEntity(
+            new Tower(towerEntityId),
+            [],
+            newEvent(Action.register, EntityType.player, gameEvent.originEntityId, towerEntityId)
+        )
     }
 }
