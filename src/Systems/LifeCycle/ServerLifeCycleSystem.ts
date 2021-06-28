@@ -11,14 +11,24 @@ import { Dimensional } from '../../Component/Dimensional'
 import { Action } from '../../Events/port/Action'
 import { EntityType } from '../../Events/port/EntityType'
 import { Tower } from '../../Entities/Tower/Tower'
+import { Robot } from '../../Entities/Robot/Robot'
 export class ServerLifeCycleSystem extends GenericLifeCycleSystem {
     onGameEvent (gameEvent: GameEvent): Promise<void> {
-        if (gameEvent.targetEntityType === EntityType.serverGame) return this.createServerGameEntity(this.interactWithIdentiers.nextIdentifier())
-        if (gameEvent.targetEntityType === EntityType.simpleMatchLobby) return this.createSimpleMatchLobbyEntity(this.interactWithIdentiers.nextIdentifier())
-        if (gameEvent.targetEntityType === EntityType.match) return this.createMatchEntity(this.interactWithIdentiers.nextIdentifier())
-        if (gameEvent.targetEntityType === EntityType.grid) return this.createGridEntity(this.interactWithIdentiers.nextIdentifier(), gameEvent)
-        if (gameEvent.targetEntityType === EntityType.tower) return this.createTowerEntity(this.interactWithIdentiers.nextIdentifier(), gameEvent)
-        throw new Error(errorMessageOnUnknownEventAction(ServerLifeCycleSystem.name, gameEvent))
+        const strategy = this.retrieveStrategy(gameEvent)
+        if (!strategy) throw new Error(errorMessageOnUnknownEventAction(ServerLifeCycleSystem.name, gameEvent))
+        return strategy()
+    }
+
+    private retrieveStrategy (gameEvent:GameEvent):(()=>Promise<void>) | undefined {
+        const strategies = new Map([
+            [EntityType.serverGame, () => this.createServerGameEntity(this.interactWithIdentiers.nextIdentifier())],
+            [EntityType.simpleMatchLobby, () => this.createSimpleMatchLobbyEntity(this.interactWithIdentiers.nextIdentifier())],
+            [EntityType.match, () => this.createMatchEntity(this.interactWithIdentiers.nextIdentifier())],
+            [EntityType.grid, () => this.createGridEntity(this.interactWithIdentiers.nextIdentifier(), gameEvent)],
+            [EntityType.tower, () => this.createTowerEntity(this.interactWithIdentiers.nextIdentifier(), gameEvent)],
+            [EntityType.robot, () => this.createEntity(new Robot(this.interactWithIdentiers.nextIdentifier()))]
+        ])
+        return strategies.get(gameEvent.targetEntityType)
     }
 
     protected sendOptionnalNextEvent (nextEvent?: GameEvent | GameEvent[]): Promise<void> {

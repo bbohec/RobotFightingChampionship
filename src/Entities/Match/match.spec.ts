@@ -13,6 +13,7 @@ import { MatchSystem } from '../../Systems/Match/MatchSystem'
 import { Action } from '../../Events/port/Action'
 import { EntityType } from '../../Events/port/EntityType'
 import { GameEvent } from '../../Events/port/GameEvent'
+import { whenEventOccurs } from '../../Events/port/test'
 describe('Feature: Match', () => {
     const createMatchEvent = newEvent(Action.create, EntityType.match)
     describe('Scenario :On create', () => {
@@ -27,9 +28,7 @@ describe('Feature: Match', () => {
         it('Given there is no match', () => {
             expect(() => entityRepository.retrieveEntityByClass(Match)).to.throw()
         })
-        it(`On event with message '${createMatchEvent.action}' and destination '${createMatchEvent.targetEntityType}'`, () => {
-            return serverGameEventSystem.onGameEvent(createMatchEvent)
-        })
+        whenEventOccurs(serverGameEventSystem, createMatchEvent)
         it('Then the match is created', () => {
             expect(entityRepository.retrieveEntityByClass(Match).retrieveComponent(LifeCycle).isCreated).is.true
         })
@@ -61,9 +60,7 @@ describe('Feature: Match', () => {
             it('And the match don\'t have players', () => {
                 expect(entityRepository.retrieveEntityById(matchId).retrieveComponent(Playable).players.length).equal(0)
             })
-            it(`When event '${playerAJoinMatchEvent.action}' for '${playerAJoinMatchEvent.targetEntityType}'`, () => {
-                return serverGameEventSystem.onGameEvent(playerAJoinMatchEvent)
-            })
+            whenEventOccurs(serverGameEventSystem, playerAJoinMatchEvent)
             it(`Then the match has '${player}' on it's players`, () => {
                 expect(entityRepository.retrieveEntityById(matchId).retrieveComponent(Playable).players.includes(player)).is.true
             })
@@ -97,9 +94,7 @@ describe('Feature: Match', () => {
             it(`And the match has '${playerA}' on it's players`, () => {
                 expect(entityRepository.retrieveEntityById(matchId).retrieveComponent(Playable).players.includes(playerA)).is.true
             })
-            it(`When event '${playerBJoinMatchEvent.action}' for '${playerBJoinMatchEvent.targetEntityType}'`, () => {
-                return serverGameEventSystem.onGameEvent(playerBJoinMatchEvent)
-            })
+            whenEventOccurs(serverGameEventSystem, playerBJoinMatchEvent)
             it(`Then the match has '${playerB}' on it's players`, () => {
                 expect(entityRepository.retrieveEntityById(matchId).retrieveComponent(Playable).players.includes(playerB)).is.true
             })
@@ -126,9 +121,7 @@ describe('Feature: Match', () => {
             const entityRepository = new InMemoryEntityRepository()
             const systemRepository = new InMemorySystemRepository()
             const gameEventSystem = new ServerGameEventDispatcherSystem(entityRepository, systemRepository)
-            it(`When event '${event.action}' for '${event.targetEntityType} occurs'`, () => {
-                return gameEventSystem.onGameEvent(event)
-            })
+            whenEventOccurs(gameEventSystem, event)
         })
     })
 })

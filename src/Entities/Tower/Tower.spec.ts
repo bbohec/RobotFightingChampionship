@@ -14,6 +14,7 @@ import { InMemoryEntityRepository } from '../GenericEntity/infra/InMemoryEntityR
 import { Action } from '../../Events/port/Action'
 import { EntityType } from '../../Events/port/EntityType'
 import { Tower } from './Tower'
+import { whenEventOccurs } from '../../Events/port/test'
 
 const entityName = 'Tower'
 describe(`Feature : ${entityName}`, () => {
@@ -31,9 +32,7 @@ describe(`Feature : ${entityName}`, () => {
         it(`Given there is no ${entityName}`, () => {
             expect(() => entityRepository.retrieveEntityByClass(Tower)).to.throw()
         })
-        it(`When the event with message '${createTowerEventPlayer.action}' and destination '${createTowerEventPlayer.targetEntityType}'`, () => {
-            return gameEventSystem.onGameEvent(createTowerEventPlayer)
-        })
+        whenEventOccurs(gameEventSystem, createTowerEventPlayer)
         it(`Then the ${entityName} is created`, () => {
             expect(entityRepository.retrieveEntityById(towerId).retrieveComponent(LifeCycle).isCreated).is.true
         })

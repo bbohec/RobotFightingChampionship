@@ -16,6 +16,7 @@ import { Playable } from '../../Component/Playable'
 import { EntityType } from '../../Events/port/EntityType'
 import { Action } from '../../Events/port/Action'
 import { GameEvent } from '../../Events/port/GameEvent'
+import { whenEventOccurs } from '../../Events/port/test'
 
 describe('Feature: Simple Match Lobby', () => {
     const createSimpleMatchLobbyEvent = newEvent(Action.create, EntityType.simpleMatchLobby)
@@ -32,9 +33,7 @@ describe('Feature: Simple Match Lobby', () => {
             it('Given there is no Simple Match Lobby entity', () => {
                 expect(() => entityRepository.retrieveEntityByClass(SimpleMatchLobby)).to.throw()
             })
-            it(`When there is an event '${createSimpleMatchLobbyEvent.action}' with destination '${createSimpleMatchLobbyEvent.targetEntityType}'`, () => {
-                return gameEventDispatcherSystem.onGameEvent(createSimpleMatchLobbyEvent)
-            })
+            whenEventOccurs(gameEventDispatcherSystem, createSimpleMatchLobbyEvent)
             it('And the Simple Match Lobby is created', () => {
                 expect(entityRepository.retrieveEntityByClass(SimpleMatchLobby).retrieveComponent(LifeCycle).isCreated).is.true
             })
@@ -61,9 +60,7 @@ describe('Feature: Simple Match Lobby', () => {
             it('Given there is no Simple Match Lobby entity', () => {
                 expect(() => entityRepository.retrieveEntityByClass(SimpleMatchLobby)).to.throw()
             })
-            it(`When there is an event '${createSimpleMatchLobbyEvent.action}' with destination '${createSimpleMatchLobbyEvent.targetEntityType}'`, () => {
-                return serverGameEventDispatcherSystem.onGameEvent(createSimpleMatchLobbyEvent)
-            })
+            whenEventOccurs(serverGameEventDispatcherSystem, createSimpleMatchLobbyEvent)
             it('And the Simple Match Lobby is created', () => {
                 expect(entityRepository.retrieveEntityByClass(SimpleMatchLobby).retrieveComponent(LifeCycle).isCreated).is.true
             })
@@ -86,9 +83,7 @@ describe('Feature: Simple Match Lobby', () => {
                 it('Given there is a Simple Match Lobby created', () => {
                     expect(entityRepository.retrieveEntityByClass(SimpleMatchLobby).retrieveComponent(LifeCycle).isCreated).is.true
                 })
-                it(`When event '${playerWantJoinSimpleMatchLobby(player).action}' for '${playerWantJoinSimpleMatchLobby(player).targetEntityType}'`, () => {
-                    return serverGameEventDispatcherSystem.onGameEvent(playerWantJoinSimpleMatchLobby(player))
-                })
+                whenEventOccurs(serverGameEventDispatcherSystem, playerWantJoinSimpleMatchLobby(player))
                 it('Then the Simple Match Lobby has "Player A" ref on players', () => {
                     expect(entityRepository.retrieveEntityByClass(SimpleMatchLobby).retrieveComponent(Playable).players.some(playerid => playerid === player)).is.true
                 })
@@ -109,9 +104,7 @@ describe('Feature: Simple Match Lobby', () => {
                 it('Given there is a Simple Match Lobby created', () => {
                     expect(entityRepository.retrieveEntityByClass(SimpleMatchLobby).retrieveComponent(LifeCycle).isCreated).is.true
                 })
-                players.forEach(player => it(`When events '${playerWantJoinSimpleMatchLobby(player).action}' for '${playerWantJoinSimpleMatchLobby(player).targetEntityType}'`, () => {
-                    return serverGameEventDispatcherSystem.onGameEvent(playerWantJoinSimpleMatchLobby(player))
-                }))
+                players.forEach(player => whenEventOccurs(serverGameEventDispatcherSystem, playerWantJoinSimpleMatchLobby(player)))
                 it(`Then the Simple Match Lobby has the following players on Waiting Area : ${players}`, () => {
                     expect(entityRepository.retrieveEntityByClass(SimpleMatchLobby).retrieveComponent(Playable).players).deep.equal(players)
                 })
@@ -138,9 +131,7 @@ describe('Feature: Simple Match Lobby', () => {
                         return Promise.all([...expectedAddedPlayers, ...expectedStillWaitingPlayers].map(player => serverGameEventDispatcherSystem.onGameEvent(playerWantJoinSimpleMatchLobby(player))))
                             .then(() => expect(entityRepository.retrieveEntityByClass(SimpleMatchLobby).retrieveComponent(Playable).players).deep.equal([...expectedAddedPlayers, ...expectedStillWaitingPlayers]))
                     })
-                    it(`When event '${matchWaitingForPlayers(matchId).action}' for '${matchWaitingForPlayers(matchId).targetEntityType}'`, () => {
-                        return serverGameEventDispatcherSystem.onGameEvent(matchWaitingForPlayers(matchId))
-                    })
+                    whenEventOccurs(serverGameEventDispatcherSystem, matchWaitingForPlayers(matchId))
                     it(`Then there is the following players that are still waiting on the lobby: ${expectedStillWaitingPlayers}`, () => {
                         expect(entityRepository.retrieveEntityByClass(SimpleMatchLobby).retrieveComponent(Playable).players).deep.equal(expectedStillWaitingPlayers)
                     })

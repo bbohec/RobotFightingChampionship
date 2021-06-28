@@ -11,6 +11,7 @@ import { FakeIdentifierAdapter } from '../../Systems/LifeCycle/infra/FakeIdentif
 import { ClientMatchMakingSystem } from '../../Systems/Match/ClientMatchSystem'
 import { EntityType } from '../../Events/port/EntityType'
 import { Action } from '../../Events/port/Action'
+import { whenEventOccurs } from '../../Events/port/test'
 
 describe('Feature : Client Game', () => {
     describe('Scenario : Client Game Create', () => {
@@ -20,9 +21,7 @@ describe('Feature : Client Game', () => {
         systemRepository.addSystem(gameEventDispatcherSystem)
         systemRepository.addSystem(new ClientLifeCycleSystem(entityRepository, systemRepository, new FakeIdentifierAdapter(['Client Game'])))
         const createMainMenuEvent = newEvent(Action.create, EntityType.mainMenu)
-        it('When the Client Game is created', () => {
-            return gameEventDispatcherSystem.onGameEvent(newEvent(Action.create, EntityType.clientGame))
-        })
+        whenEventOccurs(gameEventDispatcherSystem, newEvent(Action.create, EntityType.clientGame))
         it('Then the Client Game is on entities repository', () => {
             expect(() => entityRepository.retrieveEntityByClass(ClientGame)).to.not.throw()
         })
@@ -49,9 +48,7 @@ describe('Feature : Client Game', () => {
         it('Given the Client Game is created', () => {
             expect(entityRepository.retrieveEntityByClass(ClientGame).retrieveComponent(LifeCycle).isCreated).is.true
         })
-        it(`When the clientGameEventSystem receive an event message "${joinSimpleMatchClientEvent.action}" with destination "${joinSimpleMatchClientEvent.targetEntityType}"`, () => {
-            return gameEventDispatcherSystem.onGameEvent(joinSimpleMatchClientEvent)
-        })
+        whenEventOccurs(gameEventDispatcherSystem, joinSimpleMatchClientEvent)
         it(`Then an event is sent with message "${joinSimpleMatchServerEvent.action}" is sent to the "${joinSimpleMatchServerEvent.targetEntityType}"`, () => {
             expect(gameEventDispatcherSystem.hasEvent(joinSimpleMatchServerEvent)).is.true
         })

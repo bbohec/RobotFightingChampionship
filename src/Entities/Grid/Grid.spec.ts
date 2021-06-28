@@ -15,6 +15,7 @@ import { Grid } from './Grid'
 import { Dimension, Dimensional } from '../../Component/Dimensional'
 import { Action } from '../../Events/port/Action'
 import { EntityType } from '../../Events/port/EntityType'
+import { whenEventOccurs } from '../../Events/port/test'
 
 const entityName = 'Grid'
 describe(`Feature : ${entityName}`, () => {
@@ -33,9 +34,7 @@ describe(`Feature : ${entityName}`, () => {
         it(`Given there is no ${entityName}`, () => {
             expect(() => entityRepository.retrieveEntityByClass(Grid)).to.throw()
         })
-        it(`When the event with message '${createGridEvent(matchId).action}' and destination '${createGridEvent(matchId).targetEntityType}'`, () => {
-            return gameEventSystem.onGameEvent(createGridEvent(matchId))
-        })
+        whenEventOccurs(gameEventSystem, createGridEvent(matchId))
         it(`Then the ${entityName} is created`, () => {
             expect(entityRepository.retrieveEntityById(gridId).retrieveComponent(LifeCycle).isCreated).is.true
         })

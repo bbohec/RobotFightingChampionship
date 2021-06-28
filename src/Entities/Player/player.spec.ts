@@ -1,15 +1,18 @@
+import { describe, before, it } from 'mocha'
+import { expect } from 'chai'
 import { Action } from '../../Events/port/Action'
 import { EntityType } from '../../Events/port/EntityType'
 import { newEvent } from '../../Events/port/GameEvents'
-
-/*
-Feature : Player
-    Scenario: Player join simple match
-        Given a player "Player A"
-        When the player join a simple match
-        Then the event "'Player A' want to join a simple match" is sent to the Client Game
-
-*/
+import { whenEventOccurs } from '../../Events/port/test'
+import { ServerGameEventDispatcherSystem } from '../../Systems/GameEventDispatcher/ServerGameEventDispatcherSystem'
+import { InMemoryEntityRepository } from '../GenericEntity/infra/InMemoryEntityRepository'
+import { InMemorySystemRepository } from '../../Systems/Generic/infra/InMemorySystemInteractor'
 const playerId = 'Player A'
 const towerId = 'Tower'
-const registerTowerOnPlayerEvent = newEvent(Action.register, EntityType.player, playerId, towerId)
+describe.skip('Feature Player', () => {
+    const entityRepository = new InMemoryEntityRepository()
+    const systemRepository = new InMemorySystemRepository()
+    const eventDispatcherSystem = new ServerGameEventDispatcherSystem(entityRepository, systemRepository)
+    const registerTowerOnPlayerEvent = newEvent(Action.register, EntityType.player, playerId, towerId)
+    whenEventOccurs(eventDispatcherSystem, registerTowerOnPlayerEvent)
+})
