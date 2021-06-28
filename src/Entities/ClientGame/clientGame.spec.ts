@@ -20,8 +20,8 @@ describe('Feature : Client Game', () => {
         const gameEventDispatcherSystem = new ClientGameEventDispatcherSystem(entityRepository, systemRepository)
         systemRepository.addSystem(gameEventDispatcherSystem)
         systemRepository.addSystem(new ClientLifeCycleSystem(entityRepository, systemRepository, new FakeIdentifierAdapter(['Client Game'])))
-        const createMainMenuEvent = newEvent(Action.create, EntityType.mainMenu)
-        whenEventOccurs(gameEventDispatcherSystem, newEvent(Action.create, EntityType.clientGame))
+        const createMainMenuEvent = newEvent(Action.create, EntityType.nothing, EntityType.mainMenu)
+        whenEventOccurs(gameEventDispatcherSystem, newEvent(Action.create, EntityType.nothing, EntityType.clientGame))
         it('Then the Client Game is on entities repository', () => {
             expect(() => entityRepository.retrieveEntityByClass(ClientGame)).to.not.throw()
         })
@@ -40,11 +40,11 @@ describe('Feature : Client Game', () => {
         systemRepository.addSystem(new ClientLifeCycleSystem(entityRepository, systemRepository, new FakeIdentifierAdapter(['Client Game'])))
         systemRepository.addSystem(new ClientMatchMakingSystem(entityRepository, systemRepository))
         const player = 'Player B'
-        const joinSimpleMatchClientEvent = newEvent(Action.wantToJoin, EntityType.clientGame, undefined, player)
-        const joinSimpleMatchServerEvent = newEvent(Action.wantToJoin, EntityType.serverGame, undefined, player)
-        const matchMakingShowEvent = newEvent(Action.show, EntityType.matchMaking)
-        const mainMenuHideEvent = newEvent(Action.hide, EntityType.mainMenu)
-        before(() => gameEventDispatcherSystem.onGameEvent(newEvent(Action.create, EntityType.clientGame)))
+        const joinSimpleMatchClientEvent = newEvent(Action.wantToJoin, EntityType.nothing, EntityType.clientGame, undefined, player)
+        const joinSimpleMatchServerEvent = newEvent(Action.wantToJoin, EntityType.nothing, EntityType.serverGame, undefined, player)
+        const matchMakingShowEvent = newEvent(Action.show, EntityType.nothing, EntityType.matchMaking)
+        const mainMenuHideEvent = newEvent(Action.hide, EntityType.nothing, EntityType.mainMenu)
+        before(() => gameEventDispatcherSystem.onGameEvent(newEvent(Action.create, EntityType.nothing, EntityType.clientGame)))
         it('Given the Client Game is created', () => {
             expect(entityRepository.retrieveEntityByClass(ClientGame).retrieveComponent(LifeCycle).isCreated).is.true
         })

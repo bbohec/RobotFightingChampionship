@@ -16,8 +16,8 @@ import { Action } from '../../Events/port/Action'
 import { whenEventOccurs } from '../../Events/port/test'
 
 describe('Feature Main Menu', () => {
-    const createMainMenuEvent = newEvent(Action.create, EntityType.mainMenu)
-    const mainMenuShowEvent = newEvent(Action.show, EntityType.mainMenu, 'mainMenu')
+    const createMainMenuEvent = newEvent(Action.create, EntityType.nothing, EntityType.mainMenu)
+    const mainMenuShowEvent = newEvent(Action.show, EntityType.nothing, EntityType.mainMenu, 'mainMenu')
     describe('Scenario : Main Menu create', () => {
         const entityRepository = new InMemoryEntityRepository()
         const systemRepository = new InMemorySystemRepository()
@@ -62,7 +62,7 @@ describe('Feature Main Menu', () => {
         const gameEventSystem = new ClientGameEventDispatcherSystem(entityRepository, systemRepository)
         systemRepository.systems.add(new DrawingSystem(entityRepository, systemRepository, drawingAdapter))
         systemRepository.systems.add(gameEventSystem)
-        const mainMenuHideEvent = newEvent(Action.hide, EntityType.mainMenu, 'mainMenu')
+        const mainMenuHideEvent = newEvent(Action.hide, EntityType.nothing, EntityType.mainMenu, 'mainMenu')
         before(() => gameEventSystem.onGameEvent(mainMenuShowEvent))
         it('Given main is visible', () => {
             expect(drawingAdapter.drawIds.length).equal(1)

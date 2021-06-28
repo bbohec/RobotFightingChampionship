@@ -21,7 +21,7 @@ export class ClientLifeCycleSystem extends GenericLifeCycleSystem {
         return this.createEntity(
             new MainMenu(mainMenuEntityId),
             [new Visible(mainMenuEntityId)],
-            newEvent(Action.show, EntityType.mainMenu, mainMenuEntityId)
+            newEvent(Action.show, EntityType.nothing, EntityType.mainMenu, mainMenuEntityId)
         )
     }
 
@@ -30,8 +30,8 @@ export class ClientLifeCycleSystem extends GenericLifeCycleSystem {
             new SimpleMatchLobby(simpleMachtLobbyEntityId),
             [new Visible(simpleMachtLobbyEntityId)],
             [
-                newEvent(Action.show, EntityType.simpleMatchLobby),
-                newEvent(Action.hide, EntityType.mainMenu)
+                newEvent(Action.show, EntityType.nothing, EntityType.simpleMatchLobby),
+                newEvent(Action.hide, EntityType.nothing, EntityType.mainMenu)
             ]
         )
     }
@@ -40,7 +40,7 @@ export class ClientLifeCycleSystem extends GenericLifeCycleSystem {
         return this.createEntity(
             new ClientGame(clientGameEntityId),
             [],
-            newEvent(Action.create, EntityType.mainMenu)
+            newEvent(Action.create, EntityType.nothing, EntityType.mainMenu)
         )
     }
 

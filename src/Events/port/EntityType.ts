@@ -11,5 +11,6 @@ export enum EntityType {
     tower = 'Tower',
     robot = 'Robot',
     grid = 'Grid',
-    player = 'player'
+    player = 'player',
+    nothing = 'nothing'
 }

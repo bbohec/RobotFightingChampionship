@@ -27,8 +27,8 @@ describe(`Feature : ${entityName}`, () => {
         const gameEventSystem = new ServerGameEventDispatcherSystem(entityRepository, systemRepository)
         systemRepository.addSystem(lifeCycleSystem)
         systemRepository.addSystem(gameEventSystem)
-        const createTowerEventPlayer = newEvent(Action.create, EntityType.tower, undefined, playerId)
-        const registerTowerOnPlayerEvent = newEvent(Action.register, EntityType.player, playerId, towerId)
+        const createTowerEventPlayer = newEvent(Action.create, EntityType.nothing, EntityType.tower, undefined, playerId)
+        const registerTowerOnPlayerEvent = newEvent(Action.register, EntityType.nothing, EntityType.player, playerId, towerId)
         it(`Given there is no ${entityName}`, () => {
             expect(() => entityRepository.retrieveEntityByClass(Tower)).to.throw()
         })

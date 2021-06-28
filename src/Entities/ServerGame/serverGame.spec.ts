@@ -18,10 +18,10 @@ describe('Feature Server Game', () => {
         const systemRepository = new InMemorySystemRepository()
         const serverGameEventDispatcherSystem = new ServerGameEventDispatcherSystem(entityRepository, systemRepository)
         const serverLifeCycleSystem = new ServerLifeCycleSystem(entityRepository, systemRepository, new FakeIdentifierAdapter())
-        const createSimpleMatchLobbyEvent = newEvent(Action.create, EntityType.simpleMatchLobby)
+        const createSimpleMatchLobbyEvent = newEvent(Action.create, EntityType.nothing, EntityType.simpleMatchLobby)
         systemRepository.addSystem(serverGameEventDispatcherSystem)
         systemRepository.addSystem(serverLifeCycleSystem)
-        whenEventOccurs(serverGameEventDispatcherSystem, newEvent(Action.create, EntityType.serverGame))
+        whenEventOccurs(serverGameEventDispatcherSystem, newEvent(Action.create, EntityType.nothing, EntityType.serverGame))
         it('Then the Server Game is created', () => {
             expect(entityRepository.retrieveEntityByClass(ServerGame).retrieveComponent(LifeCycle).isCreated).is.true
         })

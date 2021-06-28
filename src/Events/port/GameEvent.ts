@@ -4,5 +4,6 @@ export interface GameEvent {
     action:Action
     targetEntityType:EntityType
     targetEntityId?:string
+    originEntityType: EntityType
     originEntityId?:string
 }

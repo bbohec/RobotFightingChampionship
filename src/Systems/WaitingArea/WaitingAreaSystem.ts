@@ -27,7 +27,7 @@ export class WaitingAreaSystem extends GenericSystem {
         const playersToJoinMatch = [players.shift()!, players.shift()!]
         return Promise.all(playersToJoinMatch.map(player => this.interactWithSystems
             .retrieveSystemByClass(ServerGameEventDispatcherSystem)
-            .sendEvent(newEvent(Action.playerJoinMatch, EntityType.match, matchId, player)))
+            .sendEvent(newEvent(Action.playerJoinMatch, EntityType.nothing, EntityType.match, matchId, player)))
         )
             .then(() => Promise.resolve())
             .catch(error => Promise.reject(error))
@@ -40,7 +40,7 @@ export class WaitingAreaSystem extends GenericSystem {
 
     private createMatchForEachTwoPlayers (players: string[]): Promise<void> {
         return (players.length % 2 === 0)
-            ? this.interactWithSystems.retrieveSystemByClass(ServerGameEventDispatcherSystem).sendEvent(newEvent(Action.create, EntityType.match))
+            ? this.interactWithSystems.retrieveSystemByClass(ServerGameEventDispatcherSystem).sendEvent(newEvent(Action.create, EntityType.nothing, EntityType.match))
             : Promise.resolve()
     }
 }

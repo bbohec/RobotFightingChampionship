@@ -7,5 +7,6 @@ export enum Action {
     waitingForPlayers = 'Waiting for players',
     playerJoinMatch = 'Player join match',
     create = 'Create',
-    register = 'Register'
+    register = 'Register',
+    ready = 'ready'
 }

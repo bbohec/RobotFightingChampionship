@@ -14,22 +14,28 @@ import { InMemorySystemRepository } from '../../Systems/Generic/infra/InMemorySy
 import { ServerLifeCycleSystem } from '../../Systems/LifeCycle/ServerLifeCycleSystem'
 import { FakeIdentifierAdapter } from '../../Systems/LifeCycle/infra/FakeIdentifierAdapter'
 import { Robot } from './Robot'
+import { LifeCycle } from '../../Component/LifeCycle'
 describe('Feature : Robot', () => {
     describe('On create', () => {
         const player = 'Player A'
-        const createRobotEventPlayer = newEvent(Action.create, EntityType.robot, undefined, player)
+        const robotId = 'Robot'
+        const createRobotEventPlayer = newEvent(Action.create, EntityType.nothing, EntityType.robot, undefined, player)
         const entityRepository = new InMemoryEntityRepository()
         const systemRepository = new InMemorySystemRepository()
         const gameEventSystem = new ServerGameEventDispatcherSystem(entityRepository, systemRepository)
-        const lifeCycleSystem = new ServerLifeCycleSystem(entityRepository, systemRepository, new FakeIdentifierAdapter())
+        const lifeCycleSystem = new ServerLifeCycleSystem(entityRepository, systemRepository, new FakeIdentifierAdapter([robotId]))
         systemRepository.addSystem(lifeCycleSystem)
+        systemRepository.addSystem(gameEventSystem)
+        const registerRobotOnPlayerEvent = newEvent(Action.register, EntityType.nothing, EntityType.player, player, robotId)
         it('Given there is no Robot', () => {
             expect(() => entityRepository.retrieveEntityByClass(Robot)).to.throw()
         })
-
         whenEventOccurs(gameEventSystem, createRobotEventPlayer)
-        it.skip('Then the Robot is created', () => {
-            // expect(entityRepository.retrieveEntityByClass(Match).retrieveComponent(LifeCycle).isCreated).is.true
+        it('Then the Robot is created', () => {
+            expect(entityRepository.retrieveEntityByClass(Robot).retrieveComponent(LifeCycle).isCreated).is.true
+        })
+        it(`And the event "${registerRobotOnPlayerEvent.action}" is sent to "${registerRobotOnPlayerEvent.targetEntityType}" for the game "${registerRobotOnPlayerEvent.originEntityId}"`, () => {
+            expect(gameEventSystem.hasEvent(registerRobotOnPlayerEvent)).is.true
         })
     })
 })

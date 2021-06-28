@@ -29,8 +29,8 @@ describe(`Feature : ${entityName}`, () => {
         const gameEventSystem = new ServerGameEventDispatcherSystem(entityRepository, systemRepository)
         systemRepository.addSystem(gameEventSystem)
         const expectedDimention:Dimension = { x: 25, y: 25 }
-        const registerGridOnMatchEvent = newEvent(Action.register, EntityType.match, matchId, gridId)
-        const createGridEvent = (matchId:string) => newEvent(Action.create, EntityType.grid, undefined, matchId)
+        const registerGridOnMatchEvent = newEvent(Action.register, EntityType.nothing, EntityType.match, matchId, gridId)
+        const createGridEvent = (matchId:string) => newEvent(Action.create, EntityType.nothing, EntityType.grid, undefined, matchId)
         it(`Given there is no ${entityName}`, () => {
             expect(() => entityRepository.retrieveEntityByClass(Grid)).to.throw()
         })

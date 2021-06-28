@@ -19,7 +19,7 @@ import { GameEvent } from '../../Events/port/GameEvent'
 import { whenEventOccurs } from '../../Events/port/test'
 
 describe('Feature: Simple Match Lobby', () => {
-    const createSimpleMatchLobbyEvent = newEvent(Action.create, EntityType.simpleMatchLobby)
+    const createSimpleMatchLobbyEvent = newEvent(Action.create, EntityType.nothing, EntityType.simpleMatchLobby)
     describe('Client', () => {
         describe('Scenarios: On Create', () => {
             const entityRepository = new InMemoryEntityRepository()
@@ -28,8 +28,8 @@ describe('Feature: Simple Match Lobby', () => {
             const gameEventDispatcherSystem = new ClientGameEventDispatcherSystem(entityRepository, systemRepository)
             systemRepository.addSystem(lifeCycleSystem)
             systemRepository.addSystem(gameEventDispatcherSystem)
-            const mainMenuHideEvent = newEvent(Action.hide, EntityType.mainMenu)
-            const simpleMatchLobbyShow = newEvent(Action.show, EntityType.simpleMatchLobby)
+            const mainMenuHideEvent = newEvent(Action.hide, EntityType.nothing, EntityType.mainMenu)
+            const simpleMatchLobbyShow = newEvent(Action.show, EntityType.nothing, EntityType.simpleMatchLobby)
             it('Given there is no Simple Match Lobby entity', () => {
                 expect(() => entityRepository.retrieveEntityByClass(SimpleMatchLobby)).to.throw()
             })
@@ -49,7 +49,7 @@ describe('Feature: Simple Match Lobby', () => {
         })
     })
     describe('Server', () => {
-        const playerWantJoinSimpleMatchLobby = (player:string) => newEvent(Action.wantToJoin, EntityType.simpleMatchLobby, undefined, player)
+        const playerWantJoinSimpleMatchLobby = (player:string) => newEvent(Action.wantToJoin, EntityType.nothing, EntityType.simpleMatchLobby, undefined, player)
         describe('Scenarios: On Create', () => {
             const entityRepository = new InMemoryEntityRepository()
             const systemRepository = new InMemorySystemRepository()
@@ -99,7 +99,7 @@ describe('Feature: Simple Match Lobby', () => {
                 systemRepository.addSystem(waitingAreaSystem)
                 const players = ['Player A', 'Player B', 'Player A', 'Player B', 'Player B', 'Player B', 'Player B', 'Player C']
                 const expectedEventQty = players.length / 2 - (players.length % 2 / 2)
-                const createMatchEvent = newEvent(Action.create, EntityType.match)
+                const createMatchEvent = newEvent(Action.create, EntityType.nothing, EntityType.match)
                 before(() => serverGameEventDispatcherSystem.onGameEvent(createSimpleMatchLobbyEvent))
                 it('Given there is a Simple Match Lobby created', () => {
                     expect(entityRepository.retrieveEntityByClass(SimpleMatchLobby).retrieveComponent(LifeCycle).isCreated).is.true
@@ -125,7 +125,7 @@ describe('Feature: Simple Match Lobby', () => {
                     const expectedAddedPlayers = ['Player A', 'Player B']
                     const expectedStillWaitingPlayers = ['Player C', 'Player D']
                     const matchId = '0000'
-                    const matchWaitingForPlayers = (matchId:string):GameEvent => newEvent(Action.waitingForPlayers, EntityType.simpleMatchLobby, undefined, matchId)
+                    const matchWaitingForPlayers = (matchId:string):GameEvent => newEvent(Action.waitingForPlayers, EntityType.nothing, EntityType.simpleMatchLobby, undefined, matchId)
                     before(() => serverGameEventDispatcherSystem.onGameEvent(createSimpleMatchLobbyEvent))
                     it(`Given there is 4 players on the game registered on the following order: ${[...expectedAddedPlayers, ...expectedStillWaitingPlayers]}`, () => {
                         return Promise.all([...expectedAddedPlayers, ...expectedStillWaitingPlayers].map(player => serverGameEventDispatcherSystem.onGameEvent(playerWantJoinSimpleMatchLobby(player))))
@@ -136,7 +136,7 @@ describe('Feature: Simple Match Lobby', () => {
                         expect(entityRepository.retrieveEntityByClass(SimpleMatchLobby).retrieveComponent(Playable).players).deep.equal(expectedStillWaitingPlayers)
                     })
                     it('And there is 2 events \'Player join match\' for the \'0000\' Match', () => {
-                        const playerJoinMatchEvent = (player:string, matchId:string): GameEvent => newEvent(Action.playerJoinMatch, EntityType.match, matchId, player)
+                        const playerJoinMatchEvent = (player:string, matchId:string): GameEvent => newEvent(Action.playerJoinMatch, EntityType.nothing, EntityType.match, matchId, player)
                         expect(serverGameEventDispatcherSystem.hasEvent(playerJoinMatchEvent(expectedAddedPlayers[0], matchId))).is.true
                         expect(serverGameEventDispatcherSystem.hasEvent(playerJoinMatchEvent(expectedAddedPlayers[1], matchId))).is.true
                     })

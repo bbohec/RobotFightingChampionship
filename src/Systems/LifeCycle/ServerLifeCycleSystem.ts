@@ -12,6 +12,8 @@ import { Action } from '../../Events/port/Action'
 import { EntityType } from '../../Events/port/EntityType'
 import { Tower } from '../../Entities/Tower/Tower'
 import { Robot } from '../../Entities/Robot/Robot'
+import { Player } from '../../Entities/Player/Player'
+import { EntityReference } from '../../Component/EntityReference'
 export class ServerLifeCycleSystem extends GenericLifeCycleSystem {
     onGameEvent (gameEvent: GameEvent): Promise<void> {
         const strategy = this.retrieveStrategy(gameEvent)
@@ -26,9 +28,22 @@ export class ServerLifeCycleSystem extends GenericLifeCycleSystem {
             [EntityType.match, () => this.createMatchEntity(this.interactWithIdentiers.nextIdentifier())],
             [EntityType.grid, () => this.createGridEntity(this.interactWithIdentiers.nextIdentifier(), gameEvent)],
             [EntityType.tower, () => this.createTowerEntity(this.interactWithIdentiers.nextIdentifier(), gameEvent)],
-            [EntityType.robot, () => this.createEntity(new Robot(this.interactWithIdentiers.nextIdentifier()))]
+            [EntityType.player, () => this.createPlayerEntity(this.interactWithIdentiers.nextIdentifier(), gameEvent)],
+            [EntityType.robot, () => this.createRobotEntity(this.interactWithIdentiers.nextIdentifier(), gameEvent)]
         ])
         return strategies.get(gameEvent.targetEntityType)
+    }
+
+    private createPlayerEntity (playerEntityId: string, gameEvent: GameEvent): Promise<void> {
+        return this.createEntity(
+            new Player(playerEntityId),
+            [new EntityReference(playerEntityId)],
+            undefined
+        )
+    }
+
+    private createRobotEntity (robotEntityId:string, gameEvent:GameEvent): Promise<void> {
+        return this.createEntity(new Robot(robotEntityId), undefined, newEvent(Action.register, EntityType.nothing, EntityType.player, gameEvent.originEntityId, robotEntityId))
     }
 
     protected sendOptionnalNextEvent (nextEvent?: GameEvent | GameEvent[]): Promise<void> {
@@ -43,7 +58,7 @@ export class ServerLifeCycleSystem extends GenericLifeCycleSystem {
         return this.createEntity(
             new ServerGame(serverGameEntityId),
             [],
-            newEvent(Action.create, EntityType.simpleMatchLobby)
+            newEvent(Action.create, EntityType.nothing, EntityType.simpleMatchLobby)
         )
     }
 
@@ -57,8 +72,8 @@ export class ServerLifeCycleSystem extends GenericLifeCycleSystem {
     private createMatchEntity (matchEntityId: string): Promise<void> {
         return this.createEntity(
             new Match(matchEntityId),
-            [new Playable(matchEntityId)],
-            newEvent(Action.waitingForPlayers, EntityType.simpleMatchLobby, undefined, matchEntityId)
+            [new Playable(matchEntityId), new EntityReference(matchEntityId)],
+            newEvent(Action.waitingForPlayers, EntityType.nothing, EntityType.simpleMatchLobby, undefined, matchEntityId)
         )
     }
 
@@ -67,7 +82,7 @@ export class ServerLifeCycleSystem extends GenericLifeCycleSystem {
         return this.createEntity(
             new Grid(gridEntityId),
             [new Dimensional(gridEntityId, { x: 25, y: 25 })],
-            newEvent(Action.register, EntityType.match, gameEvent.originEntityId, gridEntityId)
+            newEvent(Action.register, EntityType.nothing, EntityType.match, gameEvent.originEntityId, gridEntityId)
         )
     }
 
@@ -76,7 +91,7 @@ export class ServerLifeCycleSystem extends GenericLifeCycleSystem {
         return this.createEntity(
             new Tower(towerEntityId),
             [],
-            newEvent(Action.register, EntityType.player, gameEvent.originEntityId, towerEntityId)
+            newEvent(Action.register, EntityType.nothing, EntityType.player, gameEvent.originEntityId, towerEntityId)
         )
     }
 }
