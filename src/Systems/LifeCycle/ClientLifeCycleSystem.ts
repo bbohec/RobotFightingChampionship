@@ -4,7 +4,6 @@ import { GameEvent } from '../../Events/port/GameEvent'
 import { errorMessageOnUnknownEventAction, newEvent } from '../../Events/port/GameEvents'
 import { MainMenu } from '../../Entities/MainMenu/MainMenu'
 import { GenericLifeCycleSystem } from './GenericLifeCycleSystem'
-import { ClientGameEventDispatcherSystem } from '../GameEventDispatcher/ClientGameEventDispatcherSystem'
 import { SimpleMatchLobby } from '../../Entities/SimpleMatchLobby/SimpleMatchLobby'
 import { EntityType } from '../../Events/port/EntityType'
 import { Action } from '../../Events/port/Action'
@@ -42,13 +41,5 @@ export class ClientLifeCycleSystem extends GenericLifeCycleSystem {
             [],
             newEvent(Action.create, EntityType.nothing, EntityType.mainMenu)
         )
-    }
-
-    protected sendOptionnalNextEvent (nextEvent?: GameEvent | GameEvent[]): Promise<void> {
-        return (nextEvent === undefined)
-            ? Promise.resolve()
-            : (!Array.isArray(nextEvent))
-                ? this.interactWithSystems.retrieveSystemByClass(ClientGameEventDispatcherSystem).sendEvent(nextEvent)
-                : this.sendNextEvents(nextEvent)
     }
 }

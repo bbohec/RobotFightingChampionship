@@ -21,6 +21,11 @@ export abstract class GenericEntity implements Entity, ComponentManagement {
         throw new Error(`Component '${potentialComponent.name}' missing on entity id '${this.id}'`)
     }
 
+    deleteComponent <Class extends Component> (potentialComponent: PotentialClass<Class>):void {
+        const isDeleted = this.components.delete(this.retrieveComponent(potentialComponent))
+        if (!isDeleted) throw new Error(`Component '${potentialComponent.name}' is not deleted.`)
+    }
+
     readonly id: string
 
     private components:Set<Component> = new Set<Component>()

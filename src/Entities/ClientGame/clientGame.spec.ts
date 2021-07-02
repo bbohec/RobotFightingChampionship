@@ -8,7 +8,7 @@ import { ClientLifeCycleSystem } from '../../Systems/LifeCycle/ClientLifeCycleSy
 import { LifeCycle } from '../../Component/LifeCycle'
 import { InMemorySystemRepository } from '../../Systems/Generic/infra/InMemorySystemInteractor'
 import { FakeIdentifierAdapter } from '../../Systems/LifeCycle/infra/FakeIdentifierAdapter'
-import { ClientMatchMakingSystem } from '../../Systems/Match/ClientMatchSystem'
+import { ClientMatchSystem } from '../../Systems/Match/ClientMatchSystem'
 import { EntityType } from '../../Events/port/EntityType'
 import { Action } from '../../Events/port/Action'
 import { whenEventOccurs } from '../../Events/port/test'
@@ -17,9 +17,9 @@ describe('Feature : Client Game', () => {
     describe('Scenario : Client Game Create', () => {
         const entityRepository = new InMemoryEntityRepository()
         const systemRepository = new InMemorySystemRepository()
-        const gameEventDispatcherSystem = new ClientGameEventDispatcherSystem(entityRepository, systemRepository)
+        const gameEventDispatcherSystem = new ClientGameEventDispatcherSystem(systemRepository)
         systemRepository.addSystem(gameEventDispatcherSystem)
-        systemRepository.addSystem(new ClientLifeCycleSystem(entityRepository, systemRepository, new FakeIdentifierAdapter(['Client Game'])))
+        systemRepository.addSystem(new ClientLifeCycleSystem(entityRepository, gameEventDispatcherSystem, new FakeIdentifierAdapter(['Client Game'])))
         const createMainMenuEvent = newEvent(Action.create, EntityType.nothing, EntityType.mainMenu)
         whenEventOccurs(gameEventDispatcherSystem, newEvent(Action.create, EntityType.nothing, EntityType.clientGame))
         it('Then the Client Game is on entities repository', () => {
@@ -35,10 +35,10 @@ describe('Feature : Client Game', () => {
     describe('Scenario : Join simple match', () => {
         const entityRepository = new InMemoryEntityRepository()
         const systemRepository = new InMemorySystemRepository()
-        const gameEventDispatcherSystem = new ClientGameEventDispatcherSystem(entityRepository, systemRepository)
+        const gameEventDispatcherSystem = new ClientGameEventDispatcherSystem(systemRepository)
         systemRepository.addSystem(gameEventDispatcherSystem)
-        systemRepository.addSystem(new ClientLifeCycleSystem(entityRepository, systemRepository, new FakeIdentifierAdapter(['Client Game'])))
-        systemRepository.addSystem(new ClientMatchMakingSystem(entityRepository, systemRepository))
+        systemRepository.addSystem(new ClientLifeCycleSystem(entityRepository, gameEventDispatcherSystem, new FakeIdentifierAdapter(['Client Game'])))
+        systemRepository.addSystem(new ClientMatchSystem(entityRepository, gameEventDispatcherSystem))
         const player = 'Player B'
         const joinSimpleMatchClientEvent = newEvent(Action.wantToJoin, EntityType.nothing, EntityType.clientGame, undefined, player)
         const joinSimpleMatchServerEvent = newEvent(Action.wantToJoin, EntityType.nothing, EntityType.serverGame, undefined, player)

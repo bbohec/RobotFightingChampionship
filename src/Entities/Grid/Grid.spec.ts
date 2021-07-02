@@ -24,9 +24,9 @@ describe(`Feature : ${entityName}`, () => {
         const entityRepository = new InMemoryEntityRepository()
         const systemRepository = new InMemorySystemRepository()
         const gridId = 'grid'
-        const lifeCycleSystem = new ServerLifeCycleSystem(entityRepository, systemRepository, new FakeIdentifierAdapter([gridId]))
+        const gameEventSystem = new ServerGameEventDispatcherSystem(systemRepository)
+        const lifeCycleSystem = new ServerLifeCycleSystem(entityRepository, gameEventSystem, new FakeIdentifierAdapter([gridId]))
         systemRepository.addSystem(lifeCycleSystem)
-        const gameEventSystem = new ServerGameEventDispatcherSystem(entityRepository, systemRepository)
         systemRepository.addSystem(gameEventSystem)
         const expectedDimention:Dimension = { x: 25, y: 25 }
         const registerGridOnMatchEvent = newEvent(Action.register, EntityType.nothing, EntityType.match, matchId, gridId)

@@ -11,8 +11,10 @@ import { ServerLifeCycleSystem } from '../../Systems/LifeCycle/ServerLifeCycleSy
 import { FakeIdentifierAdapter } from '../../Systems/LifeCycle/infra/FakeIdentifierAdapter'
 import { LifeCycle } from '../../Component/LifeCycle'
 import { Player } from './Player'
-import { MatchSystem } from '../../Systems/Match/MatchSystem'
+import { ServerMatchSystem } from '../../Systems/Match/ServerMatchSystem'
 import { EntityReference } from '../../Component/EntityReference'
+import { Match } from '../Match/Match'
+import { Playable } from '../../Component/Playable'
 
 describe('Feature Player', () => {
     const playerId = 'Player A'
@@ -24,8 +26,8 @@ describe('Feature Player', () => {
     describe('Player : on create', () => {
         const entityRepository = new InMemoryEntityRepository()
         const systemRepository = new InMemorySystemRepository()
-        const eventDispatcherSystem = new ServerGameEventDispatcherSystem(entityRepository, systemRepository)
-        const lifeCycleSystem = new ServerLifeCycleSystem(entityRepository, systemRepository, new FakeIdentifierAdapter([playerId]))
+        const eventDispatcherSystem = new ServerGameEventDispatcherSystem(systemRepository)
+        const lifeCycleSystem = new ServerLifeCycleSystem(entityRepository, eventDispatcherSystem, new FakeIdentifierAdapter([playerId]))
         systemRepository.addSystem(lifeCycleSystem)
         it('Given there is no player', () => {
             expect(() => entityRepository.retrieveEntityByClass(Player)).to.throw()
@@ -41,9 +43,9 @@ describe('Feature Player', () => {
     describe('Player : on Register Tower', () => {
         const entityRepository = new InMemoryEntityRepository()
         const systemRepository = new InMemorySystemRepository()
-        const eventDispatcherSystem = new ServerGameEventDispatcherSystem(entityRepository, systemRepository)
-        const lifeCycleSystem = new ServerLifeCycleSystem(entityRepository, systemRepository, new FakeIdentifierAdapter([playerId]))
-        const matchSystem = new MatchSystem(entityRepository, systemRepository)
+        const eventDispatcherSystem = new ServerGameEventDispatcherSystem(systemRepository)
+        const lifeCycleSystem = new ServerLifeCycleSystem(entityRepository, eventDispatcherSystem, new FakeIdentifierAdapter([playerId]))
+        const matchSystem = new ServerMatchSystem(entityRepository, eventDispatcherSystem)
         systemRepository.addSystem(lifeCycleSystem)
         systemRepository.addSystem(matchSystem)
         before(() => eventDispatcherSystem.onGameEvent(createPlayerEvent))
@@ -58,9 +60,9 @@ describe('Feature Player', () => {
     describe('Player : on Register Robot', () => {
         const entityRepository = new InMemoryEntityRepository()
         const systemRepository = new InMemorySystemRepository()
-        const eventDispatcherSystem = new ServerGameEventDispatcherSystem(entityRepository, systemRepository)
-        const lifeCycleSystem = new ServerLifeCycleSystem(entityRepository, systemRepository, new FakeIdentifierAdapter([playerId]))
-        const matchSystem = new MatchSystem(entityRepository, systemRepository)
+        const eventDispatcherSystem = new ServerGameEventDispatcherSystem(systemRepository)
+        const lifeCycleSystem = new ServerLifeCycleSystem(entityRepository, eventDispatcherSystem, new FakeIdentifierAdapter([playerId]))
+        const matchSystem = new ServerMatchSystem(entityRepository, eventDispatcherSystem)
         systemRepository.addSystem(lifeCycleSystem)
         systemRepository.addSystem(matchSystem)
         before(() => eventDispatcherSystem.onGameEvent(createPlayerEvent))
@@ -72,14 +74,26 @@ describe('Feature Player', () => {
             expect(entityRepository.retrieveEntityById(playerId).retrieveComponent(EntityReference).entityReferences.get(robotId)).equal(EntityType.robot)
         })
     })
-    describe.skip('Player : on Register Robot & Tower', () => {
+    describe('Player : on Register Robot & Tower', () => {
         const entityRepository = new InMemoryEntityRepository()
         const systemRepository = new InMemorySystemRepository()
-        const eventDispatcherSystem = new ServerGameEventDispatcherSystem(entityRepository, systemRepository)
+        const eventDispatcherSystem = new ServerGameEventDispatcherSystem(systemRepository)
+        systemRepository.addSystem(eventDispatcherSystem)
+        systemRepository.addSystem(new ServerMatchSystem(entityRepository, eventDispatcherSystem))
+        systemRepository.addSystem(new ServerLifeCycleSystem(entityRepository, eventDispatcherSystem, new FakeIdentifierAdapter([playerId])))
+        const matchId = 'MATCH'
+        const matchEntity = new Match(matchId)
+        matchEntity.addComponent(new Playable(matchId))
+        matchEntity.retrieveComponent(Playable).players.push(playerId)
+        entityRepository.addEntity(matchEntity)
+        before(() => eventDispatcherSystem.onGameEvent(createPlayerEvent))
+        it(`Given a player with Id ${playerId}`, () => {
+            expect(entityRepository.retrieveEntityById(playerId).id).equal(playerId)
+        })
         whenEventOccurs(eventDispatcherSystem, registerRobotOnPlayerEvent)
         whenEventOccurs(eventDispatcherSystem, registerTowerOnPlayerEvent)
-        const playerReadyForMatch = newEvent(Action.ready, EntityType.player, EntityType.match, 'MATCH', playerId)
-        it(`And the event "${playerReadyForMatch.action}" is sent to "${playerReadyForMatch.targetEntityType}" for the game "${playerReadyForMatch.originEntityId}"`, () => {
+        const playerReadyForMatch = newEvent(Action.ready, EntityType.player, EntityType.match, matchId, playerId)
+        it(`Then the event "${playerReadyForMatch.action}" is sent to "${playerReadyForMatch.targetEntityType}" for the game "${playerReadyForMatch.originEntityId}"`, () => {
             expect(eventDispatcherSystem.hasEvent(playerReadyForMatch)).is.true
         })
     })

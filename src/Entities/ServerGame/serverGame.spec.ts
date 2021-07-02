@@ -16,8 +16,8 @@ describe('Feature Server Game', () => {
     describe('Scenario : Server Game Create', () => {
         const entityRepository = new InMemoryEntityRepository()
         const systemRepository = new InMemorySystemRepository()
-        const serverGameEventDispatcherSystem = new ServerGameEventDispatcherSystem(entityRepository, systemRepository)
-        const serverLifeCycleSystem = new ServerLifeCycleSystem(entityRepository, systemRepository, new FakeIdentifierAdapter())
+        const serverGameEventDispatcherSystem = new ServerGameEventDispatcherSystem(systemRepository)
+        const serverLifeCycleSystem = new ServerLifeCycleSystem(entityRepository, serverGameEventDispatcherSystem, new FakeIdentifierAdapter())
         const createSimpleMatchLobbyEvent = newEvent(Action.create, EntityType.nothing, EntityType.simpleMatchLobby)
         systemRepository.addSystem(serverGameEventDispatcherSystem)
         systemRepository.addSystem(serverLifeCycleSystem)

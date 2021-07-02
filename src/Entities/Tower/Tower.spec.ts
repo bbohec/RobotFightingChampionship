@@ -23,8 +23,8 @@ describe(`Feature : ${entityName}`, () => {
         const towerId = 'tower'
         const entityRepository = new InMemoryEntityRepository()
         const systemRepository = new InMemorySystemRepository()
-        const lifeCycleSystem = new ServerLifeCycleSystem(entityRepository, systemRepository, new FakeIdentifierAdapter([towerId]))
-        const gameEventSystem = new ServerGameEventDispatcherSystem(entityRepository, systemRepository)
+        const gameEventSystem = new ServerGameEventDispatcherSystem(systemRepository)
+        const lifeCycleSystem = new ServerLifeCycleSystem(entityRepository, gameEventSystem, new FakeIdentifierAdapter([towerId]))
         systemRepository.addSystem(lifeCycleSystem)
         systemRepository.addSystem(gameEventSystem)
         const createTowerEventPlayer = newEvent(Action.create, EntityType.nothing, EntityType.tower, undefined, playerId)

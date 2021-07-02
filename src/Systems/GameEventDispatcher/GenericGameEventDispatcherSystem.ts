@@ -1,7 +1,12 @@
 import { GameEvent } from '../../Events/port/GameEvent'
-import { GenericSystem } from '../Generic/GenericSystem'
+import { System } from '../Generic/port/System'
+import { SystemInteractor } from '../Generic/port/SystemInteractor'
 
-export abstract class GenericGameEventDispatcherSystem extends GenericSystem {
+export abstract class GenericGameEventDispatcherSystem implements System {
+    constructor (systemInteractor:SystemInteractor) {
+        this.interactWithSystems = systemInteractor
+    }
+
     public hasEvent (expectedEvent: GameEvent): boolean {
         const isEventsIdentical = (event:GameEvent, expectedEvent:GameEvent) => (
             event.targetEntityType === expectedEvent.targetEntityType &&
@@ -20,4 +25,5 @@ export abstract class GenericGameEventDispatcherSystem extends GenericSystem {
     abstract onGameEvent (gameEvent:GameEvent):Promise<void>
 
     public gameEvents: GameEvent[] = []
+    protected interactWithSystems: SystemInteractor
 }

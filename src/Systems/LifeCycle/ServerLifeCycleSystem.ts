@@ -1,7 +1,6 @@
 import { GameEvent } from '../../Events/port/GameEvent'
 import { errorMessageOnUnknownEventAction, MissingOriginEntityId, newEvent } from '../../Events/port/GameEvents'
 import { ServerGame } from '../../Entities/ServerGame/ServerGame'
-import { ServerGameEventDispatcherSystem } from '../GameEventDispatcher/ServerGameEventDispatcherSystem'
 import { GenericLifeCycleSystem } from './GenericLifeCycleSystem'
 import { SimpleMatchLobby } from '../../Entities/SimpleMatchLobby/SimpleMatchLobby'
 import { Match } from '../../Entities/Match/Match'
@@ -14,6 +13,7 @@ import { Tower } from '../../Entities/Tower/Tower'
 import { Robot } from '../../Entities/Robot/Robot'
 import { Player } from '../../Entities/Player/Player'
 import { EntityReference } from '../../Component/EntityReference'
+import { Phasing } from '../../Component/Phasing'
 export class ServerLifeCycleSystem extends GenericLifeCycleSystem {
     onGameEvent (gameEvent: GameEvent): Promise<void> {
         const strategy = this.retrieveStrategy(gameEvent)
@@ -46,14 +46,6 @@ export class ServerLifeCycleSystem extends GenericLifeCycleSystem {
         return this.createEntity(new Robot(robotEntityId), undefined, newEvent(Action.register, EntityType.nothing, EntityType.player, gameEvent.originEntityId, robotEntityId))
     }
 
-    protected sendOptionnalNextEvent (nextEvent?: GameEvent | GameEvent[]): Promise<void> {
-        return (nextEvent === undefined)
-            ? Promise.resolve()
-            : (!Array.isArray(nextEvent))
-                ? this.interactWithSystems.retrieveSystemByClass(ServerGameEventDispatcherSystem).sendEvent(nextEvent)
-                : this.sendNextEvents(nextEvent)
-    }
-
     private createServerGameEntity (serverGameEntityId: string): Promise<void> {
         return this.createEntity(
             new ServerGame(serverGameEntityId),
@@ -72,7 +64,7 @@ export class ServerLifeCycleSystem extends GenericLifeCycleSystem {
     private createMatchEntity (matchEntityId: string): Promise<void> {
         return this.createEntity(
             new Match(matchEntityId),
-            [new Playable(matchEntityId), new EntityReference(matchEntityId)],
+            [new Playable(matchEntityId), new EntityReference(matchEntityId), new Phasing(matchEntityId)],
             newEvent(Action.waitingForPlayers, EntityType.nothing, EntityType.simpleMatchLobby, undefined, matchEntityId)
         )
     }

@@ -4,7 +4,6 @@ import { Action } from '../../Events/port/Action'
 import { EntityType } from '../../Events/port/EntityType'
 import { GameEvent } from '../../Events/port/GameEvent'
 import { errorMessageOnUnknownEventAction, MissingOriginEntityId, newEvent } from '../../Events/port/GameEvents'
-import { ServerGameEventDispatcherSystem } from '../GameEventDispatcher/ServerGameEventDispatcherSystem'
 import { GenericSystem } from '../Generic/GenericSystem'
 
 export class WaitingAreaSystem extends GenericSystem {
@@ -25,10 +24,8 @@ export class WaitingAreaSystem extends GenericSystem {
         const matchId = gameEvent.originEntityId
         if (players.length < 2) return Promise.resolve()
         const playersToJoinMatch = [players.shift()!, players.shift()!]
-        return Promise.all(playersToJoinMatch.map(player => this.interactWithSystems
-            .retrieveSystemByClass(ServerGameEventDispatcherSystem)
-            .sendEvent(newEvent(Action.playerJoinMatch, EntityType.nothing, EntityType.match, matchId, player)))
-        )
+        return Promise.all(playersToJoinMatch.map(player => this.sendEvent(
+            newEvent(Action.playerJoinMatch, EntityType.nothing, EntityType.match, matchId, player))))
             .then(() => Promise.resolve())
             .catch(error => Promise.reject(error))
     }
@@ -40,7 +37,7 @@ export class WaitingAreaSystem extends GenericSystem {
 
     private createMatchForEachTwoPlayers (players: string[]): Promise<void> {
         return (players.length % 2 === 0)
-            ? this.interactWithSystems.retrieveSystemByClass(ServerGameEventDispatcherSystem).sendEvent(newEvent(Action.create, EntityType.nothing, EntityType.match))
+            ? this.sendEvent(newEvent(Action.create, EntityType.nothing, EntityType.match))
             : Promise.resolve()
     }
 }

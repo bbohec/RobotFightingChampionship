@@ -12,12 +12,12 @@ import { GenericSystem } from '../Generic/GenericSystem'
 import { GenericComponent } from '../../Component/GenericComponent'
 import { EntityInteractor } from '../../Entities/GenericEntity/ports/EntityInteractor'
 import { IdentifierAdapter } from './port/IdentifierAdapter'
-import { SystemInteractor } from '../Generic/port/SystemInteractor'
+import { GenericGameEventDispatcherSystem } from '../GameEventDispatcher/GenericGameEventDispatcherSystem'
 // import { ServerGameEventDispatcherSystem } from '../Event/ServerGameEventDispatcherSystem'
 
 export abstract class GenericLifeCycleSystem extends GenericSystem {
-    constructor (interactWithEntities: EntityInteractor, interactWithSystems:SystemInteractor, interactWithIdentifiers:IdentifierAdapter) {
-        super(interactWithEntities, interactWithSystems)
+    constructor (interactWithEntities: EntityInteractor, interactWithGameEventDispatcher:GenericGameEventDispatcherSystem, interactWithIdentifiers:IdentifierAdapter) {
+        super(interactWithEntities, interactWithGameEventDispatcher)
         this.interactWithIdentiers = interactWithIdentifiers
     }
 
@@ -41,7 +41,13 @@ export abstract class GenericLifeCycleSystem extends GenericSystem {
         entity.retrieveComponent(LifeCycle).isCreated = true
     }
 
-    protected abstract sendOptionnalNextEvent (nextEvent?: GameEvent | GameEvent[]): Promise<void>
+    protected sendOptionnalNextEvent (nextEvent?: GameEvent | GameEvent[]): Promise<void> {
+        return (nextEvent === undefined)
+            ? Promise.resolve()
+            : (!Array.isArray(nextEvent))
+                ? this.sendEvent(nextEvent)
+                : this.sendNextEvents(nextEvent)
+    }
 
     private addOptionnalComponents (components: GenericComponent[] | undefined, entity: GenericEntity) {
         if (components) {

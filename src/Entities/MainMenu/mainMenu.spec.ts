@@ -21,8 +21,8 @@ describe('Feature Main Menu', () => {
     describe('Scenario : Main Menu create', () => {
         const entityRepository = new InMemoryEntityRepository()
         const systemRepository = new InMemorySystemRepository()
-        const gameEventSystem = new ClientGameEventDispatcherSystem(entityRepository, systemRepository)
-        systemRepository.addSystem(new ClientLifeCycleSystem(entityRepository, systemRepository, new FakeIdentifierAdapter(['mainMenu'])))
+        const gameEventSystem = new ClientGameEventDispatcherSystem(systemRepository)
+        systemRepository.addSystem(new ClientLifeCycleSystem(entityRepository, gameEventSystem, new FakeIdentifierAdapter(['mainMenu'])))
         systemRepository.addSystem(gameEventSystem)
         whenEventOccurs(gameEventSystem, createMainMenuEvent)
         it('Then the Main Menu is on entities repository', () => {
@@ -42,10 +42,10 @@ describe('Feature Main Menu', () => {
         const entityRepository = new InMemoryEntityRepository()
         const drawingAdapter = new InMemoryDrawingAdapter()
         const systemRepository = new InMemorySystemRepository()
-        const gameEventSystem = new ClientGameEventDispatcherSystem(entityRepository, systemRepository)
-        systemRepository.systems.add(new DrawingSystem(entityRepository, systemRepository, drawingAdapter))
-        systemRepository.systems.add(new ClientLifeCycleSystem(entityRepository, systemRepository, new FakeIdentifierAdapter(['Main Menu'])))
-        systemRepository.systems.add(gameEventSystem)
+        const gameEventSystem = new ClientGameEventDispatcherSystem(systemRepository)
+        systemRepository.addSystem(new DrawingSystem(entityRepository, gameEventSystem, drawingAdapter))
+        systemRepository.addSystem(new ClientLifeCycleSystem(entityRepository, gameEventSystem, new FakeIdentifierAdapter(['Main Menu'])))
+        systemRepository.addSystem(gameEventSystem)
         before(() => gameEventSystem.onGameEvent(createMainMenuEvent))
         it('Given main is not visible', () => {
             expect(drawingAdapter.drawIds.length).equal(0)
@@ -59,9 +59,9 @@ describe('Feature Main Menu', () => {
         const entityRepository = new InMemoryEntityRepository()
         const drawingAdapter = new InMemoryDrawingAdapter()
         const systemRepository = new InMemorySystemRepository()
-        const gameEventSystem = new ClientGameEventDispatcherSystem(entityRepository, systemRepository)
-        systemRepository.systems.add(new DrawingSystem(entityRepository, systemRepository, drawingAdapter))
-        systemRepository.systems.add(gameEventSystem)
+        const gameEventSystem = new ClientGameEventDispatcherSystem(systemRepository)
+        systemRepository.addSystem(new DrawingSystem(entityRepository, gameEventSystem, drawingAdapter))
+        systemRepository.addSystem(gameEventSystem)
         const mainMenuHideEvent = newEvent(Action.hide, EntityType.nothing, EntityType.mainMenu, 'mainMenu')
         before(() => gameEventSystem.onGameEvent(mainMenuShowEvent))
         it('Given main is visible', () => {
