@@ -10,7 +10,7 @@ export class InMemorySystemRepository implements SystemInteractor {
 
     retrieveSystemByClass<Class extends System> (potentialSystem: PotentialClass<Class>): Class {
         const system = this.systems.get(potentialSystem.name)
-        if (!system) throw new Error(`System ${potentialSystem.name} not found on system repository.`)
+        if (!system) throw new Error(`System '${potentialSystem.name}' not found on system repository.`)
         return system as Class
     }
 

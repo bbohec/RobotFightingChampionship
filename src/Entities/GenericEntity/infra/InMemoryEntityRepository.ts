@@ -6,7 +6,7 @@ import { Component } from '../../../Component/port/Component'
 export class InMemoryEntityRepository implements EntityInteractor {
     retrieveEntityById (entityId: string): GenericEntity {
         for (const entity of this.entities.values()) if (entity.id === entityId) return entity
-        throw new Error(`Entity with id ${entityId} not found on entity repository.`)
+        throw new Error(`Entity with id '${entityId}' not found on entity repository.`)
     }
 
     retrieveEntitiesThatHaveComponent<PotentialEntity extends GenericEntity, PotentialComponent extends Component> (potentialEntity: PotentialClass<PotentialEntity>, potentialComponent: PotentialClass<PotentialComponent>): PotentialEntity[] {
@@ -17,7 +17,7 @@ export class InMemoryEntityRepository implements EntityInteractor {
 
     retrieveEntityByClass <Class extends GenericEntity> (potentialClass: PotentialClass<Class>): Class {
         for (const entity of this.entities.values()) if (entity instanceof potentialClass) return entity as Class
-        throw new Error(`Entity ${potentialClass.name} not found on entity repository.`)
+        throw new Error(`Entity '${potentialClass.name}' not found on entity repository.`)
     }
 
     addEntity (Entity: GenericEntity): void {

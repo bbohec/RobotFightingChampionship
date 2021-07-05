@@ -1,4 +1,4 @@
-import { ClientGame } from '../../Entities/ClientGame/ClientGame'
+import { Game } from '../../Entities/ClientGame/Game'
 import { Visible } from '../../Component/Visible'
 import { GameEvent } from '../../Events/port/GameEvent'
 import { errorMessageOnUnknownEventAction, newEvent } from '../../Events/port/GameEvents'
@@ -37,7 +37,7 @@ export class ClientLifeCycleSystem extends GenericLifeCycleSystem {
 
     private createClientGameEntity (clientGameEntityId:string): Promise<void> {
         return this.createEntity(
-            new ClientGame(clientGameEntityId),
+            new Game(clientGameEntityId),
             [],
             newEvent(Action.create, EntityType.nothing, EntityType.mainMenu)
         )

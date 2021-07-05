@@ -8,9 +8,9 @@ import { Action } from '../../Events/port/Action'
 
 export class ClientGameEventDispatcherSystem extends GenericGameEventDispatcherSystem {
     onGameEvent (gameEvent: GameEvent): Promise<void> {
-        if (gameEvent.action === Action.create) { return this.interactWithSystems.retrieveSystemByClass(ClientLifeCycleSystem).onGameEvent(gameEvent) }
-        if (gameEvent.action === Action.wantToJoin) { return this.interactWithSystems.retrieveSystemByClass(ClientMatchSystem).onGameEvent(gameEvent) }
-        if (gameEvent.action === Action.show || gameEvent.action === Action.hide) { return this.interactWithSystems.retrieveSystemByClass(DrawingSystem).onGameEvent(gameEvent) }
+        if (gameEvent.action === Action.create) return this.interactWithSystems.retrieveSystemByClass(ClientLifeCycleSystem).onGameEvent(gameEvent)
+        if (gameEvent.action === Action.wantToJoin) return this.interactWithSystems.retrieveSystemByClass(ClientMatchSystem).onGameEvent(gameEvent)
+        if (gameEvent.action === Action.show || gameEvent.action === Action.hide) return this.interactWithSystems.retrieveSystemByClass(DrawingSystem).onGameEvent(gameEvent)
         throw new Error(errorMessageOnUnknownEventAction(ClientGameEventDispatcherSystem.name, gameEvent))
     }
 }

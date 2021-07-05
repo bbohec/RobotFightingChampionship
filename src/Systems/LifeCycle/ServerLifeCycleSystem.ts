@@ -1,6 +1,5 @@
 import { GameEvent } from '../../Events/port/GameEvent'
 import { errorMessageOnUnknownEventAction, MissingOriginEntityId, newEvent } from '../../Events/port/GameEvents'
-import { ServerGame } from '../../Entities/ServerGame/ServerGame'
 import { GenericLifeCycleSystem } from './GenericLifeCycleSystem'
 import { SimpleMatchLobby } from '../../Entities/SimpleMatchLobby/SimpleMatchLobby'
 import { Match } from '../../Entities/Match/Match'
@@ -14,6 +13,7 @@ import { Robot } from '../../Entities/Robot/Robot'
 import { Player } from '../../Entities/Player/Player'
 import { EntityReference } from '../../Component/EntityReference'
 import { Phasing } from '../../Component/Phasing'
+import { Game } from '../../Entities/ClientGame/Game'
 export class ServerLifeCycleSystem extends GenericLifeCycleSystem {
     onGameEvent (gameEvent: GameEvent): Promise<void> {
         const strategy = this.retrieveStrategy(gameEvent)
@@ -23,7 +23,7 @@ export class ServerLifeCycleSystem extends GenericLifeCycleSystem {
 
     private retrieveStrategy (gameEvent:GameEvent):(()=>Promise<void>) | undefined {
         const strategies = new Map([
-            [EntityType.serverGame, () => this.createServerGameEntity(this.interactWithIdentiers.nextIdentifier())],
+            [EntityType.serverGame, () => this.createGameEntity(this.interactWithIdentiers.nextIdentifier())],
             [EntityType.simpleMatchLobby, () => this.createSimpleMatchLobbyEntity(this.interactWithIdentiers.nextIdentifier())],
             [EntityType.match, () => this.createMatchEntity(this.interactWithIdentiers.nextIdentifier())],
             [EntityType.grid, () => this.createGridEntity(this.interactWithIdentiers.nextIdentifier(), gameEvent)],
@@ -46,9 +46,9 @@ export class ServerLifeCycleSystem extends GenericLifeCycleSystem {
         return this.createEntity(new Robot(robotEntityId), undefined, newEvent(Action.register, EntityType.nothing, EntityType.player, gameEvent.originEntityId, robotEntityId))
     }
 
-    private createServerGameEntity (serverGameEntityId: string): Promise<void> {
+    private createGameEntity (serverGameEntityId: string): Promise<void> {
         return this.createEntity(
-            new ServerGame(serverGameEntityId),
+            new Game(serverGameEntityId),
             [],
             newEvent(Action.create, EntityType.nothing, EntityType.simpleMatchLobby)
         )

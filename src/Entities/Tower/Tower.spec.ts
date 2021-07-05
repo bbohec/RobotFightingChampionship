@@ -6,39 +6,32 @@ import {
 import { expect } from 'chai'
 import { LifeCycle } from '../../Component/LifeCycle'
 import { newEvent } from '../../Events/port/GameEvents'
-import { ServerGameEventDispatcherSystem } from '../../Systems/GameEventDispatcher/ServerGameEventDispatcherSystem'
-import { InMemorySystemRepository } from '../../Systems/Generic/infra/InMemorySystemInteractor'
-import { FakeIdentifierAdapter } from '../../Systems/LifeCycle/infra/FakeIdentifierAdapter'
-import { ServerLifeCycleSystem } from '../../Systems/LifeCycle/ServerLifeCycleSystem'
-import { InMemoryEntityRepository } from '../GenericEntity/infra/InMemoryEntityRepository'
 import { Action } from '../../Events/port/Action'
 import { EntityType } from '../../Events/port/EntityType'
 import { Tower } from './Tower'
 import { whenEventOccurs } from '../../Events/port/test'
+import { ServerGame } from '../../Systems/Game/ServerGame'
+import { FakeServerAdapters } from '../../Systems/Game/infra/FakeServerAdapters'
 
 const entityName = 'Tower'
 describe(`Feature : ${entityName}`, () => {
     describe('On create', () => {
         const playerId = 'player'
         const towerId = 'tower'
-        const entityRepository = new InMemoryEntityRepository()
-        const systemRepository = new InMemorySystemRepository()
-        const gameEventSystem = new ServerGameEventDispatcherSystem(systemRepository)
-        const lifeCycleSystem = new ServerLifeCycleSystem(entityRepository, gameEventSystem, new FakeIdentifierAdapter([towerId]))
-        systemRepository.addSystem(lifeCycleSystem)
-        systemRepository.addSystem(gameEventSystem)
+        const adapters = new FakeServerAdapters([towerId])
+        const game = new ServerGame(adapters)
         const createTowerEventPlayer = newEvent(Action.create, EntityType.nothing, EntityType.tower, undefined, playerId)
         const registerTowerOnPlayerEvent = newEvent(Action.register, EntityType.nothing, EntityType.player, playerId, towerId)
         it(`Given there is no ${entityName}`, () => {
-            expect(() => entityRepository.retrieveEntityByClass(Tower)).to.throw()
+            expect(() => adapters.entityInteractor.retrieveEntityByClass(Tower)).to.throw()
         })
-        whenEventOccurs(gameEventSystem, createTowerEventPlayer)
+        whenEventOccurs(game, createTowerEventPlayer)
         it(`Then the ${entityName} is created`, () => {
-            expect(entityRepository.retrieveEntityById(towerId).retrieveComponent(LifeCycle).isCreated).is.true
+            expect(adapters.entityInteractor.retrieveEntityById(towerId).retrieveComponent(LifeCycle).isCreated).is.true
         })
 
         it(`And the event "${registerTowerOnPlayerEvent.action}" is sent to "${registerTowerOnPlayerEvent.targetEntityType}" for the game "${registerTowerOnPlayerEvent.originEntityId}"`, () => {
-            expect(gameEventSystem.hasEvent(registerTowerOnPlayerEvent)).is.true
+            expect(adapters.eventInteractor.hasEvent(registerTowerOnPlayerEvent)).is.true
         })
     })
 })

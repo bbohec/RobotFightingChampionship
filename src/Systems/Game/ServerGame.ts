@@ -1,0 +1,26 @@
+import { GameEvent } from '../../Events/port/GameEvent'
+import { ServerGameEventDispatcherSystem } from '../GameEventDispatcher/ServerGameEventDispatcherSystem'
+import { System } from '../Generic/port/System'
+import { ServerLifeCycleSystem } from '../LifeCycle/ServerLifeCycleSystem'
+import { ServerMatchSystem } from '../Match/ServerMatchSystem'
+import { PhasingSystem } from '../Phasing/PhasingSystem'
+import { WaitingAreaSystem } from '../WaitingArea/WaitingAreaSystem'
+import { GenericGame } from './GenericGame'
+import { serverAdapters } from './port/serverAdapters'
+
+export class ServerGame extends GenericGame {
+    constructor (adapters:serverAdapters) {
+        const serverEventDispatcherSystem = new ServerGameEventDispatcherSystem(adapters.systemInteractor, adapters.eventInteractor)
+        const systems: Set<System> = new Set([])
+        systems.add(serverEventDispatcherSystem)
+        systems.add(new ServerLifeCycleSystem(adapters.entityInteractor, serverEventDispatcherSystem, adapters.identifierInteractor))
+        systems.add(new WaitingAreaSystem(adapters.entityInteractor, serverEventDispatcherSystem))
+        systems.add(new ServerMatchSystem(adapters.entityInteractor, serverEventDispatcherSystem))
+        systems.add(new PhasingSystem(adapters.entityInteractor, serverEventDispatcherSystem))
+        super(adapters.systemInteractor, systems)
+    }
+
+    onGameEvent (gameEvent: GameEvent): Promise<void> {
+        return this.interactWithSystems.retrieveSystemByClass(ServerGameEventDispatcherSystem).onGameEvent(gameEvent)
+    }
+}
