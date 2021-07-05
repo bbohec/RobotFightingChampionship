@@ -7,10 +7,26 @@ export class InMemoryEventRepository implements EventInteractor {
         return Promise.resolve()
     }
 
+    public retrieveEvent (expectedEvent: GameEvent): GameEvent[] {
+        const isEventsIdentical = (event:GameEvent, expectedEvent:GameEvent) => (
+            event.action === expectedEvent.action &&
+            event.targetEntityType === expectedEvent.targetEntityType &&
+            event.originEntityType === expectedEvent.originEntityType &&
+            event.targetEntityId === expectedEvent.targetEntityId &&
+            event.originEntityId === expectedEvent.originEntityId
+        )
+        const gameEvent = this.gameEvents.filter(event => isEventsIdentical(event, expectedEvent))
+        if (gameEvent.length > 0) return gameEvent
+        throw new Error(`The following game event is not found on event repository: ${JSON.stringify(expectedEvent)}
+        List of current events:
+        ${this.gameEvents.map(event => JSON.stringify(event)).join('\n')}`)
+    }
+
     public hasEvent (expectedEvent: GameEvent): boolean {
         const isEventsIdentical = (event:GameEvent, expectedEvent:GameEvent) => (
-            event.targetEntityType === expectedEvent.targetEntityType &&
             event.action === expectedEvent.action &&
+            event.targetEntityType === expectedEvent.targetEntityType &&
+            event.originEntityType === expectedEvent.originEntityType &&
             event.targetEntityId === expectedEvent.targetEntityId &&
             event.originEntityId === expectedEvent.originEntityId
         )

@@ -1,8 +1,7 @@
 /* eslint-disable no-unused-vars */
 export enum EntityType {
-    serverGame = 'Server Game',
+    game = 'Game',
     nobody = 'Nobody',
-    clientGame = 'Client Game',
     mainMenu = 'Main Menu',
     matchMaking = 'Match Making',
     simpleMatchLobby = 'Simple Match Lobby',
@@ -14,3 +13,4 @@ export enum EntityType {
     player = 'player',
     nothing = 'nothing'
 }
+export const unsupportedEntityTypeMessage = (entityType:EntityType) => `Entity type ${entityType} is not supported.`

@@ -3,9 +3,16 @@ import { GameEvent } from '../../Events/port/GameEvent'
 import { Playable } from '../../Component/Playable'
 import { errorMessageOnUnknownEventAction, MissingOriginEntityId, MissingTargetEntityId, newEvent } from '../../Events/port/GameEvents'
 import { Action } from '../../Events/port/Action'
-import { EntityType } from '../../Events/port/EntityType'
+import { EntityType, unsupportedEntityTypeMessage } from '../../Events/port/EntityType'
 import { EntityReference } from '../../Component/EntityReference'
 import { Match } from '../../Entities/Match/Match'
+import { playerReadyForMatch } from '../Phasing/PhasingSystem'
+
+export const matchWaitingForPlayers = (matchId:string):GameEvent => newEvent(Action.waitingForPlayers, EntityType.nothing, EntityType.simpleMatchLobby, undefined, matchId)
+export const registerGridEvent = (matchId:string, gridId:string) => newEvent(Action.register, EntityType.grid, EntityType.match, matchId, gridId)
+export const registerTowerEvent = (towerId:string, playerId:string) => newEvent(Action.register, EntityType.tower, EntityType.player, playerId, towerId)
+export const registerRobotEvent = (robotId:string, playerId:string) => newEvent(Action.register, EntityType.robot, EntityType.player, playerId, robotId)
+export const playerJoinMatchEvent = (player:string, matchId:string) => newEvent(Action.playerJoinMatch, EntityType.nothing, EntityType.match, matchId, player)
 
 export class ServerMatchSystem extends GenericSystem {
     onGameEvent (gameEvent: GameEvent): Promise<void> {
@@ -15,25 +22,26 @@ export class ServerMatchSystem extends GenericSystem {
     }
 
     private onRegister (gameEvent: GameEvent): Promise<void> {
-        if (!gameEvent.targetEntityId) { throw new Error(MissingTargetEntityId) }
-        if (!gameEvent.originEntityId) { throw new Error(MissingOriginEntityId) }
-        if (gameEvent.originEntityType === EntityType.nothing) { throw new Error(`Entity type ${EntityType.nothing} is not supported.`) }
+        if (!gameEvent.targetEntityId) throw new Error(MissingTargetEntityId)
+        if (!gameEvent.originEntityId) throw new Error(MissingOriginEntityId)
+        if (gameEvent.originEntityType === EntityType.nothing) throw new Error(unsupportedEntityTypeMessage(EntityType.nothing))
         const references = this.interactWithEntities.retrieveEntityById(gameEvent.targetEntityId).retrieveComponent(EntityReference).entityReferences
         references.set(gameEvent.originEntityId, gameEvent.originEntityType)
         let robotReferenced = false
         let towerReferenced = false
         for (const value of references.values()) {
-            if (value === EntityType.robot) { robotReferenced = true }
-            if (value === EntityType.tower) { towerReferenced = true }
+            if (value === EntityType.robot) robotReferenced = true
+            if (value === EntityType.tower) towerReferenced = true
         }
-        if (robotReferenced && towerReferenced) {
-            const playerEntityId = gameEvent.targetEntityId
-            const matchEntities = this.interactWithEntities.retrieveEntitiesThatHaveComponent(Match, Playable)
-            const matchEntity = matchEntities.find(match => match.retrieveComponent(Playable).players.some(player => player === playerEntityId))
-            if (!matchEntity) { throw new Error(`No match with player that have id ${playerEntityId}`) }
-            return this.sendEvent(newEvent(Action.ready, EntityType.player, EntityType.match, matchEntity.id, gameEvent.targetEntityId))
-        }
-        return Promise.resolve()
+        return (robotReferenced && towerReferenced) ? this.onRobotAndTowerReferenced(gameEvent) : Promise.resolve()
+    }
+
+    private onRobotAndTowerReferenced (gameEvent:GameEvent) {
+        if (!gameEvent.targetEntityId) throw new Error(MissingTargetEntityId)
+        const matchEntities = this.interactWithEntities.retrieveEntitiesThatHaveComponent(Match, Playable)
+        const matchEntity = matchEntities.find(match => match.retrieveComponent(Playable).players.some(player => player === gameEvent.targetEntityId))
+        if (matchEntity) return this.sendEvent(playerReadyForMatch(matchEntity.id, gameEvent.targetEntityId))
+        throw new Error(`No match with player that have id ${gameEvent.targetEntityId}`)
     }
 
     private onPlayerJoinMatch (gameEvent: GameEvent): Promise<void> {

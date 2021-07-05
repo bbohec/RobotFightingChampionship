@@ -1,11 +1,8 @@
-import { EntityInteractor } from '../../../Entities/GenericEntity/ports/EntityInteractor'
-import { EventInteractor } from '../../GameEventDispatcher/port/EventInteractor'
 import { SystemInteractor } from '../../Generic/port/SystemInteractor'
 import { IdentifierAdapter } from '../../LifeCycle/port/IdentifierAdapter'
+import { GenericAdapter } from './genericAdapters'
 
-export interface serverAdapters {
+export interface serverAdapters extends GenericAdapter {
     identifierInteractor: IdentifierAdapter
-    eventInteractor: EventInteractor;
     systemInteractor: SystemInteractor;
-    entityInteractor: EntityInteractor;
 }

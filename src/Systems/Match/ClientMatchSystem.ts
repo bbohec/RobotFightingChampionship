@@ -7,7 +7,7 @@ export class ClientMatchSystem extends GenericSystem {
     onGameEvent (gameEvent: GameEvent): Promise<void> {
         if (gameEvent.originEntityId === undefined) throw new Error(MissingOriginEntityId)
         const events = [
-            newEvent(Action.wantToJoin, EntityType.nothing, EntityType.serverGame, undefined, gameEvent.originEntityId),
+            newEvent(Action.wantToJoin, EntityType.nothing, EntityType.game, undefined, gameEvent.originEntityId),
             newEvent(Action.hide, EntityType.nothing, EntityType.mainMenu),
             newEvent(Action.show, EntityType.nothing, EntityType.matchMaking)
         ]

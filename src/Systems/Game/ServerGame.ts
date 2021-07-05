@@ -5,10 +5,10 @@ import { ServerLifeCycleSystem } from '../LifeCycle/ServerLifeCycleSystem'
 import { ServerMatchSystem } from '../Match/ServerMatchSystem'
 import { PhasingSystem } from '../Phasing/PhasingSystem'
 import { WaitingAreaSystem } from '../WaitingArea/WaitingAreaSystem'
-import { GenericGame } from './GenericGame'
+import { GenericGameSystem } from './GenericGame'
 import { serverAdapters } from './port/serverAdapters'
 
-export class ServerGame extends GenericGame {
+export class ServerGameSystem extends GenericGameSystem {
     constructor (adapters:serverAdapters) {
         const serverEventDispatcherSystem = new ServerGameEventDispatcherSystem(adapters.systemInteractor, adapters.eventInteractor)
         const systems: Set<System> = new Set([])

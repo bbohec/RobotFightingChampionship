@@ -4,10 +4,10 @@ import { ClientGameEventDispatcherSystem } from '../GameEventDispatcher/ClientGa
 import { System } from '../Generic/port/System'
 import { ClientLifeCycleSystem } from '../LifeCycle/ClientLifeCycleSystem'
 import { ClientMatchSystem } from '../Match/ClientMatchSystem'
-import { GenericGame } from './GenericGame'
+import { GenericGameSystem } from './GenericGame'
 import { clientAdapters } from './port/clientAdapters'
 
-export class ClientGame extends GenericGame {
+export class ClientGameSystem extends GenericGameSystem {
     constructor (adapters: clientAdapters) {
         const clientEventDispatcherSystem = new ClientGameEventDispatcherSystem(adapters.systemInteractor, adapters.eventInteractor)
         const systems: Set<System> = new Set([])

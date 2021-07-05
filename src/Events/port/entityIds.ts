@@ -1,0 +1,10 @@
+export const playerAId = 'player A'
+export const playerBId = 'player B'
+export const towerId = 'tower'
+export const robotId = 'Robot'
+export const gridId = 'gridId'
+export const mainMenuEntityId = 'mainMenu'
+export const simpleMatchLobbyEntityId = '0000000000000000000000'
+export const players = ['Player A', 'Player B', 'Player C', 'Player D', 'Player E', 'Player F', 'Player G', 'Player H']
+export const matchId = 'matchId'
+export const gameEntityId = 'gameEntityId'
