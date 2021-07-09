@@ -1,9 +1,9 @@
 import { Playable } from '../../Component/Playable'
-import { SimpleMatchLobby } from '../../Entities/SimpleMatchLobby/SimpleMatchLobby'
-import { Action } from '../../Events/port/Action'
-import { EntityType } from '../../Events/port/EntityType'
+import { SimpleMatchLobby } from '../../Entities/SimpleMatchLobby'
+import { createMatchEvent } from '../../Events/create/create'
+import { playerJoinMatchEvent } from '../../Events/join/join'
 import { GameEvent } from '../../Events/port/GameEvent'
-import { errorMessageOnUnknownEventAction, MissingOriginEntityId, newEvent } from '../../Events/port/GameEvents'
+import { errorMessageOnUnknownEventAction, MissingOriginEntityId } from '../../Events/port/GameEvents'
 import { GenericSystem } from '../Generic/GenericSystem'
 
 export class WaitingAreaSystem extends GenericSystem {
@@ -13,31 +13,36 @@ export class WaitingAreaSystem extends GenericSystem {
     }
 
     private onSimpleMatchLobbyTarget (gameEvent:GameEvent):Promise<void> {
+        if (gameEvent.originEntityId === undefined) throw new Error(MissingOriginEntityId)
         const players = this.interactWithEntities.retrieveEntityByClass(SimpleMatchLobby).retrieveComponent(Playable).players
-        if (gameEvent.action === 'Waiting for players') return this.twoPlayersOnWaitingAreaJoinMatch(gameEvent, players)
-        this.addPlayerOnWaitingArea(players, gameEvent)
-        return this.createMatchForEachTwoPlayers(players)
+        return (gameEvent.action === 'Waiting for players')
+            ? this.onWaitingForPlayersEvent(gameEvent.originEntityId, players)
+            : this.onNotWaitingForPlayersEvent(gameEvent.originEntityId, players)
     }
 
-    private twoPlayersOnWaitingAreaJoinMatch (gameEvent: GameEvent, players: string[]):Promise<void> {
-        if (gameEvent.originEntityId === undefined) throw new Error(MissingOriginEntityId)
-        const matchId = gameEvent.originEntityId
-        if (players.length < 2) return Promise.resolve()
-        const playersToJoinMatch = [players.shift()!, players.shift()!]
-        return Promise.all(playersToJoinMatch.map(player => this.sendEvent(
-            newEvent(Action.playerJoinMatch, EntityType.nothing, EntityType.match, matchId, player))))
+    private onNotWaitingForPlayersEvent (playerId: string, playersIds: string[]) {
+        playersIds.push(playerId)
+        return this.createMatchForEachTwoPlayers(playersIds)
+    }
+
+    private onWaitingForPlayersEvent (matchId: string, playerIds: string[]):Promise<void> {
+        const isEnoughPlayers = (players: string[]) => players.length >= 2
+        return (isEnoughPlayers(playerIds))
+            ? this.onEnoughPlayers(matchId, playerIds)
+            : Promise.resolve()
+    }
+
+    private onEnoughPlayers (matchId: string, playerIds: string[]) {
+        const playersToJoinMatch = [playerIds.shift()!, playerIds.shift()!]
+        return Promise.all(playersToJoinMatch.map(playerId => this.sendEvent(playerJoinMatchEvent(playerId, matchId))))
             .then(() => Promise.resolve())
             .catch(error => Promise.reject(error))
     }
 
-    private addPlayerOnWaitingArea (players: string[], gameEvent: GameEvent):void {
-        if (gameEvent.originEntityId === undefined) throw new Error(MissingOriginEntityId)
-        players.push(gameEvent.originEntityId)
-    }
-
-    private createMatchForEachTwoPlayers (players: string[]): Promise<void> {
-        return (players.length % 2 === 0)
-            ? this.sendEvent(newEvent(Action.create, EntityType.nothing, EntityType.match))
+    private createMatchForEachTwoPlayers (playerIds: string[]): Promise<void> {
+        const isEvenPlayers = (players: string[]) => players.length % 2 === 0
+        return (isEvenPlayers(playerIds))
+            ? this.sendEvent(createMatchEvent)
             : Promise.resolve()
     }
 }

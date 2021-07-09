@@ -1,11 +1,9 @@
 import { Phasing } from '../../Component/Phasing'
 import { Phase } from '../../Component/port/Phase'
 import { Action } from '../../Events/port/Action'
-import { EntityType } from '../../Events/port/EntityType'
 import { GameEvent } from '../../Events/port/GameEvent'
-import { errorMessageOnUnknownEventAction, MissingOriginEntityId, MissingTargetEntityId, newEvent } from '../../Events/port/GameEvents'
+import { errorMessageOnUnknownEventAction, MissingOriginEntityId, MissingTargetEntityId } from '../../Events/port/GameEvents'
 import { GenericSystem } from '../Generic/GenericSystem'
-export const playerReadyForMatch = (matchId:string, playerId:string) => newEvent(Action.ready, EntityType.player, EntityType.match, matchId, playerId)
 export class PhasingSystem extends GenericSystem {
     onGameEvent (gameEvent: GameEvent): Promise<void> {
         if (gameEvent.action === Action.ready) return this.onReady(gameEvent)

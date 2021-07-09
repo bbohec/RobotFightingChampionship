@@ -8,3 +8,5 @@ export const simpleMatchLobbyEntityId = '0000000000000000000000'
 export const players = ['Player A', 'Player B', 'Player C', 'Player D', 'Player E', 'Player F', 'Player G', 'Player H']
 export const matchId = 'matchId'
 export const gameEntityId = 'gameEntityId'
+export const expectedAddedPlayers = ['Player A', 'Player B']
+export const expectedStillWaitingPlayers = ['Player C', 'Player D']

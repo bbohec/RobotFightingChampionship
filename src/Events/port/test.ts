@@ -1,4 +1,4 @@
-import { describe, HookFunction, it, Test } from 'mocha'
+import { describe, before, Func, it, Test } from 'mocha'
 import { expect } from 'chai'
 import { GameEvent } from './GameEvent'
 import { GenericGameSystem } from '../../Systems/Game/GenericGame'
@@ -17,15 +17,14 @@ import { ServerGameSystem } from '../../Systems/Game/ServerGame'
 export const featureEventDescription = (action:Action): string => `Feature : ${action} events`
 export const scenarioEventDescription = (event: GameEvent|GameEvent[], gameType:'client'|'server'): string => ((Array.isArray(event))
     ? `
-    Scenario - ${gameType}:${event.map(event => `Event action '${event.action}.'
-    Target entity type '${event.targetEntityType}' with Id '${event.targetEntityId}'. 
-    Origin entity type '${event.originEntityType}' with Id '${event.targetEntityId}'.
-    `)}`
+    Scenario - ${gameType}:\n${event.map(event => `        Event action '${event.action}.'
+        Target entity type '${event.targetEntityType}' with Id '${event.targetEntityId}'. 
+        Origin entity type '${event.originEntityType}' with Id '${event.originEntityId}'.`).join('\n        And\n')}`
     : `
     Scenario - ${gameType}:
         Event action '${event.action}.'
         Target entity type '${event.targetEntityType}' with Id '${event.targetEntityId}'. 
-        Origin entity type '${event.originEntityType}' with Id '${event.targetEntityId}'.
+        Origin entity type '${event.originEntityType}' with Id '${event.originEntityId}'.
     `
 )
 export const whenEventOccurs = (eventDispatcherSystem:GenericGameSystem, event:GameEvent) => it(eventMessage(event), () => eventDispatcherSystem.onGameEvent(event))
@@ -147,15 +146,25 @@ function createServer (nextIdentifiers?:string[]):{adapters:FakeServerAdapters, 
     const game = new ServerGameSystem(adapters)
     return { adapters, game }
 }
-export const scenario = (
-    gameEvent:GameEvent,
-    gameType:'client'|'server',
+export const serverScenario = (
+    gameEvent:GameEvent|GameEvent[],
     nextIdentifiers:string[]|undefined,
-    before:HookFunction|undefined,
-    tests:((game:ClientGameSystem|ServerGameSystem, adapters:FakeClientAdapters|FakeServerAdapters)=>Test)[]
-) => describe(scenarioEventDescription(gameEvent, gameType), () => {
-    const { adapters, game } = (gameType === 'client') ? createClient(nextIdentifiers) : createServer(nextIdentifiers)
+    beforeMochaFunc:((game:ServerGameSystem, adapters:FakeServerAdapters)=>Func)|undefined,
+    tests:((game:ServerGameSystem, adapters:FakeServerAdapters)=>Test)[]
+) => describe(scenarioEventDescription(gameEvent, 'server'), () => {
+    const { adapters, game } = createServer(nextIdentifiers)
     // eslint-disable-next-line no-unused-expressions
-    if (before)before
+    if (beforeMochaFunc)before(beforeMochaFunc(game, adapters))
+    tests.forEach(test => test(game, adapters))
+})
+export const clientScenario = (
+    gameEvent:GameEvent|GameEvent[],
+    nextIdentifiers:string[]|undefined,
+    beforeMochaFunc:((game:ClientGameSystem, adapters:FakeServerAdapters)=>Func)|undefined,
+    tests:((game:ClientGameSystem, adapters:FakeClientAdapters)=>Test)[]
+) => describe(scenarioEventDescription(gameEvent, 'client'), () => {
+    const { adapters, game } = createClient(nextIdentifiers)
+    // eslint-disable-next-line no-unused-expressions
+    if (beforeMochaFunc)before(beforeMochaFunc(game, adapters))
     tests.forEach(test => test(game, adapters))
 })

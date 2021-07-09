@@ -1,15 +1,18 @@
-import { Action } from '../../Events/port/Action'
 import { EntityType } from '../../Events/port/EntityType'
 import { GameEvent } from '../../Events/port/GameEvent'
-import { MissingOriginEntityId, newEvent } from '../../Events/port/GameEvents'
+import { MissingOriginEntityId, MissingTargetEntityId } from '../../Events/port/GameEvents'
+import { joinSimpleMatchServerEvent } from '../../Events/join/join'
+import { showEvent } from '../../Events/show/show'
+import { hideEvent } from '../../Events/hide/hide'
 import { GenericSystem } from '../Generic/GenericSystem'
 export class ClientMatchSystem extends GenericSystem {
     onGameEvent (gameEvent: GameEvent): Promise<void> {
         if (gameEvent.originEntityId === undefined) throw new Error(MissingOriginEntityId)
+        if (gameEvent.targetEntityId === undefined) throw new Error(MissingTargetEntityId)
         const events = [
-            newEvent(Action.wantToJoin, EntityType.nothing, EntityType.game, undefined, gameEvent.originEntityId),
-            newEvent(Action.hide, EntityType.nothing, EntityType.mainMenu),
-            newEvent(Action.show, EntityType.nothing, EntityType.matchMaking)
+            joinSimpleMatchServerEvent(gameEvent.originEntityId),
+            hideEvent(EntityType.mainMenu, gameEvent.targetEntityId),
+            showEvent(EntityType.matchMaking)
         ]
         return Promise.all(events.map(event => this.sendEvent(event)))
             .then(() => Promise.resolve())

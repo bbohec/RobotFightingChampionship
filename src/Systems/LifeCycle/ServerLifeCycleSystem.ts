@@ -1,21 +1,22 @@
 import { GameEvent } from '../../Events/port/GameEvent'
-import { errorMessageOnUnknownEventAction, MissingOriginEntityId, newEvent } from '../../Events/port/GameEvents'
-import { createSimpleMatchLobbyEvent, GenericLifeCycleSystem } from './GenericLifeCycleSystem'
-import { SimpleMatchLobby } from '../../Entities/SimpleMatchLobby/SimpleMatchLobby'
-import { Match } from '../../Entities/Match/Match'
+import { errorMessageOnUnknownEventAction, MissingOriginEntityId } from '../../Events/port/GameEvents'
+import { GenericLifeCycleSystem } from './GenericLifeCycleSystem'
+import { createSimpleMatchLobbyEvent } from '../../Events/create/create'
+import { SimpleMatchLobby } from '../../Entities/SimpleMatchLobby'
+import { Match } from '../../Entities/Match'
 import { Playable } from '../../Component/Playable'
-import { Grid } from '../../Entities/Grid/Grid'
+import { Grid } from '../../Entities/Grid'
 import { Dimensional } from '../../Component/Dimensional'
-import { Action } from '../../Events/port/Action'
 import { EntityType } from '../../Events/port/EntityType'
-import { Tower } from '../../Entities/Tower/Tower'
-import { Robot } from '../../Entities/Robot/Robot'
-import { Player } from '../../Entities/Player/Player'
+import { Tower } from '../../Entities/Tower'
+import { Robot } from '../../Entities/Robot'
+import { Player } from '../../Entities/Player'
 import { EntityReference } from '../../Component/EntityReference'
 import { Phasing } from '../../Component/Phasing'
-import { Game } from '../../Entities/ClientGame/Game'
+import { Game } from '../../Entities/Game'
 import { Phase } from '../../Component/port/Phase'
-import { matchWaitingForPlayers, registerGridEvent, registerTowerEvent } from '../Match/ServerMatchSystem'
+import { registerGridEvent, registerRobotEvent, registerTowerEvent } from '../../Events/register/register'
+import { matchWaitingForPlayers } from '../../Events/waiting/wainting'
 export class ServerLifeCycleSystem extends GenericLifeCycleSystem {
     onGameEvent (gameEvent: GameEvent): Promise<void> {
         const strategy = this.retrieveStrategy(gameEvent)
@@ -45,7 +46,12 @@ export class ServerLifeCycleSystem extends GenericLifeCycleSystem {
     }
 
     private createRobotEntity (robotEntityId:string, gameEvent:GameEvent): Promise<void> {
-        return this.createEntity(new Robot(robotEntityId), undefined, newEvent(Action.register, EntityType.robot, EntityType.player, gameEvent.originEntityId, robotEntityId))
+        if (gameEvent.originEntityId === undefined) throw new Error(MissingOriginEntityId)
+        return this.createEntity(
+            new Robot(robotEntityId),
+            undefined,
+            registerRobotEvent(robotEntityId, gameEvent.originEntityId)
+        )
     }
 
     private createGameEntity (gameEntityId: string): Promise<void> {

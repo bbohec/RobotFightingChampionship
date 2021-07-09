@@ -1,13 +1,15 @@
-import { Game } from '../../Entities/ClientGame/Game'
+import { Game } from '../../Entities/Game'
 import { Visible } from '../../Component/Visible'
 import { GameEvent } from '../../Events/port/GameEvent'
-import { errorMessageOnUnknownEventAction, MissingOriginEntityId, MissingTargetEntityId, newEvent } from '../../Events/port/GameEvents'
-import { MainMenu } from '../../Entities/MainMenu/MainMenu'
-import { createMainMenuEvent, GenericLifeCycleSystem } from './GenericLifeCycleSystem'
-import { SimpleMatchLobby } from '../../Entities/SimpleMatchLobby/SimpleMatchLobby'
+import { errorMessageOnUnknownEventAction, MissingOriginEntityId, MissingTargetEntityId } from '../../Events/port/GameEvents'
+import { MainMenu } from '../../Entities/MainMenu'
+import { GenericLifeCycleSystem } from './GenericLifeCycleSystem'
+import { createMainMenuEvent } from '../../Events/create/create'
 import { EntityType } from '../../Events/port/EntityType'
-import { Action } from '../../Events/port/Action'
-import { mainMenuHideEvent } from '../Drawing/DrawingSystem'
+import { hideEvent } from '../../Events/hide/hide'
+import { SimpleMatchLobby } from '../../Entities/SimpleMatchLobby'
+import { showEvent } from '../../Events/show/show'
+import { simpleMatchLobbyEntityId } from '../../Events/port/entityIds'
 
 export class ClientLifeCycleSystem extends GenericLifeCycleSystem {
     onGameEvent (gameEvent: GameEvent): Promise<void> {
@@ -21,7 +23,7 @@ export class ClientLifeCycleSystem extends GenericLifeCycleSystem {
         return this.createEntity(
             new MainMenu(mainMenuEntityId),
             [new Visible(mainMenuEntityId)],
-            newEvent(Action.show, EntityType.nothing, EntityType.mainMenu, mainMenuEntityId)
+            showEvent(EntityType.mainMenu, mainMenuEntityId)
         )
     }
 
@@ -32,8 +34,8 @@ export class ClientLifeCycleSystem extends GenericLifeCycleSystem {
             new SimpleMatchLobby(simpleMachtLobbyEntityId),
             [new Visible(simpleMachtLobbyEntityId)],
             [
-                newEvent(Action.show, EntityType.nothing, EntityType.simpleMatchLobby),
-                mainMenuHideEvent(gameEvent.targetEntityId)
+                showEvent(EntityType.simpleMatchLobby, simpleMatchLobbyEntityId),
+                hideEvent(EntityType.mainMenu, gameEvent.targetEntityId)
             ]
         )
     }

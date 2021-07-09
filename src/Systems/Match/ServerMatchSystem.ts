@@ -1,22 +1,17 @@
 import { GenericSystem } from '../Generic/GenericSystem'
 import { GameEvent } from '../../Events/port/GameEvent'
 import { Playable } from '../../Component/Playable'
-import { errorMessageOnUnknownEventAction, MissingOriginEntityId, MissingTargetEntityId, newEvent } from '../../Events/port/GameEvents'
+import { errorMessageOnUnknownEventAction, MissingOriginEntityId, MissingTargetEntityId } from '../../Events/port/GameEvents'
 import { Action } from '../../Events/port/Action'
 import { EntityType, unsupportedEntityTypeMessage } from '../../Events/port/EntityType'
 import { EntityReference } from '../../Component/EntityReference'
-import { Match } from '../../Entities/Match/Match'
-import { playerReadyForMatch } from '../Phasing/PhasingSystem'
-
-export const matchWaitingForPlayers = (matchId:string):GameEvent => newEvent(Action.waitingForPlayers, EntityType.nothing, EntityType.simpleMatchLobby, undefined, matchId)
-export const registerGridEvent = (matchId:string, gridId:string) => newEvent(Action.register, EntityType.grid, EntityType.match, matchId, gridId)
-export const registerTowerEvent = (towerId:string, playerId:string) => newEvent(Action.register, EntityType.tower, EntityType.player, playerId, towerId)
-export const registerRobotEvent = (robotId:string, playerId:string) => newEvent(Action.register, EntityType.robot, EntityType.player, playerId, robotId)
-export const playerJoinMatchEvent = (player:string, matchId:string) => newEvent(Action.playerJoinMatch, EntityType.nothing, EntityType.match, matchId, player)
+import { Match } from '../../Entities/Match'
+import { playerReadyForMatch } from '../../Events/ready/ready'
+import { createGridEvent, createRobotEvent, createTowerEvent } from '../../Events/create/create'
 
 export class ServerMatchSystem extends GenericSystem {
     onGameEvent (gameEvent: GameEvent): Promise<void> {
-        if (gameEvent.action === Action.playerJoinMatch) { return this.onPlayerJoinMatch(gameEvent) }
+        if (gameEvent.action === Action.join) { return this.onPlayerJoinMatch(gameEvent) }
         if (gameEvent.action === Action.register) { return this.onRegister(gameEvent) }
         throw new Error(errorMessageOnUnknownEventAction(ServerMatchSystem.name, gameEvent))
     }
@@ -54,11 +49,11 @@ export class ServerMatchSystem extends GenericSystem {
             : Promise.resolve()
     }
 
-    private onMatchHasAllPlayers (players: string[], matchId: string): Promise<void> {
+    private onMatchHasAllPlayers (playerIds: string[], matchId: string): Promise<void> {
         return Promise.all([
-            ...players.map(player => this.sendEvent(newEvent(Action.create, EntityType.nothing, EntityType.tower, undefined, player))),
-            ...players.map(player => this.sendEvent(newEvent(Action.create, EntityType.nothing, EntityType.robot, undefined, player))),
-            this.sendEvent(newEvent(Action.create, EntityType.nothing, EntityType.grid, undefined, matchId))
+            ...playerIds.map(playerId => this.sendEvent(createTowerEvent(playerId))),
+            ...playerIds.map(playerId => this.sendEvent(createRobotEvent(playerId))),
+            this.sendEvent(createGridEvent(matchId))
         ])
             .then(() => Promise.resolve())
             .catch(error => Promise.reject(error))

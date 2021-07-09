@@ -17,9 +17,8 @@ export class InMemoryEventRepository implements EventInteractor {
         )
         const gameEvent = this.gameEvents.filter(event => isEventsIdentical(event, expectedEvent))
         if (gameEvent.length > 0) return gameEvent
-        throw new Error(`The following game event is not found on event repository: ${JSON.stringify(expectedEvent)}
-        List of current events:
-        ${this.gameEvents.map(event => JSON.stringify(event)).join('\n')}`)
+        throw new Error(`The following game event is not found on event repository:\n${JSON.stringify(expectedEvent)}
+        List of current events:\n${this.gameEvents.map(event => JSON.stringify(event)).join('\n')}`)
     }
 
     public hasEvent (expectedEvent: GameEvent): boolean {
