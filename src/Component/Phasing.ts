@@ -1,12 +1,12 @@
 import { GenericComponent } from './GenericComponent'
-import { Phase } from './port/Phase'
+import { PhaseType } from './port/Phase'
 export class Phasing extends GenericComponent {
-    constructor (entityId:string, phase:Phase, readyPlayers:Set<string> = new Set([])) {
+    constructor (entityId:string, phase:PhaseType, readyPlayers:Set<string> = new Set([])) {
         super(entityId)
         this.currentPhase = phase
         this.readyPlayers = readyPlayers
     }
 
-    currentPhase: Phase
+    currentPhase: PhaseType
     readyPlayers:Set<string>
 }

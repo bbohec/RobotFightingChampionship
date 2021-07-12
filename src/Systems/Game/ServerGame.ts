@@ -1,6 +1,7 @@
 import { GameEvent } from '../../Events/port/GameEvent'
 import { ServerGameEventDispatcherSystem } from '../GameEventDispatcher/ServerGameEventDispatcherSystem'
 import { System } from '../Generic/port/System'
+import { HitSystem } from '../Hit/HitSystem'
 import { ServerLifeCycleSystem } from '../LifeCycle/ServerLifeCycleSystem'
 import { ServerMatchSystem } from '../Match/ServerMatchSystem'
 import { PhasingSystem } from '../Phasing/PhasingSystem'
@@ -17,6 +18,7 @@ export class ServerGameSystem extends GenericGameSystem {
         systems.add(new WaitingAreaSystem(adapters.entityInteractor, serverEventDispatcherSystem))
         systems.add(new ServerMatchSystem(adapters.entityInteractor, serverEventDispatcherSystem))
         systems.add(new PhasingSystem(adapters.entityInteractor, serverEventDispatcherSystem))
+        systems.add(new HitSystem(adapters.entityInteractor, serverEventDispatcherSystem))
         super(adapters.systemInteractor, systems)
     }
 

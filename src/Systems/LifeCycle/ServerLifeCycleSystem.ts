@@ -14,9 +14,11 @@ import { Player } from '../../Entities/Player'
 import { EntityReference } from '../../Component/EntityReference'
 import { Phasing } from '../../Component/Phasing'
 import { Game } from '../../Entities/Game'
-import { Phase } from '../../Component/port/Phase'
+import { PhaseType } from '../../Component/port/Phase'
 import { registerGridEvent, registerRobotEvent, registerTowerEvent } from '../../Events/register/register'
 import { matchWaitingForPlayers } from '../../Events/waiting/wainting'
+import { Hittable } from '../../Component/Hittable'
+import { Offensive } from '../Hit/HitSystem'
 export class ServerLifeCycleSystem extends GenericLifeCycleSystem {
     onGameEvent (gameEvent: GameEvent): Promise<void> {
         const strategy = this.retrieveStrategy(gameEvent)
@@ -49,7 +51,13 @@ export class ServerLifeCycleSystem extends GenericLifeCycleSystem {
         if (gameEvent.originEntityId === undefined) throw new Error(MissingOriginEntityId)
         return this.createEntity(
             new Robot(robotEntityId),
-            undefined,
+            [
+                new Hittable(robotEntityId, 50),
+                new Offensive(robotEntityId, 20),
+                new EntityReference(robotEntityId, new Map([
+                    [gameEvent.originEntityId, EntityType.player]
+                ]))
+            ],
             registerRobotEvent(robotEntityId, gameEvent.originEntityId)
         )
     }
@@ -72,7 +80,7 @@ export class ServerLifeCycleSystem extends GenericLifeCycleSystem {
     private createMatchEntity (matchEntityId: string): Promise<void> {
         return this.createEntity(
             new Match(matchEntityId),
-            [new Playable(matchEntityId, []), new EntityReference(matchEntityId, new Map()), new Phasing(matchEntityId, Phase.PreparingGame)],
+            [new Playable(matchEntityId, []), new EntityReference(matchEntityId, new Map()), new Phasing(matchEntityId, PhaseType.PreparingGame)],
             matchWaitingForPlayers(matchEntityId)
         )
     }
@@ -90,7 +98,13 @@ export class ServerLifeCycleSystem extends GenericLifeCycleSystem {
         if (gameEvent.originEntityId === undefined) throw new Error(MissingOriginEntityId)
         return this.createEntity(
             new Tower(towerEntityId),
-            [],
+            [
+                new Hittable(towerEntityId, 100),
+                new Offensive(towerEntityId, 5),
+                new EntityReference(towerEntityId, new Map([
+                    [gameEvent.originEntityId, EntityType.player]
+                ]))
+            ],
             registerTowerEvent(towerEntityId, gameEvent.originEntityId)
         )
     }

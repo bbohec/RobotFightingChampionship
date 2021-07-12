@@ -27,7 +27,7 @@ export const scenarioEventDescription = (event: GameEvent|GameEvent[], gameType:
         Origin entity type '${event.originEntityType}' with Id '${event.originEntityId}'.
     `
 )
-export const whenEventOccurs = (eventDispatcherSystem:GenericGameSystem, event:GameEvent) => it(eventMessage(event), () => eventDispatcherSystem.onGameEvent(event))
+export const whenEventOccurs = (game:GenericGameSystem, event:GameEvent) => it(eventMessage(event), () => game.onGameEvent(event))
 const eventMessage = (event:GameEvent): string => `When the event action '${event.action}' occurs with origin entity '${event.originEntityType}' to target entity '${event.targetEntityType}'.`
 
 export const theEntityIsOnRepository = <PotentialEntity extends Entity> (
@@ -94,7 +94,7 @@ export const theEntityWithIdHasTheExpectedComponent = <PotentialComponent extend
     potentialComponent:PotentialClass<PotentialComponent>,
     expectedComponent: GenericComponent
 ) => it(`${testStep} the entity with id '${entityId}' has the expected '${potentialComponent.name}' component : 
-            ${JSON.stringify(expectedComponent)}`,
+            ${JSON.stringify(expectedComponent, detailledStringifyForSetAndMap)}`,
     () => {
         const component = adapters
             .entityInteractor

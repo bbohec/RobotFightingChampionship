@@ -44,6 +44,7 @@ export class ServerMatchSystem extends GenericSystem {
         if (gameEvent.originEntityId === undefined) { throw new Error(MissingOriginEntityId) }
         const players = this.interactWithEntities.retrieveEntityById(gameEvent.targetEntityId).retrieveComponent(Playable).players
         players.push(gameEvent.originEntityId)
+        this.interactWithEntities.retrieveEntityById(gameEvent.originEntityId).retrieveComponent(EntityReference).entityReferences.set(gameEvent.targetEntityId, EntityType.match)
         return (this.isMatchHasAllPlayers(players))
             ? this.onMatchHasAllPlayers(players, gameEvent.targetEntityId)
             : Promise.resolve()

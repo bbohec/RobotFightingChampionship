@@ -7,5 +7,8 @@ export enum Action {
     join = 'Join',
     create = 'Create',
     register = 'Register',
-    ready = 'ready'
+    ready = 'ready',
+    nextTurn = 'nextTurn',
+    hit = 'hit',
+    victory = 'victory'
 }

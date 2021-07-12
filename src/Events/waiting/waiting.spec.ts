@@ -8,7 +8,7 @@ import { TestStep } from '../port/TestStep'
 import { playerJoinMatchEvent, playerWantJoinSimpleMatchLobby } from '../join/join'
 import { EntityReference } from '../../Component/EntityReference'
 import { Phasing } from '../../Component/Phasing'
-import { Phase } from '../../Component/port/Phase'
+import { PhaseType } from '../../Component/port/Phase'
 import { Match } from '../../Entities/Match'
 import { matchWaitingForPlayers } from './wainting'
 const action = Action.waitingForPlayers
@@ -20,7 +20,7 @@ describe(featureEventDescription(action), () => {
         (game, adapters) => theEventIsSent(TestStep.And, adapters, matchWaitingForPlayers(matchId)),
         (game, adapters) => theEntityWithIdHasTheExpectedComponent(TestStep.And, adapters, matchId, Playable, new Playable(matchId, [])),
         (game, adapters) => theEntityWithIdHasTheExpectedComponent(TestStep.And, adapters, matchId, EntityReference, new EntityReference(matchId, new Map())),
-        (game, adapters) => theEntityWithIdHasTheExpectedComponent(TestStep.And, adapters, matchId, Phasing, new Phasing(matchId, Phase.PreparingGame))
+        (game, adapters) => theEntityWithIdHasTheExpectedComponent(TestStep.And, adapters, matchId, Phasing, new Phasing(matchId, PhaseType.PreparingGame))
     ])
     serverScenario(matchWaitingForPlayers(matchId), [simpleMatchLobbyEntityId],
         (game, adapters) => () => game.onGameEvent(createSimpleMatchLobbyEvent(mainMenuEntityId, simpleMatchLobbyEntityId))

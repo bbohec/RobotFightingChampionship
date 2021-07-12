@@ -18,7 +18,7 @@ export abstract class GenericEntity implements Entity, ComponentManagement {
 
     retrieveComponent <Class extends Component> (potentialComponent: PotentialClass<Class>):Class {
         for (const component of this.components.values()) if (component instanceof potentialComponent) return component as Class
-        throw new Error(`Component '${potentialComponent.name}' missing on entity id '${this.id}'`)
+        throw new Error(`Component '${potentialComponent.name}' missing on entity id '${this.id}'.\nAvailable components: ${JSON.stringify(Array.from(this.components.values()))}`)
     }
 
     deleteComponent <Class extends Component> (potentialComponent: PotentialClass<Class>):void {

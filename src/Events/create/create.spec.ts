@@ -19,6 +19,8 @@ import { Player } from '../../Entities/Player'
 import { Robot } from '../../Entities/Robot'
 import { SimpleMatchLobby } from '../../Entities/SimpleMatchLobby'
 import { Tower } from '../../Entities/Tower'
+import { Hittable } from '../../Component/Hittable'
+import { Offensive } from '../../Systems/Hit/HitSystem'
 
 describe(featureEventDescription(Action.create), () => {
     clientScenario(createGameEvent, [gameEntityId], undefined, [
@@ -63,13 +65,17 @@ describe(featureEventDescription(Action.create), () => {
         (game, adapters) => theEntityIsNotOnRepository(TestStep.Given, adapters, Robot),
         (game, adapters) => whenEventOccurs(game, createRobotEvent(playerAId)),
         (game, adapters) => theEntityIsCreated(TestStep.Then, adapters, robotId),
-        (game, adapters) => theEventIsSent(TestStep.And, adapters, registerRobotEvent(robotId, playerAId))
+        (game, adapters) => theEventIsSent(TestStep.And, adapters, registerRobotEvent(robotId, playerAId)),
+        (game, adapters) => theEntityWithIdHasTheExpectedComponent(TestStep.And, adapters, robotId, Hittable, new Hittable(robotId, 50)),
+        (game, adapters) => theEntityWithIdHasTheExpectedComponent(TestStep.And, adapters, robotId, Offensive, new Offensive(robotId, 20))
     ])
     serverScenario(createTowerEvent(playerAId), [towerId], undefined, [
         (game, adapters) => theEntityIsNotOnRepository(TestStep.Given, adapters, Tower),
         (game, adapters) => whenEventOccurs(game, createTowerEvent(playerAId)),
         (game, adapters) => theEntityIsCreated(TestStep.Then, adapters, towerId),
-        (game, adapters) => theEventIsSent(TestStep.And, adapters, registerTowerEvent(towerId, playerAId))
+        (game, adapters) => theEventIsSent(TestStep.And, adapters, registerTowerEvent(towerId, playerAId)),
+        (game, adapters) => theEntityWithIdHasTheExpectedComponent(TestStep.And, adapters, towerId, Hittable, new Hittable(towerId, 100)),
+        (game, adapters) => theEntityWithIdHasTheExpectedComponent(TestStep.And, adapters, towerId, Offensive, new Offensive(towerId, 5))
     ])
 
     serverScenario(createGridEvent(matchId), [gridId], undefined, [
