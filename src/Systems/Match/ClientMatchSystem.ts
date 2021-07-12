@@ -1,6 +1,5 @@
-import { EntityType } from '../../Events/port/EntityType'
-import { GameEvent } from '../../Events/port/GameEvent'
-import { MissingOriginEntityId, MissingTargetEntityId } from '../../Events/port/GameEvents'
+import { EntityType } from '../../Event/EntityType'
+import { GameEvent, MissingOriginEntityId, MissingTargetEntityId } from '../../Event/GameEvent'
 import { joinSimpleMatchServerEvent } from '../../Events/join/join'
 import { showEvent } from '../../Events/show/show'
 import { hideEvent } from '../../Events/hide/hide'

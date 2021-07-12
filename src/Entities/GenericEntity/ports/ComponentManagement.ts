@@ -1,4 +1,4 @@
-import { Component } from '../../../Component/port/Component'
+import { Component } from '../../../Components/port/Component'
 import { PotentialClass } from './PotentialClass'
 export interface ComponentManagement {
     hasComponent(potentialComponent: PotentialClass<Component>): boolean;

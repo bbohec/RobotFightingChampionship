@@ -1,4 +1,4 @@
-import { GameEvent } from '../../../Events/port/GameEvent'
+import { GameEvent } from '../../../Event/GameEvent'
 import { EventInteractor } from '../port/EventInteractor'
 
 export class InMemoryEventRepository implements EventInteractor {

@@ -1,9 +1,8 @@
-import { Playable } from '../../Component/Playable'
+import { Playable } from '../../Components/Playable'
 import { SimpleMatchLobby } from '../../Entities/SimpleMatchLobby'
 import { createMatchEvent } from '../../Events/create/create'
 import { playerJoinMatchEvent } from '../../Events/join/join'
-import { GameEvent } from '../../Events/port/GameEvent'
-import { errorMessageOnUnknownEventAction, MissingOriginEntityId } from '../../Events/port/GameEvents'
+import { errorMessageOnUnknownEventAction, GameEvent, MissingOriginEntityId } from '../../Event/GameEvent'
 import { GenericSystem } from '../Generic/GenericSystem'
 
 export class WaitingAreaSystem extends GenericSystem {

@@ -1,15 +1,15 @@
 import { describe } from 'mocha'
-import { Playable } from '../../Component/Playable'
+import { Playable } from '../../Components/Playable'
 import { showEvent } from '../show/show'
 import { hideEvent } from '../hide/hide'
 import { createGameEvent, createGridEvent, createMainMenuEvent, createMatchEvent, createPlayerEvent, createRobotEvent, createSimpleMatchLobbyEvent, createTowerEvent } from '../create/create'
-import { Action } from '../port/Action'
-import { gameEntityId, mainMenuEntityId, matchId, playerAId, playerBId, players, simpleMatchLobbyEntityId } from '../port/entityIds'
-import { EntityType } from '../port/EntityType'
-import { clientScenario, featureEventDescription, serverScenario, theEntityIsCreated, theEntityIsOnRepository, theEntityWithIdHasTheExpectedComponent, theEventIsSent, whenEventOccurs } from '../port/test'
-import { TestStep } from '../port/TestStep'
+import { Action } from '../../Event/Action'
+import { gameEntityId, mainMenuEntityId, matchId, playerAId, playerBId, players, simpleMatchLobbyEntityId } from '../../Event/entityIds'
+import { EntityType } from '../../Event/EntityType'
+import { clientScenario, featureEventDescription, serverScenario, theEntityIsCreated, theEntityIsOnRepository, theEntityWithIdHasTheExpectedComponent, theEventIsSent, whenEventOccurs } from '../../Event/test'
+import { TestStep } from '../../Event/TestStep'
 import { joinSimpleMatchLobby, joinSimpleMatchServerEvent, playerJoinMatchEvent, playerWantJoinSimpleMatchLobby } from './join'
-import { EntityReference } from '../../Component/EntityReference'
+import { EntityReference } from '../../Components/EntityReference'
 describe(featureEventDescription(Action.join), () => {
     clientScenario(joinSimpleMatchLobby(playerAId, mainMenuEntityId), [gameEntityId],
         (game) => () => game.onGameEvent(createGameEvent).then(() => game.onGameEvent(createMainMenuEvent(gameEntityId, mainMenuEntityId))),

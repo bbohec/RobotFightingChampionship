@@ -1,15 +1,14 @@
 import { Game } from '../../Entities/Game'
-import { Visible } from '../../Component/Visible'
-import { GameEvent } from '../../Events/port/GameEvent'
-import { errorMessageOnUnknownEventAction, MissingOriginEntityId, MissingTargetEntityId } from '../../Events/port/GameEvents'
+import { Visible } from '../../Components/Visible'
+import { errorMessageOnUnknownEventAction, GameEvent, MissingOriginEntityId, MissingTargetEntityId } from '../../Event/GameEvent'
 import { MainMenu } from '../../Entities/MainMenu'
 import { GenericLifeCycleSystem } from './GenericLifeCycleSystem'
 import { createMainMenuEvent } from '../../Events/create/create'
-import { EntityType } from '../../Events/port/EntityType'
+import { EntityType } from '../../Event/EntityType'
 import { hideEvent } from '../../Events/hide/hide'
 import { SimpleMatchLobby } from '../../Entities/SimpleMatchLobby'
 import { showEvent } from '../../Events/show/show'
-import { simpleMatchLobbyEntityId } from '../../Events/port/entityIds'
+import { simpleMatchLobbyEntityId } from '../../Event/entityIds'
 
 export class ClientLifeCycleSystem extends GenericLifeCycleSystem {
     onGameEvent (gameEvent: GameEvent): Promise<void> {

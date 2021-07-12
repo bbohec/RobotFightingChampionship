@@ -1,8 +1,7 @@
-import { GameEvent } from '../../Events/port/GameEvent'
+import { errorMessageOnUnknownEventAction, GameEvent, MissingTargetEntityId } from '../../Event/GameEvent'
 import { DrawingPort } from './port/DrawingPort'
 import { GenericSystem } from '../Generic/GenericSystem'
 import { EntityInteractor } from '../../Entities/GenericEntity/ports/EntityInteractor'
-import { errorMessageOnUnknownEventAction, MissingTargetEntityId } from '../../Events/port/GameEvents'
 import { GenericGameEventDispatcherSystem } from '../GameEventDispatcher/GenericGameEventDispatcherSystem'
 export class DrawingSystem extends GenericSystem {
     constructor (interactWithEntities: EntityInteractor, gameEventDispatcher: GenericGameEventDispatcherSystem, drawingPort:DrawingPort) {

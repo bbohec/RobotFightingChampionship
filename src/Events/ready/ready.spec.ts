@@ -1,12 +1,12 @@
 import { describe } from 'mocha'
-import { Phasing } from '../../Component/Phasing'
-import { PhaseType } from '../../Component/port/Phase'
+import { Phasing } from '../../Components/Phasing'
+import { PhaseType } from '../../Components/port/Phase'
 import { createMatchEvent } from '../create/create'
 import { playerReadyForMatch } from './ready'
-import { Action } from '../port/Action'
-import { matchId, playerAId, playerBId } from '../port/entityIds'
-import { featureEventDescription, serverScenario, theEntityIsOnRepository, theEntityWithIdHasTheExpectedComponent, theEventIsSent, whenEventOccurs } from '../port/test'
-import { TestStep } from '../port/TestStep'
+import { Action } from '../../Event/Action'
+import { matchId, playerAId, playerBId } from '../../Event/entityIds'
+import { featureEventDescription, serverScenario, theEntityIsOnRepository, theEntityWithIdHasTheExpectedComponent, theEventIsSent, whenEventOccurs } from '../../Event/test'
+import { TestStep } from '../../Event/TestStep'
 import { nextTurnEvent } from '../nextTurn/nextTurnEvent'
 describe(featureEventDescription(Action.ready), () => {
     serverScenario(playerReadyForMatch(matchId, playerAId), [matchId],

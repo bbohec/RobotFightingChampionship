@@ -1,4 +1,4 @@
-import { EntityType } from '../Events/port/EntityType'
+import { EntityType } from '../Event/EntityType'
 import { GenericComponent } from './GenericComponent'
 
 export class EntityReference extends GenericComponent {

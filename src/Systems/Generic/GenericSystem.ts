@@ -1,4 +1,4 @@
-import { GameEvent } from '../../Events/port/GameEvent'
+import { GameEvent } from '../../Event/GameEvent'
 import { System } from './port/System'
 import { EntityInteractor } from '../../Entities/GenericEntity/ports/EntityInteractor'
 import { GenericGameEventDispatcherSystem } from '../GameEventDispatcher/GenericGameEventDispatcherSystem'

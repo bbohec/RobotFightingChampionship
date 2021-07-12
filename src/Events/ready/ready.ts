@@ -1,5 +1,4 @@
-import { Action } from '../port/Action'
-import { EntityType } from '../port/EntityType'
-import { newEvent } from '../port/GameEvents'
-
+import { Action } from '../../Event/Action'
+import { EntityType } from '../../Event/EntityType'
+import { newEvent } from '../../Event/GameEvent'
 export const playerReadyForMatch = (matchId: string, playerId: string) => newEvent(Action.ready, EntityType.player, EntityType.match, matchId, playerId)

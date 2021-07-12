@@ -1,11 +1,11 @@
 import { describe } from 'mocha'
 import { showEvent } from './show'
 import { createMainMenuEvent } from '../create/create'
-import { Action } from '../port/Action'
-import { gameEntityId, mainMenuEntityId } from '../port/entityIds'
-import { EntityType } from '../port/EntityType'
-import { clientScenario, entityIsNotVisible, entityIsVisible, featureEventDescription, whenEventOccurs } from '../port/test'
-import { TestStep } from '../port/TestStep'
+import { Action } from '../../Event/Action'
+import { gameEntityId, mainMenuEntityId } from '../../Event/entityIds'
+import { EntityType } from '../../Event/EntityType'
+import { clientScenario, entityIsNotVisible, entityIsVisible, featureEventDescription, whenEventOccurs } from '../../Event/test'
+import { TestStep } from '../../Event/TestStep'
 describe(featureEventDescription(Action.show), () => {
     clientScenario(showEvent(EntityType.mainMenu, mainMenuEntityId), undefined,
         (game, adapters) => () => game.onGameEvent(createMainMenuEvent(gameEntityId, mainMenuEntityId)), [

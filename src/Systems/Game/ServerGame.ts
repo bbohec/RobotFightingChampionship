@@ -1,4 +1,4 @@
-import { GameEvent } from '../../Events/port/GameEvent'
+import { GameEvent } from '../../Event/GameEvent'
 import { ServerGameEventDispatcherSystem } from '../GameEventDispatcher/ServerGameEventDispatcherSystem'
 import { System } from '../Generic/port/System'
 import { HitSystem } from '../Hit/HitSystem'

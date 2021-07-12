@@ -1,6 +1,6 @@
-import { newEvent } from '../port/GameEvents'
-import { Action } from '../port/Action'
-import { EntityType } from '../port/EntityType'
+import { Action } from '../../Event/Action'
+import { EntityType } from '../../Event/EntityType'
+import { newEvent } from '../../Event/GameEvent'
 
 export const registerGridEvent = (matchId: string, gridId: string) => newEvent(Action.register, EntityType.grid, EntityType.match, matchId, gridId)
 export const registerTowerEvent = (towerId: string, playerId: string) => newEvent(Action.register, EntityType.tower, EntityType.player, playerId, towerId)

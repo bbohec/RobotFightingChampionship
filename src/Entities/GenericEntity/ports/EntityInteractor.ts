@@ -1,4 +1,4 @@
-import { Component } from '../../../Component/port/Component'
+import { Component } from '../../../Components/port/Component'
 import { GenericEntity } from '../GenericEntity'
 import { PotentialClass } from './PotentialClass'
 export interface EntityInteractor {

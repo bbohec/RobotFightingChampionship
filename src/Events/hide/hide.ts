@@ -1,5 +1,4 @@
-import { newEvent } from '../port/GameEvents'
-import { EntityType } from '../port/EntityType'
-import { Action } from '../port/Action'
-
+import { EntityType } from '../../Event/EntityType'
+import { Action } from '../../Event/Action'
+import { newEvent } from '../../Event/GameEvent'
 export const hideEvent = (targetEntityType: EntityType, targetEntityId?: string) => newEvent(Action.hide, EntityType.nothing, targetEntityType, targetEntityId)

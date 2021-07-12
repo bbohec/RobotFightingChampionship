@@ -1,9 +1,8 @@
-import { Phasing } from '../../Component/Phasing'
-import { PhaseType } from '../../Component/port/Phase'
+import { Phasing } from '../../Components/Phasing'
+import { PhaseType } from '../../Components/port/Phase'
 import { nextTurnEvent } from '../../Events/nextTurn/nextTurnEvent'
-import { Action } from '../../Events/port/Action'
-import { GameEvent } from '../../Events/port/GameEvent'
-import { errorMessageOnUnknownEventAction, MissingOriginEntityId, MissingTargetEntityId } from '../../Events/port/GameEvents'
+import { Action } from '../../Event/Action'
+import { errorMessageOnUnknownEventAction, GameEvent, MissingOriginEntityId, MissingTargetEntityId } from '../../Event/GameEvent'
 import { GenericSystem } from '../Generic/GenericSystem'
 export class PhasingSystem extends GenericSystem {
     onGameEvent (gameEvent: GameEvent): Promise<void> {

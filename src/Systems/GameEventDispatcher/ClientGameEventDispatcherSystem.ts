@@ -1,10 +1,9 @@
-import { GameEvent } from '../../Events/port/GameEvent'
+import { errorMessageOnUnknownEventAction, GameEvent } from '../../Event/GameEvent'
 import { ClientLifeCycleSystem } from '../LifeCycle/ClientLifeCycleSystem'
-import { errorMessageOnUnknownEventAction } from '../../Events/port/GameEvents'
 import { DrawingSystem } from '../Drawing/DrawingSystem'
 import { GenericGameEventDispatcherSystem } from './GenericGameEventDispatcherSystem'
 import { ClientMatchSystem } from '../Match/ClientMatchSystem'
-import { Action } from '../../Events/port/Action'
+import { Action } from '../../Event/Action'
 
 export class ClientGameEventDispatcherSystem extends GenericGameEventDispatcherSystem {
     onGameEvent (gameEvent: GameEvent): Promise<void> {

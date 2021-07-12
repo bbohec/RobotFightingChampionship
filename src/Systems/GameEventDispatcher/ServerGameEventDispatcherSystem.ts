@@ -1,12 +1,11 @@
-import { GameEvent } from '../../Events/port/GameEvent'
+import { errorMessageOnUnknownEventAction, GameEvent } from '../../Event/GameEvent'
 import { GenericGameEventDispatcherSystem } from './GenericGameEventDispatcherSystem'
 import { ServerLifeCycleSystem } from '../LifeCycle/ServerLifeCycleSystem'
 import { WaitingAreaSystem } from '../WaitingArea/WaitingAreaSystem'
-import { errorMessageOnUnknownEventAction } from '../../Events/port/GameEvents'
 import { ServerMatchSystem } from '../Match/ServerMatchSystem'
-import { Action } from '../../Events/port/Action'
+import { Action } from '../../Event/Action'
 import { PhasingSystem } from '../Phasing/PhasingSystem'
-import { EntityType } from '../../Events/port/EntityType'
+import { EntityType } from '../../Event/EntityType'
 import { HitSystem } from '../Hit/HitSystem'
 export class ServerGameEventDispatcherSystem extends GenericGameEventDispatcherSystem {
     onGameEvent (gameEvent: GameEvent): Promise<void> {

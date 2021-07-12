@@ -1,4 +1,4 @@
-import { Component } from '../../Component/port/Component'
+import { Component } from '../../Components/port/Component'
 import { ComponentManagement } from './ports/ComponentManagement'
 import { Entity } from './ports/Entity'
 import { PotentialClass } from './ports/PotentialClass'

@@ -1,11 +1,11 @@
 import { describe } from 'mocha'
-import { Phasing } from '../../Component/Phasing'
-import { PhaseType } from '../../Component/port/Phase'
+import { Phasing } from '../../Components/Phasing'
+import { PhaseType } from '../../Components/port/Phase'
 import { Match } from '../../Entities/Match'
-import { Action } from '../port/Action'
-import { matchId } from '../port/entityIds'
-import { featureEventDescription, serverScenario, theEntityWithIdHasTheExpectedComponent, whenEventOccurs } from '../port/test'
-import { TestStep } from '../port/TestStep'
+import { Action } from '../../Event/Action'
+import { matchId } from '../../Event/entityIds'
+import { featureEventDescription, serverScenario, theEntityWithIdHasTheExpectedComponent, whenEventOccurs } from '../../Event/test'
+import { TestStep } from '../../Event/TestStep'
 import { nextTurnEvent } from './nextTurnEvent'
 describe(featureEventDescription(Action.nextTurn), () => {
     interface Scenario {

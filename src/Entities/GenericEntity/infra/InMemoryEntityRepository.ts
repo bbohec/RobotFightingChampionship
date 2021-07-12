@@ -1,7 +1,7 @@
 import { EntityInteractor } from '../ports/EntityInteractor'
 import { GenericEntity } from '../GenericEntity'
 import { PotentialClass } from '../ports/PotentialClass'
-import { Component } from '../../../Component/port/Component'
+import { Component } from '../../../Components/port/Component'
 
 export class InMemoryEntityRepository implements EntityInteractor {
     retrieveEntityById (entityId: string): GenericEntity {

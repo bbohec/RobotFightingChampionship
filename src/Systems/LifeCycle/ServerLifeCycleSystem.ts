@@ -1,29 +1,28 @@
-import { GameEvent } from '../../Events/port/GameEvent'
-import { errorMessageOnUnknownEventAction, MissingOriginEntityId } from '../../Events/port/GameEvents'
+import { errorMessageOnUnknownEventAction, GameEvent, MissingOriginEntityId } from '../../Event/GameEvent'
 import { GenericLifeCycleSystem } from './GenericLifeCycleSystem'
 import { createSimpleMatchLobbyEvent } from '../../Events/create/create'
 import { SimpleMatchLobby } from '../../Entities/SimpleMatchLobby'
 import { Match } from '../../Entities/Match'
-import { Playable } from '../../Component/Playable'
+import { Playable } from '../../Components/Playable'
 import { Grid } from '../../Entities/Grid'
-import { Dimensional } from '../../Component/Dimensional'
-import { EntityType } from '../../Events/port/EntityType'
+import { Dimensional } from '../../Components/Dimensional'
+import { EntityType } from '../../Event/EntityType'
 import { Tower } from '../../Entities/Tower'
 import { Robot } from '../../Entities/Robot'
 import { Player } from '../../Entities/Player'
-import { EntityReference } from '../../Component/EntityReference'
-import { Phasing } from '../../Component/Phasing'
+import { EntityReference } from '../../Components/EntityReference'
+import { Phasing } from '../../Components/Phasing'
 import { Game } from '../../Entities/Game'
-import { PhaseType } from '../../Component/port/Phase'
+import { PhaseType } from '../../Components/port/Phase'
 import { registerGridEvent, registerRobotEvent, registerTowerEvent } from '../../Events/register/register'
 import { matchWaitingForPlayers } from '../../Events/waiting/wainting'
-import { Hittable } from '../../Component/Hittable'
+import { Hittable } from '../../Components/Hittable'
 import { Offensive } from '../Hit/HitSystem'
 export class ServerLifeCycleSystem extends GenericLifeCycleSystem {
     onGameEvent (gameEvent: GameEvent): Promise<void> {
         const strategy = this.retrieveStrategy(gameEvent)
-        if (!strategy) throw new Error(errorMessageOnUnknownEventAction(ServerLifeCycleSystem.name, gameEvent))
-        return strategy()
+        if (strategy) return strategy()
+        throw new Error(errorMessageOnUnknownEventAction(ServerLifeCycleSystem.name, gameEvent))
     }
 
     private retrieveStrategy (gameEvent:GameEvent):(()=>Promise<void>) | undefined {
