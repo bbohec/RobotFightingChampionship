@@ -1,10 +1,20 @@
 import { Component } from '../../Components/port/Component'
+import { stringifyWithDetailledSetAndMap } from '../../Event/test'
 import { ComponentManagement } from './ports/ComponentManagement'
 import { Entity } from './ports/Entity'
 import { PotentialClass } from './ports/PotentialClass'
 export abstract class GenericEntity implements Entity, ComponentManagement {
     constructor (id:string) {
         this.id = id
+    }
+
+    deleteAllComponents () {
+        this.components.clear()
+    }
+
+    hasComponents (): boolean {
+        if (this.components.size > 0) return true
+        return false
     }
 
     hasComponent (potentialComponent: PotentialClass<Component>): boolean {
@@ -18,7 +28,7 @@ export abstract class GenericEntity implements Entity, ComponentManagement {
 
     retrieveComponent <Class extends Component> (potentialComponent: PotentialClass<Class>):Class {
         for (const component of this.components.values()) if (component instanceof potentialComponent) return component as Class
-        throw new Error(`Component '${potentialComponent.name}' missing on entity id '${this.id}'.\nAvailable components: ${JSON.stringify(Array.from(this.components.values()))}`)
+        throw new Error(`Component '${potentialComponent.name}' missing on entity id '${this.id}'.\nAvailable components: ${stringifyWithDetailledSetAndMap(this.components)}`)
     }
 
     deleteComponent <Class extends Component> (potentialComponent: PotentialClass<Class>):void {
@@ -27,6 +37,5 @@ export abstract class GenericEntity implements Entity, ComponentManagement {
     }
 
     readonly id: string
-
     private components:Set<Component> = new Set<Component>()
 }

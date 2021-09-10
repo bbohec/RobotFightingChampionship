@@ -1,6 +1,6 @@
-import { GameEvent } from '../../../Event/GameEvent'
+import { GameEventContract } from '../../../Event/GameEvent'
 
 export interface EventInteractor {
-    sendEvent(gameEvent: GameEvent): Promise<void>;
+    sendEvent(gameEvent: GameEventContract): Promise<void>;
 
 }

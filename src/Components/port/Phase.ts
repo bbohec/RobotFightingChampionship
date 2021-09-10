@@ -1,13 +1,19 @@
 /* eslint-disable no-unused-vars */
+export enum MatchPlayer {
+    A='Player A',
+    B='Player B'
+}
+
 export enum PhaseType {
-    PlayerATowerPlacement = 'Player A Tower Placement',
     PreparingGame = 'Preparing Game',
-    PlayerARobotPlacement = 'PlayerARobotPlacement',
-    PlayerBTowerPlacement = 'PlayerBTowerPlacement',
-    PlayerBRobotPlacement = 'PlayerBRobotPlacement',
-    PlayerATower = 'PlayerATower',
-    PlayerARobot = 'PlayerARobot',
-    PlayerBTower = 'PlayerBTower',
-    PlayerBRobot = 'PlayerBRobot',
-    PlayerAVictory = 'PlayerAVictory'
+    TowerPlacement = 'Tower Placement',
+    RobotPlacement = 'Robot Placement',
+    Tower = 'Tower',
+    Robot = 'Robot',
+    Victory = 'Victory',
+}
+export interface Phase {
+    phaseType:PhaseType
+    matchPlayer:MatchPlayer|null
+    actionPoints:number
 }

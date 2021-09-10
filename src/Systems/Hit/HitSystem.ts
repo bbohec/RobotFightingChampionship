@@ -1,38 +1,28 @@
 import { EntityReference } from '../../Components/EntityReference'
-import { GenericComponent } from '../../Components/GenericComponent'
 import { Hittable } from '../../Components/Hittable'
 import { EntityType } from '../../Event/EntityType'
-import { errorMessageOnUnknownEventAction, GameEvent, MissingOriginEntityId, MissingTargetEntityId } from '../../Event/GameEvent'
+import { errorMessageOnUnknownEventAction, GameEvent } from '../../Event/GameEvent'
 import { victoryEvent } from '../../Events/victory/victory'
 import { GenericSystem } from '../Generic/GenericSystem'
-
-export class Offensive extends GenericComponent {
-    constructor (entityId: string, damagePoints:number) {
-        super(entityId)
-        this.damagePoints = damagePoints
-    }
-
-    damagePoints:number
-}
+import { Offensive } from '../../Components/Offensive'
 
 export class HitSystem extends GenericSystem {
     onGameEvent (gameEvent: GameEvent): Promise<void> {
-        if (gameEvent.targetEntityType !== EntityType.nobody) return this.onHit(gameEvent)
+        if (gameEvent.hasEntitiesByEntityType(EntityType.hittable) &&
+            gameEvent.hasEntitiesByEntityType(EntityType.attacker)) return this.onHit(gameEvent)
         throw new Error(errorMessageOnUnknownEventAction(HitSystem.name, gameEvent))
     }
 
     private onHit (gameEvent: GameEvent): Promise<void> {
         const { hittableEntityId, offensiveEntityId } = this.retrieveHittableAndOffensiveEntities(gameEvent)
-        const hittableComponent = this.interactWithEntities.retrieveEntityById(hittableEntityId).retrieveComponent(Hittable)
         const offensiveComponent = this.interactWithEntities.retrieveEntityById(offensiveEntityId).retrieveComponent(Offensive)
+        const hittableComponent = this.interactWithEntities.retrieveEntityById(hittableEntityId).retrieveComponent(Hittable)
         this.removeHitPoints(hittableComponent, offensiveComponent)
         return (hittableComponent.hitPoints <= 0) ? this.onNoMoreHitPoints(offensiveEntityId) : Promise.resolve()
     }
 
     private retrieveHittableAndOffensiveEntities (gameEvent: GameEvent) {
-        if (!gameEvent.targetEntityId) throw new Error(MissingTargetEntityId)
-        if (!gameEvent.originEntityId) throw new Error(MissingOriginEntityId)
-        return { hittableEntityId: gameEvent.targetEntityId, offensiveEntityId: gameEvent.originEntityId }
+        return { hittableEntityId: gameEvent.entityByEntityType(EntityType.hittable), offensiveEntityId: gameEvent.entityByEntityType(EntityType.attacker) }
     }
 
     private removeHitPoints (hittable:Hittable, offensive:Offensive) {
@@ -45,9 +35,9 @@ export class HitSystem extends GenericSystem {
     }
 
     private retrieveEntityRefFromEntityType (entityId:string, entityType:EntityType) {
-        for (const [entityIdReference, entityTypeReference] of this.interactWithEntities.retrieveEntityById(entityId).retrieveComponent(EntityReference).entityReferences.entries()) {
-            if (entityTypeReference === entityType) return entityIdReference
-        }
-        throw new Error(`Entity with type '${entityType}' missing on entity id '${entityId}' entity references`)
+        const entityTypeReferences = this.interactWithEntities.retrieveEntityById(entityId).retrieveComponent(EntityReference).entityReferences.get(entityType)
+        if (!entityTypeReferences) throw new Error(`Entity with type '${entityType}' missing on entity id '${entityId}' entity references`)
+        if (entityTypeReferences.length !== 1) throw new Error(`There is not one id on '${entityType}' references.`)
+        return entityTypeReferences[0]
     }
 }

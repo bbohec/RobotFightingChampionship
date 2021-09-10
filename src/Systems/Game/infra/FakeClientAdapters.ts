@@ -11,8 +11,8 @@ export class FakeClientAdapters implements clientAdapters {
         this.identifierInteractor = new FakeIdentifierAdapter(nextIdentifiers)
     }
 
-    drawingInteractor= new InMemoryDrawingAdapter();
     identifierInteractor: IdentifierAdapter
+    drawingInteractor= new InMemoryDrawingAdapter();
     eventInteractor = new InMemoryEventRepository();
     systemInteractor = new InMemorySystemRepository();
     entityInteractor = new InMemoryEntityRepository();

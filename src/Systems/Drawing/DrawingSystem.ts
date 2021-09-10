@@ -1,4 +1,4 @@
-import { errorMessageOnUnknownEventAction, GameEvent, MissingTargetEntityId } from '../../Event/GameEvent'
+import { errorMessageOnUnknownEventAction, GameEvent } from '../../Event/GameEvent'
 import { DrawingPort } from './port/DrawingPort'
 import { GenericSystem } from '../Generic/GenericSystem'
 import { EntityInteractor } from '../../Entities/GenericEntity/ports/EntityInteractor'
@@ -10,10 +10,21 @@ export class DrawingSystem extends GenericSystem {
     }
 
     onGameEvent (gameEvent: GameEvent): Promise<void> {
-        if (gameEvent.targetEntityId === undefined) throw new Error(MissingTargetEntityId)
-        if (gameEvent.action === 'Show') return this.drawingPort.drawEntity(gameEvent.targetEntityId)
-        if (gameEvent.action === 'Hide') return this.drawingPort.eraseEntity(gameEvent.targetEntityId)
+        if (gameEvent.action === 'Show') return this.drawEntities(gameEvent.allEntities())
+        if (gameEvent.action === 'Hide') return this.hideEntities(gameEvent.allEntities())
         throw errorMessageOnUnknownEventAction(DrawingSystem.name, gameEvent)
+    }
+
+    drawEntities (entities: string[]): Promise<void> {
+        return Promise.all(Array.from(entities).map(entityId => this.drawingPort.drawEntity(entityId)))
+            .then(() => Promise.resolve())
+            .catch(error => Promise.reject(error))
+    }
+
+    hideEntities (entities:string[]):Promise<void> {
+        return Promise.all(Array.from(entities).map(entityId => this.drawingPort.eraseEntity(entityId)))
+            .then(() => Promise.resolve())
+            .catch(error => Promise.reject(error))
     }
 
     private drawingPort: DrawingPort

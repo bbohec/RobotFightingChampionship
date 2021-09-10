@@ -1,12 +1,12 @@
 import { LifeCycle } from '../../Components/LifeCycle'
 import { GenericEntity } from '../../Entities/GenericEntity/GenericEntity'
-import { GameEvent } from '../../Event/GameEvent'
 import { GenericSystem } from '../Generic/GenericSystem'
 import { GenericComponent } from '../../Components/GenericComponent'
 import { EntityInteractor } from '../../Entities/GenericEntity/ports/EntityInteractor'
 import { IdentifierAdapter } from './port/IdentifierAdapter'
 import { GenericGameEventDispatcherSystem } from '../GameEventDispatcher/GenericGameEventDispatcherSystem'
 import { Action } from '../../Event/Action'
+import { GameEvent } from '../../Event/GameEvent'
 export const action = Action.create
 export abstract class GenericLifeCycleSystem extends GenericSystem {
     constructor (interactWithEntities: EntityInteractor, interactWithGameEventDispatcher:GenericGameEventDispatcherSystem, interactWithIdentifiers:IdentifierAdapter) {

@@ -11,6 +11,13 @@ export enum EntityType {
     robot = 'Robot',
     grid = 'Grid',
     player = 'player',
-    nothing = 'nothing'
+    nothing = 'nothing',
+    attacker = 'attacker',
+    hittable = 'hittable',
+    victory = 'victory',
+    defeat = 'defeat',
+    cell = 'cell',
+    target = 'target',
+    message = 'message'
 }
 export const unsupportedEntityTypeMessage = (entityType:EntityType) => `Entity type ${entityType} is not supported.`

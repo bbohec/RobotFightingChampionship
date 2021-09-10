@@ -2,46 +2,47 @@ import { Playable } from '../../Components/Playable'
 import { SimpleMatchLobby } from '../../Entities/SimpleMatchLobby'
 import { createMatchEvent } from '../../Events/create/create'
 import { playerJoinMatchEvent } from '../../Events/join/join'
-import { errorMessageOnUnknownEventAction, GameEvent, MissingOriginEntityId } from '../../Event/GameEvent'
+import { errorMessageOnUnknownEventAction, GameEvent } from '../../Event/GameEvent'
 import { GenericSystem } from '../Generic/GenericSystem'
+import { EntityType } from '../../Event/EntityType'
+import { Action } from '../../Event/Action'
 
 export class WaitingAreaSystem extends GenericSystem {
     onGameEvent (gameEvent: GameEvent): Promise<void> {
-        if (gameEvent.targetEntityType === 'Simple Match Lobby') return this.onSimpleMatchLobbyTarget(gameEvent)
+        if (gameEvent.hasEntitiesByEntityType(EntityType.simpleMatchLobby)) return this.simpleMatchLobbyEvent(gameEvent)
         throw new Error(errorMessageOnUnknownEventAction(WaitingAreaSystem.name, gameEvent))
     }
 
-    private onSimpleMatchLobbyTarget (gameEvent:GameEvent):Promise<void> {
-        if (gameEvent.originEntityId === undefined) throw new Error(MissingOriginEntityId)
+    private simpleMatchLobbyEvent (gameEvent:GameEvent):Promise<void> {
         const players = this.interactWithEntities.retrieveEntityByClass(SimpleMatchLobby).retrieveComponent(Playable).players
-        return (gameEvent.action === 'Waiting for players')
-            ? this.onWaitingForPlayersEvent(gameEvent.originEntityId, players)
-            : this.onNotWaitingForPlayersEvent(gameEvent.originEntityId, players)
+        if (gameEvent.action === Action.waitingForPlayers) return this.onMatchWaitingForPlayersEvent(gameEvent.entityByEntityType(EntityType.match), players)
+        if (gameEvent.action === Action.join) return this.onPlayerJoinGameEvent(gameEvent.entityByEntityType(EntityType.player), players, this.interactWithEntities.retrieveEntityByClass(SimpleMatchLobby).id)
+        throw new Error(errorMessageOnUnknownEventAction(WaitingAreaSystem.name, gameEvent))
     }
 
-    private onNotWaitingForPlayersEvent (playerId: string, playersIds: string[]) {
-        playersIds.push(playerId)
-        return this.createMatchForEachTwoPlayers(playersIds)
-    }
-
-    private onWaitingForPlayersEvent (matchId: string, playerIds: string[]):Promise<void> {
+    private onMatchWaitingForPlayersEvent (matchId: string, playerIds: string[]):Promise<void> {
         const isEnoughPlayers = (players: string[]) => players.length >= 2
         return (isEnoughPlayers(playerIds))
             ? this.onEnoughPlayers(matchId, playerIds)
             : Promise.resolve()
     }
 
-    private onEnoughPlayers (matchId: string, playerIds: string[]) {
+    private onEnoughPlayers (matchLobbyId: string, playerIds: string[]) {
         const playersToJoinMatch = [playerIds.shift()!, playerIds.shift()!]
-        return Promise.all(playersToJoinMatch.map(playerId => this.sendEvent(playerJoinMatchEvent(playerId, matchId))))
+        return Promise.all(playersToJoinMatch.map(playerId => this.sendEvent(playerJoinMatchEvent(playerId, matchLobbyId))))
             .then(() => Promise.resolve())
             .catch(error => Promise.reject(error))
     }
 
-    private createMatchForEachTwoPlayers (playerIds: string[]): Promise<void> {
+    private onPlayerJoinGameEvent (playerId: string, playersIds: string[], simpleMatchLobbyEntityId:string) {
+        playersIds.push(playerId)
+        return this.createMatchForEachTwoPlayers(playersIds, simpleMatchLobbyEntityId)
+    }
+
+    private createMatchForEachTwoPlayers (playerIds: string[], simpleMatchLobbyEntityId:string): Promise<void> {
         const isEvenPlayers = (players: string[]) => players.length % 2 === 0
         return (isEvenPlayers(playerIds))
-            ? this.sendEvent(createMatchEvent)
+            ? this.sendEvent(createMatchEvent(simpleMatchLobbyEntityId))
             : Promise.resolve()
     }
 }

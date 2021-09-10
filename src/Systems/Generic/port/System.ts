@@ -1,4 +1,4 @@
-import { GameEvent } from '../../../Event/GameEvent'
+import { GameEventContract } from '../../../Event/GameEvent'
 export interface System {
-    onGameEvent(gameEvent:GameEvent):Promise<void>
+    onGameEvent(gameEvent:GameEventContract):Promise<void>
 }

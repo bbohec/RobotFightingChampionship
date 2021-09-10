@@ -1,7 +1,7 @@
 import { describe } from 'mocha'
 import { Action } from '../../Event/Action'
 import { EntityType } from '../../Event/EntityType'
-import { gridId, matchId, playerAId, robotId, towerId } from '../../Event/entityIds'
+import { gridId, matchId, playerAId, playerARobotId, simpleMatchLobbyEntityId, playerBTowerId } from '../../Event/entityIds'
 import { featureEventDescription, serverScenario, theEntityIsOnRepository, theEntityWithIdHasTheExpectedComponent, theEventIsSent, whenEventOccurs } from '../../Event/test'
 import { EntityReference } from '../../Components/EntityReference'
 import { Playable } from '../../Components/Playable'
@@ -11,19 +11,19 @@ import { createMatchEvent, createPlayerEvent } from '../create/create'
 import { registerTowerEvent, registerRobotEvent, registerGridEvent } from './register'
 import { playerReadyForMatch } from '../ready/ready'
 describe(featureEventDescription(Action.register), () => {
-    serverScenario(registerTowerEvent(towerId, playerAId), [playerAId],
+    serverScenario(`${Action.register} 1`, registerTowerEvent(playerBTowerId, playerAId), [playerAId],
         (game) => () => game.onGameEvent(createPlayerEvent), [
             (game, adapters) => theEntityIsOnRepository(TestStep.Given, adapters, playerAId),
-            (game, adapters) => whenEventOccurs(game, registerTowerEvent(towerId, playerAId)),
-            (game, adapters) => theEntityWithIdHasTheExpectedComponent(TestStep.And, adapters, playerAId, EntityReference, new EntityReference(playerAId, new Map([[towerId, EntityType.tower]])))
+            (game, adapters) => whenEventOccurs(game, registerTowerEvent(playerBTowerId, playerAId)),
+            (game, adapters) => theEntityWithIdHasTheExpectedComponent(TestStep.And, adapters, playerAId, EntityReference, new EntityReference(playerAId, new Map([[EntityType.tower, [playerBTowerId]]])))
         ])
-    serverScenario(registerRobotEvent(robotId, playerAId), [playerAId],
+    serverScenario(`${Action.register} 2`, registerRobotEvent(playerARobotId, playerAId), [playerAId],
         (game) => () => game.onGameEvent(createPlayerEvent), [
             (game, adapters) => theEntityIsOnRepository(TestStep.Given, adapters, playerAId),
-            (game, adapters) => whenEventOccurs(game, registerRobotEvent(robotId, playerAId)),
-            (game, adapters) => theEntityWithIdHasTheExpectedComponent(TestStep.And, adapters, playerAId, EntityReference, new EntityReference(playerAId, new Map([[robotId, EntityType.robot]])))
+            (game, adapters) => whenEventOccurs(game, registerRobotEvent(playerARobotId, playerAId)),
+            (game, adapters) => theEntityWithIdHasTheExpectedComponent(TestStep.And, adapters, playerAId, EntityReference, new EntityReference(playerAId, new Map([[EntityType.robot, [playerARobotId]]])))
         ])
-    serverScenario([registerRobotEvent(robotId, playerAId), registerTowerEvent(towerId, playerAId)], [playerAId],
+    serverScenario(`${Action.register} 3`, [registerRobotEvent(playerARobotId, playerAId), registerTowerEvent(playerBTowerId, playerAId)], [playerAId],
         (game, adapters) => () => {
             const matchEntity = new Match(matchId)
             matchEntity.addComponent(new Playable(matchId, [playerAId]))
@@ -31,14 +31,14 @@ describe(featureEventDescription(Action.register), () => {
             return game.onGameEvent(createPlayerEvent)
         }, [
             (game, adapters) => theEntityIsOnRepository(TestStep.Given, adapters, playerAId),
-            (game, adapters) => whenEventOccurs(game, registerRobotEvent(robotId, playerAId)),
-            (game, adapters) => whenEventOccurs(game, registerTowerEvent(towerId, playerAId)),
+            (game, adapters) => whenEventOccurs(game, registerRobotEvent(playerARobotId, playerAId)),
+            (game, adapters) => whenEventOccurs(game, registerTowerEvent(playerBTowerId, playerAId)),
             (game, adapters) => theEventIsSent(TestStep.Then, adapters, playerReadyForMatch(matchId, playerAId))
         ])
-    serverScenario(registerGridEvent(matchId, gridId), [matchId],
-        (game, adapters) => () => game.onGameEvent(createMatchEvent), [
+    serverScenario(`${Action.register} 4`, registerGridEvent(matchId, gridId), [matchId],
+        (game, adapters) => () => game.onGameEvent(createMatchEvent(simpleMatchLobbyEntityId)), [
             (game, adapters) => theEntityIsOnRepository(TestStep.Given, adapters, matchId),
             (game, adapters) => whenEventOccurs(game, registerGridEvent(matchId, gridId)),
-            (game, adapters) => theEntityWithIdHasTheExpectedComponent(TestStep.Then, adapters, matchId, EntityReference, new EntityReference(matchId, new Map([['gridId', EntityType.grid]])))
+            (game, adapters) => theEntityWithIdHasTheExpectedComponent(TestStep.Then, adapters, matchId, EntityReference, new EntityReference(matchId, new Map([[EntityType.grid, [gridId]]])))
         ])
 })

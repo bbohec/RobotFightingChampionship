@@ -10,5 +10,10 @@ export enum Action {
     ready = 'ready',
     nextTurn = 'nextTurn',
     hit = 'hit',
-    victory = 'victory'
+    victory = 'victory',
+    quit = 'quit',
+    destroy = 'destroy',
+    move = 'move',
+    attack = 'attack',
+    notify = 'notify'
 }
