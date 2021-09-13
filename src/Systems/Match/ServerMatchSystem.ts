@@ -35,7 +35,7 @@ export class ServerMatchSystem extends GenericSystem {
         if (!robotIds) throw new Error('Robot entity Id missing on player entity reference component.')
         if (!towerIds) throw new Error('Tower entity Id missing on player entity reference component.')
         if (robotIds.length !== 1) throw new Error('There is not one Robot id on robot references.')
-        if (towerIds.length !== 1) throw new Error('There is not one Robot id on robot references.')
+        if (towerIds.length !== 1) throw new Error('There is not one Tower id on robot references.')
         const events:GameEvent[] = [
             destroyRobotEvent(robotIds[0]),
             destroyTowerEvent(towerIds[0]),
