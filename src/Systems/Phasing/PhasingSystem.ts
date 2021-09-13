@@ -104,7 +104,9 @@ export class PhasingSystem extends GenericSystem {
     }
 
     private sendMoveToPositionEvent (gameEvent: GameEvent, entityType:EntityType, matchPlayer:MatchPlayer): Promise<void> {
+        const playableComponent = this.interactWithEntities.retrieveEntityById(gameEvent.entityByEntityType(EntityType.match)).retrieveComponent(Playable)
         return this.sendEvent(moveEvent(
+            (matchPlayer === MatchPlayer.A) ? playableComponent.players[0] : playableComponent.players[1],
             entityType,
             this.retrievePlayerUnitId(gameEvent, matchPlayer, entityType),
             this.retrieveCellIdWithPosition(gameEvent, this.initialPositionFromEntityTypeAndMatchPlayer(entityType, matchPlayer)))
@@ -129,7 +131,7 @@ export class PhasingSystem extends GenericSystem {
     private retrievePlayerUnitId (gameEvent: GameEvent, player:MatchPlayer, entityType:EntityType):string {
         const playableComponent = this.interactWithEntities.retrieveEntityById(gameEvent.entityByEntityType(EntityType.match)).retrieveComponent(Playable)
         return this.interactWithEntities
-            .retrieveEntityById((player === 'Player A') ? playableComponent.players[0] : playableComponent.players[1])
+            .retrieveEntityById((player === MatchPlayer.A) ? playableComponent.players[0] : playableComponent.players[1])
             .retrieveComponent(EntityReference)
             .retreiveReference(entityType)
     }

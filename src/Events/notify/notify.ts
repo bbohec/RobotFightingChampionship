@@ -6,6 +6,7 @@ export const badPlayerNotificationMessage = (playerId:string):string => `This is
 export const wrongPhaseNotificationMessage = (phaseType:PhaseType):string => `Wrong phase. Currently playing "${phaseType}" phase.`
 export const outOfRangeNotificationMessage:string = 'The target is out of Range.'
 export const notEnoughActionPointNotificationMessage:string = 'Not enough action point.'
+export const positionAlreadyOccupiedNotificationMessage:string = 'The position is already occupied.'
 export const notifyEvent = (playerId: string, message:string) => newEvent(Action.notify, new Map([
     [EntityType.player, [playerId]],
     [EntityType.message, [message]]

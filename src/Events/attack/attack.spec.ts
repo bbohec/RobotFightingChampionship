@@ -37,8 +37,8 @@ describe(featureEventDescription(Action.attack), () => {
                 [EntityType.match, [matchId]],
                 [EntityType.tower, [playerATowerId]],
                 [EntityType.robot, [playerARobotId]]
-            ])));
-            [match, towerA, towerB, playerA, robotA].forEach(entity => adapters.entityInteractor.addEntity(entity))
+            ])))
+            adapters.entityInteractor.addEntities([match, towerA, towerB, playerA, robotA])
         }, [
             (game, adapters) => theEntityWithIdHasTheExpectedComponent(TestStep.Given, adapters, matchId, Phasing, new Phasing(matchId, playerATowerPhase())),
             (game, adapters) => theEntityWithIdHasTheExpectedComponent(TestStep.And, adapters, playerATowerId, Physical, new Physical(playerATowerId, position(2, 2))),
@@ -62,8 +62,8 @@ describe(featureEventDescription(Action.attack), () => {
                 [EntityType.match, [matchId]],
                 [EntityType.tower, [playerBTowerId]],
                 [EntityType.robot, [playerBRobotId]]
-            ])));
-            [match, towerA, towerB, robotB, playerB].forEach(entity => adapters.entityInteractor.addEntity(entity))
+            ])))
+            adapters.entityInteractor.addEntities([match, towerA, towerB, robotB, playerB])
         }, [
             (game, adapters) => theEntityWithIdHasTheExpectedComponent(TestStep.Given, adapters, matchId, Phasing, new Phasing(matchId, playerBTowerPhase())),
             (game, adapters) => theEntityWithIdHasTheExpectedComponent(TestStep.And, adapters, playerATowerId, Physical, new Physical(playerATowerId, position(2, 2))),
@@ -85,8 +85,8 @@ describe(featureEventDescription(Action.attack), () => {
                 [EntityType.match, [matchId]],
                 [EntityType.tower, [playerATowerId]],
                 [EntityType.robot, [playerARobotId]]
-            ])));
-            [match, robotA, robotB, playerA].forEach(entity => adapters.entityInteractor.addEntity(entity))
+            ])))
+            adapters.entityInteractor.addEntities([match, robotA, robotB, playerA])
         }, [
             (game, adapters) => theEntityWithIdHasTheExpectedComponent(TestStep.Given, adapters, matchId, Phasing, new Phasing(matchId, playerARobotPhase())),
             (game, adapters) => theEntityWithIdHasTheExpectedComponent(TestStep.And, adapters, playerARobotId, Physical, new Physical(playerARobotId, position(2, 2))),
@@ -108,8 +108,8 @@ describe(featureEventDescription(Action.attack), () => {
                 [EntityType.match, [matchId]],
                 [EntityType.tower, [playerBTowerId]],
                 [EntityType.robot, [playerBRobotId]]
-            ])));
-            [match, robotA, robotB, playerB].forEach(entity => adapters.entityInteractor.addEntity(entity))
+            ])))
+            adapters.entityInteractor.addEntities([match, robotA, robotB, playerB])
         }, [
             (game, adapters) => theEntityWithIdHasTheExpectedComponent(TestStep.Given, adapters, matchId, Phasing, new Phasing(matchId, playerBRobotPhase())),
             (game, adapters) => theEntityWithIdHasTheExpectedComponent(TestStep.And, adapters, playerARobotId, Physical, new Physical(playerARobotId, position(2, 2))),
@@ -131,8 +131,8 @@ describe(featureEventDescription(Action.attack), () => {
                 [EntityType.match, [matchId]],
                 [EntityType.tower, [playerATowerId]],
                 [EntityType.robot, [playerARobotId]]
-            ])));
-            [match, towerA, towerB, playerA].forEach(entity => adapters.entityInteractor.addEntity(entity))
+            ])))
+            adapters.entityInteractor.addEntities([match, towerA, towerB, playerA])
         }, [
             (game, adapters) => theEntityWithIdHasTheExpectedComponent(TestStep.Given, adapters, matchId, Phasing, new Phasing(matchId, playerARobotPhase())),
             (game, adapters) => theEntityWithIdHasTheExpectedComponent(TestStep.And, adapters, playerATowerId, Physical, new Physical(playerATowerId, position(2, 2))),
@@ -155,8 +155,8 @@ describe(featureEventDescription(Action.attack), () => {
                 [EntityType.match, [matchId]],
                 [EntityType.tower, [playerBTowerId]],
                 [EntityType.robot, [playerBRobotId]]
-            ])));
-            [match, towerA, towerB, playerB].forEach(entity => adapters.entityInteractor.addEntity(entity))
+            ])))
+            adapters.entityInteractor.addEntities([match, towerA, towerB, playerB])
         }, [
             (game, adapters) => theEntityWithIdHasTheExpectedComponent(TestStep.Given, adapters, matchId, Phasing, new Phasing(matchId, playerATowerPhase())),
             (game, adapters) => theEntityWithIdHasTheExpectedComponent(TestStep.And, adapters, playerATowerId, Physical, new Physical(playerATowerId, position(2, 2))),
@@ -178,8 +178,8 @@ describe(featureEventDescription(Action.attack), () => {
             [EntityType.match, [matchId]],
             [EntityType.tower, [playerATowerId]],
             [EntityType.robot, [playerARobotId]]
-        ])));
-        [match, towerA, towerB, playerA].forEach(entity => adapters.entityInteractor.addEntity(entity))
+        ])))
+        adapters.entityInteractor.addEntities([match, towerA, towerB, playerA])
     }, [
         (game, adapters) => theEntityWithIdHasTheExpectedComponent(TestStep.Given, adapters, matchId, Phasing, new Phasing(matchId, playerATowerPhase())),
         (game, adapters) => theEntityWithIdHasTheExpectedComponent(TestStep.And, adapters, playerATowerId, Physical, new Physical(playerATowerId, position(2, 2))),
@@ -201,8 +201,8 @@ describe(featureEventDescription(Action.attack), () => {
             [EntityType.match, [matchId]],
             [EntityType.tower, [playerATowerId]],
             [EntityType.robot, [playerARobotId]]
-        ])));
-        [match, towerA, towerB, playerA].forEach(entity => adapters.entityInteractor.addEntity(entity))
+        ])))
+        adapters.entityInteractor.addEntities([match, towerA, towerB, playerA])
     }, [
         (game, adapters) => theEntityWithIdHasTheExpectedComponent(TestStep.Given, adapters, matchId, Phasing, new Phasing(matchId, playerATowerPhase())),
         (game, adapters) => theEntityWithIdHasTheExpectedComponent(TestStep.And, adapters, playerATowerId, Physical, new Physical(playerATowerId, position(24, 1))),
@@ -224,8 +224,8 @@ describe(featureEventDescription(Action.attack), () => {
             [EntityType.match, [matchId]],
             [EntityType.tower, [playerATowerId]],
             [EntityType.robot, [playerARobotId]]
-        ])));
-        [match, towerA, towerB, playerA].forEach(entity => adapters.entityInteractor.addEntity(entity))
+        ])))
+        adapters.entityInteractor.addEntities([match, towerA, towerB, playerA])
     }, [
         (game, adapters) => theEntityWithIdHasTheExpectedComponent(TestStep.Given, adapters, matchId, Phasing, new Phasing(matchId, playerATowerPhase())),
         (game, adapters) => theEntityWithIdHasTheExpectedComponent(TestStep.And, adapters, playerATowerId, Physical, new Physical(playerATowerId, position(11, 1))),
@@ -246,8 +246,8 @@ describe(featureEventDescription(Action.attack), () => {
             [EntityType.match, [matchId]],
             [EntityType.tower, [playerATowerId]],
             [EntityType.robot, [playerARobotId]]
-        ])));
-        [match, towerA, towerB, playerA].forEach(entity => adapters.entityInteractor.addEntity(entity))
+        ])))
+        adapters.entityInteractor.addEntities([match, towerA, towerB, playerA])
     }, [
         (game, adapters) => theEntityWithIdHasTheExpectedComponent(TestStep.Given, adapters, matchId, Phasing, new Phasing(matchId, playerATowerPhase())),
         (game, adapters) => theEntityWithIdHasTheExpectedComponent(TestStep.And, adapters, playerATowerId, Physical, new Physical(playerATowerId, position(1, 1))),
@@ -269,8 +269,8 @@ describe(featureEventDescription(Action.attack), () => {
             [EntityType.match, [matchId]],
             [EntityType.tower, [playerATowerId]],
             [EntityType.robot, [playerARobotId]]
-        ])));
-        [match, towerA, towerB, playerA].forEach(entity => adapters.entityInteractor.addEntity(entity))
+        ])))
+        adapters.entityInteractor.addEntities([match, towerA, towerB, playerA])
     }, [
         (game, adapters) => theEntityWithIdHasTheExpectedComponent(TestStep.Given, adapters, matchId, Phasing, new Phasing(matchId, playerATowerPhase())),
         (game, adapters) => theEntityWithIdHasTheExpectedComponent(TestStep.And, adapters, playerATowerId, Physical, new Physical(playerATowerId, position(1, 3))),
@@ -292,8 +292,8 @@ describe(featureEventDescription(Action.attack), () => {
             [EntityType.match, [matchId]],
             [EntityType.tower, [playerATowerId]],
             [EntityType.robot, [playerARobotId]]
-        ])));
-        [match, towerA, towerB, playerA].forEach(entity => adapters.entityInteractor.addEntity(entity))
+        ])))
+        adapters.entityInteractor.addEntities([match, towerA, towerB, playerA])
     }, [
         (game, adapters) => theEntityWithIdHasTheExpectedComponent(TestStep.Given, adapters, matchId, Phasing, new Phasing(matchId, playerATowerPhase())),
         (game, adapters) => theEntityWithIdHasTheExpectedComponent(TestStep.And, adapters, playerATowerId, Physical, new Physical(playerATowerId, position(1, 1))),
@@ -314,8 +314,8 @@ describe(featureEventDescription(Action.attack), () => {
             [EntityType.match, [matchId]],
             [EntityType.tower, [playerATowerId]],
             [EntityType.robot, [playerARobotId]]
-        ])));
-        [match, towerA, towerB, playerA].forEach(entity => adapters.entityInteractor.addEntity(entity))
+        ])))
+        adapters.entityInteractor.addEntities([match, towerA, towerB, playerA])
     }, [
         (game, adapters) => theEntityWithIdHasTheExpectedComponent(TestStep.Given, adapters, matchId, Phasing, new Phasing(matchId, playerATowerPhase())),
         (game, adapters) => theEntityWithIdHasTheExpectedComponent(TestStep.And, adapters, playerATowerId, Physical, new Physical(playerATowerId, position(2, 2))),
@@ -337,8 +337,8 @@ describe(featureEventDescription(Action.attack), () => {
             [EntityType.match, [matchId]],
             [EntityType.tower, [playerATowerId]],
             [EntityType.robot, [playerARobotId]]
-        ])));
-        [match, towerA, towerB, playerA].forEach(entity => adapters.entityInteractor.addEntity(entity))
+        ])))
+        adapters.entityInteractor.addEntities([match, towerA, towerB, playerA])
     }, [
         (game, adapters) => theEntityWithIdHasTheExpectedComponent(TestStep.Given, adapters, matchId, Phasing, new Phasing(matchId, playerATowerPhase())),
         (game, adapters) => theEntityWithIdHasTheExpectedComponent(TestStep.And, adapters, playerATowerId, Physical, new Physical(playerATowerId, position(2, 1))),
@@ -359,8 +359,8 @@ describe(featureEventDescription(Action.attack), () => {
             [EntityType.match, [matchId]],
             [EntityType.tower, [playerATowerId]],
             [EntityType.robot, [playerARobotId]]
-        ])));
-        [match, towerA, towerB, playerA].forEach(entity => adapters.entityInteractor.addEntity(entity))
+        ])))
+        adapters.entityInteractor.addEntities([match, towerA, towerB, playerA])
     }, [
         (game, adapters) => theEntityWithIdHasTheExpectedComponent(TestStep.Given, adapters, matchId, Phasing, new Phasing(matchId, playerATowerPhase())),
         (game, adapters) => theEntityWithIdHasTheExpectedComponent(TestStep.And, adapters, playerATowerId, Physical, new Physical(playerATowerId, position(2, 1))),
@@ -382,8 +382,8 @@ describe(featureEventDescription(Action.attack), () => {
             [EntityType.match, [matchId]],
             [EntityType.tower, [playerATowerId]],
             [EntityType.robot, [playerARobotId]]
-        ])));
-        [match, towerA, towerB, playerA].forEach(entity => adapters.entityInteractor.addEntity(entity))
+        ])))
+        adapters.entityInteractor.addEntities([match, towerA, towerB, playerA])
     }, [
         (game, adapters) => theEntityWithIdHasTheExpectedComponent(TestStep.Given, adapters, matchId, Phasing, new Phasing(matchId, playerATowerPhase(weaponAttackActionPoints - 1))),
         (game, adapters) => theEntityWithIdHasTheExpectedComponent(TestStep.And, adapters, playerATowerId, Physical, new Physical(playerATowerId, position(2, 1))),

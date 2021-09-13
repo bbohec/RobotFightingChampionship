@@ -20,5 +20,11 @@ export class EntityReference extends GenericComponent {
         return entityReferences
     }
 
+    hasReferences (entityType:EntityType) {
+        const entityReferences = this.entityReferences.get(entityType)
+        if (!entityReferences || entityReferences.length === 0) return false
+        return true
+    }
+
     entityReferences:EntityReferences = new Map()
 }

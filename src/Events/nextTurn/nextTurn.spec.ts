@@ -32,7 +32,7 @@ describe(featureEventDescription(Action.nextTurn), () => {
                 nextPhase: playerATowerPlacementPhase()
             },
             additionnalEventConsequence: [
-                moveEvent(EntityType.tower, playerATowerId, cellx1y1Id),
+                moveEvent(playerAId, EntityType.tower, playerATowerId, cellx1y1Id),
                 nextTurnEvent(matchId)
             ]
         },
@@ -42,7 +42,7 @@ describe(featureEventDescription(Action.nextTurn), () => {
                 nextPhase: playerARobotPlacementPhase()
             },
             additionnalEventConsequence: [
-                moveEvent(EntityType.robot, playerARobotId, cellx2y2Id),
+                moveEvent(playerAId, EntityType.robot, playerARobotId, cellx2y2Id),
                 nextTurnEvent(matchId)
             ]
         },
@@ -52,7 +52,7 @@ describe(featureEventDescription(Action.nextTurn), () => {
                 nextPhase: playerBTowerPlacementPhase()
             },
             additionnalEventConsequence: [
-                moveEvent(EntityType.tower, playerBTowerId, cellx10y10Id),
+                moveEvent(playerBId, EntityType.tower, playerBTowerId, cellx10y10Id),
                 nextTurnEvent(matchId)
             ]
         },
@@ -62,7 +62,7 @@ describe(featureEventDescription(Action.nextTurn), () => {
                 nextPhase: playerBRobotPlacementPhase()
             },
             additionnalEventConsequence: [
-                moveEvent(EntityType.robot, playerBRobotId, cellx9y9Id),
+                moveEvent(playerBId, EntityType.robot, playerBRobotId, cellx9y9Id),
                 nextTurnEvent(matchId)
             ]
         },

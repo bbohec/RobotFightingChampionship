@@ -30,6 +30,10 @@ export class InMemoryEntityRepository implements EntityInteractor {
         this.entities.set(entity.id, entity)
     }
 
+    addEntities (entities: GenericEntity[]): void {
+        for (const entity of entities) this.addEntity(entity)
+    }
+
     hasEntityById (entityId:string):boolean {
         return this.entities.has(entityId)
     }
