@@ -1,6 +1,6 @@
 import { GameEvent } from '../../../Event/GameEvent'
 import { stringifyWithDetailledSetAndMap } from '../../../Event/test'
-import { EventInteractor } from '../port/EventInteractor'
+import { EventInteractor, gameEventNotFoundOnEventRepository } from '../port/EventInteractor'
 
 export class InMemoryEventRepository implements EventInteractor {
     public sendEvent (gameEvent: GameEvent): Promise<void> {
@@ -11,8 +11,7 @@ export class InMemoryEventRepository implements EventInteractor {
     public retrieveEvent (expectedEvent: GameEvent): GameEvent[] {
         const gameEvent = this.gameEvents.filter(event => this.isEventsIdentical(event, expectedEvent))
         if (gameEvent.length > 0) return gameEvent
-        throw new Error(`The following game event is not found on event repository:\n${stringifyWithDetailledSetAndMap(expectedEvent)}
-        List of current events:\n${this.gameEvents.map(event => stringifyWithDetailledSetAndMap(event)).join('\n')}`)
+        throw new Error(gameEventNotFoundOnEventRepository(expectedEvent, this.gameEvents))
     }
 
     private isEventsIdentical (event: GameEvent, expectedEvent: GameEvent) {

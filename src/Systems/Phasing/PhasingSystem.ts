@@ -11,6 +11,7 @@ import { defeatEntityId, victoryEntityId } from '../../Event/entityIds'
 import { EntityReference } from '../../Components/EntityReference'
 import { Physical, playerARobotFirstPosition, playerATowerFirstPosition, playerBRobotFirstPosition, playerBTowerFirstPosition, Position } from '../../Components/Physical'
 import { moveEvent } from '../../Events/move/moveEvent'
+import { cellMissingOnGrid, currentPhaseNotSupported, missingDefeatPlayerId, missingInitialPosition } from './port/phasingSystem'
 
 export interface PhaseSequence {
     currentPhase:Phase,
@@ -55,8 +56,8 @@ export class PhasingSystem extends GenericSystem {
 
     private defeatPlayerIdFromPlayableComponentAndVictoryPlayer (playableComponent: Playable, victoryPlayerId: string) {
         const defeatPlayerId = playableComponent.players.find(playerId => playerId !== victoryPlayerId)
-        if (!defeatPlayerId) { throw new Error('defeatPlayerId missing on playable components') }
-        return defeatPlayerId
+        if (defeatPlayerId) return defeatPlayerId
+        throw new Error(missingDefeatPlayerId)
     }
 
     private onNextTurn (gameEvent: GameEvent): Promise<void> {
@@ -66,7 +67,7 @@ export class PhasingSystem extends GenericSystem {
             phaseSequence.currentPhase.matchPlayer === matchPhasingComponent.currentPhase.matchPlayer
         ))
         if (phaseSequence) return this.onSupportedCurrentPhase(matchPhasingComponent, phaseSequence.nextPhase, gameEvent)
-        throw new Error(`Current phase '${matchPhasingComponent.currentPhase}' not supported for next turn.`)
+        throw new Error(currentPhaseNotSupported(matchPhasingComponent))
     }
 
     private onSupportedCurrentPhase (matchPhasingComponent: Phasing, nextPhase: Phase, gameEvent:GameEvent):Promise<void> {
@@ -83,7 +84,7 @@ export class PhasingSystem extends GenericSystem {
         ])
         return (entityTypeFromAutomaticPhaseType.has(phaseType))
             ? this.sendMoveToPositionEvent(gameEvent, entityTypeFromAutomaticPhaseType.get(phaseType)!, matchPlayer)
-                .then(() => this.sendNextTurnEvent(gameEvent))
+                .then(() => this.sendNextTurnEvent(gameEvent.entityByEntityType(EntityType.match)))
                 .catch(error => Promise.reject(error))
             : Promise.resolve()
     }
@@ -100,7 +101,7 @@ export class PhasingSystem extends GenericSystem {
             positionMapping.matchPlayer === matchPlayer
         ))
         if (positionMapping) return positionMapping.position
-        throw new Error(`Missing initial position for entity type '${entityType}' and matchPlayer '${matchPlayer}'`)
+        throw new Error(missingInitialPosition(entityType, matchPlayer))
     }
 
     private sendMoveToPositionEvent (gameEvent: GameEvent, entityType:EntityType, matchPlayer:MatchPlayer): Promise<void> {
@@ -113,8 +114,8 @@ export class PhasingSystem extends GenericSystem {
         )
     }
 
-    private sendNextTurnEvent (gameEvent:GameEvent): Promise<void> {
-        return this.sendEvent(nextTurnEvent(gameEvent.entityByEntityType(EntityType.match)))
+    private sendNextTurnEvent (matchId:string): Promise<void> {
+        return this.sendEvent(nextTurnEvent(matchId))
     }
 
     private retrieveCellIdWithPosition (gameEvent:GameEvent, position:Position): string {
@@ -122,10 +123,11 @@ export class PhasingSystem extends GenericSystem {
         const cellForPlayerATower = this.interactWithEntities
             .retrieveEntityById(gridId)
             .retrieveComponent(EntityReference)
-            .retrieveReferences(EntityType.cell).map(cellId => this.interactWithEntities.retrieveEntityById(cellId))
+            .retrieveReferences(EntityType.cell)
+            .map(cellId => this.interactWithEntities.retrieveEntityById(cellId))
             .find(cellEntity => cellEntity.retrieveComponent(Physical).position.x === position.x && cellEntity.retrieveComponent(Physical).position.y === position.y)
         if (cellForPlayerATower) return cellForPlayerATower.id
-        throw new Error(`Cell entity with position '${JSON.stringify(position)}' missing on cell entities of the grid '${gridId}'.`)
+        throw new Error(cellMissingOnGrid(position, gridId))
     }
 
     private retrievePlayerUnitId (gameEvent: GameEvent, player:MatchPlayer, entityType:EntityType):string {

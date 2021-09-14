@@ -38,7 +38,7 @@ export class AttackingSystem extends GenericSystem {
                         () => this.attack(attackerId, targetId, phasingComponent)))))
     }
 
-    isPhaseEnoughActionPoint (phasingComponent: Phasing):boolean {
+    private isPhaseEnoughActionPoint (phasingComponent: Phasing):boolean {
         return phasingComponent.currentPhase.actionPoints >= weaponAttackActionPoints
     }
 
@@ -66,7 +66,6 @@ export class AttackingSystem extends GenericSystem {
     }
 
     private attack (attackerId:string, targetId:string, phasingComponent:Phasing):Promise<void> {
-        console.log(phasingComponent.currentPhase.actionPoints)
         phasingComponent.currentPhase.actionPoints = phasingComponent.currentPhase.actionPoints - weaponAttackActionPoints
         return this.sendEvent(hitEvent(attackerId, targetId))
     }

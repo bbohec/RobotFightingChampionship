@@ -43,11 +43,7 @@ export abstract class GenericLifeCycleSystem extends GenericSystem {
     }
 
     private addOptionnalComponents (components: GenericComponent[] | undefined, entity: GenericEntity) {
-        if (components) {
-            for (const component of components) {
-                entity.addComponent(component)
-            }
-        }
+        if (components) for (const component of components) entity.addComponent(component)
     }
 
     protected readonly interactWithIdentiers:IdentifierAdapter

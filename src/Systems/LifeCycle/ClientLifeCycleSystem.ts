@@ -8,7 +8,6 @@ import { EntityType } from '../../Event/EntityType'
 import { hideEvent } from '../../Events/hide/hide'
 import { SimpleMatchLobby } from '../../Entities/SimpleMatchLobby'
 import { showEvent } from '../../Events/show/show'
-import { stringifyWithDetailledSetAndMap } from '../../Event/test'
 import { Player } from '../../Entities/Player'
 
 export class ClientLifeCycleSystem extends GenericLifeCycleSystem {
@@ -22,20 +21,15 @@ export class ClientLifeCycleSystem extends GenericLifeCycleSystem {
     private createMainMenuEntity (mainMenuEntityId:string): Promise<void> {
         return this.createEntity(
             new MainMenu(mainMenuEntityId),
-            [
-                new Visible(mainMenuEntityId)
-            ],
+            [new Visible(mainMenuEntityId)],
             showEvent(EntityType.mainMenu, mainMenuEntityId, this.interactWithEntities.retrieveEntityByClass(Player).id)
         )
     }
 
     private createSimpleMatchLobbyEntity (simpleMachtLobbyEntityId:string, gameEvent:GameEvent): Promise<void> {
-        console.log(stringifyWithDetailledSetAndMap(gameEvent))
         return this.createEntity(
             new SimpleMatchLobby(simpleMachtLobbyEntityId),
-            [
-                new Visible(simpleMachtLobbyEntityId)
-            ],
+            [new Visible(simpleMachtLobbyEntityId)],
             [
                 showEvent(EntityType.simpleMatchLobby, simpleMachtLobbyEntityId, this.interactWithEntities.retrieveEntityByClass(Player).id),
                 hideEvent(EntityType.mainMenu, gameEvent.entityByEntityType(EntityType.mainMenu))

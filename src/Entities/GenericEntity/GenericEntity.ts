@@ -28,14 +28,16 @@ export abstract class GenericEntity implements Entity, ComponentManagement {
 
     retrieveComponent <Class extends Component> (potentialComponent: PotentialClass<Class>):Class {
         for (const component of this.components.values()) if (component instanceof potentialComponent) return component as Class
-        throw new Error(`Component '${potentialComponent.name}' missing on entity id '${this.id}'.\nAvailable components: ${stringifyWithDetailledSetAndMap(this.components)}`)
+        throw new Error(componentMissingOnEntity<Class>(potentialComponent, this.id, this.components))
     }
 
     deleteComponent <Class extends Component> (potentialComponent: PotentialClass<Class>):void {
         const isDeleted = this.components.delete(this.retrieveComponent(potentialComponent))
-        if (!isDeleted) throw new Error(`Component '${potentialComponent.name}' is not deleted.`)
+        if (!isDeleted) throw new Error(componentNotDeleted<Class>(potentialComponent))
     }
 
     readonly id: string
     private components:Set<Component> = new Set<Component>()
 }
+const componentMissingOnEntity = <Class extends Component> (potentialComponent: PotentialClass<Class>, id: string, components: Set<Component>): string => `Component '${potentialComponent.name}' missing on entity id '${id}'.\nAvailable components: ${stringifyWithDetailledSetAndMap(components)}`
+const componentNotDeleted = <Class extends Component> (potentialComponent: PotentialClass<Class>): string => `Component '${potentialComponent.name}' is not deleted.`

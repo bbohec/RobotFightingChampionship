@@ -25,13 +25,13 @@ export class ServerLifeCycleSystem extends GenericLifeCycleSystem {
         throw new Error(errorMessageOnUnknownEventAction(ServerLifeCycleSystem.name, gameEvent))
     }
 
-    onCreateEvent (gameEvent: GameEvent): Promise<void> {
+    private onCreateEvent (gameEvent: GameEvent): Promise<void> {
         const strategy = this.retrieveCreateStrategy(gameEvent)
         if (strategy) return strategy()
         throw new Error(errorMessageOnUnknownEventAction(ServerLifeCycleSystem.name, gameEvent))
     }
 
-    onDestroyEvent (gameEvent: GameEvent): Promise<void> {
+    private onDestroyEvent (gameEvent: GameEvent): Promise<void> {
         for (const entity of gameEvent.allEntities()) this.interactWithEntities.deleteEntityById(entity)
         return Promise.resolve()
     }

@@ -10,14 +10,14 @@ export class EntityReference extends GenericComponent {
 
     retreiveReference (entityType:EntityType) {
         const references = this.retrieveReferences(entityType)
-        if (references.length > 1) throw new Error(`There is multiples references for entity type '${entityType}' on entity references component of entity '${this.entityId}'.`)
-        return references[0]
+        if (references.length === 1) return references[0]
+        throw new Error(multipleEntitiesReferencedByEntityType(entityType, this.entityId))
     }
 
     retrieveReferences (entityType:EntityType) {
         const entityReferences = this.entityReferences.get(entityType)
-        if (!entityReferences || entityReferences.length === 0) throw new Error(`There is not entity type '${entityType}' on entity references component of entity '${this.entityId}'.`)
-        return entityReferences
+        if (entityReferences && entityReferences.length > 0) return entityReferences
+        throw new Error(missingEntityReferenceByEntityType(entityType, this.entityId))
     }
 
     hasReferences (entityType:EntityType) {
@@ -28,3 +28,5 @@ export class EntityReference extends GenericComponent {
 
     entityReferences:EntityReferences = new Map()
 }
+const missingEntityReferenceByEntityType = (entityType: EntityType, entityId: string): string => `There is not entity type '${entityType}' on entity references component of entity '${entityId}'.`
+const multipleEntitiesReferencedByEntityType = (entityType: EntityType, entityId: string): string => `There is multiples references for entity type '${entityType}' on entity references component of entity '${entityId}'.`

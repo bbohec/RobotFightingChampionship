@@ -6,6 +6,7 @@ import { EntityType } from '../../Event/EntityType'
 import { GameEvent } from '../../Event/GameEvent'
 import { notifyEvent, positionAlreadyOccupiedNotificationMessage } from '../../Events/notify/notify'
 import { GenericSystem } from '../Generic/GenericSystem'
+const unsupportedMovingEntity = 'Unsupported moving entity type.'
 export class MovingSystem extends GenericSystem {
     onGameEvent (gameEvent: GameEvent): Promise<void> {
         const playerId = gameEvent.entityByEntityType(EntityType.player)
@@ -21,7 +22,6 @@ export class MovingSystem extends GenericSystem {
                 this.interactWithEntities.retrieveEntityById(cellId).retrieveComponent(Physical),
                 this.interactWithEntities.retrieveEntityById(matchId).retrieveComponent(Phasing)
             )
-        // throw errorMessageOnUnknownEventAction(MovingSystem.name, gameEvent)
     }
 
     private isPositionBusy (playableComponent:Playable, cellPosition:Physical):boolean {
@@ -34,10 +34,9 @@ export class MovingSystem extends GenericSystem {
     }
 
     private entityByEntityTypeFromPlayers (matchPlayers: string[], entityType:EntityType):string[] {
-        const entities = matchPlayers.map(playerId =>
-            (this.interactWithEntities.retrieveEntityById(playerId).retrieveComponent(EntityReference).hasReferences(entityType))
-                ? this.interactWithEntities.retrieveEntityById(playerId).retrieveComponent(EntityReference).retrieveReferences(entityType)
-                : []
+        const entities = matchPlayers.map(playerId => this.interactWithEntities.retrieveEntityById(playerId).retrieveComponent(EntityReference).hasReferences(entityType)
+            ? this.interactWithEntities.retrieveEntityById(playerId).retrieveComponent(EntityReference).retrieveReferences(entityType)
+            : []
         )
         return ([] as string[]).concat(...entities)
     }
@@ -47,9 +46,17 @@ export class MovingSystem extends GenericSystem {
     }
 
     private move (movingEntityPhysicalComponent:Physical, destinationCellPhysicalComponent:Physical, phasingComponent:Phasing):Promise<void> {
-        phasingComponent.currentPhase.actionPoints = phasingComponent.currentPhase.actionPoints - this.movingDistanceBetweenPositions(movingEntityPhysicalComponent.position, destinationCellPhysicalComponent.position)
-        movingEntityPhysicalComponent.position = destinationCellPhysicalComponent.position
+        this.removeActionPoint(phasingComponent, this.movingDistanceBetweenPositions(movingEntityPhysicalComponent.position, destinationCellPhysicalComponent.position))
+        this.changePosition(movingEntityPhysicalComponent, destinationCellPhysicalComponent)
         return Promise.resolve()
+    }
+
+    private changePosition (movingEntityPhysicalComponent: Physical, destinationEntityPhysicalComponent: Physical) {
+        movingEntityPhysicalComponent.position = destinationEntityPhysicalComponent.position
+    }
+
+    private removeActionPoint (phasingComponent: Phasing, actionPoint:number) {
+        phasingComponent.currentPhase.actionPoints -= actionPoint
     }
 
     private movingEntityIdBySupportedEntityType (gameEvent: GameEvent):string {
@@ -58,7 +65,7 @@ export class MovingSystem extends GenericSystem {
                 ? gameEvent.entityByEntityType(EntityType.tower)
                 : gameEvent.entityByEntityType(EntityType.robot)
         }
-        throw new Error('Unsupported moving entity type.')
+        throw new Error(unsupportedMovingEntity)
     }
 
     private movingDistanceBetweenPositions (movingEntityPosition: Position, destinationCellPosition: Position):number {

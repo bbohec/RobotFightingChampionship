@@ -10,6 +10,7 @@ import { createGridEvent, createRobotEvent, createTowerEvent } from '../../Event
 import { destroyMatchEvent, destroyRobotEvent, destroyTowerEvent } from '../../Events/destroy/destroy'
 import { mainMenuEntityId } from '../../Event/entityIds'
 import { showEvent } from '../../Events/show/show'
+import { noMatchWithPlayerOnPlayableComponent, playerNotFoundOnMatchPlayers } from './port/matchSystem'
 
 export class ServerMatchSystem extends GenericSystem {
     onGameEvent (gameEvent: GameEvent): Promise<void> {
@@ -29,16 +30,10 @@ export class ServerMatchSystem extends GenericSystem {
     }
 
     private onPlayerRemoved (playableComponent: Playable, playerId:string): Promise<void> {
-        const entityReference = this.interactWithEntities.retrieveEntityById(playerId).retrieveComponent(EntityReference)
-        const robotIds = entityReference.entityReferences.get(EntityType.robot)
-        const towerIds = entityReference.entityReferences.get(EntityType.tower)
-        if (!robotIds) throw new Error('Robot entity Id missing on player entity reference component.')
-        if (!towerIds) throw new Error('Tower entity Id missing on player entity reference component.')
-        if (robotIds.length !== 1) throw new Error('There is not one Robot id on robot references.')
-        if (towerIds.length !== 1) throw new Error('There is not one Tower id on robot references.')
+        const playerEntityReference = this.interactWithEntities.retrieveEntityById(playerId).retrieveComponent(EntityReference)
         const events:GameEvent[] = [
-            destroyRobotEvent(robotIds[0]),
-            destroyTowerEvent(towerIds[0]),
+            destroyRobotEvent(playerEntityReference.retreiveReference(EntityType.robot)),
+            destroyTowerEvent(playerEntityReference.retreiveReference(EntityType.tower)),
             showEvent(EntityType.mainMenu, mainMenuEntityId, playerId)
         ]
         if (playableComponent.players.length === 0) events.push(destroyMatchEvent(playableComponent.entityId))
@@ -49,7 +44,7 @@ export class ServerMatchSystem extends GenericSystem {
 
     private removePlayerFromPlayableComponent (playableComponent: Playable, quitingPlayerId: string) {
         const playerIndex = playableComponent.players.findIndex(playerId => playerId === quitingPlayerId)
-        if (playerIndex < 0) { throw new Error(`Player with Id '${quitingPlayerId}' not found on match players.`) }
+        if (playerIndex < 0) { throw new Error(playerNotFoundOnMatchPlayers(quitingPlayerId)) }
         playableComponent.players.splice(playerIndex, 1)
     }
 
@@ -72,15 +67,6 @@ export class ServerMatchSystem extends GenericSystem {
     }
 
     private isRobotAndTowerReferenced (entityReferenceComponent:EntityReference):Boolean {
-        /*
-        let robotReferenced = false
-        let towerReferenced = false
-        for (const value of entityReferenceComponent.entityReferences.values()) {
-            if (value === EntityType.robot) robotReferenced = true
-            if (value === EntityType.tower) towerReferenced = true
-        }
-        return (robotReferenced && towerReferenced)
-        */
         return (
             entityReferenceComponent.entityReferences.has(EntityType.robot) &&
             entityReferenceComponent.entityReferences.has(EntityType.tower)
@@ -106,7 +92,7 @@ export class ServerMatchSystem extends GenericSystem {
         const playerId = gameEvent.entityByEntityType(EntityType.player)
         const matchEntity = matchEntities.find(match => match.retrieveComponent(Playable).players.some(player => player === playerId))
         if (matchEntity) return this.sendEvent(playerReadyForMatch(matchEntity.id, playerId))
-        throw new Error(`No match with player that have id ${playerId}`)
+        throw new Error(noMatchWithPlayerOnPlayableComponent(playerId))
     }
 
     private onPlayerJoinMatch (gameEvent: GameEvent): Promise<void> {
