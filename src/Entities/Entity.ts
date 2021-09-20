@@ -1,9 +1,9 @@
-import { Component } from '../../Components/port/Component'
-import { stringifyWithDetailledSetAndMap } from '../../Event/test'
+import { Component } from '../Components/port/Component'
+import { stringifyWithDetailledSetAndMap } from '../Event/test'
 import { ComponentManagement } from './ports/ComponentManagement'
-import { Entity } from './ports/Entity'
+import { EntityContract } from './ports/Entity'
 import { PotentialClass } from './ports/PotentialClass'
-export abstract class GenericEntity implements Entity, ComponentManagement {
+export class Entity implements EntityContract, ComponentManagement {
     constructor (id:string) {
         this.id = id
     }
@@ -24,6 +24,10 @@ export abstract class GenericEntity implements Entity, ComponentManagement {
 
     addComponent (component: Component):void {
         this.components.add(component)
+    }
+
+    addComponents (components: Component[]):void {
+        for (const component of components) this.addComponent(component)
     }
 
     retrieveComponent <Class extends Component> (potentialComponent: PotentialClass<Class>):Class {

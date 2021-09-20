@@ -1,6 +1,6 @@
 import { GameEvent } from '../../Event/GameEvent'
 import { System } from './port/System'
-import { EntityInteractor } from '../../Entities/GenericEntity/ports/EntityInteractor'
+import { EntityInteractor } from '../../Entities/ports/EntityInteractor'
 import { GenericGameEventDispatcherSystem } from '../GameEventDispatcher/GenericGameEventDispatcherSystem'
 export abstract class GenericSystem implements System {
     constructor (interactWithEntities: EntityInteractor, gameEventDispatcher:GenericGameEventDispatcherSystem) {

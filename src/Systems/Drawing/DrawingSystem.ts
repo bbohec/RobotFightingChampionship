@@ -1,7 +1,7 @@
 import { errorMessageOnUnknownEventAction, GameEvent } from '../../Event/GameEvent'
 import { DrawingPort } from './port/DrawingPort'
 import { GenericSystem } from '../Generic/GenericSystem'
-import { EntityInteractor } from '../../Entities/GenericEntity/ports/EntityInteractor'
+import { EntityInteractor } from '../../Entities/ports/EntityInteractor'
 import { GenericGameEventDispatcherSystem } from '../GameEventDispatcher/GenericGameEventDispatcherSystem'
 import { Action } from '../../Event/Action'
 export class DrawingSystem extends GenericSystem {

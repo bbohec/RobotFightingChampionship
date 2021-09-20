@@ -4,13 +4,12 @@ import { Playable } from '../../Components/Playable'
 import { Action } from '../../Event/Action'
 import { EntityType } from '../../Event/EntityType'
 import { EntityReference } from '../../Components/EntityReference'
-import { Match } from '../../Entities/Match'
 import { playerReadyForMatch } from '../../Events/ready/ready'
 import { createGridEvent, createRobotEvent, createTowerEvent } from '../../Events/create/create'
 import { destroyMatchEvent, destroyRobotEvent, destroyTowerEvent } from '../../Events/destroy/destroy'
 import { mainMenuEntityId } from '../../Event/entityIds'
 import { showEvent } from '../../Events/show/show'
-import { noMatchWithPlayerOnPlayableComponent, playerNotFoundOnMatchPlayers } from './port/matchSystem'
+import { playerNotFoundOnMatchPlayers } from './port/matchSystem'
 
 export class ServerMatchSystem extends GenericSystem {
     onGameEvent (gameEvent: GameEvent): Promise<void> {
@@ -48,22 +47,22 @@ export class ServerMatchSystem extends GenericSystem {
         playableComponent.players.splice(playerIndex, 1)
     }
 
-    onRegisterTowerOnPlayer (gameEvent: GameEvent): Promise<void> {
+    private onRegisterTowerOnPlayer (gameEvent: GameEvent): Promise<void> {
         const entityReferenceComponent = this.addEntityReference(
             this.interactWithEntities.retrieveEntityById(gameEvent.entityByEntityType(EntityType.player)).retrieveComponent(EntityReference),
             gameEvent,
             EntityType.tower
         )
-        return (this.isRobotAndTowerReferenced(entityReferenceComponent)) ? this.onRobotAndTowerReferenced(gameEvent) : Promise.resolve()
+        return (this.isRobotAndTowerReferenced(entityReferenceComponent)) ? this.onRobotAndTowerReferenced(gameEvent.entityByEntityType(EntityType.player)) : Promise.resolve()
     }
 
-    onRegisterRobotOnPlayer (gameEvent: GameEvent): Promise<void> {
+    private onRegisterRobotOnPlayer (gameEvent: GameEvent): Promise<void> {
         const entityReferenceComponent = this.addEntityReference(
             this.interactWithEntities.retrieveEntityById(gameEvent.entityByEntityType(EntityType.player)).retrieveComponent(EntityReference),
             gameEvent,
             EntityType.robot
         )
-        return (this.isRobotAndTowerReferenced(entityReferenceComponent)) ? this.onRobotAndTowerReferenced(gameEvent) : Promise.resolve()
+        return (this.isRobotAndTowerReferenced(entityReferenceComponent)) ? this.onRobotAndTowerReferenced(gameEvent.entityByEntityType(EntityType.player)) : Promise.resolve()
     }
 
     private isRobotAndTowerReferenced (entityReferenceComponent:EntityReference):Boolean {
@@ -87,12 +86,11 @@ export class ServerMatchSystem extends GenericSystem {
         return Promise.resolve()
     }
 
-    private onRobotAndTowerReferenced (gameEvent:GameEvent) {
-        const matchEntities = this.interactWithEntities.retrieveEntitiesThatHaveComponent(Match, Playable)
-        const playerId = gameEvent.entityByEntityType(EntityType.player)
-        const matchEntity = matchEntities.find(match => match.retrieveComponent(Playable).players.some(player => player === playerId))
-        if (matchEntity) return this.sendEvent(playerReadyForMatch(matchEntity.id, playerId))
-        throw new Error(noMatchWithPlayerOnPlayableComponent(playerId))
+    private onRobotAndTowerReferenced (playerId:string) {
+        return this.sendEvent(playerReadyForMatch(
+            this.interactWithEntities.retrieveEntityById(playerId).retrieveComponent(EntityReference).retreiveReference(EntityType.match),
+            playerId
+        ))
     }
 
     private onPlayerJoinMatch (gameEvent: GameEvent): Promise<void> {

@@ -2,26 +2,37 @@ import { EntityReference } from '../../Components/EntityReference'
 import { Phasing } from '../../Components/Phasing'
 import { Physical, Position } from '../../Components/Physical'
 import { Playable } from '../../Components/Playable'
+import { MatchPlayer } from '../../Components/port/Phase'
 import { EntityType } from '../../Event/EntityType'
 import { GameEvent } from '../../Event/GameEvent'
-import { notifyEvent, positionAlreadyOccupiedNotificationMessage } from '../../Events/notify/notify'
+import { badPlayerNotificationMessage, notEnoughActionPointNotificationMessage, notifyEvent, positionAlreadyOccupiedNotificationMessage } from '../../Events/notify/notify'
 import { GenericSystem } from '../Generic/GenericSystem'
-const unsupportedMovingEntity = 'Unsupported moving entity type.'
+const unsupportedMovingEntity = (entityTypes:EntityType[]):string => `Unsupported moving entity type. Current entity types: ${entityTypes}`
 export class MovingSystem extends GenericSystem {
     onGameEvent (gameEvent: GameEvent): Promise<void> {
         const playerId = gameEvent.entityByEntityType(EntityType.player)
         const matchId = this.interactWithEntities.retrieveEntityById(playerId).retrieveComponent(EntityReference).retreiveReference(EntityType.match)
-        const cellId = gameEvent.entityByEntityType(EntityType.cell)
-        return (this.isPositionBusy(
-            this.interactWithEntities.retrieveEntityById(matchId).retrieveComponent(Playable),
-            this.interactWithEntities.retrieveEntityById(cellId).retrieveComponent(Physical)
-        ))
-            ? this.sendEvent(notifyEvent(playerId, positionAlreadyOccupiedNotificationMessage))
-            : this.move(
-                this.interactWithEntities.retrieveEntityById(this.movingEntityIdBySupportedEntityType(gameEvent)).retrieveComponent(Physical),
-                this.interactWithEntities.retrieveEntityById(cellId).retrieveComponent(Physical),
-                this.interactWithEntities.retrieveEntityById(matchId).retrieveComponent(Phasing)
-            )
+        const cellPhysicalComponent = this.interactWithEntities.retrieveEntityComponentByEntityId(gameEvent.entityByEntityType(EntityType.cell), Physical)
+        const matchPhasingComponent = this.interactWithEntities.retrieveEntityComponentByEntityId(matchId, Phasing)
+        const matchPlayableComponent = this.interactWithEntities.retrieveEntityComponentByEntityId(matchId, Playable)
+        const movingEntityPhysicalComponent = this.interactWithEntities.retrieveEntityComponentByEntityId(this.movingEntityIdBySupportedEntityType(gameEvent), Physical)
+        const actionPoints = this.movingDistanceBetweenPositions(movingEntityPhysicalComponent.position, cellPhysicalComponent.position)
+        return this.isNotPlayerTurn(matchPlayableComponent, matchPhasingComponent, playerId)
+            ? this.sendEvent(notifyEvent(playerId, badPlayerNotificationMessage(playerId)))
+            : this.isPositionBusy(matchPlayableComponent, cellPhysicalComponent)
+                ? this.sendEvent(notifyEvent(playerId, positionAlreadyOccupiedNotificationMessage))
+                : this.isNotEnoughActionPoint(matchPhasingComponent, actionPoints)
+                    ? this.sendEvent(notifyEvent(playerId, notEnoughActionPointNotificationMessage))
+                    : this.move(movingEntityPhysicalComponent, cellPhysicalComponent, matchPhasingComponent, actionPoints)
+    }
+
+    private isNotPlayerTurn (playableComponent:Playable, phasingComponent:Phasing, playerId:string):boolean {
+        const matchPlayerMapping :Map<number, MatchPlayer> = new Map([[0, MatchPlayer.A], [1, MatchPlayer.B]])
+        return matchPlayerMapping.get(playableComponent.players.findIndex(player => player === playerId)) !== phasingComponent.currentPhase.matchPlayer
+    }
+
+    private isNotEnoughActionPoint (phasingComponent: Phasing, movingDistanceBetweenPositions:number):boolean {
+        return movingDistanceBetweenPositions > phasingComponent.currentPhase.actionPoints
     }
 
     private isPositionBusy (playableComponent:Playable, cellPosition:Physical):boolean {
@@ -45,8 +56,8 @@ export class MovingSystem extends GenericSystem {
         return firstPosition.x === secondPosition.x && firstPosition.y === secondPosition.y
     }
 
-    private move (movingEntityPhysicalComponent:Physical, destinationCellPhysicalComponent:Physical, phasingComponent:Phasing):Promise<void> {
-        this.removeActionPoint(phasingComponent, this.movingDistanceBetweenPositions(movingEntityPhysicalComponent.position, destinationCellPhysicalComponent.position))
+    private move (movingEntityPhysicalComponent:Physical, destinationCellPhysicalComponent:Physical, phasingComponent:Phasing, actionPoints:number):Promise<void> {
+        this.removeActionPoint(phasingComponent, actionPoints)
         this.changePosition(movingEntityPhysicalComponent, destinationCellPhysicalComponent)
         return Promise.resolve()
     }
@@ -60,12 +71,9 @@ export class MovingSystem extends GenericSystem {
     }
 
     private movingEntityIdBySupportedEntityType (gameEvent: GameEvent):string {
-        if (gameEvent.hasEntitiesByEntityType(EntityType.tower) || gameEvent.hasEntitiesByEntityType(EntityType.tower)) {
-            return (gameEvent.hasEntitiesByEntityType(EntityType.tower))
-                ? gameEvent.entityByEntityType(EntityType.tower)
-                : gameEvent.entityByEntityType(EntityType.robot)
-        }
-        throw new Error(unsupportedMovingEntity)
+        const supportedEntityTypes : EntityType[] = [EntityType.tower, EntityType.robot]
+        for (const supportedEntityType of supportedEntityTypes) if (gameEvent.hasEntitiesByEntityType(supportedEntityType)) return gameEvent.entityByEntityType(supportedEntityType)
+        throw new Error(unsupportedMovingEntity(gameEvent.allEntityTypes()))
     }
 
     private movingDistanceBetweenPositions (movingEntityPosition: Position, destinationCellPosition: Position):number {

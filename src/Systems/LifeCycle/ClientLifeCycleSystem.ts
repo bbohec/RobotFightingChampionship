@@ -1,47 +1,44 @@
-import { Game } from '../../Entities/Game'
 import { Visible } from '../../Components/Visible'
 import { errorMessageOnUnknownEventAction, GameEvent } from '../../Event/GameEvent'
-import { MainMenu } from '../../Entities/MainMenu'
 import { GenericLifeCycleSystem } from './GenericLifeCycleSystem'
 import { createMainMenuEvent } from '../../Events/create/create'
 import { EntityType } from '../../Event/EntityType'
 import { hideEvent } from '../../Events/hide/hide'
-import { SimpleMatchLobby } from '../../Entities/SimpleMatchLobby'
 import { showEvent } from '../../Events/show/show'
-import { Player } from '../../Entities/Player'
+import { Entity } from '../../Entities/Entity'
 
 export class ClientLifeCycleSystem extends GenericLifeCycleSystem {
     onGameEvent (gameEvent: GameEvent): Promise<void> {
         if (gameEvent.hasEntitiesByEntityType(EntityType.simpleMatchLobby)) return this.createSimpleMatchLobbyEntity(this.interactWithIdentiers.nextIdentifier(), gameEvent)
-        if (gameEvent.hasEntitiesByEntityType(EntityType.mainMenu)) return this.createMainMenuEntity(this.interactWithIdentiers.nextIdentifier())
-        if (gameEvent.hasEntitiesByEntityType(EntityType.game)) return this.createClientGameEntity(this.interactWithIdentiers.nextIdentifier())
+        if (gameEvent.hasEntitiesByEntityType(EntityType.mainMenu)) return this.createMainMenuEntity(this.interactWithIdentiers.nextIdentifier(), gameEvent.entityByEntityType(EntityType.player))
+        if (gameEvent.hasEntitiesByEntityType(EntityType.game)) return this.createClientGameEntity(this.interactWithIdentiers.nextIdentifier(), gameEvent.entityByEntityType(EntityType.player))
         throw new Error(errorMessageOnUnknownEventAction(ClientLifeCycleSystem.name, gameEvent))
     }
 
-    private createMainMenuEntity (mainMenuEntityId:string): Promise<void> {
+    private createMainMenuEntity (mainMenuEntityId:string, playerId:string): Promise<void> {
         return this.createEntity(
-            new MainMenu(mainMenuEntityId),
+            new Entity(mainMenuEntityId),
             [new Visible(mainMenuEntityId)],
-            showEvent(EntityType.mainMenu, mainMenuEntityId, this.interactWithEntities.retrieveEntityByClass(Player).id)
+            showEvent(EntityType.mainMenu, mainMenuEntityId, playerId)
         )
     }
 
     private createSimpleMatchLobbyEntity (simpleMachtLobbyEntityId:string, gameEvent:GameEvent): Promise<void> {
         return this.createEntity(
-            new SimpleMatchLobby(simpleMachtLobbyEntityId),
+            new Entity(simpleMachtLobbyEntityId),
             [new Visible(simpleMachtLobbyEntityId)],
             [
-                showEvent(EntityType.simpleMatchLobby, simpleMachtLobbyEntityId, this.interactWithEntities.retrieveEntityByClass(Player).id),
+                showEvent(EntityType.simpleMatchLobby, simpleMachtLobbyEntityId, gameEvent.entityByEntityType(EntityType.player)),
                 hideEvent(EntityType.mainMenu, gameEvent.entityByEntityType(EntityType.mainMenu))
             ]
         )
     }
 
-    private createClientGameEntity (clientGameEntityId:string): Promise<void> {
+    private createClientGameEntity (clientGameEntityId:string, playerId:string): Promise<void> {
         return this.createEntity(
-            new Game(clientGameEntityId),
+            new Entity(clientGameEntityId),
             [],
-            createMainMenuEvent(clientGameEntityId, 'unknown')
+            createMainMenuEvent(clientGameEntityId, 'unknown', playerId)
         )
     }
 }

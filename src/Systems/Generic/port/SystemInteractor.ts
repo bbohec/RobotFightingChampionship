@@ -1,4 +1,4 @@
-import { PotentialClass } from '../../../Entities/GenericEntity/ports/PotentialClass'
+import { PotentialClass } from '../../../Entities/ports/PotentialClass'
 import { System } from './System'
 
 export interface SystemInteractor {

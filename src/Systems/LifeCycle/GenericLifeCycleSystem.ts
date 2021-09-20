@@ -1,8 +1,8 @@
 import { LifeCycle } from '../../Components/LifeCycle'
-import { GenericEntity } from '../../Entities/GenericEntity/GenericEntity'
+import { Entity } from '../../Entities/Entity'
 import { GenericSystem } from '../Generic/GenericSystem'
 import { GenericComponent } from '../../Components/GenericComponent'
-import { EntityInteractor } from '../../Entities/GenericEntity/ports/EntityInteractor'
+import { EntityInteractor } from '../../Entities/ports/EntityInteractor'
 import { IdentifierAdapter } from './port/IdentifierAdapter'
 import { GenericGameEventDispatcherSystem } from '../GameEventDispatcher/GenericGameEventDispatcherSystem'
 import { Action } from '../../Event/Action'
@@ -16,8 +16,8 @@ export abstract class GenericLifeCycleSystem extends GenericSystem {
 
     abstract onGameEvent (gameEvent: GameEvent): Promise<void>
 
-    protected createEntity (entity: GenericEntity, components?: GenericComponent[], nextEvent?: GameEvent|GameEvent[]): Promise<void> {
-        this.interactWithEntities.addEntity(entity)
+    protected createEntity (entity: Entity, components?: GenericComponent[], nextEvent?: GameEvent|GameEvent[]): Promise<void> {
+        this.interactWithEntities.saveEntity(entity)
         this.addLifeCycleComponent(entity)
         this.addOptionnalComponents(components, entity)
         return this.sendOptionnalNextEvent(nextEvent)
@@ -29,7 +29,7 @@ export abstract class GenericLifeCycleSystem extends GenericSystem {
             .catch(error => Promise.reject(error))
     }
 
-    private addLifeCycleComponent (entity: GenericEntity) {
+    private addLifeCycleComponent (entity: Entity) {
         entity.addComponent(new LifeCycle(entity.id))
         entity.retrieveComponent(LifeCycle).isCreated = true
     }
@@ -42,7 +42,7 @@ export abstract class GenericLifeCycleSystem extends GenericSystem {
                 : this.sendNextEvents(nextEvent)
     }
 
-    private addOptionnalComponents (components: GenericComponent[] | undefined, entity: GenericEntity) {
+    private addOptionnalComponents (components: GenericComponent[] | undefined, entity: Entity) {
         if (components) for (const component of components) entity.addComponent(component)
     }
 

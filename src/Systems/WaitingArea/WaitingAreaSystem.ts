@@ -1,5 +1,4 @@
 import { Playable } from '../../Components/Playable'
-import { SimpleMatchLobby } from '../../Entities/SimpleMatchLobby'
 import { createMatchEvent } from '../../Events/create/create'
 import { playerJoinMatchEvent } from '../../Events/join/join'
 import { errorMessageOnUnknownEventAction, GameEvent } from '../../Event/GameEvent'
@@ -14,9 +13,10 @@ export class WaitingAreaSystem extends GenericSystem {
     }
 
     private simpleMatchLobbyEvent (gameEvent:GameEvent):Promise<void> {
-        const players = this.interactWithEntities.retrieveEntityByClass(SimpleMatchLobby).retrieveComponent(Playable).players
+        const simpleMatchLobbyEntityId = gameEvent.entityByEntityType(EntityType.simpleMatchLobby)
+        const players = this.interactWithEntities.retrieveEntityById(simpleMatchLobbyEntityId).retrieveComponent(Playable).players
         if (gameEvent.action === Action.waitingForPlayers) return this.onMatchWaitingForPlayersEvent(gameEvent.entityByEntityType(EntityType.match), players)
-        if (gameEvent.action === Action.join) return this.onPlayerJoinGameEvent(gameEvent.entityByEntityType(EntityType.player), players, this.interactWithEntities.retrieveEntityByClass(SimpleMatchLobby).id)
+        if (gameEvent.action === Action.join) return this.onPlayerJoinGameEvent(gameEvent.entityByEntityType(EntityType.player), players, simpleMatchLobbyEntityId)
         throw new Error(errorMessageOnUnknownEventAction(WaitingAreaSystem.name, gameEvent))
     }
 

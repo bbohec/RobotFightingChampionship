@@ -1,4 +1,4 @@
-import { InMemoryEntityRepository } from '../../../Entities/GenericEntity/infra/InMemoryEntityRepository'
+import { InMemoryEntityRepository } from '../../../Entities/infra/InMemoryEntityRepository'
 import { InMemoryDrawingAdapter } from '../../Drawing/infra/InMemoryDrawingAdapter'
 import { InMemoryEventRepository } from '../../GameEventDispatcher/infra/InMemoryEventRepository'
 import { InMemorySystemRepository } from '../../Generic/infra/InMemorySystemInteractor'

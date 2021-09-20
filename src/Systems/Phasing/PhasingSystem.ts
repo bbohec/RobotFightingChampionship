@@ -1,6 +1,6 @@
 import { Phasing, playerARobotPhase, playerARobotPlacementPhase, playerATowerPhase, playerATowerPlacementPhase, playerAVictoryPhase, playerBRobotPhase, playerBRobotPlacementPhase, playerBTowerPhase, playerBTowerPlacementPhase, playerBVictoryPhase, preparingGamePhase } from '../../Components/Phasing'
 import { MatchPlayer, Phase, PhaseType } from '../../Components/port/Phase'
-import { nextTurnEvent } from '../../Events/nextTurn/nextTurnEvent'
+import { nextTurnEvent } from '../../Events/nextTurn/nextTurn'
 import { Action } from '../../Event/Action'
 import { errorMessageOnUnknownEventAction, GameEvent } from '../../Event/GameEvent'
 import { GenericSystem } from '../Generic/GenericSystem'
@@ -10,7 +10,7 @@ import { showEvent } from '../../Events/show/show'
 import { defeatEntityId, victoryEntityId } from '../../Event/entityIds'
 import { EntityReference } from '../../Components/EntityReference'
 import { Physical, playerARobotFirstPosition, playerATowerFirstPosition, playerBRobotFirstPosition, playerBTowerFirstPosition, Position } from '../../Components/Physical'
-import { moveEvent } from '../../Events/move/moveEvent'
+import { moveEvent } from '../../Events/move/move'
 import { cellMissingOnGrid, currentPhaseNotSupported, missingDefeatPlayerId, missingInitialPosition } from './port/phasingSystem'
 
 export interface PhaseSequence {
