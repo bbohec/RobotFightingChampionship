@@ -1,4 +1,3 @@
-import { EntityReference } from '../../Components/EntityReference'
 import { Phasing, weaponAttackActionPoints } from '../../Components/Phasing'
 import { defaultWeaponMaxRange, Physical, Position } from '../../Components/Physical'
 import { Playable } from '../../Components/Playable'
@@ -11,15 +10,15 @@ import { GenericSystem } from '../Generic/GenericSystem'
 export class AttackingSystem extends GenericSystem {
     onGameEvent (gameEvent: GameEvent): Promise<void> {
         const playerId = gameEvent.entityByEntityType(EntityType.player)
-        const playerEntityReferences = this.interactWithEntities.retrieveEntityById(playerId).retrieveComponent(EntityReference)
-        const matchEntity = this.interactWithEntities.retrieveEntityById(playerEntityReferences.retreiveReference(EntityType.match))
+        const playerEntityReference = this.entityReferencesByEntityId(playerId)
+        const matchEntity = this.interactWithEntities.retrieveEntityById(playerEntityReference.retreiveReference(EntityType.match))
         const phasingComponent = matchEntity.retrieveComponent(Phasing)
         const attackerId = gameEvent.entityByEntityType(EntityType.attacker)
         const targetId = gameEvent.entityByEntityType(EntityType.target)
         const genericStepFunction = (check:boolean, notificationMessage:string, nextStep:()=>Promise<void>):Promise<void> => check ? nextStep() : this.sendEvent(notifyEvent(gameEvent.entityByEntityType(EntityType.player), notificationMessage))
         const enoughActionPointCheckStep = (nextStep: ()=>Promise<void>): Promise<void> => genericStepFunction(this.isPhaseEnoughActionPoint(phasingComponent), notEnoughActionPointNotificationMessage, nextStep)
         const targetOnAttackerRangeCheckStep = (nextStep: ()=>Promise<void>): Promise<void> => genericStepFunction(this.isTargetOnAttackerRange(attackerId, targetId), outOfRangeNotificationMessage, nextStep)
-        const attackerPhaseCheckStep = (nextStep: ()=>Promise<void>) => genericStepFunction(this.isAttackerPhase(phasingComponent, attackerId, playerEntityReferences.retreiveReference(EntityType.tower), playerEntityReferences.retreiveReference(EntityType.robot)), wrongPhaseNotificationMessage(phasingComponent.currentPhase.phaseType), nextStep)
+        const attackerPhaseCheckStep = (nextStep: ()=>Promise<void>) => genericStepFunction(this.isAttackerPhase(phasingComponent, attackerId, playerEntityReference.retreiveReference(EntityType.tower), playerEntityReference.retreiveReference(EntityType.robot)), wrongPhaseNotificationMessage(phasingComponent.currentPhase.phaseType), nextStep)
         const playerPhaseCheckStep = (nextStep: ()=>Promise<void>) => genericStepFunction(this.isPlayerPhase(phasingComponent.currentPhase.matchPlayer, matchEntity.retrieveComponent(Playable), playerId), badPlayerNotificationMessage(playerId), nextStep)
 
         /*

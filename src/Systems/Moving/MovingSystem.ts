@@ -1,32 +1,45 @@
-import { EntityReference } from '../../Components/EntityReference'
 import { Phasing } from '../../Components/Phasing'
 import { Physical, Position } from '../../Components/Physical'
 import { Playable } from '../../Components/Playable'
-import { MatchPlayer } from '../../Components/port/Phase'
+import { MatchPlayer, PhaseType } from '../../Components/port/Phase'
 import { EntityType } from '../../Event/EntityType'
 import { GameEvent } from '../../Event/GameEvent'
-import { badPlayerNotificationMessage, notEnoughActionPointNotificationMessage, notifyEvent, positionAlreadyOccupiedNotificationMessage } from '../../Events/notify/notify'
+import { badPlayerNotificationMessage, notEnoughActionPointNotificationMessage, notifyEvent, positionAlreadyOccupiedNotificationMessage, wrongPhaseNotificationMessage } from '../../Events/notify/notify'
 import { GenericSystem } from '../Generic/GenericSystem'
 const unsupportedMovingEntity = (entityTypes:EntityType[]):string => `Unsupported moving entity type. Current entity types: ${entityTypes}`
 export class MovingSystem extends GenericSystem {
     onGameEvent (gameEvent: GameEvent): Promise<void> {
         const playerId = gameEvent.entityByEntityType(EntityType.player)
-        const matchId = this.interactWithEntities.retrieveEntityById(playerId).retrieveComponent(EntityReference).retreiveReference(EntityType.match)
+        const playerEntityReference = this.entityReferencesByEntityId(playerId)
+        const matchId = playerEntityReference.retreiveReference(EntityType.match)
+        const movingEntityId = this.movingEntityIdBySupportedEntityType(gameEvent)
         const cellPhysicalComponent = this.interactWithEntities.retrieveEntityComponentByEntityId(gameEvent.entityByEntityType(EntityType.cell), Physical)
         const matchPhasingComponent = this.interactWithEntities.retrieveEntityComponentByEntityId(matchId, Phasing)
         const matchPlayableComponent = this.interactWithEntities.retrieveEntityComponentByEntityId(matchId, Playable)
-        const movingEntityPhysicalComponent = this.interactWithEntities.retrieveEntityComponentByEntityId(this.movingEntityIdBySupportedEntityType(gameEvent), Physical)
+        const movingEntityPhysicalComponent = this.interactWithEntities.retrieveEntityComponentByEntityId(movingEntityId, Physical)
         const actionPoints = this.movingDistanceBetweenPositions(movingEntityPhysicalComponent.position, cellPhysicalComponent.position)
-        return this.isNotPlayerTurn(matchPlayableComponent, matchPhasingComponent, playerId)
+        return this.isNotPlayerPlayer(matchPlayableComponent, matchPhasingComponent, playerId)
             ? this.sendEvent(notifyEvent(playerId, badPlayerNotificationMessage(playerId)))
-            : this.isPositionBusy(matchPlayableComponent, cellPhysicalComponent)
-                ? this.sendEvent(notifyEvent(playerId, positionAlreadyOccupiedNotificationMessage))
-                : this.isNotEnoughActionPoint(matchPhasingComponent, actionPoints)
-                    ? this.sendEvent(notifyEvent(playerId, notEnoughActionPointNotificationMessage))
-                    : this.move(movingEntityPhysicalComponent, cellPhysicalComponent, matchPhasingComponent, actionPoints)
+            : this.isNotUnitPhase(
+                matchPhasingComponent,
+                movingEntityId,
+                playerEntityReference.retreiveReference(EntityType.tower),
+                playerEntityReference.retreiveReference(EntityType.robot)
+            )
+                ? this.sendEvent(notifyEvent(playerId, wrongPhaseNotificationMessage(matchPhasingComponent.currentPhase.phaseType)))
+                : this.isPositionBusy(matchPlayableComponent, cellPhysicalComponent)
+                    ? this.sendEvent(notifyEvent(playerId, positionAlreadyOccupiedNotificationMessage))
+                    : this.isNotEnoughActionPoint(matchPhasingComponent, actionPoints)
+                        ? this.sendEvent(notifyEvent(playerId, notEnoughActionPointNotificationMessage))
+                        : this.move(movingEntityPhysicalComponent, cellPhysicalComponent, matchPhasingComponent, actionPoints)
     }
 
-    private isNotPlayerTurn (playableComponent:Playable, phasingComponent:Phasing, playerId:string):boolean {
+    private isNotUnitPhase (matchPhasingComponent:Phasing, movingEntityId:string, playerTowerId:string, playerRobotId:string):boolean {
+        const phaseAndRelatedEntityMatch = (phaseType:PhaseType, relatedEntityId:string) => matchPhasingComponent.currentPhase.phaseType === phaseType && relatedEntityId === movingEntityId
+        return !(phaseAndRelatedEntityMatch(PhaseType.Tower, playerTowerId) || phaseAndRelatedEntityMatch(PhaseType.Robot, playerRobotId))
+    }
+
+    private isNotPlayerPlayer (playableComponent:Playable, phasingComponent:Phasing, playerId:string):boolean {
         const matchPlayerMapping :Map<number, MatchPlayer> = new Map([[0, MatchPlayer.A], [1, MatchPlayer.B]])
         return matchPlayerMapping.get(playableComponent.players.findIndex(player => player === playerId)) !== phasingComponent.currentPhase.matchPlayer
     }
@@ -45,11 +58,13 @@ export class MovingSystem extends GenericSystem {
     }
 
     private entityByEntityTypeFromPlayers (matchPlayers: string[], entityType:EntityType):string[] {
-        const entities = matchPlayers.map(playerId => this.interactWithEntities.retrieveEntityById(playerId).retrieveComponent(EntityReference).hasReferences(entityType)
-            ? this.interactWithEntities.retrieveEntityById(playerId).retrieveComponent(EntityReference).retrieveReferences(entityType)
-            : []
-        )
-        return ([] as string[]).concat(...entities)
+        return ([] as string[])
+            .concat(...matchPlayers.map(playerId => {
+                const playerEntityReference = this.entityReferencesByEntityId(playerId)
+                return playerEntityReference.hasReferences(entityType)
+                    ? this.entityReferencesByEntityId(playerId).retreiveReference(entityType)
+                    : []
+            }))
     }
 
     private isPositionIdentical (firstPosition: Position, secondPosition: Position):boolean {

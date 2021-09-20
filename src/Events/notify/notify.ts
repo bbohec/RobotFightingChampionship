@@ -3,7 +3,7 @@ import { Action } from '../../Event/Action'
 import { EntityType } from '../../Event/EntityType'
 import { newEvent } from '../../Event/GameEvent'
 export const badPlayerNotificationMessage = (badPlayerId:string):string => `This is not "${badPlayerId}" phase.`
-export const wrongPhaseNotificationMessage = (phaseType:PhaseType):string => `Wrong phase. Currently playing "${phaseType}" phase.`
+export const wrongPhaseNotificationMessage = (currentPhaseType:PhaseType):string => `Wrong phase. Currently playing "${currentPhaseType}" phase.`
 export const outOfRangeNotificationMessage:string = 'The target is out of Range.'
 export const notEnoughActionPointNotificationMessage:string = 'Not enough action point.'
 export const positionAlreadyOccupiedNotificationMessage:string = 'The position is already occupied.'

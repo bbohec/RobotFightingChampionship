@@ -1,4 +1,3 @@
-import { EntityReference } from '../../Components/EntityReference'
 import { Hittable } from '../../Components/Hittable'
 import { EntityType } from '../../Event/EntityType'
 import { errorMessageOnUnknownEventAction, GameEvent } from '../../Event/GameEvent'
@@ -19,8 +18,8 @@ export class HitSystem extends GenericSystem {
     }
 
     private onHit (hittableEntityId:string, offensiveEntityId:string): Promise<void> {
-        const hittableComponent = this.interactWithEntities.retrieveEntityById(hittableEntityId).retrieveComponent(Hittable)
-        this.removeHitPoints(hittableComponent, this.interactWithEntities.retrieveEntityById(offensiveEntityId).retrieveComponent(Offensive))
+        const hittableComponent = this.interactWithEntities.retrieveEntityComponentByEntityId(hittableEntityId, Hittable)
+        this.removeHitPoints(hittableComponent, this.interactWithEntities.retrieveEntityComponentByEntityId(offensiveEntityId, Offensive))
         return (hittableComponent.hitPoints <= 0) ? this.onNoMoreHitPoints(offensiveEntityId) : Promise.resolve()
     }
 
@@ -29,7 +28,7 @@ export class HitSystem extends GenericSystem {
     }
 
     private onNoMoreHitPoints (hittingEntityId:string):Promise<void> {
-        const playerId = this.interactWithEntities.retrieveEntityById(hittingEntityId).retrieveComponent(EntityReference).retreiveReference(EntityType.player)
-        return this.sendEvent(victoryEvent(this.interactWithEntities.retrieveEntityById(playerId).retrieveComponent(EntityReference).retreiveReference(EntityType.match), playerId))
+        const playerId = this.entityReferencesByEntityId(hittingEntityId).retreiveReference(EntityType.player)
+        return this.sendEvent(victoryEvent(this.entityReferencesByEntityId(playerId).retreiveReference(EntityType.match), playerId))
     }
 }

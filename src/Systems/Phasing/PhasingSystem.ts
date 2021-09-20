@@ -8,7 +8,6 @@ import { EntityType } from '../../Event/EntityType'
 import { Playable } from '../../Components/Playable'
 import { showEvent } from '../../Events/show/show'
 import { defeatEntityId, victoryEntityId } from '../../Event/entityIds'
-import { EntityReference } from '../../Components/EntityReference'
 import { Physical, playerARobotFirstPosition, playerATowerFirstPosition, playerBRobotFirstPosition, playerBTowerFirstPosition, Position } from '../../Components/Physical'
 import { moveEvent } from '../../Events/move/move'
 import { cellMissingOnGrid, currentPhaseNotSupported, missingDefeatPlayerId, missingInitialPosition } from './port/phasingSystem'
@@ -105,12 +104,14 @@ export class PhasingSystem extends GenericSystem {
     }
 
     private sendMoveToPositionEvent (gameEvent: GameEvent, entityType:EntityType, matchPlayer:MatchPlayer): Promise<void> {
-        const playableComponent = this.interactWithEntities.retrieveEntityById(gameEvent.entityByEntityType(EntityType.match)).retrieveComponent(Playable)
+        const matchId = gameEvent.entityByEntityType(EntityType.match)
+        const matchEntityReference = this.entityReferencesByEntityId(matchId)
+        const playableComponent = this.interactWithEntities.retrieveEntityById(matchId).retrieveComponent(Playable)
         return this.sendEvent(moveEvent(
             (matchPlayer === MatchPlayer.A) ? playableComponent.players[0] : playableComponent.players[1],
             entityType,
             this.retrievePlayerUnitId(gameEvent, matchPlayer, entityType),
-            this.retrieveCellIdWithPosition(gameEvent, this.initialPositionFromEntityTypeAndMatchPlayer(entityType, matchPlayer)))
+            this.retrieveCellIdWithPosition(gameEvent, this.initialPositionFromEntityTypeAndMatchPlayer(entityType, matchPlayer), matchEntityReference.retreiveReference(EntityType.grid)))
         )
     }
 
@@ -118,11 +119,8 @@ export class PhasingSystem extends GenericSystem {
         return this.sendEvent(nextTurnEvent(matchId))
     }
 
-    private retrieveCellIdWithPosition (gameEvent:GameEvent, position:Position): string {
-        const gridId = this.interactWithEntities.retrieveEntityById(gameEvent.entityByEntityType(EntityType.match)).retrieveComponent(EntityReference).retreiveReference(EntityType.grid)
-        const cellForPlayerATower = this.interactWithEntities
-            .retrieveEntityById(gridId)
-            .retrieveComponent(EntityReference)
+    private retrieveCellIdWithPosition (gameEvent:GameEvent, position:Position, gridId:string): string {
+        const cellForPlayerATower = this.entityReferencesByEntityId(gridId)
             .retrieveReferences(EntityType.cell)
             .map(cellId => this.interactWithEntities.retrieveEntityById(cellId))
             .find(cellEntity => cellEntity.retrieveComponent(Physical).position.x === position.x && cellEntity.retrieveComponent(Physical).position.y === position.y)
@@ -132,9 +130,7 @@ export class PhasingSystem extends GenericSystem {
 
     private retrievePlayerUnitId (gameEvent: GameEvent, player:MatchPlayer, entityType:EntityType):string {
         const playableComponent = this.interactWithEntities.retrieveEntityById(gameEvent.entityByEntityType(EntityType.match)).retrieveComponent(Playable)
-        return this.interactWithEntities
-            .retrieveEntityById((player === MatchPlayer.A) ? playableComponent.players[0] : playableComponent.players[1])
-            .retrieveComponent(EntityReference)
+        return this.entityReferencesByEntityId((player === MatchPlayer.A) ? playableComponent.players[0] : playableComponent.players[1])
             .retreiveReference(entityType)
     }
 
