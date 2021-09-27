@@ -1,17 +1,17 @@
-import { describe } from 'mocha'
+
 import { hideEvent } from './hide'
 import { Action } from '../../Event/Action'
-import { mainMenuEntityId } from '../../Event/entityIds'
+import { EntityId } from '../../Event/entityIds'
 import { EntityType } from '../../Event/EntityType'
-import { clientScenario, entityIsNotVisible, entityIsVisible, featureEventDescription, whenEventOccurs } from '../../Event/test'
+import { clientScenario, entityIsNotVisible, entityIsVisible, feature, featureEventDescription, whenEventOccurs } from '../../Event/test'
 import { TestStep } from '../../Event/TestStep'
-describe(featureEventDescription(Action.hide), () => {
-    clientScenario(`${Action.hide} 1`, hideEvent(EntityType.mainMenu, mainMenuEntityId),
-        (game, adapters) => () => adapters.drawingInteractor.drawEntity(mainMenuEntityId),
+feature(featureEventDescription(Action.hide), () => {
+    clientScenario(`${Action.hide} 1`, hideEvent(EntityType.mainMenu, EntityId.mainMenu),
+        (game, adapters) => () => adapters.drawingInteractor.drawEntity(EntityId.mainMenu),
         [
-            (game, adapters) => entityIsVisible(TestStep.Given, adapters, mainMenuEntityId),
-            (game, adapters) => whenEventOccurs(game, hideEvent(EntityType.mainMenu, mainMenuEntityId)),
-            (game, adapters) => entityIsNotVisible(TestStep.Then, adapters, mainMenuEntityId)
+            (game, adapters) => entityIsVisible(TestStep.Given, adapters, EntityId.mainMenu),
+            (game, adapters) => whenEventOccurs(game, hideEvent(EntityType.mainMenu, EntityId.mainMenu)),
+            (game, adapters) => entityIsNotVisible(TestStep.Then, adapters, EntityId.mainMenu)
         ]
     )
 })

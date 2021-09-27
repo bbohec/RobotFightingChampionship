@@ -1,4 +1,4 @@
-import { describe, before, Func, it, Test } from 'mocha'
+import { describe, before, Func, it, Test, Suite } from 'mocha'
 import { expect } from 'chai'
 import { GameEvent } from './GameEvent'
 import { GenericGameSystem } from '../Systems/Game/GenericGame'
@@ -14,6 +14,7 @@ import { Action } from './Action'
 import { ClientGameSystem } from '../Systems/Game/ClientGame'
 import { ServerGameSystem } from '../Systems/Game/ServerGame'
 type ScenarioType = 'client' | 'server'
+export const feature = (featureEventDescription:string, mochaSuite: (this: Suite) => void) => describe(featureEventDescription, mochaSuite)
 export const featureEventDescription = (action:Action): string => `Feature : ${action} events`
 export const scenarioEventDescription = (ref:string, event: GameEvent|GameEvent[], scenarioType:ScenarioType): string => ((Array.isArray(event))
     ? `
@@ -53,8 +54,7 @@ export const theEntityIsCreated = (
 ) => it(entityIdCreated(testStep, potentialEntityId),
     () => expect(adapters
         .entityInteractor
-        .retrieveEntityById(potentialEntityId)
-        .retrieveComponent(LifeCycle)
+        .retrieveEntityComponentByEntityId(potentialEntityId, LifeCycle)
         .isCreated)
         .to.be.true)
 export const theEventIsSent = (
@@ -93,8 +93,7 @@ export const theEntityWithIdHasTheExpectedComponent = <PotentialComponent extend
         () => {
             const component = adapters
                 .entityInteractor
-                .retrieveEntityById(entityId)
-                .retrieveComponent(potentialComponent)
+                .retrieveEntityComponentByEntityId(entityId, potentialComponent)
             expect(component).deep.equal(expectedComponent, componentDetailedComparisonMessage<PotentialComponent>(component, expectedComponent))
         })
 export const theEntityWithIdDoNotHaveAnyComponent = <PotentialComponent extends Component> (
@@ -106,8 +105,8 @@ export const theEntityWithIdDoNotHaveAnyComponent = <PotentialComponent extends 
 ) => it(entityDontHaveComponent(testStep, entityId, expectedComponent),
         () => expect(adapters
             .entityInteractor
-            .retrieveEntityById(entityId)
-            .hasComponents()).to.be.false)
+            .isEntityHasComponentsByEntityId(entityId)
+        ).to.be.false)
 
 export const stringifyWithDetailledSetAndMap = (value:any) => JSON.stringify(value, detailledStringifyForSetAndMap)
 export const entityIsNotVisible = (

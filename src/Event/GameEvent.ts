@@ -45,7 +45,7 @@ export class GameEvent implements GameEventContract {
 export const MissingOriginEntityId = 'originEntityId is missing on game event.'
 export const MissingTargetEntityId = 'targetEntityId is missing on game event.'
 export const errorMessageOnUnknownEventAction = (systemName:string, gameEvent: GameEventContract) => `The system '${systemName}' don't know what to do with game Event message '${gameEvent.action}' and entity references '${stringifyWithDetailledSetAndMap(gameEvent.entityRefences)}'.`
-export const newEvent = (action:Action, entityRefences:EntityReferences):GameEvent => new GameEvent({ action, entityRefences })
+export const newGameEvent = (action:Action, entityRefences:EntityReferences):GameEvent => new GameEvent({ action, entityRefences })
 const noEntitiesReferenced = (entityType: EntityType, action: Action, entityReferences: EntityReferences): string => `No entities referenced with type '${entityType}' on event with action '${action}'.\n Actual references: ${stringifyWithDetailledSetAndMap(entityReferences)}`
 const noEntityReferenced = (entityType: EntityType): string => `No '${entityType}' entities is not supported.`
 const multipleEntityReferenced = (entityType: EntityType): string => `Multiple '${entityType}' entities referenced.`

@@ -1,21 +1,22 @@
 import { GenericSystem } from '../Generic/GenericSystem'
 import { errorMessageOnUnknownEventAction, GameEvent } from '../../Event/GameEvent'
-import { Playable } from '../../Components/Playable'
+import { maxPlayerPerMatch, Playable } from '../../Components/Playable'
 import { Action } from '../../Event/Action'
 import { EntityType } from '../../Event/EntityType'
 import { EntityReference } from '../../Components/EntityReference'
 import { playerReadyForMatch } from '../../Events/ready/ready'
 import { createGridEvent, createRobotEvent, createTowerEvent } from '../../Events/create/create'
 import { destroyMatchEvent, destroyRobotEvent, destroyTowerEvent } from '../../Events/destroy/destroy'
-import { mainMenuEntityId } from '../../Event/entityIds'
 import { showEvent } from '../../Events/show/show'
 import { playerNotFoundOnMatchPlayers } from './port/matchSystem'
+import { EntityId } from '../../Event/entityIds'
 
 export class ServerMatchSystem extends GenericSystem {
     onGameEvent (gameEvent: GameEvent): Promise<void> {
-        if (gameEvent.action === Action.join) return this.onJoin(gameEvent)
         if (gameEvent.action === Action.register) return this.onRegister(gameEvent)
-        if (gameEvent.action === Action.quit) return this.onQuit(gameEvent)
+        const playableComponent = this.interactWithEntities.retrieveEntityComponentByEntityId(gameEvent.entityByEntityType(EntityType.match), Playable)
+        if (gameEvent.action === Action.join) return this.onJoin(gameEvent, playableComponent)
+        if (gameEvent.action === Action.quit) return this.onQuit(gameEvent, playableComponent)
         throw new Error(errorMessageOnUnknownEventAction(ServerMatchSystem.name, gameEvent))
     }
 
@@ -28,9 +29,8 @@ export class ServerMatchSystem extends GenericSystem {
         throw new Error(errorMessageOnUnknownEventAction(ServerMatchSystem.name, gameEvent))
     }
 
-    private onQuit (gameEvent: GameEvent): Promise<void> {
+    private onQuit (gameEvent: GameEvent, playableComponent:Playable): Promise<void> {
         const playerId = gameEvent.entityByEntityType(EntityType.player)
-        const playableComponent = this.interactWithEntities.retrieveEntityById(gameEvent.entityByEntityType(EntityType.match)).retrieveComponent(Playable)
         this.removePlayerFromPlayableComponent(playableComponent, playerId)
         return this.onPlayerRemoved(playableComponent, playerId)
     }
@@ -40,7 +40,7 @@ export class ServerMatchSystem extends GenericSystem {
         const events:GameEvent[] = [
             destroyRobotEvent(playerEntityReference.retreiveReference(EntityType.robot)),
             destroyTowerEvent(playerEntityReference.retreiveReference(EntityType.tower)),
-            showEvent(EntityType.mainMenu, mainMenuEntityId, playerId)
+            showEvent(EntityType.mainMenu, EntityId.mainMenu, playerId)
         ]
         if (playableComponent.players.length === 0) events.push(destroyMatchEvent(playableComponent.entityId))
         return Promise.all(events.map(event => this.sendEvent(event)))
@@ -50,7 +50,7 @@ export class ServerMatchSystem extends GenericSystem {
 
     private removePlayerFromPlayableComponent (playableComponent: Playable, quitingPlayerId: string) {
         const playerIndex = playableComponent.players.findIndex(playerId => playerId === quitingPlayerId)
-        if (playerIndex < 0) { throw new Error(playerNotFoundOnMatchPlayers(quitingPlayerId)) }
+        if (playerIndex < 0) throw new Error(playerNotFoundOnMatchPlayers(quitingPlayerId))
         playableComponent.players.splice(playerIndex, 1)
     }
 
@@ -89,12 +89,12 @@ export class ServerMatchSystem extends GenericSystem {
         return this.sendEvent(playerReadyForMatch(matchId, playerId))
     }
 
-    private onJoin (gameEvent: GameEvent): Promise<void> {
+    private onJoin (gameEvent: GameEvent, playableComponent:Playable): Promise<void> {
         const playerId = gameEvent.entityByEntityType(EntityType.player)
         const matchId = gameEvent.entityByEntityType(EntityType.match)
-        const players = this.interactWithEntities.retrieveEntityById(matchId).retrieveComponent(Playable).players
+        const players = playableComponent.players
         players.push(playerId)
-        this.entityReferencesByEntityId(playerId).entityReferences.set(EntityType.match, [matchId])
+        this.entityReferencesByEntityId(playerId).entityReferences.set(EntityType.match, [EntityId.match])
         return (this.isMatchHasAllPlayers(players))
             ? this.onMatchHasAllPlayers(players, matchId)
             : Promise.resolve()
@@ -111,6 +111,6 @@ export class ServerMatchSystem extends GenericSystem {
     }
 
     private isMatchHasAllPlayers (players: string[]): boolean {
-        return players.length === 2
+        return players.length === maxPlayerPerMatch
     }
 }

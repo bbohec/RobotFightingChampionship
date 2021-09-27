@@ -1,25 +1,22 @@
 import { Phasing, weaponAttackActionPoints } from '../../Components/Phasing'
 import { defaultWeaponMaxRange, Physical, Position } from '../../Components/Physical'
-import { Playable } from '../../Components/Playable'
-import { MatchPlayer, PhaseType } from '../../Components/port/Phase'
 import { EntityType } from '../../Event/EntityType'
 import { GameEvent } from '../../Event/GameEvent'
 import { hitEvent } from '../../Events/hit/hit'
-import { wrongPhaseNotificationMessage, badPlayerNotificationMessage, notEnoughActionPointNotificationMessage, notifyEvent, outOfRangeNotificationMessage } from '../../Events/notify/notify'
-import { GenericSystem } from '../Generic/GenericSystem'
-export class AttackingSystem extends GenericSystem {
+import { wrongUnitPhaseNotificationMessage, badPlayerNotificationMessage, notEnoughActionPointNotificationMessage, notifyEvent, outOfRangeNotificationMessage } from '../../Events/notify/notify'
+import { ArtithmeticSystem } from '../Generic/ArithmeticSystem'
+export class AttackingSystem extends ArtithmeticSystem {
     onGameEvent (gameEvent: GameEvent): Promise<void> {
         const playerId = gameEvent.entityByEntityType(EntityType.player)
         const playerEntityReference = this.entityReferencesByEntityId(playerId)
-        const matchEntity = this.interactWithEntities.retrieveEntityById(playerEntityReference.retreiveReference(EntityType.match))
-        const phasingComponent = matchEntity.retrieveComponent(Phasing)
+        const phasingComponent = this.interactWithEntities.retrieveEntityComponentByEntityId(playerEntityReference.retreiveReference(EntityType.match), Phasing)
         const attackerId = gameEvent.entityByEntityType(EntityType.attacker)
         const targetId = gameEvent.entityByEntityType(EntityType.target)
         const genericStepFunction = (check:boolean, notificationMessage:string, nextStep:()=>Promise<void>):Promise<void> => check ? nextStep() : this.sendEvent(notifyEvent(gameEvent.entityByEntityType(EntityType.player), notificationMessage))
         const enoughActionPointCheckStep = (nextStep: ()=>Promise<void>): Promise<void> => genericStepFunction(this.isPhaseEnoughActionPoint(phasingComponent), notEnoughActionPointNotificationMessage, nextStep)
-        const targetOnAttackerRangeCheckStep = (nextStep: ()=>Promise<void>): Promise<void> => genericStepFunction(this.isTargetOnAttackerRange(attackerId, targetId), outOfRangeNotificationMessage, nextStep)
-        const attackerPhaseCheckStep = (nextStep: ()=>Promise<void>) => genericStepFunction(this.isAttackerPhase(phasingComponent, attackerId, playerEntityReference.retreiveReference(EntityType.tower), playerEntityReference.retreiveReference(EntityType.robot)), wrongPhaseNotificationMessage(phasingComponent.currentPhase.phaseType), nextStep)
-        const playerPhaseCheckStep = (nextStep: ()=>Promise<void>) => genericStepFunction(this.isPlayerPhase(phasingComponent.currentPhase.matchPlayer, matchEntity.retrieveComponent(Playable), playerId), badPlayerNotificationMessage(playerId), nextStep)
+        const targetOnAttackerRangeCheckStep = (nextStep: ()=>Promise<void>): Promise<void> => genericStepFunction(this.isTargetOnAttackerRange(this.interactWithEntities.retrieveEntityComponentByEntityId(attackerId, Physical).position, this.interactWithEntities.retrieveEntityComponentByEntityId(targetId, Physical).position), outOfRangeNotificationMessage, nextStep)
+        const attackingUnitPhaseCheckStep = (nextStep: ()=>Promise<void>) => genericStepFunction(this.isAttackingUnitPhase(phasingComponent, attackerId), wrongUnitPhaseNotificationMessage(phasingComponent.currentPhase), nextStep)
+        const playerPhaseCheckStep = (nextStep: ()=>Promise<void>) => genericStepFunction(this.isPlayerPhase(phasingComponent, playerId), badPlayerNotificationMessage(playerId), nextStep)
 
         /*
         const curry = (genericStepFunction:(check:boolean, notificationMessage:string, nextStep:()=>Promise<void>)=>Promise<void>) => {
@@ -31,7 +28,7 @@ export class AttackingSystem extends GenericSystem {
         */
 
         return playerPhaseCheckStep(
-            () => attackerPhaseCheckStep(
+            () => attackingUnitPhaseCheckStep(
                 () => targetOnAttackerRangeCheckStep(
                     () => enoughActionPointCheckStep(
                         () => this.attack(attackerId, targetId, phasingComponent)))))
@@ -41,27 +38,16 @@ export class AttackingSystem extends GenericSystem {
         return phasingComponent.currentPhase.actionPoints >= weaponAttackActionPoints
     }
 
-    private isTargetOnAttackerRange (attackerId:string, targetId:string):boolean {
-        const attackerPosition = this.interactWithEntities.retrieveEntityById(attackerId).retrieveComponent(Physical).position
-        const targetPosition = this.interactWithEntities.retrieveEntityById(targetId).retrieveComponent(Physical).position
-        return this.pythagoreHypotenuse({
-            x: Math.abs(targetPosition.x - attackerPosition.x),
-            y: Math.abs(targetPosition.y - attackerPosition.y)
-        }) <= defaultWeaponMaxRange
+    private isTargetOnAttackerRange (attackerPosition:Position, targetPosition:Position):boolean {
+        return this.pythagoreHypotenuse({ x: Math.abs(targetPosition.x - attackerPosition.x), y: Math.abs(targetPosition.y - attackerPosition.y) }) <= defaultWeaponMaxRange
     }
 
-    private pythagoreHypotenuse (position:Position):number {
-        return Math.sqrt(Math.pow(position.x, 2) + Math.pow(position.y, 2))
+    private isPlayerPhase (phasingComponent:Phasing, eventPlayerId:string):boolean {
+        return phasingComponent.currentPhase.currentPlayerId === eventPlayerId
     }
 
-    private isPlayerPhase (matchPlayer: MatchPlayer|null, playableComponent:Playable, playerId:string):boolean {
-        const isMatchPlayerAndPlayerIdValid = (expectedMatchPlayer:MatchPlayer, expectedPlayerIdMatchIndex:number):boolean => matchPlayer === expectedMatchPlayer && playerId === playableComponent.players[expectedPlayerIdMatchIndex]
-        return (isMatchPlayerAndPlayerIdValid(MatchPlayer.A, 0) || isMatchPlayerAndPlayerIdValid(MatchPlayer.B, 1))
-    }
-
-    private isAttackerPhase (phasingComponent: Phasing, attackerId:string, towerId:string, robotId:string):boolean {
-        const phaseAndRelatedEntityMatch = (phaseType:PhaseType, relatedEntityId:string) => phasingComponent.currentPhase.phaseType === phaseType && relatedEntityId === attackerId
-        return phaseAndRelatedEntityMatch(PhaseType.Tower, towerId) || phaseAndRelatedEntityMatch(PhaseType.Robot, robotId)
+    private isAttackingUnitPhase (phasingComponent: Phasing, eventAttackerId:string):boolean {
+        return phasingComponent.currentPhase.currentUnitId === eventAttackerId
     }
 
     private attack (attackerId:string, targetId:string, phasingComponent:Phasing):Promise<void> {

@@ -15,11 +15,11 @@ export class ClientLifeCycleSystem extends GenericLifeCycleSystem {
         throw new Error(errorMessageOnUnknownEventAction(ClientLifeCycleSystem.name, gameEvent))
     }
 
-    private createMainMenuEntity (mainMenuEntityId:string, playerId:string): Promise<void> {
+    private createMainMenuEntity (mainMenuId:string, playerId:string): Promise<void> {
         return this.createEntity(
-            new Entity(mainMenuEntityId),
-            [new Visible(mainMenuEntityId)],
-            showEvent(EntityType.mainMenu, mainMenuEntityId, playerId)
+            new Entity(mainMenuId),
+            [new Visible(mainMenuId)],
+            showEvent(EntityType.mainMenu, mainMenuId, playerId)
         )
     }
 
@@ -34,11 +34,11 @@ export class ClientLifeCycleSystem extends GenericLifeCycleSystem {
         )
     }
 
-    private createClientGameEntity (clientGameEntityId:string, playerId:string): Promise<void> {
+    private createClientGameEntity (gameId:string, playerId:string): Promise<void> {
         return this.createEntity(
-            new Entity(clientGameEntityId),
+            new Entity(gameId),
             [],
-            createMainMenuEvent(clientGameEntityId, 'unknown', playerId)
+            createMainMenuEvent(gameId, 'unknown', playerId)
         )
     }
 }

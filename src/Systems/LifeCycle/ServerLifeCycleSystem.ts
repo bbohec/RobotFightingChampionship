@@ -53,7 +53,7 @@ export class ServerLifeCycleSystem extends GenericLifeCycleSystem {
     private createPlayerEntity (playerEntityId: string, gameEvent: GameEvent): Promise<void> {
         return this.createEntity(
             new Entity(playerEntityId),
-            [new EntityReference(playerEntityId, new Map())],
+            [new EntityReference(playerEntityId, EntityType.player, new Map())],
             undefined
         )
     }
@@ -65,7 +65,7 @@ export class ServerLifeCycleSystem extends GenericLifeCycleSystem {
             [
                 new Hittable(robotEntityId, 50),
                 new Offensive(robotEntityId, 20),
-                new EntityReference(robotEntityId, new Map([
+                new EntityReference(robotEntityId, EntityType.robot, new Map([
                     [EntityType.player, [playerId]]
                 ]))
             ],
@@ -73,11 +73,11 @@ export class ServerLifeCycleSystem extends GenericLifeCycleSystem {
         )
     }
 
-    private createGameEntity (gameEntityId: string): Promise<void> {
+    private createGameEntity (gameId: string): Promise<void> {
         return this.createEntity(
-            new Entity(gameEntityId),
+            new Entity(gameId),
             [],
-            createSimpleMatchLobbyEvent(gameEntityId, 'create')
+            createSimpleMatchLobbyEvent(gameId, 'create')
         )
     }
 
@@ -91,7 +91,7 @@ export class ServerLifeCycleSystem extends GenericLifeCycleSystem {
     private createMatchEntity (matchEntityId: string, simpleMatchLobbyEntityId:string): Promise<void> {
         return this.createEntity(
             new Entity(matchEntityId),
-            [new Playable(matchEntityId, []), new EntityReference(matchEntityId, new Map()), new Phasing(matchEntityId, preparingGamePhase())],
+            [new Playable(matchEntityId, []), new EntityReference(matchEntityId, EntityType.match, new Map()), new Phasing(matchEntityId, preparingGamePhase)],
             matchWaitingForPlayers(matchEntityId, simpleMatchLobbyEntityId)
         )
     }
@@ -111,7 +111,7 @@ export class ServerLifeCycleSystem extends GenericLifeCycleSystem {
             [
                 new Hittable(towerEntityId, 100),
                 new Offensive(towerEntityId, 5),
-                new EntityReference(towerEntityId, new Map([
+                new EntityReference(towerEntityId, EntityType.tower, new Map([
                     [EntityType.player, [playerId]]
                 ]))
             ],

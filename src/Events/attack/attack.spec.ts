@@ -1,240 +1,239 @@
-import { describe } from 'mocha'
 import { Action } from '../../Event/Action'
-import { whenEventOccurs, theEventIsSent, theEntityWithIdHasTheExpectedComponent, featureEventDescription, theEventIsNotSent, serverScenario } from '../../Event/test'
+import { whenEventOccurs, theEventIsSent, theEntityWithIdHasTheExpectedComponent, featureEventDescription, theEventIsNotSent, serverScenario, feature } from '../../Event/test'
 import { TestStep } from '../../Event/TestStep'
-import { matchId, playerBTowerId, playerATowerId, playerAId, playerBId, playerARobotId, playerBRobotId } from '../../Event/entityIds'
 import { defaultActionPoints, Phasing, playerARobotPhase, playerATowerPhase, playerBRobotPhase, playerBTowerPhase, weaponAttackActionPoints } from '../../Components/Phasing'
 import { attackEvent } from './attack'
 import { hitEvent } from '../hit/hit'
 import { Physical, position } from '../../Components/Physical'
-import { wrongPhaseNotificationMessage, badPlayerNotificationMessage, notEnoughActionPointNotificationMessage, notifyEvent, outOfRangeNotificationMessage } from '../notify/notify'
+import { wrongUnitPhaseNotificationMessage, badPlayerNotificationMessage, notEnoughActionPointNotificationMessage, notifyEvent, outOfRangeNotificationMessage } from '../notify/notify'
 import { EntityType } from '../../Event/EntityType'
 import { EntityBuilder } from '../../Entities/entityBuilder'
+import { EntityId } from '../../Event/entityIds'
 
 /*
     - Friendly Fire?
     - Réduction de dommage sur la distance ?
 */
 
-describe(featureEventDescription(Action.attack), () => {
-    serverScenario(`${Action.attack} 1 - Attack Game Event - playerA Tower`, attackEvent(playerAId, playerATowerId, playerBTowerId),
+feature(featureEventDescription(Action.attack), () => {
+    serverScenario(`${Action.attack} 1 - Attack Game Event - playerA Tower`, attackEvent(EntityId.playerA, EntityId.playerATower, EntityId.playerBTower),
         (game, adapters) => () => new EntityBuilder(adapters.entityInteractor)
-            .buildEntity(matchId).withPhase(playerATowerPhase()).withPlayers([playerAId]).save()
-            .buildEntity(playerARobotId).withPosition(position(2, 2)).save()
-            .buildEntity(playerATowerId).withPosition(position(2, 2)).save()
-            .buildEntity(playerBTowerId).withPosition(position(3, 2)).save()
-            .buildEntity(playerAId).withEntityReferences(new Map([[EntityType.match, [matchId]], [EntityType.tower, [playerATowerId]], [EntityType.robot, [playerARobotId]]])).save()
+            .buildEntity(EntityId.match).withPhase(playerATowerPhase()).withPlayers([EntityId.playerA]).save()
+            .buildEntity(EntityId.playerARobot).withPhysicalComponent(position(2, 2)).save()
+            .buildEntity(EntityId.playerATower).withPhysicalComponent(position(2, 2)).save()
+            .buildEntity(EntityId.playerBTower).withPhysicalComponent(position(3, 2)).save()
+            .buildEntity(EntityId.playerA).withEntityReferences(EntityType.player, new Map([[EntityType.match, [EntityId.match]], [EntityType.tower, [EntityId.playerATower]], [EntityType.robot, [EntityId.playerARobot]]])).save()
         , [
-            (game, adapters) => theEntityWithIdHasTheExpectedComponent(TestStep.Given, adapters, matchId, Phasing, new Phasing(matchId, playerATowerPhase())),
-            (game, adapters) => theEntityWithIdHasTheExpectedComponent(TestStep.And, adapters, playerATowerId, Physical, new Physical(playerATowerId, position(2, 2))),
-            (game, adapters) => theEntityWithIdHasTheExpectedComponent(TestStep.And, adapters, playerBTowerId, Physical, new Physical(playerBTowerId, position(3, 2))),
-            (game, adapters) => whenEventOccurs(game, attackEvent(playerAId, playerATowerId, playerBTowerId)),
-            (game, adapters) => theEventIsSent(TestStep.And, adapters, hitEvent(playerATowerId, playerBTowerId))
+            (game, adapters) => theEntityWithIdHasTheExpectedComponent(TestStep.Given, adapters, EntityId.match, Phasing, new Phasing(EntityId.match, playerATowerPhase())),
+            (game, adapters) => theEntityWithIdHasTheExpectedComponent(TestStep.And, adapters, EntityId.playerATower, Physical, new Physical(EntityId.playerATower, position(2, 2))),
+            (game, adapters) => theEntityWithIdHasTheExpectedComponent(TestStep.And, adapters, EntityId.playerBTower, Physical, new Physical(EntityId.playerBTower, position(3, 2))),
+            (game, adapters) => whenEventOccurs(game, attackEvent(EntityId.playerA, EntityId.playerATower, EntityId.playerBTower)),
+            (game, adapters) => theEventIsSent(TestStep.And, adapters, hitEvent(EntityId.playerATower, EntityId.playerBTower))
         ])
-    serverScenario(`${Action.create} 2 - Attack Game Event - playerB Tower`, attackEvent(playerBId, playerBTowerId, playerATowerId),
+    serverScenario(`${Action.attack} 2 - Attack Game Event - playerB Tower`, attackEvent(EntityId.playerB, EntityId.playerBTower, EntityId.playerATower),
         (game, adapters) => () => new EntityBuilder(adapters.entityInteractor)
-            .buildEntity(matchId).withPhase(playerBTowerPhase()).withPlayers([playerAId, playerBId]).save()
-            .buildEntity(playerATowerId).withPosition(position(2, 2)).save()
-            .buildEntity(playerBTowerId).withPosition(position(3, 2)).save()
-            .buildEntity(playerBRobotId).withPosition(position(4, 2)).save()
-            .buildEntity(playerBId).withEntityReferences(new Map([[EntityType.match, [matchId]], [EntityType.tower, [playerBTowerId]], [EntityType.robot, [playerBRobotId]]])).save()
+            .buildEntity(EntityId.match).withPhase(playerBTowerPhase()).withPlayers([EntityId.playerA, EntityId.playerB]).save()
+            .buildEntity(EntityId.playerATower).withPhysicalComponent(position(2, 2)).save()
+            .buildEntity(EntityId.playerBTower).withPhysicalComponent(position(3, 2)).save()
+            .buildEntity(EntityId.playerBRobot).withPhysicalComponent(position(4, 2)).save()
+            .buildEntity(EntityId.playerB).withEntityReferences(EntityType.player, new Map([[EntityType.match, [EntityId.match]], [EntityType.tower, [EntityId.playerBTower]], [EntityType.robot, [EntityId.playerBRobot]]])).save()
         , [
-            (game, adapters) => theEntityWithIdHasTheExpectedComponent(TestStep.Given, adapters, matchId, Phasing, new Phasing(matchId, playerBTowerPhase())),
-            (game, adapters) => theEntityWithIdHasTheExpectedComponent(TestStep.And, adapters, playerATowerId, Physical, new Physical(playerATowerId, position(2, 2))),
-            (game, adapters) => theEntityWithIdHasTheExpectedComponent(TestStep.And, adapters, playerBTowerId, Physical, new Physical(playerBTowerId, position(3, 2))),
-            (game, adapters) => whenEventOccurs(game, attackEvent(playerBId, playerBTowerId, playerATowerId)),
-            (game, adapters) => theEventIsSent(TestStep.And, adapters, hitEvent(playerBTowerId, playerATowerId))
+            (game, adapters) => theEntityWithIdHasTheExpectedComponent(TestStep.Given, adapters, EntityId.match, Phasing, new Phasing(EntityId.match, playerBTowerPhase())),
+            (game, adapters) => theEntityWithIdHasTheExpectedComponent(TestStep.And, adapters, EntityId.playerATower, Physical, new Physical(EntityId.playerATower, position(2, 2))),
+            (game, adapters) => theEntityWithIdHasTheExpectedComponent(TestStep.And, adapters, EntityId.playerBTower, Physical, new Physical(EntityId.playerBTower, position(3, 2))),
+            (game, adapters) => whenEventOccurs(game, attackEvent(EntityId.playerB, EntityId.playerBTower, EntityId.playerATower)),
+            (game, adapters) => theEventIsSent(TestStep.And, adapters, hitEvent(EntityId.playerBTower, EntityId.playerATower))
         ])
-    serverScenario(`${Action.create} 3 - Attack Game Event - playerA Robot`, attackEvent(playerAId, playerARobotId, playerBRobotId),
+    serverScenario(`${Action.attack} 3 - Attack Game Event - playerA Robot`, attackEvent(EntityId.playerA, EntityId.playerARobot, EntityId.playerBRobot),
         (game, adapters) => () => new EntityBuilder(adapters.entityInteractor)
-            .buildEntity(matchId).withPhase(playerARobotPhase()).withPlayers([playerAId, playerBId]).save()
-            .buildEntity(playerARobotId).withPosition(position(2, 2)).save()
-            .buildEntity(playerBRobotId).withPosition(position(3, 2)).save()
-            .buildEntity(playerAId).withEntityReferences(new Map([[EntityType.match, [matchId]], [EntityType.tower, [playerATowerId]], [EntityType.robot, [playerARobotId]]])).save()
+            .buildEntity(EntityId.match).withPhase(playerARobotPhase()).withPlayers([EntityId.playerA, EntityId.playerB]).save()
+            .buildEntity(EntityId.playerARobot).withPhysicalComponent(position(2, 2)).save()
+            .buildEntity(EntityId.playerBRobot).withPhysicalComponent(position(3, 2)).save()
+            .buildEntity(EntityId.playerA).withEntityReferences(EntityType.player, new Map([[EntityType.match, [EntityId.match]], [EntityType.tower, [EntityId.playerATower]], [EntityType.robot, [EntityId.playerARobot]]])).save()
         , [
-            (game, adapters) => theEntityWithIdHasTheExpectedComponent(TestStep.Given, adapters, matchId, Phasing, new Phasing(matchId, playerARobotPhase())),
-            (game, adapters) => theEntityWithIdHasTheExpectedComponent(TestStep.And, adapters, playerARobotId, Physical, new Physical(playerARobotId, position(2, 2))),
-            (game, adapters) => theEntityWithIdHasTheExpectedComponent(TestStep.And, adapters, playerBRobotId, Physical, new Physical(playerBRobotId, position(3, 2))),
-            (game, adapters) => whenEventOccurs(game, attackEvent(playerAId, playerARobotId, playerBRobotId)),
-            (game, adapters) => theEventIsSent(TestStep.And, adapters, hitEvent(playerARobotId, playerBRobotId))
+            (game, adapters) => theEntityWithIdHasTheExpectedComponent(TestStep.Given, adapters, EntityId.match, Phasing, new Phasing(EntityId.match, playerARobotPhase())),
+            (game, adapters) => theEntityWithIdHasTheExpectedComponent(TestStep.And, adapters, EntityId.playerARobot, Physical, new Physical(EntityId.playerARobot, position(2, 2))),
+            (game, adapters) => theEntityWithIdHasTheExpectedComponent(TestStep.And, adapters, EntityId.playerBRobot, Physical, new Physical(EntityId.playerBRobot, position(3, 2))),
+            (game, adapters) => whenEventOccurs(game, attackEvent(EntityId.playerA, EntityId.playerARobot, EntityId.playerBRobot)),
+            (game, adapters) => theEventIsSent(TestStep.And, adapters, hitEvent(EntityId.playerARobot, EntityId.playerBRobot))
         ])
-    serverScenario(`${Action.create} 4 - Attack Game Event - playerB Robot`, attackEvent(playerBId, playerBRobotId, playerARobotId),
+    serverScenario(`${Action.attack} 4 - Attack Game Event - playerB Robot`, attackEvent(EntityId.playerB, EntityId.playerBRobot, EntityId.playerARobot),
         (game, adapters) => () => new EntityBuilder(adapters.entityInteractor)
-            .buildEntity(matchId).withPhase(playerBRobotPhase()).withPlayers([playerAId, playerBId]).save()
-            .buildEntity(playerARobotId).withPosition(position(2, 2)).save()
-            .buildEntity(playerBRobotId).withPosition(position(3, 2)).save()
-            .buildEntity(playerBId).withEntityReferences(new Map([[EntityType.match, [matchId]], [EntityType.tower, [playerBTowerId]], [EntityType.robot, [playerBRobotId]]])).save()
+            .buildEntity(EntityId.match).withPhase(playerBRobotPhase()).withPlayers([EntityId.playerA, EntityId.playerB]).save()
+            .buildEntity(EntityId.playerARobot).withPhysicalComponent(position(2, 2)).save()
+            .buildEntity(EntityId.playerBRobot).withPhysicalComponent(position(3, 2)).save()
+            .buildEntity(EntityId.playerB).withEntityReferences(EntityType.player, new Map([[EntityType.match, [EntityId.match]], [EntityType.tower, [EntityId.playerBTower]], [EntityType.robot, [EntityId.playerBRobot]]])).save()
         , [
-            (game, adapters) => theEntityWithIdHasTheExpectedComponent(TestStep.Given, adapters, matchId, Phasing, new Phasing(matchId, playerBRobotPhase())),
-            (game, adapters) => theEntityWithIdHasTheExpectedComponent(TestStep.And, adapters, playerARobotId, Physical, new Physical(playerARobotId, position(2, 2))),
-            (game, adapters) => theEntityWithIdHasTheExpectedComponent(TestStep.And, adapters, playerBRobotId, Physical, new Physical(playerBRobotId, position(3, 2))),
-            (game, adapters) => whenEventOccurs(game, attackEvent(playerBId, playerBRobotId, playerARobotId)),
-            (game, adapters) => theEventIsSent(TestStep.And, adapters, hitEvent(playerBRobotId, playerARobotId))
+            (game, adapters) => theEntityWithIdHasTheExpectedComponent(TestStep.Given, adapters, EntityId.match, Phasing, new Phasing(EntityId.match, playerBRobotPhase())),
+            (game, adapters) => theEntityWithIdHasTheExpectedComponent(TestStep.And, adapters, EntityId.playerARobot, Physical, new Physical(EntityId.playerARobot, position(2, 2))),
+            (game, adapters) => theEntityWithIdHasTheExpectedComponent(TestStep.And, adapters, EntityId.playerBRobot, Physical, new Physical(EntityId.playerBRobot, position(3, 2))),
+            (game, adapters) => whenEventOccurs(game, attackEvent(EntityId.playerB, EntityId.playerBRobot, EntityId.playerARobot)),
+            (game, adapters) => theEventIsSent(TestStep.And, adapters, hitEvent(EntityId.playerBRobot, EntityId.playerARobot))
         ])
-    serverScenario(`${Action.create} 5 - Can't Attack : Bad Phase for tower player A`, attackEvent(playerAId, playerATowerId, playerBTowerId),
+    serverScenario(`${Action.attack} 5 - Can't Attack : Bad Phase for tower player A`, attackEvent(EntityId.playerA, EntityId.playerATower, EntityId.playerBTower),
         (game, adapters) => () => new EntityBuilder(adapters.entityInteractor)
-            .buildEntity(matchId).withPhase(playerARobotPhase()).withPlayers([playerAId]).save()
-            .buildEntity(playerATowerId).withPosition(position(2, 2)).save()
-            .buildEntity(playerBTowerId).withPosition(position(3, 2)).save()
-            .buildEntity(playerAId).withEntityReferences(new Map([[EntityType.match, [matchId]], [EntityType.tower, [playerATowerId]], [EntityType.robot, [playerARobotId]]])).save()
+            .buildEntity(EntityId.match).withPhase(playerARobotPhase()).withPlayers([EntityId.playerA]).save()
+            .buildEntity(EntityId.playerATower).withPhysicalComponent(position(2, 2)).save()
+            .buildEntity(EntityId.playerBTower).withPhysicalComponent(position(3, 2)).save()
+            .buildEntity(EntityId.playerA).withEntityReferences(EntityType.player, new Map([[EntityType.match, [EntityId.match]], [EntityType.tower, [EntityId.playerATower]], [EntityType.robot, [EntityId.playerARobot]]])).save()
         , [
-            (game, adapters) => theEntityWithIdHasTheExpectedComponent(TestStep.Given, adapters, matchId, Phasing, new Phasing(matchId, playerARobotPhase())),
-            (game, adapters) => theEntityWithIdHasTheExpectedComponent(TestStep.And, adapters, playerATowerId, Physical, new Physical(playerATowerId, position(2, 2))),
-            (game, adapters) => theEntityWithIdHasTheExpectedComponent(TestStep.And, adapters, playerBTowerId, Physical, new Physical(playerBTowerId, position(3, 2))),
-            (game, adapters) => whenEventOccurs(game, attackEvent(playerAId, playerATowerId, playerBTowerId)),
-            (game, adapters) => theEventIsNotSent(TestStep.Then, adapters, hitEvent(playerATowerId, playerBTowerId)),
-            (game, adapters) => theEventIsSent(TestStep.And, adapters, notifyEvent(playerAId, wrongPhaseNotificationMessage(playerARobotPhase().phaseType)))
+            (game, adapters) => theEntityWithIdHasTheExpectedComponent(TestStep.Given, adapters, EntityId.match, Phasing, new Phasing(EntityId.match, playerARobotPhase())),
+            (game, adapters) => theEntityWithIdHasTheExpectedComponent(TestStep.And, adapters, EntityId.playerATower, Physical, new Physical(EntityId.playerATower, position(2, 2))),
+            (game, adapters) => theEntityWithIdHasTheExpectedComponent(TestStep.And, adapters, EntityId.playerBTower, Physical, new Physical(EntityId.playerBTower, position(3, 2))),
+            (game, adapters) => whenEventOccurs(game, attackEvent(EntityId.playerA, EntityId.playerATower, EntityId.playerBTower)),
+            (game, adapters) => theEventIsNotSent(TestStep.Then, adapters, hitEvent(EntityId.playerATower, EntityId.playerBTower)),
+            (game, adapters) => theEventIsSent(TestStep.And, adapters, notifyEvent(EntityId.playerA, wrongUnitPhaseNotificationMessage(playerARobotPhase())))
         ])
-    serverScenario(`${Action.attack} 6 - Can't Attack: Bad Player`, attackEvent(playerBId, playerBTowerId, playerATowerId),
+    serverScenario(`${Action.attack} 6 - Can't Attack: Bad Player`, attackEvent(EntityId.playerB, EntityId.playerBTower, EntityId.playerATower),
         (game, adapters) => () => new EntityBuilder(adapters.entityInteractor)
-            .buildEntity(matchId).withPhase(playerATowerPhase()).withPlayers([playerAId]).save()
-            .buildEntity(playerATowerId).withPosition(position(2, 2)).save()
-            .buildEntity(playerBTowerId).withPosition(position(3, 2)).save()
-            .buildEntity(playerBId).withEntityReferences(new Map([[EntityType.match, [matchId]], [EntityType.tower, [playerBTowerId]], [EntityType.robot, [playerBRobotId]]])).save()
+            .buildEntity(EntityId.match).withPhase(playerATowerPhase()).withPlayers([EntityId.playerA]).save()
+            .buildEntity(EntityId.playerATower).withPhysicalComponent(position(2, 2)).save()
+            .buildEntity(EntityId.playerBTower).withPhysicalComponent(position(3, 2)).save()
+            .buildEntity(EntityId.playerB).withEntityReferences(EntityType.player, new Map([[EntityType.match, [EntityId.match]], [EntityType.tower, [EntityId.playerBTower]], [EntityType.robot, [EntityId.playerBRobot]]])).save()
         , [
-            (game, adapters) => theEntityWithIdHasTheExpectedComponent(TestStep.Given, adapters, matchId, Phasing, new Phasing(matchId, playerATowerPhase())),
-            (game, adapters) => theEntityWithIdHasTheExpectedComponent(TestStep.And, adapters, playerATowerId, Physical, new Physical(playerATowerId, position(2, 2))),
-            (game, adapters) => theEntityWithIdHasTheExpectedComponent(TestStep.And, adapters, playerBTowerId, Physical, new Physical(playerBTowerId, position(3, 2))),
-            (game, adapters) => whenEventOccurs(game, attackEvent(playerBId, playerBTowerId, playerATowerId)),
-            (game, adapters) => theEventIsNotSent(TestStep.Then, adapters, hitEvent(playerATowerId, playerBTowerId)),
-            (game, adapters) => theEventIsSent(TestStep.And, adapters, notifyEvent(playerBId, badPlayerNotificationMessage(playerBId)))
+            (game, adapters) => theEntityWithIdHasTheExpectedComponent(TestStep.Given, adapters, EntityId.match, Phasing, new Phasing(EntityId.match, playerATowerPhase())),
+            (game, adapters) => theEntityWithIdHasTheExpectedComponent(TestStep.And, adapters, EntityId.playerATower, Physical, new Physical(EntityId.playerATower, position(2, 2))),
+            (game, adapters) => theEntityWithIdHasTheExpectedComponent(TestStep.And, adapters, EntityId.playerBTower, Physical, new Physical(EntityId.playerBTower, position(3, 2))),
+            (game, adapters) => whenEventOccurs(game, attackEvent(EntityId.playerB, EntityId.playerBTower, EntityId.playerATower)),
+            (game, adapters) => theEventIsNotSent(TestStep.Then, adapters, hitEvent(EntityId.playerATower, EntityId.playerBTower)),
+            (game, adapters) => theEventIsSent(TestStep.And, adapters, notifyEvent(EntityId.playerB, badPlayerNotificationMessage(EntityId.playerB)))
         ])
-    serverScenario(`${Action.create} 7 - Can't Attack : Out of Range - Horizontal 1`, attackEvent(playerAId, playerATowerId, playerBTowerId),
+    serverScenario(`${Action.attack} 7 - Can't Attack : Out of Range - Horizontal 1`, attackEvent(EntityId.playerA, EntityId.playerATower, EntityId.playerBTower),
         (game, adapters) => () => new EntityBuilder(adapters.entityInteractor)
-            .buildEntity(matchId).withPhase(playerATowerPhase()).withPlayers([playerAId]).save()
-            .buildEntity(playerATowerId).withPosition(position(2, 2)).save()
-            .buildEntity(playerBTowerId).withPosition(position(24, 2)).save()
-            .buildEntity(playerAId).withEntityReferences(new Map([[EntityType.match, [matchId]], [EntityType.tower, [playerATowerId]], [EntityType.robot, [playerARobotId]]])).save()
+            .buildEntity(EntityId.match).withPhase(playerATowerPhase()).withPlayers([EntityId.playerA]).save()
+            .buildEntity(EntityId.playerATower).withPhysicalComponent(position(2, 2)).save()
+            .buildEntity(EntityId.playerBTower).withPhysicalComponent(position(24, 2)).save()
+            .buildEntity(EntityId.playerA).withEntityReferences(EntityType.player, new Map([[EntityType.match, [EntityId.match]], [EntityType.tower, [EntityId.playerATower]], [EntityType.robot, [EntityId.playerARobot]]])).save()
         , [
-            (game, adapters) => theEntityWithIdHasTheExpectedComponent(TestStep.Given, adapters, matchId, Phasing, new Phasing(matchId, playerATowerPhase())),
-            (game, adapters) => theEntityWithIdHasTheExpectedComponent(TestStep.And, adapters, playerATowerId, Physical, new Physical(playerATowerId, position(2, 2))),
-            (game, adapters) => theEntityWithIdHasTheExpectedComponent(TestStep.And, adapters, playerBTowerId, Physical, new Physical(playerBTowerId, position(24, 2))),
-            (game, adapters) => whenEventOccurs(game, attackEvent(playerAId, playerATowerId, playerBTowerId)),
-            (game, adapters) => theEventIsNotSent(TestStep.And, adapters, hitEvent(playerATowerId, playerBTowerId)),
-            (game, adapters) => theEventIsSent(TestStep.And, adapters, notifyEvent(playerAId, outOfRangeNotificationMessage))
+            (game, adapters) => theEntityWithIdHasTheExpectedComponent(TestStep.Given, adapters, EntityId.match, Phasing, new Phasing(EntityId.match, playerATowerPhase())),
+            (game, adapters) => theEntityWithIdHasTheExpectedComponent(TestStep.And, adapters, EntityId.playerATower, Physical, new Physical(EntityId.playerATower, position(2, 2))),
+            (game, adapters) => theEntityWithIdHasTheExpectedComponent(TestStep.And, adapters, EntityId.playerBTower, Physical, new Physical(EntityId.playerBTower, position(24, 2))),
+            (game, adapters) => whenEventOccurs(game, attackEvent(EntityId.playerA, EntityId.playerATower, EntityId.playerBTower)),
+            (game, adapters) => theEventIsNotSent(TestStep.And, adapters, hitEvent(EntityId.playerATower, EntityId.playerBTower)),
+            (game, adapters) => theEventIsSent(TestStep.And, adapters, notifyEvent(EntityId.playerA, outOfRangeNotificationMessage))
         ])
-    serverScenario(`${Action.create} 8 - Can't Attack : Out of Range - Horizontal 2`, attackEvent(playerAId, playerATowerId, playerBTowerId),
+    serverScenario(`${Action.attack} 8 - Can't Attack : Out of Range - Horizontal 2`, attackEvent(EntityId.playerA, EntityId.playerATower, EntityId.playerBTower),
         (game, adapters) => () => new EntityBuilder(adapters.entityInteractor)
-            .buildEntity(matchId).withPhase(playerATowerPhase()).withPlayers([playerAId]).save()
-            .buildEntity(playerATowerId).withPosition(position(24, 1)).save()
-            .buildEntity(playerBTowerId).withPosition(position(1, 1)).save()
-            .buildEntity(playerAId).withEntityReferences(new Map([[EntityType.match, [matchId]], [EntityType.tower, [playerATowerId]], [EntityType.robot, [playerARobotId]]])).save()
+            .buildEntity(EntityId.match).withPhase(playerATowerPhase()).withPlayers([EntityId.playerA]).save()
+            .buildEntity(EntityId.playerATower).withPhysicalComponent(position(24, 1)).save()
+            .buildEntity(EntityId.playerBTower).withPhysicalComponent(position(1, 1)).save()
+            .buildEntity(EntityId.playerA).withEntityReferences(EntityType.player, new Map([[EntityType.match, [EntityId.match]], [EntityType.tower, [EntityId.playerATower]], [EntityType.robot, [EntityId.playerARobot]]])).save()
         , [
-            (game, adapters) => theEntityWithIdHasTheExpectedComponent(TestStep.Given, adapters, matchId, Phasing, new Phasing(matchId, playerATowerPhase())),
-            (game, adapters) => theEntityWithIdHasTheExpectedComponent(TestStep.And, adapters, playerATowerId, Physical, new Physical(playerATowerId, position(24, 1))),
-            (game, adapters) => theEntityWithIdHasTheExpectedComponent(TestStep.And, adapters, playerBTowerId, Physical, new Physical(playerBTowerId, position(1, 1))),
-            (game, adapters) => whenEventOccurs(game, attackEvent(playerAId, playerATowerId, playerBTowerId)),
-            (game, adapters) => theEventIsNotSent(TestStep.And, adapters, hitEvent(playerATowerId, playerBTowerId)),
-            (game, adapters) => theEventIsSent(TestStep.And, adapters, notifyEvent(playerAId, outOfRangeNotificationMessage))
+            (game, adapters) => theEntityWithIdHasTheExpectedComponent(TestStep.Given, adapters, EntityId.match, Phasing, new Phasing(EntityId.match, playerATowerPhase())),
+            (game, adapters) => theEntityWithIdHasTheExpectedComponent(TestStep.And, adapters, EntityId.playerATower, Physical, new Physical(EntityId.playerATower, position(24, 1))),
+            (game, adapters) => theEntityWithIdHasTheExpectedComponent(TestStep.And, adapters, EntityId.playerBTower, Physical, new Physical(EntityId.playerBTower, position(1, 1))),
+            (game, adapters) => whenEventOccurs(game, attackEvent(EntityId.playerA, EntityId.playerATower, EntityId.playerBTower)),
+            (game, adapters) => theEventIsNotSent(TestStep.And, adapters, hitEvent(EntityId.playerATower, EntityId.playerBTower)),
+            (game, adapters) => theEventIsSent(TestStep.And, adapters, notifyEvent(EntityId.playerA, outOfRangeNotificationMessage))
         ])
-    serverScenario(`${Action.create} 8 - Can Attack : On Range - Horizontal 3 - Max Range`, attackEvent(playerAId, playerATowerId, playerBTowerId),
+    serverScenario(`${Action.attack} 8 - Can Attack : On Range - Horizontal 3 - Max Range`, attackEvent(EntityId.playerA, EntityId.playerATower, EntityId.playerBTower),
         (game, adapters) => () => new EntityBuilder(adapters.entityInteractor)
-            .buildEntity(matchId).withPhase(playerATowerPhase()).withPlayers([playerAId]).save()
-            .buildEntity(playerATowerId).withPosition(position(11, 1)).save()
-            .buildEntity(playerBTowerId).withPosition(position(1, 1)).save()
-            .buildEntity(playerAId).withEntityReferences(new Map([[EntityType.match, [matchId]], [EntityType.tower, [playerATowerId]], [EntityType.robot, [playerARobotId]]])).save()
+            .buildEntity(EntityId.match).withPhase(playerATowerPhase()).withPlayers([EntityId.playerA]).save()
+            .buildEntity(EntityId.playerATower).withPhysicalComponent(position(11, 1)).save()
+            .buildEntity(EntityId.playerBTower).withPhysicalComponent(position(1, 1)).save()
+            .buildEntity(EntityId.playerA).withEntityReferences(EntityType.player, new Map([[EntityType.match, [EntityId.match]], [EntityType.tower, [EntityId.playerATower]], [EntityType.robot, [EntityId.playerARobot]]])).save()
         , [
-            (game, adapters) => theEntityWithIdHasTheExpectedComponent(TestStep.Given, adapters, matchId, Phasing, new Phasing(matchId, playerATowerPhase())),
-            (game, adapters) => theEntityWithIdHasTheExpectedComponent(TestStep.And, adapters, playerATowerId, Physical, new Physical(playerATowerId, position(11, 1))),
-            (game, adapters) => theEntityWithIdHasTheExpectedComponent(TestStep.And, adapters, playerBTowerId, Physical, new Physical(playerBTowerId, position(1, 1))),
-            (game, adapters) => whenEventOccurs(game, attackEvent(playerAId, playerATowerId, playerBTowerId)),
-            (game, adapters) => theEventIsSent(TestStep.And, adapters, hitEvent(playerATowerId, playerBTowerId))
+            (game, adapters) => theEntityWithIdHasTheExpectedComponent(TestStep.Given, adapters, EntityId.match, Phasing, new Phasing(EntityId.match, playerATowerPhase())),
+            (game, adapters) => theEntityWithIdHasTheExpectedComponent(TestStep.And, adapters, EntityId.playerATower, Physical, new Physical(EntityId.playerATower, position(11, 1))),
+            (game, adapters) => theEntityWithIdHasTheExpectedComponent(TestStep.And, adapters, EntityId.playerBTower, Physical, new Physical(EntityId.playerBTower, position(1, 1))),
+            (game, adapters) => whenEventOccurs(game, attackEvent(EntityId.playerA, EntityId.playerATower, EntityId.playerBTower)),
+            (game, adapters) => theEventIsSent(TestStep.And, adapters, hitEvent(EntityId.playerATower, EntityId.playerBTower))
         ])
-    serverScenario(`${Action.create} 9 - Can't Attack : Out of Range - Vertical 1`, attackEvent(playerAId, playerATowerId, playerBTowerId),
+    serverScenario(`${Action.attack} 9 - Can't Attack : Out of Range - Vertical 1`, attackEvent(EntityId.playerA, EntityId.playerATower, EntityId.playerBTower),
         (game, adapters) => () => new EntityBuilder(adapters.entityInteractor)
-            .buildEntity(matchId).withPhase(playerATowerPhase()).withPlayers([playerAId]).save()
-            .buildEntity(playerATowerId).withPosition(position(1, 1)).save()
-            .buildEntity(playerBTowerId).withPosition(position(1, 24)).save()
-            .buildEntity(playerAId).withEntityReferences(new Map([[EntityType.match, [matchId]], [EntityType.tower, [playerATowerId]], [EntityType.robot, [playerARobotId]]])).save()
+            .buildEntity(EntityId.match).withPhase(playerATowerPhase()).withPlayers([EntityId.playerA]).save()
+            .buildEntity(EntityId.playerATower).withPhysicalComponent(position(1, 1)).save()
+            .buildEntity(EntityId.playerBTower).withPhysicalComponent(position(1, 24)).save()
+            .buildEntity(EntityId.playerA).withEntityReferences(EntityType.player, new Map([[EntityType.match, [EntityId.match]], [EntityType.tower, [EntityId.playerATower]], [EntityType.robot, [EntityId.playerARobot]]])).save()
         , [
-            (game, adapters) => theEntityWithIdHasTheExpectedComponent(TestStep.Given, adapters, matchId, Phasing, new Phasing(matchId, playerATowerPhase())),
-            (game, adapters) => theEntityWithIdHasTheExpectedComponent(TestStep.And, adapters, playerATowerId, Physical, new Physical(playerATowerId, position(1, 1))),
-            (game, adapters) => theEntityWithIdHasTheExpectedComponent(TestStep.And, adapters, playerBTowerId, Physical, new Physical(playerBTowerId, position(1, 24))),
-            (game, adapters) => whenEventOccurs(game, attackEvent(playerAId, playerATowerId, playerBTowerId)),
-            (game, adapters) => theEventIsNotSent(TestStep.And, adapters, hitEvent(playerATowerId, playerBTowerId)),
-            (game, adapters) => theEventIsSent(TestStep.And, adapters, notifyEvent(playerAId, outOfRangeNotificationMessage))
+            (game, adapters) => theEntityWithIdHasTheExpectedComponent(TestStep.Given, adapters, EntityId.match, Phasing, new Phasing(EntityId.match, playerATowerPhase())),
+            (game, adapters) => theEntityWithIdHasTheExpectedComponent(TestStep.And, adapters, EntityId.playerATower, Physical, new Physical(EntityId.playerATower, position(1, 1))),
+            (game, adapters) => theEntityWithIdHasTheExpectedComponent(TestStep.And, adapters, EntityId.playerBTower, Physical, new Physical(EntityId.playerBTower, position(1, 24))),
+            (game, adapters) => whenEventOccurs(game, attackEvent(EntityId.playerA, EntityId.playerATower, EntityId.playerBTower)),
+            (game, adapters) => theEventIsNotSent(TestStep.And, adapters, hitEvent(EntityId.playerATower, EntityId.playerBTower)),
+            (game, adapters) => theEventIsSent(TestStep.And, adapters, notifyEvent(EntityId.playerA, outOfRangeNotificationMessage))
         ])
-    serverScenario(`${Action.create} 10 - Can't Attack : Out of Range - Vertical 2`, attackEvent(playerAId, playerATowerId, playerBTowerId),
+    serverScenario(`${Action.attack} 10 - Can't Attack : Out of Range - Vertical 2`, attackEvent(EntityId.playerA, EntityId.playerATower, EntityId.playerBTower),
         (game, adapters) => () => new EntityBuilder(adapters.entityInteractor)
-            .buildEntity(matchId).withPhase(playerATowerPhase()).withPlayers([playerAId]).save()
-            .buildEntity(playerATowerId).withPosition(position(1, 3)).save()
-            .buildEntity(playerBTowerId).withPosition(position(24, 3)).save()
-            .buildEntity(playerAId).withEntityReferences(new Map([[EntityType.match, [matchId]], [EntityType.tower, [playerATowerId]], [EntityType.robot, [playerARobotId]]])).save()
+            .buildEntity(EntityId.match).withPhase(playerATowerPhase()).withPlayers([EntityId.playerA]).save()
+            .buildEntity(EntityId.playerATower).withPhysicalComponent(position(1, 3)).save()
+            .buildEntity(EntityId.playerBTower).withPhysicalComponent(position(24, 3)).save()
+            .buildEntity(EntityId.playerA).withEntityReferences(EntityType.player, new Map([[EntityType.match, [EntityId.match]], [EntityType.tower, [EntityId.playerATower]], [EntityType.robot, [EntityId.playerARobot]]])).save()
         , [
-            (game, adapters) => theEntityWithIdHasTheExpectedComponent(TestStep.Given, adapters, matchId, Phasing, new Phasing(matchId, playerATowerPhase())),
-            (game, adapters) => theEntityWithIdHasTheExpectedComponent(TestStep.And, adapters, playerATowerId, Physical, new Physical(playerATowerId, position(1, 3))),
-            (game, adapters) => theEntityWithIdHasTheExpectedComponent(TestStep.And, adapters, playerBTowerId, Physical, new Physical(playerBTowerId, position(24, 3))),
-            (game, adapters) => whenEventOccurs(game, attackEvent(playerAId, playerATowerId, playerBTowerId)),
-            (game, adapters) => theEventIsNotSent(TestStep.And, adapters, hitEvent(playerATowerId, playerBTowerId)),
-            (game, adapters) => theEventIsSent(TestStep.And, adapters, notifyEvent(playerAId, outOfRangeNotificationMessage))
+            (game, adapters) => theEntityWithIdHasTheExpectedComponent(TestStep.Given, adapters, EntityId.match, Phasing, new Phasing(EntityId.match, playerATowerPhase())),
+            (game, adapters) => theEntityWithIdHasTheExpectedComponent(TestStep.And, adapters, EntityId.playerATower, Physical, new Physical(EntityId.playerATower, position(1, 3))),
+            (game, adapters) => theEntityWithIdHasTheExpectedComponent(TestStep.And, adapters, EntityId.playerBTower, Physical, new Physical(EntityId.playerBTower, position(24, 3))),
+            (game, adapters) => whenEventOccurs(game, attackEvent(EntityId.playerA, EntityId.playerATower, EntityId.playerBTower)),
+            (game, adapters) => theEventIsNotSent(TestStep.And, adapters, hitEvent(EntityId.playerATower, EntityId.playerBTower)),
+            (game, adapters) => theEventIsSent(TestStep.And, adapters, notifyEvent(EntityId.playerA, outOfRangeNotificationMessage))
         ])
-    serverScenario(`${Action.create} 11 - Can Attack : On Range - Vertical 3 - Max Range`, attackEvent(playerAId, playerATowerId, playerBTowerId),
+    serverScenario(`${Action.attack} 11 - Can Attack : On Range - Vertical 3 - Max Range`, attackEvent(EntityId.playerA, EntityId.playerATower, EntityId.playerBTower),
         (game, adapters) => () => new EntityBuilder(adapters.entityInteractor)
-            .buildEntity(matchId).withPhase(playerATowerPhase()).withPlayers([playerAId]).save()
-            .buildEntity(playerATowerId).withPosition(position(1, 1)).save()
-            .buildEntity(playerBTowerId).withPosition(position(1, 11)).save()
-            .buildEntity(playerAId).withEntityReferences(new Map([[EntityType.match, [matchId]], [EntityType.tower, [playerATowerId]], [EntityType.robot, [playerARobotId]]])).save()
+            .buildEntity(EntityId.match).withPhase(playerATowerPhase()).withPlayers([EntityId.playerA]).save()
+            .buildEntity(EntityId.playerATower).withPhysicalComponent(position(1, 1)).save()
+            .buildEntity(EntityId.playerBTower).withPhysicalComponent(position(1, 11)).save()
+            .buildEntity(EntityId.playerA).withEntityReferences(EntityType.player, new Map([[EntityType.match, [EntityId.match]], [EntityType.tower, [EntityId.playerATower]], [EntityType.robot, [EntityId.playerARobot]]])).save()
         , [
-            (game, adapters) => theEntityWithIdHasTheExpectedComponent(TestStep.Given, adapters, matchId, Phasing, new Phasing(matchId, playerATowerPhase())),
-            (game, adapters) => theEntityWithIdHasTheExpectedComponent(TestStep.And, adapters, playerATowerId, Physical, new Physical(playerATowerId, position(1, 1))),
-            (game, adapters) => theEntityWithIdHasTheExpectedComponent(TestStep.And, adapters, playerBTowerId, Physical, new Physical(playerBTowerId, position(1, 11))),
-            (game, adapters) => whenEventOccurs(game, attackEvent(playerAId, playerATowerId, playerBTowerId)),
-            (game, adapters) => theEventIsSent(TestStep.And, adapters, hitEvent(playerATowerId, playerBTowerId))
+            (game, adapters) => theEntityWithIdHasTheExpectedComponent(TestStep.Given, adapters, EntityId.match, Phasing, new Phasing(EntityId.match, playerATowerPhase())),
+            (game, adapters) => theEntityWithIdHasTheExpectedComponent(TestStep.And, adapters, EntityId.playerATower, Physical, new Physical(EntityId.playerATower, position(1, 1))),
+            (game, adapters) => theEntityWithIdHasTheExpectedComponent(TestStep.And, adapters, EntityId.playerBTower, Physical, new Physical(EntityId.playerBTower, position(1, 11))),
+            (game, adapters) => whenEventOccurs(game, attackEvent(EntityId.playerA, EntityId.playerATower, EntityId.playerBTower)),
+            (game, adapters) => theEventIsSent(TestStep.And, adapters, hitEvent(EntityId.playerATower, EntityId.playerBTower))
         ])
-    serverScenario(`${Action.create} 12 - Can't Attack : Out of Range - Diagonal`, attackEvent(playerAId, playerATowerId, playerBTowerId),
+    serverScenario(`${Action.attack} 12 - Can't Attack : Out of Range - Diagonal`, attackEvent(EntityId.playerA, EntityId.playerATower, EntityId.playerBTower),
         (game, adapters) => () => new EntityBuilder(adapters.entityInteractor)
-            .buildEntity(matchId).withPhase(playerATowerPhase()).withPlayers([playerAId]).save()
-            .buildEntity(playerATowerId).withPosition(position(2, 2)).save()
-            .buildEntity(playerBTowerId).withPosition(position(24, 24)).save()
-            .buildEntity(playerAId).withEntityReferences(new Map([[EntityType.match, [matchId]], [EntityType.tower, [playerATowerId]], [EntityType.robot, [playerARobotId]]])).save()
+            .buildEntity(EntityId.match).withPhase(playerATowerPhase()).withPlayers([EntityId.playerA]).save()
+            .buildEntity(EntityId.playerATower).withPhysicalComponent(position(2, 2)).save()
+            .buildEntity(EntityId.playerBTower).withPhysicalComponent(position(24, 24)).save()
+            .buildEntity(EntityId.playerA).withEntityReferences(EntityType.player, new Map([[EntityType.match, [EntityId.match]], [EntityType.tower, [EntityId.playerATower]], [EntityType.robot, [EntityId.playerARobot]]])).save()
         , [
-            (game, adapters) => theEntityWithIdHasTheExpectedComponent(TestStep.Given, adapters, matchId, Phasing, new Phasing(matchId, playerATowerPhase())),
-            (game, adapters) => theEntityWithIdHasTheExpectedComponent(TestStep.And, adapters, playerATowerId, Physical, new Physical(playerATowerId, position(2, 2))),
-            (game, adapters) => theEntityWithIdHasTheExpectedComponent(TestStep.And, adapters, playerBTowerId, Physical, new Physical(playerBTowerId, position(24, 24))),
-            (game, adapters) => whenEventOccurs(game, attackEvent(playerAId, playerATowerId, playerBTowerId)),
-            (game, adapters) => theEventIsNotSent(TestStep.And, adapters, hitEvent(playerATowerId, playerBTowerId)),
-            (game, adapters) => theEventIsSent(TestStep.And, adapters, notifyEvent(playerAId, outOfRangeNotificationMessage))
+            (game, adapters) => theEntityWithIdHasTheExpectedComponent(TestStep.Given, adapters, EntityId.match, Phasing, new Phasing(EntityId.match, playerATowerPhase())),
+            (game, adapters) => theEntityWithIdHasTheExpectedComponent(TestStep.And, adapters, EntityId.playerATower, Physical, new Physical(EntityId.playerATower, position(2, 2))),
+            (game, adapters) => theEntityWithIdHasTheExpectedComponent(TestStep.And, adapters, EntityId.playerBTower, Physical, new Physical(EntityId.playerBTower, position(24, 24))),
+            (game, adapters) => whenEventOccurs(game, attackEvent(EntityId.playerA, EntityId.playerATower, EntityId.playerBTower)),
+            (game, adapters) => theEventIsNotSent(TestStep.And, adapters, hitEvent(EntityId.playerATower, EntityId.playerBTower)),
+            (game, adapters) => theEventIsSent(TestStep.And, adapters, notifyEvent(EntityId.playerA, outOfRangeNotificationMessage))
         ])
-    serverScenario(`${Action.create} 13 - Can Attack : On Range - Diagonal - Max Range`, attackEvent(playerAId, playerATowerId, playerBTowerId),
+    serverScenario(`${Action.attack} 13 - Can Attack : On Range - Diagonal - Max Range`, attackEvent(EntityId.playerA, EntityId.playerATower, EntityId.playerBTower),
         (game, adapters) => () => new EntityBuilder(adapters.entityInteractor)
-            .buildEntity(matchId).withPhase(playerATowerPhase()).withPlayers([playerAId]).save()
-            .buildEntity(playerATowerId).withPosition(position(2, 1)).save()
-            .buildEntity(playerBTowerId).withPosition(position(11, 4)).save()
-            .buildEntity(playerAId).withEntityReferences(new Map([[EntityType.match, [matchId]], [EntityType.tower, [playerATowerId]], [EntityType.robot, [playerARobotId]]])).save()
+            .buildEntity(EntityId.match).withPhase(playerATowerPhase()).withPlayers([EntityId.playerA]).save()
+            .buildEntity(EntityId.playerATower).withPhysicalComponent(position(2, 1)).save()
+            .buildEntity(EntityId.playerBTower).withPhysicalComponent(position(11, 4)).save()
+            .buildEntity(EntityId.playerA).withEntityReferences(EntityType.player, new Map([[EntityType.match, [EntityId.match]], [EntityType.tower, [EntityId.playerATower]], [EntityType.robot, [EntityId.playerARobot]]])).save()
         , [
-            (game, adapters) => theEntityWithIdHasTheExpectedComponent(TestStep.Given, adapters, matchId, Phasing, new Phasing(matchId, playerATowerPhase())),
-            (game, adapters) => theEntityWithIdHasTheExpectedComponent(TestStep.And, adapters, playerATowerId, Physical, new Physical(playerATowerId, position(2, 1))),
-            (game, adapters) => theEntityWithIdHasTheExpectedComponent(TestStep.And, adapters, playerBTowerId, Physical, new Physical(playerBTowerId, position(11, 4))),
-            (game, adapters) => whenEventOccurs(game, attackEvent(playerAId, playerATowerId, playerBTowerId)),
-            (game, adapters) => theEventIsSent(TestStep.And, adapters, hitEvent(playerATowerId, playerBTowerId))
+            (game, adapters) => theEntityWithIdHasTheExpectedComponent(TestStep.Given, adapters, EntityId.match, Phasing, new Phasing(EntityId.match, playerATowerPhase())),
+            (game, adapters) => theEntityWithIdHasTheExpectedComponent(TestStep.And, adapters, EntityId.playerATower, Physical, new Physical(EntityId.playerATower, position(2, 1))),
+            (game, adapters) => theEntityWithIdHasTheExpectedComponent(TestStep.And, adapters, EntityId.playerBTower, Physical, new Physical(EntityId.playerBTower, position(11, 4))),
+            (game, adapters) => whenEventOccurs(game, attackEvent(EntityId.playerA, EntityId.playerATower, EntityId.playerBTower)),
+            (game, adapters) => theEventIsSent(TestStep.And, adapters, hitEvent(EntityId.playerATower, EntityId.playerBTower))
         ])
-    serverScenario(`${Action.create} 14 - Can Attack : Reduce action point`, attackEvent(playerAId, playerATowerId, playerBTowerId),
+    serverScenario(`${Action.attack} 14 - Can Attack : Reduce action point`, attackEvent(EntityId.playerA, EntityId.playerATower, EntityId.playerBTower),
         (game, adapters) => () => new EntityBuilder(adapters.entityInteractor)
-            .buildEntity(matchId).withPhase(playerATowerPhase()).withPlayers([playerAId]).save()
-            .buildEntity(playerATowerId).withPosition(position(2, 1)).save()
-            .buildEntity(playerBTowerId).withPosition(position(11, 4)).save()
-            .buildEntity(playerAId).withEntityReferences(new Map([[EntityType.match, [matchId]], [EntityType.tower, [playerATowerId]], [EntityType.robot, [playerARobotId]]])).save()
+            .buildEntity(EntityId.match).withPhase(playerATowerPhase()).withPlayers([EntityId.playerA]).save()
+            .buildEntity(EntityId.playerATower).withPhysicalComponent(position(2, 1)).save()
+            .buildEntity(EntityId.playerBTower).withPhysicalComponent(position(11, 4)).save()
+            .buildEntity(EntityId.playerA).withEntityReferences(EntityType.player, new Map([[EntityType.match, [EntityId.match]], [EntityType.tower, [EntityId.playerATower]], [EntityType.robot, [EntityId.playerARobot]]])).save()
         , [
-            (game, adapters) => theEntityWithIdHasTheExpectedComponent(TestStep.Given, adapters, matchId, Phasing, new Phasing(matchId, playerATowerPhase())),
-            (game, adapters) => theEntityWithIdHasTheExpectedComponent(TestStep.And, adapters, playerATowerId, Physical, new Physical(playerATowerId, position(2, 1))),
-            (game, adapters) => theEntityWithIdHasTheExpectedComponent(TestStep.And, adapters, playerBTowerId, Physical, new Physical(playerBTowerId, position(11, 4))),
-            (game, adapters) => whenEventOccurs(game, attackEvent(playerAId, playerATowerId, playerBTowerId)),
-            (game, adapters) => theEventIsSent(TestStep.And, adapters, hitEvent(playerATowerId, playerBTowerId)),
-            (game, adapters) => theEntityWithIdHasTheExpectedComponent(TestStep.Given, adapters, matchId, Phasing, new Phasing(matchId, playerATowerPhase(defaultActionPoints - weaponAttackActionPoints)))
+            (game, adapters) => theEntityWithIdHasTheExpectedComponent(TestStep.Given, adapters, EntityId.match, Phasing, new Phasing(EntityId.match, playerATowerPhase())),
+            (game, adapters) => theEntityWithIdHasTheExpectedComponent(TestStep.And, adapters, EntityId.playerATower, Physical, new Physical(EntityId.playerATower, position(2, 1))),
+            (game, adapters) => theEntityWithIdHasTheExpectedComponent(TestStep.And, adapters, EntityId.playerBTower, Physical, new Physical(EntityId.playerBTower, position(11, 4))),
+            (game, adapters) => whenEventOccurs(game, attackEvent(EntityId.playerA, EntityId.playerATower, EntityId.playerBTower)),
+            (game, adapters) => theEventIsSent(TestStep.And, adapters, hitEvent(EntityId.playerATower, EntityId.playerBTower)),
+            (game, adapters) => theEntityWithIdHasTheExpectedComponent(TestStep.Given, adapters, EntityId.match, Phasing, new Phasing(EntityId.match, playerATowerPhase(defaultActionPoints - weaponAttackActionPoints)))
         ])
-    serverScenario(`${Action.create} 14 - Can't Attack : Not enough action point`, attackEvent(playerAId, playerATowerId, playerBTowerId),
+    serverScenario(`${Action.attack} 14 - Can't Attack : Not enough action point`, attackEvent(EntityId.playerA, EntityId.playerATower, EntityId.playerBTower),
         (game, adapters) => () => new EntityBuilder(adapters.entityInteractor)
-            .buildEntity(matchId).withPhase(playerATowerPhase(weaponAttackActionPoints - 1)).withPlayers([playerAId]).save()
-            .buildEntity(playerATowerId).withPosition(position(2, 1)).save()
-            .buildEntity(playerBTowerId).withPosition(position(11, 4)).save()
-            .buildEntity(playerAId).withEntityReferences(new Map([[EntityType.match, [matchId]], [EntityType.tower, [playerATowerId]], [EntityType.robot, [playerARobotId]]])).save()
+            .buildEntity(EntityId.match).withPhase(playerATowerPhase(weaponAttackActionPoints - 1)).withPlayers([EntityId.playerA]).save()
+            .buildEntity(EntityId.playerATower).withPhysicalComponent(position(2, 1)).save()
+            .buildEntity(EntityId.playerBTower).withPhysicalComponent(position(11, 4)).save()
+            .buildEntity(EntityId.playerA).withEntityReferences(EntityType.player, new Map([[EntityType.match, [EntityId.match]], [EntityType.tower, [EntityId.playerATower]], [EntityType.robot, [EntityId.playerARobot]]])).save()
         , [
-            (game, adapters) => theEntityWithIdHasTheExpectedComponent(TestStep.Given, adapters, matchId, Phasing, new Phasing(matchId, playerATowerPhase(weaponAttackActionPoints - 1))),
-            (game, adapters) => theEntityWithIdHasTheExpectedComponent(TestStep.And, adapters, playerATowerId, Physical, new Physical(playerATowerId, position(2, 1))),
-            (game, adapters) => theEntityWithIdHasTheExpectedComponent(TestStep.And, adapters, playerBTowerId, Physical, new Physical(playerBTowerId, position(11, 4))),
-            (game, adapters) => whenEventOccurs(game, attackEvent(playerAId, playerATowerId, playerBTowerId)),
-            (game, adapters) => theEventIsNotSent(TestStep.And, adapters, hitEvent(playerATowerId, playerBTowerId)),
-            (game, adapters) => theEntityWithIdHasTheExpectedComponent(TestStep.Given, adapters, matchId, Phasing, new Phasing(matchId, playerATowerPhase(weaponAttackActionPoints - 1))),
-            (game, adapters) => theEventIsSent(TestStep.And, adapters, notifyEvent(playerAId, notEnoughActionPointNotificationMessage))
+            (game, adapters) => theEntityWithIdHasTheExpectedComponent(TestStep.Given, adapters, EntityId.match, Phasing, new Phasing(EntityId.match, playerATowerPhase(weaponAttackActionPoints - 1))),
+            (game, adapters) => theEntityWithIdHasTheExpectedComponent(TestStep.And, adapters, EntityId.playerATower, Physical, new Physical(EntityId.playerATower, position(2, 1))),
+            (game, adapters) => theEntityWithIdHasTheExpectedComponent(TestStep.And, adapters, EntityId.playerBTower, Physical, new Physical(EntityId.playerBTower, position(11, 4))),
+            (game, adapters) => whenEventOccurs(game, attackEvent(EntityId.playerA, EntityId.playerATower, EntityId.playerBTower)),
+            (game, adapters) => theEventIsNotSent(TestStep.And, adapters, hitEvent(EntityId.playerATower, EntityId.playerBTower)),
+            (game, adapters) => theEntityWithIdHasTheExpectedComponent(TestStep.Given, adapters, EntityId.match, Phasing, new Phasing(EntityId.match, playerATowerPhase(weaponAttackActionPoints - 1))),
+            (game, adapters) => theEventIsSent(TestStep.And, adapters, notifyEvent(EntityId.playerA, notEnoughActionPointNotificationMessage))
         ])
 })

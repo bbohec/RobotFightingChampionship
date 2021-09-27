@@ -16,5 +16,9 @@ export class Physical extends GenericComponent {
         this.position = position
     }
 
+    public isPositionIdentical (position:Position) {
+        return Math.floor(position.x) === Math.floor(this.position.x) && Math.floor(position.y) === Math.floor(this.position.y)
+    }
+
     position: Position;
 }

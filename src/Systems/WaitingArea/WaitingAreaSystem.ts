@@ -1,4 +1,4 @@
-import { Playable } from '../../Components/Playable'
+import { maxPlayerPerMatch, Playable } from '../../Components/Playable'
 import { createMatchEvent } from '../../Events/create/create'
 import { playerJoinMatchEvent } from '../../Events/join/join'
 import { errorMessageOnUnknownEventAction, GameEvent } from '../../Event/GameEvent'
@@ -14,14 +14,14 @@ export class WaitingAreaSystem extends GenericSystem {
 
     private simpleMatchLobbyEvent (gameEvent:GameEvent):Promise<void> {
         const simpleMatchLobbyEntityId = gameEvent.entityByEntityType(EntityType.simpleMatchLobby)
-        const players = this.interactWithEntities.retrieveEntityById(simpleMatchLobbyEntityId).retrieveComponent(Playable).players
+        const players = this.interactWithEntities.retrieveEntityComponentByEntityId(simpleMatchLobbyEntityId, Playable).players
         if (gameEvent.action === Action.waitingForPlayers) return this.onMatchWaitingForPlayersEvent(gameEvent.entityByEntityType(EntityType.match), players)
         if (gameEvent.action === Action.join) return this.onPlayerJoinGameEvent(gameEvent.entityByEntityType(EntityType.player), players, simpleMatchLobbyEntityId)
         throw new Error(errorMessageOnUnknownEventAction(WaitingAreaSystem.name, gameEvent))
     }
 
     private onMatchWaitingForPlayersEvent (matchId: string, playerIds: string[]):Promise<void> {
-        const isEnoughPlayers = (players: string[]) => players.length >= 2
+        const isEnoughPlayers = (players: string[]) => players.length >= maxPlayerPerMatch
         return (isEnoughPlayers(playerIds))
             ? this.onEnoughPlayers(matchId, playerIds)
             : Promise.resolve()
@@ -40,7 +40,7 @@ export class WaitingAreaSystem extends GenericSystem {
     }
 
     private createMatchForEachTwoPlayers (playerIds: string[], simpleMatchLobbyEntityId:string): Promise<void> {
-        const isEvenPlayers = (players: string[]) => players.length % 2 === 0
+        const isEvenPlayers = (players: string[]) => players.length % maxPlayerPerMatch === 0
         return (isEvenPlayers(playerIds))
             ? this.sendEvent(createMatchEvent(simpleMatchLobbyEntityId))
             : Promise.resolve()

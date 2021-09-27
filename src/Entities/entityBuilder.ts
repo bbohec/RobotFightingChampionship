@@ -11,6 +11,7 @@ import { LifeCycle } from '../Components/LifeCycle'
 import { Visible } from '../Components/Visible'
 import { Hittable } from '../Components/Hittable'
 import { Offensive } from '../Components/Offensive'
+import { EntityType } from '../Event/EntityType'
 
 export class EntityBuilder {
     withDamagePoints (damagePoints: number) {
@@ -46,12 +47,12 @@ export class EntityBuilder {
         return this
     }
 
-    withEntityReferences (entityReferences: EntityReferences) {
-        this.addComponents([new EntityReference(this.getEntityId(), entityReferences)])
+    withEntityReferences (entityType:EntityType|EntityType[], entityReferences: EntityReferences) {
+        this.addComponents([new EntityReference(this.getEntityId(), entityType, entityReferences)])
         return this
     }
 
-    withPosition (position: Position) {
+    withPhysicalComponent (position: Position) {
         this.addComponents([new Physical(this.getEntityId(), position)])
         return this
     }
@@ -95,10 +96,10 @@ export class EntityBuilder {
 
 /*
 
-export const matchBuilder = (matchId:string, matchPhase:Phase, players:string[]) => {
-    const match = new Entity(matchId)
-    match.addComponent(new Phasing(matchId, matchPhase))
-    match.addComponent(new Playable(matchId, players))
+export const matchBuilder = (EntityId.match:string, matchPhase:Phase, players:string[]) => {
+    const match = new Entity(EntityId.match)
+    match.addComponent(new Phasing(EntityId.match, matchPhase))
+    match.addComponent(new Playable(EntityId.match, players))
     return match
 }
 

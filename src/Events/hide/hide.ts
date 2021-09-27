@@ -1,5 +1,5 @@
 import { EntityType } from '../../Event/EntityType'
 import { Action } from '../../Event/Action'
-import { newEvent } from '../../Event/GameEvent'
+import { newGameEvent } from '../../Event/GameEvent'
 export const hideEvent = (targetEntityType: EntityType, targetEntityId: string) =>
-    newEvent(Action.hide, new Map([[targetEntityType, [targetEntityId]]]))
+    newGameEvent(Action.hide, new Map([[targetEntityType, [targetEntityId]]]))

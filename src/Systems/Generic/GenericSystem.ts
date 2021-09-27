@@ -14,7 +14,7 @@ export abstract class GenericSystem implements System {
     }
 
     protected entityReferencesByEntityId (playerId: string) {
-        return this.interactWithEntities.retrieveEntityById(playerId).retrieveComponent(EntityReference)
+        return this.interactWithEntities.retrieveEntityComponentByEntityId(playerId, EntityReference)
     }
 
     abstract onGameEvent(gameEvent: GameEvent): Promise<void>;

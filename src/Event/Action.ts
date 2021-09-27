@@ -15,5 +15,7 @@ export enum Action {
     destroy = 'destroy',
     move = 'move',
     attack = 'attack',
-    notify = 'notify'
+    notify = 'notify',
+    checkCollision = 'checkCollision',
+    collision = 'collision'
 }

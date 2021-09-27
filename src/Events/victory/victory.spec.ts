@@ -1,36 +1,36 @@
-import { describe } from 'mocha'
+
 import { Phasing, playerARobotPhase, playerAVictoryPhase, playerBVictoryPhase } from '../../Components/Phasing'
 import { Playable } from '../../Components/Playable'
 import { Entity } from '../../Entities/Entity'
 import { EntityBuilder } from '../../Entities/entityBuilder'
 import { Action } from '../../Event/Action'
-import { playerAId, matchId, playerBId, victoryEntityId, defeatEntityId } from '../../Event/entityIds'
+import { EntityId } from '../../Event/entityIds'
 import { EntityType } from '../../Event/EntityType'
-import { featureEventDescription, serverScenario, theEntityWithIdHasTheExpectedComponent, theEventIsSent, whenEventOccurs } from '../../Event/test'
+import { feature, featureEventDescription, serverScenario, theEntityWithIdHasTheExpectedComponent, theEventIsSent, whenEventOccurs } from '../../Event/test'
 import { TestStep } from '../../Event/TestStep'
 import { showEvent } from '../show/show'
 import { victoryEvent } from './victory'
-describe(featureEventDescription(Action.victory), () => {
-    serverScenario(`${Action.victory} 1`, victoryEvent(matchId, playerAId),
+feature(featureEventDescription(Action.victory), () => {
+    serverScenario(`${Action.victory} 1`, victoryEvent(EntityId.match, EntityId.playerA),
         (game, adapters) => () => new EntityBuilder(adapters.entityInteractor)
-            .buildEntity(matchId).withPlayers([playerAId, playerBId]).withPhase(playerARobotPhase()).save()
+            .buildEntity(EntityId.match).withPlayers([EntityId.playerA, EntityId.playerB]).withPhase(playerARobotPhase()).save()
         , [
-            (game, adapters) => whenEventOccurs(game, victoryEvent(matchId, playerAId)),
-            (game, adapters) => theEntityWithIdHasTheExpectedComponent(TestStep.Then, adapters, matchId, Phasing, new Phasing(matchId, playerAVictoryPhase())),
-            (game, adapters) => theEventIsSent(TestStep.And, adapters, showEvent(EntityType.victory, victoryEntityId, playerAId)),
-            (game, adapters) => theEventIsSent(TestStep.And, adapters, showEvent(EntityType.defeat, defeatEntityId, playerBId))
+            (game, adapters) => whenEventOccurs(game, victoryEvent(EntityId.match, EntityId.playerA)),
+            (game, adapters) => theEntityWithIdHasTheExpectedComponent(TestStep.Then, adapters, EntityId.match, Phasing, new Phasing(EntityId.match, playerAVictoryPhase)),
+            (game, adapters) => theEventIsSent(TestStep.And, adapters, showEvent(EntityType.victory, EntityId.victory, EntityId.playerA)),
+            (game, adapters) => theEventIsSent(TestStep.And, adapters, showEvent(EntityType.defeat, EntityId.defeat, EntityId.playerB))
         ])
-    serverScenario(`${Action.victory} 2`, victoryEvent(matchId, playerBId),
+    serverScenario(`${Action.victory} 2`, victoryEvent(EntityId.match, EntityId.playerB),
         (game, adapters) => () => {
-            const match = new Entity(matchId)
-            match.addComponent(new Phasing(matchId, playerARobotPhase()))
-            match.addComponent(new Playable(matchId, [playerAId, playerBId]))
+            const match = new Entity(EntityId.match)
+            match.addComponent(new Phasing(EntityId.match, playerARobotPhase()))
+            match.addComponent(new Playable(EntityId.match, [EntityId.playerA, EntityId.playerB]))
             adapters.entityInteractor.saveEntity(match)
         }
         , [
-            (game, adapters) => whenEventOccurs(game, victoryEvent(matchId, playerBId)),
-            (game, adapters) => theEntityWithIdHasTheExpectedComponent(TestStep.Then, adapters, matchId, Phasing, new Phasing(matchId, playerBVictoryPhase())),
-            (game, adapters) => theEventIsSent(TestStep.And, adapters, showEvent(EntityType.victory, victoryEntityId, playerBId)),
-            (game, adapters) => theEventIsSent(TestStep.And, adapters, showEvent(EntityType.defeat, defeatEntityId, playerAId))
+            (game, adapters) => whenEventOccurs(game, victoryEvent(EntityId.match, EntityId.playerB)),
+            (game, adapters) => theEntityWithIdHasTheExpectedComponent(TestStep.Then, adapters, EntityId.match, Phasing, new Phasing(EntityId.match, playerBVictoryPhase)),
+            (game, adapters) => theEventIsSent(TestStep.And, adapters, showEvent(EntityType.victory, EntityId.victory, EntityId.playerB)),
+            (game, adapters) => theEventIsSent(TestStep.And, adapters, showEvent(EntityType.defeat, EntityId.defeat, EntityId.playerA))
         ])
 })

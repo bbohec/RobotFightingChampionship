@@ -9,11 +9,15 @@ export class InMemoryEntityRepository implements EntityInteractor {
         return this.retrieveEntityById(entityId).retrieveComponent(potentialComponent)
     }
 
+    isEntityHasComponentsByEntityId (entityId: string): boolean {
+        return this.retrieveEntityById(entityId).hasComponents()
+    }
+
     deleteEntityById (entityId: string) {
         this.entities.delete(entityId)
     }
 
-    retrieveEntityById (entityId: string): Entity {
+    private retrieveEntityById (entityId: string): Entity {
         const entity = this.entities.get(entityId)
         if (entity) return entity
         throw new Error(missingEntityId(entityId, this.entities.values()))

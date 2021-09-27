@@ -9,6 +9,7 @@ import { EntityType } from '../../Event/EntityType'
 import { HitSystem } from '../Hit/HitSystem'
 import { AttackingSystem } from '../Attacking/AttackingSystem'
 import { MovingSystem } from '../Moving/MovingSystem'
+import { CollisionSystem } from '../Collision/CollisionSystem'
 export class ServerGameEventDispatcherSystem extends GenericGameEventDispatcherSystem {
     onGameEvent (gameEvent: GameEvent): Promise<void> {
         if (gameEvent.action === Action.create ||
@@ -28,6 +29,7 @@ export class ServerGameEventDispatcherSystem extends GenericGameEventDispatcherS
         if (gameEvent.action === Action.hit) return this.interactWithSystems.retrieveSystemByClass(HitSystem).onGameEvent(gameEvent)
         if (gameEvent.action === Action.move) return this.interactWithSystems.retrieveSystemByClass(MovingSystem).onGameEvent(gameEvent)
         if (gameEvent.action === Action.attack) return this.interactWithSystems.retrieveSystemByClass(AttackingSystem).onGameEvent(gameEvent)
+        if (gameEvent.action === Action.checkCollision || gameEvent.action === Action.collision) return this.interactWithSystems.retrieveSystemByClass(CollisionSystem).onGameEvent(gameEvent)
         throw new Error(errorMessageOnUnknownEventAction(ServerGameEventDispatcherSystem.name, gameEvent))
     }
 }

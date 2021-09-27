@@ -9,8 +9,8 @@ export class InMemoryEventRepository implements EventInteractor {
     }
 
     public retrieveEvent (expectedEvent: GameEvent): GameEvent[] {
-        const gameEvent = this.gameEvents.filter(event => this.isEventsIdentical(event, expectedEvent))
-        if (gameEvent.length > 0) return gameEvent
+        const gameEvents = this.gameEvents.filter(event => this.isEventsIdentical(event, expectedEvent))
+        if (gameEvents.length > 0) return gameEvents
         throw new Error(gameEventNotFoundOnEventRepository(expectedEvent, this.gameEvents))
     }
 

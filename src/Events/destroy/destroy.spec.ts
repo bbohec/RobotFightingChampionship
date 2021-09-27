@@ -1,35 +1,35 @@
-import { describe } from 'mocha'
+
 import { LifeCycle } from '../../Components/LifeCycle'
 import { EntityBuilder } from '../../Entities/entityBuilder'
 import { Action } from '../../Event/Action'
-import { matchId, playerARobotId, playerATowerId } from '../../Event/entityIds'
-import { featureEventDescription, serverScenario, theEntityIsNotOnRepository, theEntityWithIdHasTheExpectedComponent, whenEventOccurs } from '../../Event/test'
+import { EntityId } from '../../Event/entityIds'
+import { feature, featureEventDescription, serverScenario, theEntityIsNotOnRepository, theEntityWithIdHasTheExpectedComponent, whenEventOccurs } from '../../Event/test'
 import { TestStep } from '../../Event/TestStep'
 import { destroyMatchEvent, destroyRobotEvent, destroyTowerEvent } from './destroy'
 
-describe(featureEventDescription(Action.destroy), () => {
-    serverScenario(`${Action.destroy} 1`, destroyMatchEvent(matchId),
+feature(featureEventDescription(Action.destroy), () => {
+    serverScenario(`${Action.destroy} 1`, destroyMatchEvent(EntityId.match),
         (game, adapters) => () => new EntityBuilder(adapters.entityInteractor)
-            .buildEntity(matchId).withLifeCycle().save()
+            .buildEntity(EntityId.match).withLifeCycle().save()
         , [
-            (game, adapters) => theEntityWithIdHasTheExpectedComponent(TestStep.Given, adapters, matchId, LifeCycle, new LifeCycle(matchId)),
-            (game, adapters) => whenEventOccurs(game, destroyMatchEvent(matchId)),
-            (game, adapters) => theEntityIsNotOnRepository(TestStep.Then, adapters, matchId)
+            (game, adapters) => theEntityWithIdHasTheExpectedComponent(TestStep.Given, adapters, EntityId.match, LifeCycle, new LifeCycle(EntityId.match)),
+            (game, adapters) => whenEventOccurs(game, destroyMatchEvent(EntityId.match)),
+            (game, adapters) => theEntityIsNotOnRepository(TestStep.Then, adapters, EntityId.match)
         ])
-    serverScenario(`${Action.destroy} 2`, destroyRobotEvent(playerARobotId),
+    serverScenario(`${Action.destroy} 2`, destroyRobotEvent(EntityId.playerARobot),
         (game, adapters) => () => new EntityBuilder(adapters.entityInteractor)
-            .buildEntity(playerARobotId).withLifeCycle().save()
+            .buildEntity(EntityId.playerARobot).withLifeCycle().save()
         , [
-            (game, adapters) => theEntityWithIdHasTheExpectedComponent(TestStep.Given, adapters, playerARobotId, LifeCycle, new LifeCycle(playerARobotId)),
-            (game, adapters) => whenEventOccurs(game, destroyRobotEvent(playerARobotId)),
-            (game, adapters) => theEntityIsNotOnRepository(TestStep.Then, adapters, playerARobotId)
+            (game, adapters) => theEntityWithIdHasTheExpectedComponent(TestStep.Given, adapters, EntityId.playerARobot, LifeCycle, new LifeCycle(EntityId.playerARobot)),
+            (game, adapters) => whenEventOccurs(game, destroyRobotEvent(EntityId.playerARobot)),
+            (game, adapters) => theEntityIsNotOnRepository(TestStep.Then, adapters, EntityId.playerARobot)
         ])
-    serverScenario(`${Action.destroy} 3`, destroyTowerEvent(playerATowerId),
+    serverScenario(`${Action.destroy} 3`, destroyTowerEvent(EntityId.playerATower),
         (game, adapters) => () => new EntityBuilder(adapters.entityInteractor)
-            .buildEntity(playerATowerId).withLifeCycle().save()
+            .buildEntity(EntityId.playerATower).withLifeCycle().save()
         , [
-            (game, adapters) => theEntityWithIdHasTheExpectedComponent(TestStep.Given, adapters, playerATowerId, LifeCycle, new LifeCycle(playerATowerId)),
-            (game, adapters) => whenEventOccurs(game, destroyTowerEvent(playerATowerId)),
-            (game, adapters) => theEntityIsNotOnRepository(TestStep.Then, adapters, playerATowerId)
+            (game, adapters) => theEntityWithIdHasTheExpectedComponent(TestStep.Given, adapters, EntityId.playerATower, LifeCycle, new LifeCycle(EntityId.playerATower)),
+            (game, adapters) => whenEventOccurs(game, destroyTowerEvent(EntityId.playerATower)),
+            (game, adapters) => theEntityIsNotOnRepository(TestStep.Then, adapters, EntityId.playerATower)
         ])
 })

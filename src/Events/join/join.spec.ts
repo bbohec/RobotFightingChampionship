@@ -1,80 +1,80 @@
-import { describe } from 'mocha'
+
 import { Playable } from '../../Components/Playable'
 import { showEvent } from '../show/show'
 import { hideEvent } from '../hide/hide'
 import { createGridEvent, createMatchEvent, createRobotEvent, createTowerEvent } from '../create/create'
 import { Action } from '../../Event/Action'
-import { gameEntityId, mainMenuEntityId, matchId, playerAId, playerBId, players, simpleMatchLobbyEntityId } from '../../Event/entityIds'
 import { EntityType } from '../../Event/EntityType'
-import { clientScenario, featureEventDescription, serverScenario, theEntityIsCreated, theEntityIsOnRepository, theEntityWithIdHasTheExpectedComponent, theEventIsSent, whenEventOccurs } from '../../Event/test'
+import { clientScenario, feature, featureEventDescription, serverScenario, theEntityIsCreated, theEntityIsOnRepository, theEntityWithIdHasTheExpectedComponent, theEventIsSent, whenEventOccurs } from '../../Event/test'
 import { TestStep } from '../../Event/TestStep'
 import { joinSimpleMatchLobby, joinSimpleMatchServerEvent, playerJoinMatchEvent, playerWantJoinSimpleMatchLobby } from './join'
 import { EntityReference } from '../../Components/EntityReference'
 import { EntityBuilder } from '../../Entities/entityBuilder'
-describe(featureEventDescription(Action.join), () => {
-    clientScenario(`${Action.join} 1`, joinSimpleMatchLobby(playerAId, mainMenuEntityId, simpleMatchLobbyEntityId),
+import { EntityId, players } from '../../Event/entityIds'
+feature(featureEventDescription(Action.join), () => {
+    clientScenario(`${Action.join} 1`, joinSimpleMatchLobby(EntityId.playerA, EntityId.mainMenu, EntityId.simpleMatchLobby),
         (game, adapters) => () => new EntityBuilder(adapters.entityInteractor)
-            .buildEntity(playerAId).save()
-            .buildEntity(gameEntityId).withLifeCycle(true).save()
-            .buildEntity(mainMenuEntityId).save()
-            .buildEntity(simpleMatchLobbyEntityId).save()
+            .buildEntity(EntityId.playerA).save()
+            .buildEntity(EntityId.game).withLifeCycle(true).save()
+            .buildEntity(EntityId.mainMenu).save()
+            .buildEntity(EntityId.simpleMatchLobby).save()
         , [
-            (game, adapters) => theEntityIsCreated(TestStep.Given, adapters, gameEntityId),
-            (game, adapters) => whenEventOccurs(game, joinSimpleMatchLobby(playerAId, mainMenuEntityId, simpleMatchLobbyEntityId)),
-            (game, adapters) => theEventIsSent(TestStep.Then, adapters, joinSimpleMatchServerEvent(playerAId, simpleMatchLobbyEntityId)),
-            (game, adapters) => theEventIsSent(TestStep.And, adapters, hideEvent(EntityType.mainMenu, mainMenuEntityId)),
-            (game, adapters) => theEventIsSent(TestStep.And, adapters, showEvent(EntityType.matchMaking, simpleMatchLobbyEntityId, playerAId))
+            (game, adapters) => theEntityIsCreated(TestStep.Given, adapters, EntityId.game),
+            (game, adapters) => whenEventOccurs(game, joinSimpleMatchLobby(EntityId.playerA, EntityId.mainMenu, EntityId.simpleMatchLobby)),
+            (game, adapters) => theEventIsSent(TestStep.Then, adapters, joinSimpleMatchServerEvent(EntityId.playerA, EntityId.simpleMatchLobby)),
+            (game, adapters) => theEventIsSent(TestStep.And, adapters, hideEvent(EntityType.mainMenu, EntityId.mainMenu)),
+            (game, adapters) => theEventIsSent(TestStep.And, adapters, showEvent(EntityType.matchMaking, EntityId.simpleMatchLobby, EntityId.playerA))
         ]
     )
-    serverScenario(`${Action.join} 2`, playerJoinMatchEvent(playerAId, matchId),
+    serverScenario(`${Action.join} 2`, playerJoinMatchEvent(EntityId.playerA, EntityId.match),
         (game, adapters) => () => new EntityBuilder(adapters.entityInteractor)
-            .buildEntity(matchId).withPlayers([]).save()
-            .buildEntity(playerAId).withEntityReferences(new Map([])).save()
+            .buildEntity(EntityId.match).withPlayers([]).save()
+            .buildEntity(EntityId.playerA).withEntityReferences(EntityType.player, new Map([])).save()
         , [
-            (game, adapters) => theEntityIsOnRepository(TestStep.Given, adapters, matchId),
-            (game, adapters) => theEntityWithIdHasTheExpectedComponent(TestStep.And, adapters, matchId, Playable, new Playable(matchId, [])),
-            (game, adapters) => whenEventOccurs(game, playerJoinMatchEvent(playerAId, matchId)),
-            (game, adapters) => theEntityWithIdHasTheExpectedComponent(TestStep.Then, adapters, matchId, Playable, new Playable(matchId, [playerAId])),
-            (game, adapters) => theEntityWithIdHasTheExpectedComponent(TestStep.Then, adapters, playerAId, EntityReference, new EntityReference(playerAId, new Map([[EntityType.match, [matchId]]])))
+            (game, adapters) => theEntityIsOnRepository(TestStep.Given, adapters, EntityId.match),
+            (game, adapters) => theEntityWithIdHasTheExpectedComponent(TestStep.And, adapters, EntityId.match, Playable, new Playable(EntityId.match, [])),
+            (game, adapters) => whenEventOccurs(game, playerJoinMatchEvent(EntityId.playerA, EntityId.match)),
+            (game, adapters) => theEntityWithIdHasTheExpectedComponent(TestStep.Then, adapters, EntityId.match, Playable, new Playable(EntityId.match, [EntityId.playerA])),
+            (game, adapters) => theEntityWithIdHasTheExpectedComponent(TestStep.Then, adapters, EntityId.playerA, EntityReference, new EntityReference(EntityId.playerA, EntityType.player, new Map([[EntityType.match, [EntityId.match]]])))
         ])
-    serverScenario(`${Action.join} 3`, playerJoinMatchEvent(playerBId, matchId),
+    serverScenario(`${Action.join} 3`, playerJoinMatchEvent(EntityId.playerB, EntityId.match),
         (game, adapters) => () => new EntityBuilder(adapters.entityInteractor)
-            .buildEntity(matchId).withPlayers([playerAId]).save()
-            .buildEntity(playerAId).withEntityReferences(new Map([])).save()
-            .buildEntity(playerBId).withEntityReferences(new Map([])).save()
+            .buildEntity(EntityId.match).withPlayers([EntityId.playerA]).save()
+            .buildEntity(EntityId.playerA).withEntityReferences(EntityType.player, new Map([])).save()
+            .buildEntity(EntityId.playerB).withEntityReferences(EntityType.player, new Map([])).save()
         , [
-            (game, adapters) => theEntityIsOnRepository(TestStep.Given, adapters, matchId),
-            (game, adapters) => theEntityWithIdHasTheExpectedComponent(TestStep.And, adapters, matchId, Playable, new Playable(matchId, [playerAId])),
-            (game, adapters) => whenEventOccurs(game, playerJoinMatchEvent(playerBId, matchId)),
-            (game, adapters) => theEntityWithIdHasTheExpectedComponent(TestStep.Then, adapters, matchId, Playable, new Playable(matchId, [playerAId, playerBId])),
-            (game, adapters) => theEventIsSent(TestStep.And, adapters, createTowerEvent(playerAId)),
-            (game, adapters) => theEventIsSent(TestStep.And, adapters, createRobotEvent(playerAId)),
-            (game, adapters) => theEventIsSent(TestStep.And, adapters, createTowerEvent(playerBId)),
-            (game, adapters) => theEventIsSent(TestStep.And, adapters, createRobotEvent(playerBId)),
-            (game, adapters) => theEventIsSent(TestStep.And, adapters, createGridEvent(matchId))
+            (game, adapters) => theEntityIsOnRepository(TestStep.Given, adapters, EntityId.match),
+            (game, adapters) => theEntityWithIdHasTheExpectedComponent(TestStep.And, adapters, EntityId.match, Playable, new Playable(EntityId.match, [EntityId.playerA])),
+            (game, adapters) => whenEventOccurs(game, playerJoinMatchEvent(EntityId.playerB, EntityId.match)),
+            (game, adapters) => theEntityWithIdHasTheExpectedComponent(TestStep.Then, adapters, EntityId.match, Playable, new Playable(EntityId.match, [EntityId.playerA, EntityId.playerB])),
+            (game, adapters) => theEventIsSent(TestStep.And, adapters, createTowerEvent(EntityId.playerA)),
+            (game, adapters) => theEventIsSent(TestStep.And, adapters, createRobotEvent(EntityId.playerA)),
+            (game, adapters) => theEventIsSent(TestStep.And, adapters, createTowerEvent(EntityId.playerB)),
+            (game, adapters) => theEventIsSent(TestStep.And, adapters, createRobotEvent(EntityId.playerB)),
+            (game, adapters) => theEventIsSent(TestStep.And, adapters, createGridEvent(EntityId.match))
         ])
-    serverScenario(`${Action.join} 4`, playerWantJoinSimpleMatchLobby(playerAId, simpleMatchLobbyEntityId),
+    serverScenario(`${Action.join} 4`, playerWantJoinSimpleMatchLobby(EntityId.playerA, EntityId.simpleMatchLobby),
         (game, adapters) => () => new EntityBuilder(adapters.entityInteractor)
-            .buildEntity(simpleMatchLobbyEntityId).withPlayers([]).withLifeCycle(true).save()
+            .buildEntity(EntityId.simpleMatchLobby).withPlayers([]).withLifeCycle(true).save()
         , [
-            (game, adapters) => theEntityIsCreated(TestStep.Given, adapters, simpleMatchLobbyEntityId),
-            (game, adapters) => whenEventOccurs(game, playerWantJoinSimpleMatchLobby(playerAId, simpleMatchLobbyEntityId)),
-            (game, adapters) => theEntityWithIdHasTheExpectedComponent(TestStep.And, adapters, simpleMatchLobbyEntityId, Playable, new Playable(simpleMatchLobbyEntityId, [playerAId]))
+            (game, adapters) => theEntityIsCreated(TestStep.Given, adapters, EntityId.simpleMatchLobby),
+            (game, adapters) => whenEventOccurs(game, playerWantJoinSimpleMatchLobby(EntityId.playerA, EntityId.simpleMatchLobby)),
+            (game, adapters) => theEntityWithIdHasTheExpectedComponent(TestStep.And, adapters, EntityId.simpleMatchLobby, Playable, new Playable(EntityId.simpleMatchLobby, [EntityId.playerA]))
         ])
-    serverScenario(`${Action.join} 5`, players.map(player => playerWantJoinSimpleMatchLobby(player, simpleMatchLobbyEntityId)),
+    serverScenario(`${Action.join} 5`, players.map(player => playerWantJoinSimpleMatchLobby(player, EntityId.simpleMatchLobby)),
         (game, adapters) => () => new EntityBuilder(adapters.entityInteractor)
-            .buildEntity(simpleMatchLobbyEntityId).withPlayers([]).withLifeCycle(true).save()
+            .buildEntity(EntityId.simpleMatchLobby).withPlayers([]).withLifeCycle(true).save()
         , [
-            (game, adapters) => theEntityIsCreated(TestStep.Given, adapters, simpleMatchLobbyEntityId),
-            (game, adapters) => whenEventOccurs(game, playerWantJoinSimpleMatchLobby(players[0], simpleMatchLobbyEntityId)),
-            (game, adapters) => whenEventOccurs(game, playerWantJoinSimpleMatchLobby(players[1], simpleMatchLobbyEntityId)),
-            (game, adapters) => whenEventOccurs(game, playerWantJoinSimpleMatchLobby(players[2], simpleMatchLobbyEntityId)),
-            (game, adapters) => whenEventOccurs(game, playerWantJoinSimpleMatchLobby(players[3], simpleMatchLobbyEntityId)),
-            (game, adapters) => whenEventOccurs(game, playerWantJoinSimpleMatchLobby(players[4], simpleMatchLobbyEntityId)),
-            (game, adapters) => whenEventOccurs(game, playerWantJoinSimpleMatchLobby(players[5], simpleMatchLobbyEntityId)),
-            (game, adapters) => whenEventOccurs(game, playerWantJoinSimpleMatchLobby(players[6], simpleMatchLobbyEntityId)),
-            (game, adapters) => whenEventOccurs(game, playerWantJoinSimpleMatchLobby(players[7], simpleMatchLobbyEntityId)),
-            (game, adapters) => theEntityWithIdHasTheExpectedComponent(TestStep.And, adapters, simpleMatchLobbyEntityId, Playable, new Playable(simpleMatchLobbyEntityId, players)),
-            (game, adapters) => theEventIsSent(TestStep.And, adapters, createMatchEvent(simpleMatchLobbyEntityId), players.length / 2 - (players.length % 2 / 2))
+            (game, adapters) => theEntityIsCreated(TestStep.Given, adapters, EntityId.simpleMatchLobby),
+            (game, adapters) => whenEventOccurs(game, playerWantJoinSimpleMatchLobby(players[0], EntityId.simpleMatchLobby)),
+            (game, adapters) => whenEventOccurs(game, playerWantJoinSimpleMatchLobby(players[1], EntityId.simpleMatchLobby)),
+            (game, adapters) => whenEventOccurs(game, playerWantJoinSimpleMatchLobby(players[2], EntityId.simpleMatchLobby)),
+            (game, adapters) => whenEventOccurs(game, playerWantJoinSimpleMatchLobby(players[3], EntityId.simpleMatchLobby)),
+            (game, adapters) => whenEventOccurs(game, playerWantJoinSimpleMatchLobby(players[4], EntityId.simpleMatchLobby)),
+            (game, adapters) => whenEventOccurs(game, playerWantJoinSimpleMatchLobby(players[5], EntityId.simpleMatchLobby)),
+            (game, adapters) => whenEventOccurs(game, playerWantJoinSimpleMatchLobby(players[6], EntityId.simpleMatchLobby)),
+            (game, adapters) => whenEventOccurs(game, playerWantJoinSimpleMatchLobby(players[7], EntityId.simpleMatchLobby)),
+            (game, adapters) => theEntityWithIdHasTheExpectedComponent(TestStep.And, adapters, EntityId.simpleMatchLobby, Playable, new Playable(EntityId.simpleMatchLobby, players)),
+            (game, adapters) => theEventIsSent(TestStep.And, adapters, createMatchEvent(EntityId.simpleMatchLobby), players.length / 2 - (players.length % 2 / 2))
         ])
 })

@@ -7,3 +7,4 @@ export class Playable extends GenericComponent {
 
     players: string[] = [];
 }
+export const maxPlayerPerMatch = 2
