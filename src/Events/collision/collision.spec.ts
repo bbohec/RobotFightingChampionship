@@ -23,7 +23,7 @@ feature(featureEventDescription(Action.collision), () => {
             (game, adapters) => theEntityWithIdHasTheExpectedComponent(TestStep.And, adapters, EntityId.playerAPointer, EntityReference, new EntityReference(EntityId.playerAPointer, EntityType.pointer, new Map([[EntityType.player, [EntityId.playerA]]]))),
             (game, adapters) => theEntityWithIdHasTheExpectedComponent(TestStep.And, adapters, EntityId.playerAJoinSimpleMatchButton, EntityReference, new EntityReference(EntityId.playerAJoinSimpleMatchButton, EntityType.button, new Map([[EntityType.player, [EntityId.playerA]], [EntityType.simpleMatchLobby, [EntityId.simpleMatchLobby]]]))),
             (game, adapters) => whenEventOccurs(game, collisionGameEvent(new Map([[EntityType.unknown, [EntityId.playerAPointer, EntityId.playerAJoinSimpleMatchButton]]]))),
-            (game, adapters) => theEventIsSent(TestStep.Then, adapters, joinSimpleMatchLobby(EntityId.playerA, EntityId.mainMenu, EntityId.simpleMatchLobby))
+            (game, adapters) => theEventIsSent(TestStep.Then, adapters, 'server', joinSimpleMatchLobby(EntityId.playerA, EntityId.mainMenu, EntityId.simpleMatchLobby))
         ])
     serverScenario(`${Action.move} 2 - Collision with player pointer &  player end turn button`, collisionGameEvent(new Map([[EntityType.unknown, [EntityId.playerAPointer, EntityId.playerEndTurnButton]]])),
         (game, adapters) => () => new EntityBuilder(adapters.entityInteractor)
@@ -33,7 +33,7 @@ feature(featureEventDescription(Action.collision), () => {
             (game, adapters) => theEntityWithIdHasTheExpectedComponent(TestStep.And, adapters, EntityId.playerAPointer, EntityReference, new EntityReference(EntityId.playerAPointer, EntityType.pointer, new Map([[EntityType.player, [EntityId.playerA]]]))),
             (game, adapters) => theEntityWithIdHasTheExpectedComponent(TestStep.And, adapters, EntityId.playerEndTurnButton, EntityReference, new EntityReference(EntityId.playerEndTurnButton, EntityType.button, new Map([[EntityType.player, [EntityId.playerA]], [EntityType.match, [EntityId.match]]]))),
             (game, adapters) => whenEventOccurs(game, collisionGameEvent(new Map([[EntityType.unknown, [EntityId.playerAPointer, EntityId.playerEndTurnButton]]]))),
-            (game, adapters) => theEventIsSent(TestStep.Then, adapters, nextTurnEvent(EntityId.match))
+            (game, adapters) => theEventIsSent(TestStep.Then, adapters, 'server', nextTurnEvent(EntityId.match))
         ])
     serverScenario(`${Action.move} 3 - Collision with player pointer &  match cell`, collisionGameEvent(new Map([[EntityType.unknown, [EntityId.playerAPointer, EntityId.cellx1y1]]])),
         (game, adapters) => () => new EntityBuilder(adapters.entityInteractor)
@@ -50,7 +50,7 @@ feature(featureEventDescription(Action.collision), () => {
             (game, adapters) => theEntityWithIdHasTheExpectedComponent(TestStep.And, adapters, EntityId.playerARobot, EntityReference, new EntityReference(EntityId.playerARobot, EntityType.robot, new Map())),
             (game, adapters) => theEntityWithIdHasTheExpectedComponent(TestStep.And, adapters, EntityId.cellx1y1, EntityReference, new EntityReference(EntityId.cellx1y1, EntityType.cell, new Map([[EntityType.grid, [EntityId.grid]]]))),
             (game, adapters) => whenEventOccurs(game, collisionGameEvent(new Map([[EntityType.unknown, [EntityId.playerAPointer, EntityId.cellx1y1]]]))),
-            (game, adapters) => theEventIsSent(TestStep.Then, adapters, moveEvent(EntityId.playerA, EntityType.robot, EntityId.playerARobot, EntityId.cellx1y1))
+            (game, adapters) => theEventIsSent(TestStep.Then, adapters, 'server', moveEvent(EntityId.playerA, EntityType.robot, EntityId.playerARobot, EntityId.cellx1y1))
         ])
     serverScenario(`${Action.move} 4 - Collision with player pointer &  match cell & Tower`, collisionGameEvent(new Map([[EntityType.unknown, [EntityId.playerAPointer, EntityId.cellx1y1, EntityId.playerBTower]]])),
         (game, adapters) => () => new EntityBuilder(adapters.entityInteractor)
@@ -69,7 +69,7 @@ feature(featureEventDescription(Action.collision), () => {
             (game, adapters) => theEntityWithIdHasTheExpectedComponent(TestStep.And, adapters, EntityId.playerBTower, EntityReference, new EntityReference(EntityId.playerBTower, EntityType.tower, new Map())),
             (game, adapters) => theEntityWithIdHasTheExpectedComponent(TestStep.And, adapters, EntityId.cellx1y1, EntityReference, new EntityReference(EntityId.cellx1y1, EntityType.cell, new Map([[EntityType.grid, [EntityId.grid]]]))),
             (game, adapters) => whenEventOccurs(game, collisionGameEvent(new Map([[EntityType.unknown, [EntityId.playerAPointer, EntityId.cellx1y1, EntityId.playerBTower]]]))),
-            (game, adapters) => theEventIsSent(TestStep.Then, adapters, attackEvent(EntityId.playerA, EntityId.playerARobot, EntityId.playerBTower))
+            (game, adapters) => theEventIsSent(TestStep.Then, adapters, 'server', attackEvent(EntityId.playerA, EntityId.playerARobot, EntityId.playerBTower))
         ])
     serverScenario(`${Action.move} 5 - Collision with player pointer &  match cell & Robot`, collisionGameEvent(new Map([[EntityType.unknown, [EntityId.playerAPointer, EntityId.cellx1y1, EntityId.playerBRobot]]])),
         (game, adapters) => () => new EntityBuilder(adapters.entityInteractor)
@@ -88,6 +88,6 @@ feature(featureEventDescription(Action.collision), () => {
             (game, adapters) => theEntityWithIdHasTheExpectedComponent(TestStep.And, adapters, EntityId.playerBRobot, EntityReference, new EntityReference(EntityId.playerBRobot, EntityType.robot, new Map())),
             (game, adapters) => theEntityWithIdHasTheExpectedComponent(TestStep.And, adapters, EntityId.cellx1y1, EntityReference, new EntityReference(EntityId.cellx1y1, EntityType.cell, new Map([[EntityType.grid, [EntityId.grid]]]))),
             (game, adapters) => whenEventOccurs(game, collisionGameEvent(new Map([[EntityType.unknown, [EntityId.playerAPointer, EntityId.cellx1y1, EntityId.playerBRobot]]]))),
-            (game, adapters) => theEventIsSent(TestStep.Then, adapters, attackEvent(EntityId.playerA, EntityId.playerARobot, EntityId.playerBRobot))
+            (game, adapters) => theEventIsSent(TestStep.Then, adapters, 'server', attackEvent(EntityId.playerA, EntityId.playerARobot, EntityId.playerBRobot))
         ])
 })

@@ -1,4 +1,4 @@
-import { GenericSystem } from '../Generic/GenericSystem'
+import { GenericServerSystem } from '../Generic/GenericServerSystem'
 import { errorMessageOnUnknownEventAction, GameEvent } from '../../Event/GameEvent'
 import { maxPlayerPerMatch, Playable } from '../../Components/Playable'
 import { Action } from '../../Event/Action'
@@ -10,8 +10,9 @@ import { destroyMatchEvent, destroyRobotEvent, destroyTowerEvent } from '../../E
 import { showEvent } from '../../Events/show/show'
 import { playerNotFoundOnMatchPlayers } from './port/matchSystem'
 import { EntityId } from '../../Event/entityIds'
+import { Physical } from '../../Components/Physical'
 
-export class ServerMatchSystem extends GenericSystem {
+export class ServerMatchSystem extends GenericServerSystem {
     onGameEvent (gameEvent: GameEvent): Promise<void> {
         if (gameEvent.action === Action.register) return this.onRegister(gameEvent)
         const playableComponent = this.interactWithEntities.retrieveEntityComponentByEntityId(gameEvent.entityByEntityType(EntityType.match), Playable)
@@ -40,7 +41,7 @@ export class ServerMatchSystem extends GenericSystem {
         const events:GameEvent[] = [
             destroyRobotEvent(playerEntityReference.retreiveReference(EntityType.robot)),
             destroyTowerEvent(playerEntityReference.retreiveReference(EntityType.tower)),
-            showEvent(EntityType.mainMenu, EntityId.mainMenu, playerId)
+            showEvent(EntityType.mainMenu, EntityId.mainMenu, playerId, this.interactWithEntities.retrieveEntityComponentByEntityId(EntityId.mainMenu, Physical))
         ]
         if (playableComponent.players.length === 0) events.push(destroyMatchEvent(playableComponent.entityId))
         return Promise.all(events.map(event => this.sendEvent(event)))

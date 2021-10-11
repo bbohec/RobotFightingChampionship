@@ -1,6 +1,6 @@
 import { LifeCycle } from '../../Components/LifeCycle'
 import { Entity } from '../../Entities/Entity'
-import { GenericSystem } from '../Generic/GenericSystem'
+import { GenericServerSystem } from '../Generic/GenericServerSystem'
 import { GenericComponent } from '../../Components/GenericComponent'
 import { EntityInteractor } from '../../Entities/ports/EntityInteractor'
 import { IdentifierAdapter } from './port/IdentifierAdapter'
@@ -8,7 +8,7 @@ import { GenericGameEventDispatcherSystem } from '../GameEventDispatcher/Generic
 import { Action } from '../../Event/Action'
 import { GameEvent } from '../../Event/GameEvent'
 export const action = Action.create
-export abstract class GenericLifeCycleSystem extends GenericSystem {
+export abstract class GenericServerLifeCycleSystem extends GenericServerSystem {
     constructor (interactWithEntities: EntityInteractor, interactWithGameEventDispatcher:GenericGameEventDispatcherSystem, interactWithIdentifiers:IdentifierAdapter) {
         super(interactWithEntities, interactWithGameEventDispatcher)
         this.interactWithIdentiers = interactWithIdentifiers
@@ -16,11 +16,10 @@ export abstract class GenericLifeCycleSystem extends GenericSystem {
 
     abstract onGameEvent (gameEvent: GameEvent): Promise<void>
 
-    protected createEntity (entity: Entity, components?: GenericComponent[], nextEvent?: GameEvent|GameEvent[]): Promise<void> {
+    protected createEntity (entity: Entity, components?: GenericComponent[]): void {
         this.interactWithEntities.saveEntity(entity)
         this.addLifeCycleComponent(entity)
         this.addOptionnalComponents(components, entity)
-        return this.sendOptionnalNextEvent(nextEvent)
     }
 
     protected sendNextEvents (nextEvent: GameEvent[]): Promise<void> {

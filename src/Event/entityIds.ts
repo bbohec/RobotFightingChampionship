@@ -22,7 +22,8 @@ export enum EntityId {
     game = 'gameEntityId',
     playerAPointer = 'playerAPointerId',
     playerAJoinSimpleMatchButton = 'playerAJoinMatchButtonId',
-    playerEndTurnButton = 'playerEndTurnButtonId'
+    playerEndTurnButton = 'playerEndTurnButtonId',
+    playerAMainMenu = 'playerAMainMenu'
 }
 export const players = ['playerAId', 'playerBId', 'playerCId', 'playerDId', 'playerEId', 'playerFId', 'playerGId', 'playerHId']
 export const expectedAddedPlayers = ['playerAId', 'playerBId']

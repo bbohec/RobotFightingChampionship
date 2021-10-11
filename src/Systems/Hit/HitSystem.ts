@@ -2,18 +2,18 @@ import { Hittable } from '../../Components/Hittable'
 import { EntityType } from '../../Event/EntityType'
 import { errorMessageOnUnknownEventAction, GameEvent } from '../../Event/GameEvent'
 import { victoryEvent } from '../../Events/victory/victory'
-import { GenericSystem } from '../Generic/GenericSystem'
+import { GenericServerSystem } from '../Generic/GenericServerSystem'
 import { Offensive } from '../../Components/Offensive'
 
-export class HitSystem extends GenericSystem {
+export class HitSystem extends GenericServerSystem {
     onGameEvent (gameEvent: GameEvent): Promise<void> {
         if (gameEvent.hasEntitiesByEntityType(EntityType.hittable) &&
-            gameEvent.hasEntitiesByEntityType(EntityType.attacker)) {
+            gameEvent.hasEntitiesByEntityType(EntityType.attacker))
             return this.onHit(
                 gameEvent.entityByEntityType(EntityType.hittable),
                 gameEvent.entityByEntityType(EntityType.attacker)
             )
-        }
+
         throw new Error(errorMessageOnUnknownEventAction(HitSystem.name, gameEvent))
     }
 

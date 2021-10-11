@@ -5,28 +5,17 @@ import { hideEvent } from '../hide/hide'
 import { createGridEvent, createMatchEvent, createRobotEvent, createTowerEvent } from '../create/create'
 import { Action } from '../../Event/Action'
 import { EntityType } from '../../Event/EntityType'
-import { clientScenario, feature, featureEventDescription, serverScenario, theEntityIsCreated, theEntityIsOnRepository, theEntityWithIdHasTheExpectedComponent, theEventIsSent, whenEventOccurs } from '../../Event/test'
+import { feature, featureEventDescription, serverScenario, theEntityIsCreated, theEntityIsOnRepository, theEntityWithIdHasTheExpectedComponent, theEventIsSent, whenEventOccurs } from '../../Event/test'
 import { TestStep } from '../../Event/TestStep'
-import { joinSimpleMatchLobby, joinSimpleMatchServerEvent, playerJoinMatchEvent, playerWantJoinSimpleMatchLobby } from './join'
+import { playerJoinMatchEvent, playerWantJoinSimpleMatchLobby } from './join'
 import { EntityReference } from '../../Components/EntityReference'
 import { EntityBuilder } from '../../Entities/entityBuilder'
 import { EntityId, players } from '../../Event/entityIds'
+import { Physical, simpleMatchLobbyPosition } from '../../Components/Physical'
+import { ShapeType } from '../../Components/port/ShapeType'
+
 feature(featureEventDescription(Action.join), () => {
-    clientScenario(`${Action.join} 1`, joinSimpleMatchLobby(EntityId.playerA, EntityId.mainMenu, EntityId.simpleMatchLobby),
-        (game, adapters) => () => new EntityBuilder(adapters.entityInteractor)
-            .buildEntity(EntityId.playerA).save()
-            .buildEntity(EntityId.game).withLifeCycle(true).save()
-            .buildEntity(EntityId.mainMenu).save()
-            .buildEntity(EntityId.simpleMatchLobby).save()
-        , [
-            (game, adapters) => theEntityIsCreated(TestStep.Given, adapters, EntityId.game),
-            (game, adapters) => whenEventOccurs(game, joinSimpleMatchLobby(EntityId.playerA, EntityId.mainMenu, EntityId.simpleMatchLobby)),
-            (game, adapters) => theEventIsSent(TestStep.Then, adapters, joinSimpleMatchServerEvent(EntityId.playerA, EntityId.simpleMatchLobby)),
-            (game, adapters) => theEventIsSent(TestStep.And, adapters, hideEvent(EntityType.mainMenu, EntityId.mainMenu)),
-            (game, adapters) => theEventIsSent(TestStep.And, adapters, showEvent(EntityType.matchMaking, EntityId.simpleMatchLobby, EntityId.playerA))
-        ]
-    )
-    serverScenario(`${Action.join} 2`, playerJoinMatchEvent(EntityId.playerA, EntityId.match),
+    serverScenario(`${Action.join} 1`, playerJoinMatchEvent(EntityId.playerA, EntityId.match),
         (game, adapters) => () => new EntityBuilder(adapters.entityInteractor)
             .buildEntity(EntityId.match).withPlayers([]).save()
             .buildEntity(EntityId.playerA).withEntityReferences(EntityType.player, new Map([])).save()
@@ -37,7 +26,7 @@ feature(featureEventDescription(Action.join), () => {
             (game, adapters) => theEntityWithIdHasTheExpectedComponent(TestStep.Then, adapters, EntityId.match, Playable, new Playable(EntityId.match, [EntityId.playerA])),
             (game, adapters) => theEntityWithIdHasTheExpectedComponent(TestStep.Then, adapters, EntityId.playerA, EntityReference, new EntityReference(EntityId.playerA, EntityType.player, new Map([[EntityType.match, [EntityId.match]]])))
         ])
-    serverScenario(`${Action.join} 3`, playerJoinMatchEvent(EntityId.playerB, EntityId.match),
+    serverScenario(`${Action.join} 2`, playerJoinMatchEvent(EntityId.playerB, EntityId.match),
         (game, adapters) => () => new EntityBuilder(adapters.entityInteractor)
             .buildEntity(EntityId.match).withPlayers([EntityId.playerA]).save()
             .buildEntity(EntityId.playerA).withEntityReferences(EntityType.player, new Map([])).save()
@@ -47,23 +36,26 @@ feature(featureEventDescription(Action.join), () => {
             (game, adapters) => theEntityWithIdHasTheExpectedComponent(TestStep.And, adapters, EntityId.match, Playable, new Playable(EntityId.match, [EntityId.playerA])),
             (game, adapters) => whenEventOccurs(game, playerJoinMatchEvent(EntityId.playerB, EntityId.match)),
             (game, adapters) => theEntityWithIdHasTheExpectedComponent(TestStep.Then, adapters, EntityId.match, Playable, new Playable(EntityId.match, [EntityId.playerA, EntityId.playerB])),
-            (game, adapters) => theEventIsSent(TestStep.And, adapters, createTowerEvent(EntityId.playerA)),
-            (game, adapters) => theEventIsSent(TestStep.And, adapters, createRobotEvent(EntityId.playerA)),
-            (game, adapters) => theEventIsSent(TestStep.And, adapters, createTowerEvent(EntityId.playerB)),
-            (game, adapters) => theEventIsSent(TestStep.And, adapters, createRobotEvent(EntityId.playerB)),
-            (game, adapters) => theEventIsSent(TestStep.And, adapters, createGridEvent(EntityId.match))
+            (game, adapters) => theEventIsSent(TestStep.And, adapters, 'server', createTowerEvent(EntityId.playerA)),
+            (game, adapters) => theEventIsSent(TestStep.And, adapters, 'server', createRobotEvent(EntityId.playerA)),
+            (game, adapters) => theEventIsSent(TestStep.And, adapters, 'server', createTowerEvent(EntityId.playerB)),
+            (game, adapters) => theEventIsSent(TestStep.And, adapters, 'server', createRobotEvent(EntityId.playerB)),
+            (game, adapters) => theEventIsSent(TestStep.And, adapters, 'server', createGridEvent(EntityId.match))
         ])
-    serverScenario(`${Action.join} 4`, playerWantJoinSimpleMatchLobby(EntityId.playerA, EntityId.simpleMatchLobby),
+    serverScenario(`${Action.join} 3`, playerWantJoinSimpleMatchLobby(EntityId.playerA, EntityId.simpleMatchLobby),
         (game, adapters) => () => new EntityBuilder(adapters.entityInteractor)
-            .buildEntity(EntityId.simpleMatchLobby).withPlayers([]).withLifeCycle(true).save()
+            .buildEntity(EntityId.simpleMatchLobby).withPlayers([]).withLifeCycle(true).withPhysicalComponent(simpleMatchLobbyPosition, ShapeType.simpleMatchLobby).save()
         , [
             (game, adapters) => theEntityIsCreated(TestStep.Given, adapters, EntityId.simpleMatchLobby),
+            (game, adapters) => theEntityWithIdHasTheExpectedComponent(TestStep.And, adapters, EntityId.simpleMatchLobby, Physical, new Physical(EntityId.simpleMatchLobby, simpleMatchLobbyPosition, ShapeType.simpleMatchLobby)),
             (game, adapters) => whenEventOccurs(game, playerWantJoinSimpleMatchLobby(EntityId.playerA, EntityId.simpleMatchLobby)),
-            (game, adapters) => theEntityWithIdHasTheExpectedComponent(TestStep.And, adapters, EntityId.simpleMatchLobby, Playable, new Playable(EntityId.simpleMatchLobby, [EntityId.playerA]))
+            (game, adapters) => theEntityWithIdHasTheExpectedComponent(TestStep.And, adapters, EntityId.simpleMatchLobby, Playable, new Playable(EntityId.simpleMatchLobby, [EntityId.playerA])),
+            (game, adapters) => theEventIsSent(TestStep.And, adapters, 'server', hideEvent(EntityType.mainMenu, EntityId.mainMenu, EntityId.playerA)),
+            (game, adapters) => theEventIsSent(TestStep.And, adapters, 'server', showEvent(EntityType.simpleMatchLobby, EntityId.simpleMatchLobby, players[0], new Physical(EntityId.simpleMatchLobby, simpleMatchLobbyPosition, ShapeType.simpleMatchLobby)))
         ])
-    serverScenario(`${Action.join} 5`, players.map(player => playerWantJoinSimpleMatchLobby(player, EntityId.simpleMatchLobby)),
+    serverScenario(`${Action.join} 4`, players.map(player => playerWantJoinSimpleMatchLobby(player, EntityId.simpleMatchLobby)),
         (game, adapters) => () => new EntityBuilder(adapters.entityInteractor)
-            .buildEntity(EntityId.simpleMatchLobby).withPlayers([]).withLifeCycle(true).save()
+            .buildEntity(EntityId.simpleMatchLobby).withPlayers([]).withLifeCycle(true).withPhysicalComponent(simpleMatchLobbyPosition, ShapeType.simpleMatchLobby).save()
         , [
             (game, adapters) => theEntityIsCreated(TestStep.Given, adapters, EntityId.simpleMatchLobby),
             (game, adapters) => whenEventOccurs(game, playerWantJoinSimpleMatchLobby(players[0], EntityId.simpleMatchLobby)),
@@ -75,6 +67,22 @@ feature(featureEventDescription(Action.join), () => {
             (game, adapters) => whenEventOccurs(game, playerWantJoinSimpleMatchLobby(players[6], EntityId.simpleMatchLobby)),
             (game, adapters) => whenEventOccurs(game, playerWantJoinSimpleMatchLobby(players[7], EntityId.simpleMatchLobby)),
             (game, adapters) => theEntityWithIdHasTheExpectedComponent(TestStep.And, adapters, EntityId.simpleMatchLobby, Playable, new Playable(EntityId.simpleMatchLobby, players)),
-            (game, adapters) => theEventIsSent(TestStep.And, adapters, createMatchEvent(EntityId.simpleMatchLobby), players.length / 2 - (players.length % 2 / 2))
+            (game, adapters) => theEventIsSent(TestStep.And, adapters, 'server', createMatchEvent(EntityId.simpleMatchLobby), players.length / 2 - (players.length % 2 / 2)),
+            (game, adapters) => theEventIsSent(TestStep.And, adapters, 'server', hideEvent(EntityType.mainMenu, EntityId.mainMenu, players[0])),
+            (game, adapters) => theEventIsSent(TestStep.And, adapters, 'server', hideEvent(EntityType.mainMenu, EntityId.mainMenu, players[1])),
+            (game, adapters) => theEventIsSent(TestStep.And, adapters, 'server', hideEvent(EntityType.mainMenu, EntityId.mainMenu, players[2])),
+            (game, adapters) => theEventIsSent(TestStep.And, adapters, 'server', hideEvent(EntityType.mainMenu, EntityId.mainMenu, players[3])),
+            (game, adapters) => theEventIsSent(TestStep.And, adapters, 'server', hideEvent(EntityType.mainMenu, EntityId.mainMenu, players[4])),
+            (game, adapters) => theEventIsSent(TestStep.And, adapters, 'server', hideEvent(EntityType.mainMenu, EntityId.mainMenu, players[5])),
+            (game, adapters) => theEventIsSent(TestStep.And, adapters, 'server', hideEvent(EntityType.mainMenu, EntityId.mainMenu, players[6])),
+            (game, adapters) => theEventIsSent(TestStep.And, adapters, 'server', hideEvent(EntityType.mainMenu, EntityId.mainMenu, players[7])),
+            (game, adapters) => theEventIsSent(TestStep.And, adapters, 'server', showEvent(EntityType.simpleMatchLobby, EntityId.simpleMatchLobby, players[0], new Physical(EntityId.simpleMatchLobby, simpleMatchLobbyPosition, ShapeType.simpleMatchLobby))),
+            (game, adapters) => theEventIsSent(TestStep.And, adapters, 'server', showEvent(EntityType.simpleMatchLobby, EntityId.simpleMatchLobby, players[1], new Physical(EntityId.simpleMatchLobby, simpleMatchLobbyPosition, ShapeType.simpleMatchLobby))),
+            (game, adapters) => theEventIsSent(TestStep.And, adapters, 'server', showEvent(EntityType.simpleMatchLobby, EntityId.simpleMatchLobby, players[2], new Physical(EntityId.simpleMatchLobby, simpleMatchLobbyPosition, ShapeType.simpleMatchLobby))),
+            (game, adapters) => theEventIsSent(TestStep.And, adapters, 'server', showEvent(EntityType.simpleMatchLobby, EntityId.simpleMatchLobby, players[3], new Physical(EntityId.simpleMatchLobby, simpleMatchLobbyPosition, ShapeType.simpleMatchLobby))),
+            (game, adapters) => theEventIsSent(TestStep.And, adapters, 'server', showEvent(EntityType.simpleMatchLobby, EntityId.simpleMatchLobby, players[4], new Physical(EntityId.simpleMatchLobby, simpleMatchLobbyPosition, ShapeType.simpleMatchLobby))),
+            (game, adapters) => theEventIsSent(TestStep.And, adapters, 'server', showEvent(EntityType.simpleMatchLobby, EntityId.simpleMatchLobby, players[5], new Physical(EntityId.simpleMatchLobby, simpleMatchLobbyPosition, ShapeType.simpleMatchLobby))),
+            (game, adapters) => theEventIsSent(TestStep.And, adapters, 'server', showEvent(EntityType.simpleMatchLobby, EntityId.simpleMatchLobby, players[6], new Physical(EntityId.simpleMatchLobby, simpleMatchLobbyPosition, ShapeType.simpleMatchLobby))),
+            (game, adapters) => theEventIsSent(TestStep.And, adapters, 'server', showEvent(EntityType.simpleMatchLobby, EntityId.simpleMatchLobby, players[7], new Physical(EntityId.simpleMatchLobby, simpleMatchLobbyPosition, ShapeType.simpleMatchLobby)))
         ])
 })

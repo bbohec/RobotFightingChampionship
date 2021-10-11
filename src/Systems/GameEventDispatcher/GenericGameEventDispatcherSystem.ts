@@ -9,8 +9,12 @@ export abstract class GenericGameEventDispatcherSystem implements System {
         this.interactWithEvents = eventInteractor
     }
 
-    public sendEvent (gameEvent: GameEvent): Promise<void> {
-        return this.interactWithEvents.sendEvent(gameEvent)
+    public sendEventToServer (gameEvent: GameEvent): Promise<void> {
+        return this.interactWithEvents.sendEventToServer(gameEvent)
+    }
+
+    public sendEventToClient (gameEvent: GameEvent): Promise<void> {
+        return this.interactWithEvents.sendEventToClient(gameEvent)
     }
 
     abstract onGameEvent (gameEvent:GameEvent):Promise<void>

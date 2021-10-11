@@ -1,4 +1,5 @@
 import { GenericComponent } from './GenericComponent'
+import { ShapeType } from './port/ShapeType'
 
 export interface Position {
     x:number
@@ -10,10 +11,15 @@ export const playerATowerFirstPosition:Position = position(1, 1)
 export const playerARobotFirstPosition:Position = position(2, 2)
 export const playerBTowerFirstPosition:Position = position(24, 24)
 export const playerBRobotFirstPosition:Position = position(23, 23)
+export const simpleMatchLobbyPosition = position(10, 10)
+export const mainMenuPosition = position(10, 10)
+export const victoryPosition = position(10, 10)
+export const defeatPosition = position(10, 10)
 export class Physical extends GenericComponent {
-    constructor (entityId: string, position: Position) {
+    constructor (entityId: string, position: Position, shape:ShapeType) {
         super(entityId)
         this.position = position
+        this.shape = shape
     }
 
     public isPositionIdentical (position:Position) {
@@ -21,4 +27,5 @@ export class Physical extends GenericComponent {
     }
 
     position: Position;
+    shape:ShapeType
 }

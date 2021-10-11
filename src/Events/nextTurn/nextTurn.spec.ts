@@ -13,6 +13,7 @@ import { PhaseSequence } from '../../Systems/Phasing/PhasingSystem'
 import { Phasing, playerARobotPhase, playerARobotPlacementPhase, playerATowerPhase, playerATowerPlacementPhase, playerBRobotPhase, playerBRobotPlacementPhase, playerBTowerPhase, playerBTowerPlacementPhase, preparingGamePhase } from '../../Components/Phasing'
 import { EntityBuilder } from '../../Entities/entityBuilder'
 import { EntityId } from '../../Event/entityIds'
+import { ShapeType } from '../../Components/port/ShapeType'
 
 feature(featureEventDescription(Action.nextTurn), () => {
     interface Scenario {
@@ -97,15 +98,15 @@ feature(featureEventDescription(Action.nextTurn), () => {
             (game, adapters) => whenEventOccurs(game, nextTurnEvent(EntityId.match)),
             (game, adapters) => theEntityWithIdHasTheExpectedComponent(TestStep.Then, adapters, EntityId.match, Phasing, new Phasing(EntityId.match, scenario.phaseSequence.nextPhase))
         ]
-        if (scenario.additionnalEventConsequence) scenario.additionnalEventConsequence.forEach(event => tests.push((game, adapters) => theEventIsSent(TestStep.And, adapters, event)))
+        if (scenario.additionnalEventConsequence) scenario.additionnalEventConsequence.forEach(event => tests.push((game, adapters) => theEventIsSent(TestStep.And, adapters, 'server', event)))
         serverScenario(`${Action.nextTurn} ${index + 1}`, nextTurnEvent(EntityId.match),
             (game, adapters) => () => new EntityBuilder(adapters.entityInteractor)
                 .buildEntity(EntityId.match).withPhase(scenario.phaseSequence.currentPhase).withEntityReferences(EntityType.match, new Map([[EntityType.grid, [EntityId.grid]]])).withPlayers([EntityId.playerA, EntityId.playerB]).save()
                 .buildEntity(EntityId.grid).withEntityReferences(EntityType.grid, new Map([[EntityType.cell, [EntityId.cellx1y1, EntityId.cellx2y2, EntityId.cellx9y9, EntityId.cellx10y10]]])).save()
-                .buildEntity(EntityId.cellx1y1).withPhysicalComponent(playerATowerFirstPosition).save()
-                .buildEntity(EntityId.cellx2y2).withPhysicalComponent(playerARobotFirstPosition).save()
-                .buildEntity(EntityId.cellx9y9).withPhysicalComponent(playerBRobotFirstPosition).save()
-                .buildEntity(EntityId.cellx10y10).withPhysicalComponent(playerBTowerFirstPosition).save()
+                .buildEntity(EntityId.cellx1y1).withPhysicalComponent(playerATowerFirstPosition, ShapeType.cell).save()
+                .buildEntity(EntityId.cellx2y2).withPhysicalComponent(playerARobotFirstPosition, ShapeType.cell).save()
+                .buildEntity(EntityId.cellx9y9).withPhysicalComponent(playerBRobotFirstPosition, ShapeType.cell).save()
+                .buildEntity(EntityId.cellx10y10).withPhysicalComponent(playerBTowerFirstPosition, ShapeType.cell).save()
                 .buildEntity(EntityId.playerA).withEntityReferences(EntityType.player, new Map([[EntityType.tower, [EntityId.playerATower]], [EntityType.robot, [EntityId.playerARobot]]])).save()
                 .buildEntity(EntityId.playerB).withEntityReferences(EntityType.player, new Map([[EntityType.tower, [EntityId.playerBTower]], [EntityType.robot, [EntityId.playerBRobot]]])).save()
             , tests)

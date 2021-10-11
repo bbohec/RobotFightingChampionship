@@ -3,7 +3,7 @@ import { Phase, PhaseType } from '../../Components/port/Phase'
 import { nextTurnEvent } from '../../Events/nextTurn/nextTurn'
 import { Action } from '../../Event/Action'
 import { errorMessageOnUnknownEventAction, GameEvent } from '../../Event/GameEvent'
-import { GenericSystem } from '../Generic/GenericSystem'
+import { GenericServerSystem } from '../Generic/GenericServerSystem'
 import { EntityType } from '../../Event/EntityType'
 import { Playable } from '../../Components/Playable'
 import { showEvent } from '../../Events/show/show'
@@ -17,7 +17,7 @@ export interface PhaseSequence {
     nextPhase:Phase
 }
 
-export class PhasingSystem extends GenericSystem {
+export class PhasingSystem extends GenericServerSystem {
     onGameEvent (gameEvent: GameEvent): Promise<void> {
         if (gameEvent.action === Action.ready) return this.onReady(gameEvent)
         if (gameEvent.action === Action.nextTurn) return this.onNextTurn(gameEvent)
@@ -44,8 +44,8 @@ export class PhasingSystem extends GenericSystem {
 
     private sendVictoryAndDefeatShowEvents (playableComponent: Playable, victoryPlayerId: string): Promise<void> {
         return Promise.all([
-            this.sendEvent(showEvent(EntityType.victory, EntityId.victory, victoryPlayerId)),
-            this.sendEvent(showEvent(EntityType.defeat, EntityId.defeat, this.defeatPlayerIdFromPlayableComponentAndVictoryPlayer(playableComponent, victoryPlayerId)))
+            this.sendEvent(showEvent(EntityType.victory, EntityId.victory, victoryPlayerId, this.interactWithEntities.retrieveEntityComponentByEntityId(EntityId.victory, Physical))),
+            this.sendEvent(showEvent(EntityType.defeat, EntityId.defeat, this.defeatPlayerIdFromPlayableComponentAndVictoryPlayer(playableComponent, victoryPlayerId), this.interactWithEntities.retrieveEntityComponentByEntityId(EntityId.defeat, Physical)))
         ])
             .then(() => Promise.resolve())
             .catch(error => Promise.reject(error))

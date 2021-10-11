@@ -1,6 +1,8 @@
+import { Physical } from '../../../Components/Physical'
+
 export interface DrawingPort {
     eraseEntity(id:string):Promise<void>;
-    drawEntity(id:string): Promise<void>;
+    drawEntity(physicalComponent:Physical): Promise<void>;
 }
 
 export const idNotFoundOnDrawIds = (entityId:string) => `id '${entityId}' not found on drawIds`

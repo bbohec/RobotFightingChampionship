@@ -16,7 +16,7 @@ feature(featureEventDescription(Action.waitingForPlayers), () => {
             (game, adapters) => theEntityWithIdHasTheExpectedComponent(TestStep.Given, adapters, EntityId.simpleMatchLobby, Playable, new Playable(EntityId.simpleMatchLobby, [...expectedAddedPlayers, ...expectedStillWaitingPlayers])),
             (game, adapters) => whenEventOccurs(game, matchWaitingForPlayers(EntityId.match, EntityId.simpleMatchLobby)),
             (game, adapters) => theEntityWithIdHasTheExpectedComponent(TestStep.Then, adapters, EntityId.simpleMatchLobby, Playable, new Playable(EntityId.simpleMatchLobby, [...expectedStillWaitingPlayers])),
-            (game, adapters) => theEventIsSent(TestStep.And, adapters, playerJoinMatchEvent(expectedAddedPlayers[0], EntityId.match)),
-            (game, adapters) => theEventIsSent(TestStep.And, adapters, playerJoinMatchEvent(expectedAddedPlayers[1], EntityId.match))
+            (game, adapters) => theEventIsSent(TestStep.And, adapters, 'server', playerJoinMatchEvent(expectedAddedPlayers[0], EntityId.match)),
+            (game, adapters) => theEventIsSent(TestStep.And, adapters, 'server', playerJoinMatchEvent(expectedAddedPlayers[1], EntityId.match))
         ])
 })

@@ -3,14 +3,14 @@ import { System } from './port/System'
 import { EntityInteractor } from '../../Entities/ports/EntityInteractor'
 import { GenericGameEventDispatcherSystem } from '../GameEventDispatcher/GenericGameEventDispatcherSystem'
 import { EntityReference } from '../../Components/EntityReference'
-export abstract class GenericSystem implements System {
+export abstract class GenericServerSystem implements System {
     constructor (interactWithEntities: EntityInteractor, gameEventDispatcher:GenericGameEventDispatcherSystem) {
         this.interactWithEntities = interactWithEntities
         this.gameEventDispatcher = gameEventDispatcher
     }
 
     public sendEvent (event:GameEvent):Promise<void> {
-        return this.gameEventDispatcher.sendEvent(event)
+        return this.gameEventDispatcher.sendEventToServer(event)
     }
 
     protected entityReferencesByEntityId (playerId: string) {

@@ -1,13 +1,15 @@
 import { Phasing } from '../../Components/Phasing'
 import { Physical, Position } from '../../Components/Physical'
 import { Playable } from '../../Components/Playable'
+import { Action } from '../../Event/Action'
 import { EntityType } from '../../Event/EntityType'
 import { GameEvent } from '../../Event/GameEvent'
-import { badPlayerNotificationMessage, notEnoughActionPointNotificationMessage, notifyEvent, positionAlreadyOccupiedNotificationMessage, wrongUnitPhaseNotificationMessage } from '../../Events/notify/notify'
+import { wrongPlayerPhaseNotificationMessage, notEnoughActionPointNotificationMessage, notifyEvent, positionAlreadyOccupiedNotificationMessage, wrongUnitPhaseNotificationMessage } from '../../Events/notify/notify'
 import { ArtithmeticSystem } from '../Generic/ArithmeticSystem'
 const unsupportedMovingEntity = (entityTypes:EntityType[]):string => `Unsupported moving entity type. Current entity types: ${entityTypes}`
 export class MovingSystem extends ArtithmeticSystem {
     onGameEvent (gameEvent: GameEvent): Promise<void> {
+        if (gameEvent.action === Action.updatePlayerPointerState) return this.onUpdatePointerPosition(gameEvent)
         const playerId = gameEvent.entityByEntityType(EntityType.player)
         const matchId = this.entityReferencesByEntityId(playerId).retreiveReference(EntityType.match)
         const movingEntityId = this.movingEntityIdBySupportedEntityType(gameEvent)
@@ -16,7 +18,7 @@ export class MovingSystem extends ArtithmeticSystem {
         const movingEntityPhysicalComponent = this.interactWithEntities.retrieveEntityComponentByEntityId(movingEntityId, Physical)
         const actionPoints = this.movingDistanceBetweenPositions(movingEntityPhysicalComponent.position, cellPhysicalComponent.position)
         return this.isNotPlayerPhase(matchPhasingComponent, playerId)
-            ? this.sendEvent(notifyEvent(playerId, badPlayerNotificationMessage(playerId)))
+            ? this.sendEvent(notifyEvent(playerId, wrongPlayerPhaseNotificationMessage(playerId)))
             : this.isNotUnitPhase(matchPhasingComponent, movingEntityId)
                 ? this.sendEvent(notifyEvent(playerId, wrongUnitPhaseNotificationMessage(matchPhasingComponent.currentPhase)))
                 : this.isPositionBusy(this.interactWithEntities.retrieveEntityComponentByEntityId(matchId, Playable), cellPhysicalComponent.position)
@@ -24,6 +26,15 @@ export class MovingSystem extends ArtithmeticSystem {
                     : this.isNotEnoughActionPoint(matchPhasingComponent, actionPoints)
                         ? this.sendEvent(notifyEvent(playerId, notEnoughActionPointNotificationMessage))
                         : this.move(movingEntityPhysicalComponent, cellPhysicalComponent, matchPhasingComponent, actionPoints)
+    }
+
+    private onUpdatePointerPosition (gameEvent: GameEvent): Promise<void> {
+        const pointerId = gameEvent.entityByEntityType(EntityType.pointer)
+        this
+            .interactWithEntities
+            .retrieveEntityComponentByEntityId(pointerId, Physical)
+            .position = gameEvent.retrieveComponent(pointerId, Physical).position
+        return Promise.resolve()
     }
 
     private isNotUnitPhase (matchPhasingComponent:Phasing, movingEntityId:string):boolean {

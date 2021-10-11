@@ -12,6 +12,7 @@ import { Visible } from '../Components/Visible'
 import { Hittable } from '../Components/Hittable'
 import { Offensive } from '../Components/Offensive'
 import { EntityType } from '../Event/EntityType'
+import { ShapeType } from '../Components/port/ShapeType'
 
 export class EntityBuilder {
     withDamagePoints (damagePoints: number) {
@@ -47,13 +48,13 @@ export class EntityBuilder {
         return this
     }
 
-    withEntityReferences (entityType:EntityType|EntityType[], entityReferences: EntityReferences) {
+    withEntityReferences (entityType:EntityType|EntityType[], entityReferences: EntityReferences = new Map()) {
         this.addComponents([new EntityReference(this.getEntityId(), entityType, entityReferences)])
         return this
     }
 
-    withPhysicalComponent (position: Position) {
-        this.addComponents([new Physical(this.getEntityId(), position)])
+    withPhysicalComponent (position: Position, shapeType:ShapeType) {
+        this.addComponents([new Physical(this.getEntityId(), position, shapeType)])
         return this
     }
 
@@ -67,14 +68,16 @@ export class EntityBuilder {
         return this
     }
 
-    robotBuilder (robotId:string, robotPosition:Position) {
-        return this.buildEntity(robotId, [
-            new Physical(robotId, robotPosition)
-        ])
+    buildRobot (robotId:string, robotPosition:Position) {
+        return this.buildEntity(robotId).withPhysicalComponent(robotPosition, ShapeType.robot)
+    }
+
+    buildTower (robotId:string, towerPosition:Position) {
+        return this.buildEntity(robotId).withPhysicalComponent(towerPosition, ShapeType.tower)
     }
 
     public buildEntity (entityId: string, components?: GenericComponent[]) {
-        if (this.entity) throw new Error('Entity already built on builder. Forget add()?')
+        if (this.entity) throw new Error('Entity already built on builder. Forget save()?')
         this.entity = new Entity(entityId)
         if (components) this.addComponents(components)
         return this

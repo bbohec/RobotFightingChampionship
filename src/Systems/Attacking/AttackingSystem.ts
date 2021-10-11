@@ -3,7 +3,7 @@ import { defaultWeaponMaxRange, Physical, Position } from '../../Components/Phys
 import { EntityType } from '../../Event/EntityType'
 import { GameEvent } from '../../Event/GameEvent'
 import { hitEvent } from '../../Events/hit/hit'
-import { wrongUnitPhaseNotificationMessage, badPlayerNotificationMessage, notEnoughActionPointNotificationMessage, notifyEvent, outOfRangeNotificationMessage } from '../../Events/notify/notify'
+import { wrongUnitPhaseNotificationMessage, wrongPlayerPhaseNotificationMessage, notEnoughActionPointNotificationMessage, notifyEvent, outOfRangeNotificationMessage } from '../../Events/notify/notify'
 import { ArtithmeticSystem } from '../Generic/ArithmeticSystem'
 export class AttackingSystem extends ArtithmeticSystem {
     onGameEvent (gameEvent: GameEvent): Promise<void> {
@@ -16,7 +16,7 @@ export class AttackingSystem extends ArtithmeticSystem {
         const enoughActionPointCheckStep = (nextStep: ()=>Promise<void>): Promise<void> => genericStepFunction(this.isPhaseEnoughActionPoint(phasingComponent), notEnoughActionPointNotificationMessage, nextStep)
         const targetOnAttackerRangeCheckStep = (nextStep: ()=>Promise<void>): Promise<void> => genericStepFunction(this.isTargetOnAttackerRange(this.interactWithEntities.retrieveEntityComponentByEntityId(attackerId, Physical).position, this.interactWithEntities.retrieveEntityComponentByEntityId(targetId, Physical).position), outOfRangeNotificationMessage, nextStep)
         const attackingUnitPhaseCheckStep = (nextStep: ()=>Promise<void>) => genericStepFunction(this.isAttackingUnitPhase(phasingComponent, attackerId), wrongUnitPhaseNotificationMessage(phasingComponent.currentPhase), nextStep)
-        const playerPhaseCheckStep = (nextStep: ()=>Promise<void>) => genericStepFunction(this.isPlayerPhase(phasingComponent, playerId), badPlayerNotificationMessage(playerId), nextStep)
+        const playerPhaseCheckStep = (nextStep: ()=>Promise<void>) => genericStepFunction(this.isPlayerPhase(phasingComponent, playerId), wrongPlayerPhaseNotificationMessage(playerId), nextStep)
 
         /*
         const curry = (genericStepFunction:(check:boolean, notificationMessage:string, nextStep:()=>Promise<void>)=>Promise<void>) => {

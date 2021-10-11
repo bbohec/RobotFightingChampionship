@@ -2,11 +2,15 @@ import { maxPlayerPerMatch, Playable } from '../../Components/Playable'
 import { createMatchEvent } from '../../Events/create/create'
 import { playerJoinMatchEvent } from '../../Events/join/join'
 import { errorMessageOnUnknownEventAction, GameEvent } from '../../Event/GameEvent'
-import { GenericSystem } from '../Generic/GenericSystem'
+import { GenericServerSystem } from '../Generic/GenericServerSystem'
 import { EntityType } from '../../Event/EntityType'
 import { Action } from '../../Event/Action'
+import { hideEvent } from '../../Events/hide/hide'
+import { EntityId } from '../../Event/entityIds'
+import { showEvent } from '../../Events/show/show'
+import { Physical } from '../../Components/Physical'
 
-export class WaitingAreaSystem extends GenericSystem {
+export class WaitingAreaSystem extends GenericServerSystem {
     onGameEvent (gameEvent: GameEvent): Promise<void> {
         if (gameEvent.hasEntitiesByEntityType(EntityType.simpleMatchLobby)) return this.simpleMatchLobbyEvent(gameEvent)
         throw new Error(errorMessageOnUnknownEventAction(WaitingAreaSystem.name, gameEvent))
@@ -36,7 +40,13 @@ export class WaitingAreaSystem extends GenericSystem {
 
     private onPlayerJoinGameEvent (playerId: string, playersIds: string[], simpleMatchLobbyEntityId:string) {
         playersIds.push(playerId)
-        return this.createMatchForEachTwoPlayers(playersIds, simpleMatchLobbyEntityId)
+        return Promise.all([
+            this.createMatchForEachTwoPlayers(playersIds, simpleMatchLobbyEntityId),
+            this.sendEvent(hideEvent(EntityType.mainMenu, EntityId.mainMenu, playerId)),
+            this.sendEvent(showEvent(EntityType.simpleMatchLobby, simpleMatchLobbyEntityId, playerId, this.interactWithEntities.retrieveEntityComponentByEntityId(simpleMatchLobbyEntityId, Physical)))
+        ])
+            .then(() => Promise.resolve())
+            .catch(error => Promise.reject(error))
     }
 
     private createMatchForEachTwoPlayers (playerIds: string[], simpleMatchLobbyEntityId:string): Promise<void> {

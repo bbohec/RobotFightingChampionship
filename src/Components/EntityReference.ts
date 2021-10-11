@@ -3,7 +3,7 @@ import { EntityReferences } from '../Event/GameEvent'
 import { GenericComponent } from './GenericComponent'
 
 export class EntityReference extends GenericComponent {
-    constructor (entityId: string, entityType:EntityType[] | EntityType, entityReferences:EntityReferences) {
+    constructor (entityId: string, entityType:EntityType[] | EntityType, entityReferences:EntityReferences = new Map()) {
         super(entityId)
         this.entityType = (Array.isArray(entityType)) ? entityType : [entityType]
         this.entityReferences = entityReferences

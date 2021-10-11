@@ -26,6 +26,6 @@ feature(featureEventDescription(Action.ready), () => {
             (game, adapters) => whenEventOccurs(game, playerReadyForMatch(EntityId.match, EntityId.playerA)),
             (game, adapters) => whenEventOccurs(game, playerReadyForMatch(EntityId.match, EntityId.playerB)),
             (game, adapters) => theEntityWithIdHasTheExpectedComponent(TestStep.And, adapters, EntityId.match, Phasing, new Phasing(EntityId.match, preparingGamePhase, new Set([EntityId.playerA, EntityId.playerB]))),
-            (game, adapters) => theEventIsSent(TestStep.And, adapters, nextTurnEvent(EntityId.match))
+            (game, adapters) => theEventIsSent(TestStep.And, adapters, 'server', nextTurnEvent(EntityId.match))
         ])
 })

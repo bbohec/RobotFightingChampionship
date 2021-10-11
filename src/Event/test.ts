@@ -13,6 +13,7 @@ import { Component } from '../Components/port/Component'
 import { Action } from './Action'
 import { ClientGameSystem } from '../Systems/Game/ClientGame'
 import { ServerGameSystem } from '../Systems/Game/ServerGame'
+import { Physical } from '../Components/Physical'
 type ScenarioType = 'client' | 'server'
 export const feature = (featureEventDescription:string, mochaSuite: (this: Suite) => void) => describe(featureEventDescription, mochaSuite)
 export const featureEventDescription = (action:Action): string => `Feature : ${action} events`
@@ -60,28 +61,26 @@ export const theEntityIsCreated = (
 export const theEventIsSent = (
     testStep:TestStep,
     adapters: FakeClientAdapters | FakeServerAdapters,
+    to:'server'|'client',
     gameEvent: GameEvent,
     eventSentQty?:number,
     skip?:boolean
 ) => (skip)
-    ? it.skip(eventSentMessage(testStep, gameEvent, eventSentQty),
-        () => expect(adapters
-            .eventInteractor
-            .retrieveEvent(gameEvent).length)
+    ? it.skip(eventSentMessage(testStep, gameEvent, to, eventSentQty),
+        () => expect(((to === 'client') ? adapters.eventInteractor.retrieveClientEvent(gameEvent) : adapters.eventInteractor.retrieveServerEvent(gameEvent))
+            .length)
             .equal((eventSentQty) || 1))
-    : it(eventSentMessage(testStep, gameEvent, eventSentQty),
-        () => expect(adapters
-            .eventInteractor
-            .retrieveEvent(gameEvent).length)
+    : it(eventSentMessage(testStep, gameEvent, to, eventSentQty),
+        () => expect(((to === 'client') ? adapters.eventInteractor.retrieveClientEvent(gameEvent) : adapters.eventInteractor.retrieveServerEvent(gameEvent))
+            .length)
             .equal((eventSentQty) || 1))
 export const theEventIsNotSent = (
     testStep:TestStep,
     adapters: FakeClientAdapters | FakeServerAdapters,
+    to:'client'|'server',
     gameEvent: GameEvent
-) => it(eventNotSentMessage(testStep, gameEvent),
-    () => expect(adapters
-        .eventInteractor
-        .hasEvent(gameEvent))
+) => it(eventNotSentMessage(testStep, gameEvent, to),
+    () => expect(((to === 'client') ? adapters.eventInteractor.hasClientEvent(gameEvent) : adapters.eventInteractor.hasServerEvent(gameEvent)))
         .to.be.false)
 export const theEntityWithIdHasTheExpectedComponent = <PotentialComponent extends Component> (
     testStep:TestStep,
@@ -109,26 +108,33 @@ export const theEntityWithIdDoNotHaveAnyComponent = <PotentialComponent extends 
         ).to.be.false)
 
 export const stringifyWithDetailledSetAndMap = (value:any) => JSON.stringify(value, detailledStringifyForSetAndMap)
+export const thereIsANotification = (
+    testStep:TestStep,
+    adapters: FakeClientAdapters,
+    notification:string
+) => it(thereIsANotificationMessage(testStep, notification),
+    () => expect(adapters
+        .notificationInteractor
+        .notifications)
+        .include(notification))
 export const entityIsNotVisible = (
     testStep:TestStep,
     adapters: FakeClientAdapters,
-    entityId:string
-) => it(entityIsNotVisibleMessage(testStep, entityId),
+    expectedPhysicalComponent:Physical
+) => it(entityIsNotVisibleMessage(testStep, expectedPhysicalComponent.entityId),
     () => expect(adapters
         .drawingInteractor
-        .drawIds
-        .some(id => id === entityId))
-        .to.be.false)
+        .drawEntities.get(expectedPhysicalComponent.entityId))
+        .to.not.be.deep.equal(expectedPhysicalComponent))
 export const entityIsVisible = (
     testStep:TestStep,
     adapters: FakeClientAdapters,
-    entityId:string
-) => it(entityIsVisibleMessage(testStep, entityId),
+    expectedPhysicalComponent:Physical
+) => it(entityIsVisibleMessage(testStep, expectedPhysicalComponent.entityId),
     () => expect(adapters
         .drawingInteractor
-        .drawIds
-        .some(id => id === entityId))
-        .to.be.true)
+        .drawEntities.get(expectedPhysicalComponent.entityId))
+        .to.be.deep.equal(expectedPhysicalComponent))
 export const serverScenario = (
     scenarioName:string,
     gameEvent:GameEvent|GameEvent[],
@@ -194,11 +200,12 @@ const entityIdIsNotOnRepository = (testStep: TestStep, potentialEntityOrEntityId
 const entityIdCreated = (testStep: TestStep, potentialEntityClassOrId: string): string => `${testStep} the entity with id '${potentialEntityClassOrId}' is created.`
 const componentDetailedComparisonMessage = <PotentialComponent extends Component> (component: PotentialComponent, expectedComponent: GenericComponent): string => `DETAILS\nexpected >>>>>>>> ${stringifyWithDetailledSetAndMap(component)} \nto deeply equal > ${stringifyWithDetailledSetAndMap(expectedComponent)} \n`
 const eventMessage = (event:GameEvent): string => `When the event action '${event.action}' occurs with entity references '${stringifyWithDetailledSetAndMap(event.entityRefences)}'.`
-const eventNotSentMessage = (testStep: TestStep, gameEvent: GameEvent): string => `${testStep} the event with action '${gameEvent.action}' is not sent with the following entity references:'${stringifyWithDetailledSetAndMap(gameEvent.entityRefences)}.`
-const eventSentMessage = (testStep: TestStep, gameEvent: GameEvent, eventSentQty: number | undefined): string => `${testStep} the event with action '${gameEvent.action}' is sent with the following entity references:'${stringifyWithDetailledSetAndMap(gameEvent.entityRefences)}'${(eventSentQty) ? ` ${eventSentQty} times.` : '.'}`
+const eventNotSentMessage = (testStep: TestStep, gameEvent: GameEvent, to:'client'|'server'): string => `${testStep} the event with action '${gameEvent.action}' is not sent to '${to}' with the following entity references:'${stringifyWithDetailledSetAndMap(gameEvent.entityRefences)}.`
+const eventSentMessage = (testStep: TestStep, gameEvent: GameEvent, to:'client'|'server', eventSentQty: number | undefined): string => `${testStep} the event with action '${gameEvent.action}' is sent to '${to}' with the following entity references:'${stringifyWithDetailledSetAndMap(gameEvent.entityRefences)}'${(eventSentQty) ? ` ${eventSentQty} times.` : '.'}`
 const mapToObjectLiteral = (value: Map<any, any>): any => Array.from(value).reduce((obj: any, [key, value]) => {
     obj[key] = value
     return obj
 }, {})
 const entityIsNotVisibleMessage = (testStep: TestStep, entityId: string): string => `${testStep} the entity with id '${entityId}' is not visible.`
 const entityIsVisibleMessage = (testStep: TestStep, entityId: string): string => `${testStep} the entity with id '${entityId}' is visible.`
+const thereIsANotificationMessage = (testStep: TestStep, notification: string): string => `${testStep} there is a notification : '${notification}'`

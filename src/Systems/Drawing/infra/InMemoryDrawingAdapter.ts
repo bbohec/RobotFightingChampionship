@@ -1,18 +1,19 @@
+
+import { Physical } from '../../../Components/Physical'
 import { DrawingPort, idAlreadyDraw, idNotFoundOnDrawIds } from '../port/DrawingPort'
 
 export class InMemoryDrawingAdapter implements DrawingPort {
-    eraseEntity (id:string): Promise<void> {
-        const index = this.drawIds.findIndex(entityId => entityId === id)
-        if (index < 0) throw new Error(idNotFoundOnDrawIds(id))
-        this.drawIds.splice(index, 1)
+    eraseEntity (entityId:string): Promise<void> {
+        if (!this.drawEntities.has(entityId)) throw new Error(idNotFoundOnDrawIds(entityId))
+        this.drawEntities.delete(entityId)
         return Promise.resolve()
     }
 
-    drawEntity (id:string): Promise<void> {
-        if (this.drawIds.findIndex(entityId => entityId === id) > -1) throw new Error(idAlreadyDraw(id))
-        this.drawIds.push(id)
+    drawEntity (physicalComponent:Physical): Promise<void> {
+        if (this.drawEntities.has(physicalComponent.entityId)) throw new Error(idAlreadyDraw(physicalComponent.entityId))
+        this.drawEntities.set(physicalComponent.entityId, physicalComponent)
         return Promise.resolve()
     }
 
-    public drawIds:string[] = [];
+    public drawEntities:Map<string, Physical> = new Map();
 }

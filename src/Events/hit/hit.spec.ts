@@ -38,7 +38,7 @@ feature(featureEventDescription(Action.hit), () => {
             (game, adapters) => whenEventOccurs(game, hitEvent(EntityId.playerARobot, EntityId.playerBTower)),
             (game, adapters) => whenEventOccurs(game, hitEvent(EntityId.playerARobot, EntityId.playerBTower)),
             (game, adapters) => theEntityWithIdHasTheExpectedComponent(TestStep.Then, adapters, EntityId.playerBTower, Hittable, new Hittable(EntityId.playerBTower, 0)),
-            (game, adapters) => theEventIsSent(TestStep.And, adapters, victoryEvent(EntityId.match, EntityId.playerA))
+            (game, adapters) => theEventIsSent(TestStep.And, adapters, 'server', victoryEvent(EntityId.match, EntityId.playerA))
         ])
     serverScenario(`${Action.hit} 3 - Robot Kill Robot`, hitEvent(EntityId.playerARobot, EntityId.playerBRobot),
         (game, adapters) => () => new EntityBuilder(adapters.entityInteractor)
@@ -56,7 +56,7 @@ feature(featureEventDescription(Action.hit), () => {
             (game, adapters) => whenEventOccurs(game, hitEvent(EntityId.playerARobot, EntityId.playerBRobot)),
             (game, adapters) => whenEventOccurs(game, hitEvent(EntityId.playerARobot, EntityId.playerBRobot)),
             (game, adapters) => theEntityWithIdHasTheExpectedComponent(TestStep.Then, adapters, EntityId.playerBRobot, Hittable, new Hittable(EntityId.playerBRobot, -10)),
-            (game, adapters) => theEventIsSent(TestStep.And, adapters, victoryEvent(EntityId.match, EntityId.playerA))
+            (game, adapters) => theEventIsSent(TestStep.And, adapters, 'server', victoryEvent(EntityId.match, EntityId.playerA))
         ])
     serverScenario(`${Action.hit} 4 - Tower Kill Robot`, hitEvent(EntityId.playerATower, EntityId.playerBRobot),
         (game, adapters) => () => new EntityBuilder(adapters.entityInteractor)
@@ -81,7 +81,7 @@ feature(featureEventDescription(Action.hit), () => {
             (game, adapters) => whenEventOccurs(game, hitEvent(EntityId.playerATower, EntityId.playerBRobot)),
             (game, adapters) => whenEventOccurs(game, hitEvent(EntityId.playerATower, EntityId.playerBRobot)),
             (game, adapters) => theEntityWithIdHasTheExpectedComponent(TestStep.Then, adapters, EntityId.playerBRobot, Hittable, new Hittable(EntityId.playerBRobot, 0)),
-            (game, adapters) => theEventIsSent(TestStep.And, adapters, victoryEvent(EntityId.match, EntityId.playerA))
+            (game, adapters) => theEventIsSent(TestStep.And, adapters, 'server', victoryEvent(EntityId.match, EntityId.playerA))
         ])
     serverScenario(`${Action.hit} 5 - Tower Kill Tower`, hitEvent(EntityId.playerBTower, EntityId.playerATower),
         (game, adapters) => () => new EntityBuilder(adapters.entityInteractor)
@@ -116,7 +116,7 @@ feature(featureEventDescription(Action.hit), () => {
             (game, adapters) => whenEventOccurs(game, hitEvent(EntityId.playerBTower, EntityId.playerATower)),
             (game, adapters) => whenEventOccurs(game, hitEvent(EntityId.playerBTower, EntityId.playerATower)),
             (game, adapters) => theEntityWithIdHasTheExpectedComponent(TestStep.Then, adapters, EntityId.playerATower, Hittable, new Hittable(EntityId.playerATower, 0)),
-            (game, adapters) => theEventIsSent(TestStep.And, adapters, victoryEvent(EntityId.match, EntityId.playerB))
+            (game, adapters) => theEventIsSent(TestStep.And, adapters, 'server', victoryEvent(EntityId.match, EntityId.playerB))
         ])
     serverScenario(`${Action.hit} 6 - Friendly Fire`, hitEvent(EntityId.playerATower, EntityId.playerBRobot), undefined, [
         (game, adapters) => whenEventOccurs(game, hitEvent(EntityId.playerARobot, EntityId.playerBRobot))

@@ -9,9 +9,9 @@ import { collisionGameEvent } from '../../Events/collision/collision'
 import { joinSimpleMatchLobby } from '../../Events/join/join'
 import { moveEvent } from '../../Events/move/move'
 import { nextTurnEvent } from '../../Events/nextTurn/nextTurn'
-import { GenericSystem } from '../Generic/GenericSystem'
+import { GenericServerSystem } from '../Generic/GenericServerSystem'
 
-export class CollisionSystem extends GenericSystem {
+export class CollisionSystem extends GenericServerSystem {
     onGameEvent (gameEvent: GameEvent): Promise<void> {
         return gameEvent.action === Action.checkCollision
             ? this.onCheckCollision()

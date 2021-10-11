@@ -17,5 +17,7 @@ export enum Action {
     attack = 'attack',
     notify = 'notify',
     checkCollision = 'checkCollision',
-    collision = 'collision'
+    collision = 'collision',
+    updatePlayerPointerState = 'updatePlayerPointerState',
+    updatePlayerPointerPosition = 'updatePlayerPointerPosition'
 }
