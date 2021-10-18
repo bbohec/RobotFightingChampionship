@@ -9,7 +9,7 @@ import { GameEvent } from '../../../Event/GameEvent'
 import { SerializedGameEvent } from '../../../Event/SerializedGameEvent'
 import { SSEMessage } from '../../../EventInteractor/infra/SSE/SSEMessage'
 import { SSEMessageType } from '../../../EventInteractor/infra/SSE/SSEMessageType'
-import { NewServerEventInteractor } from '../../../EventInteractor/port/EventInteractor'
+import { NewServerEventInteractor } from '../../../EventInteractor/port/NewEventInteractor'
 import { InMemoryEventBus } from '../../../Event/infra/InMemoryEventBus'
 
 export class ServerWebEventInteractor implements NewServerEventInteractor {

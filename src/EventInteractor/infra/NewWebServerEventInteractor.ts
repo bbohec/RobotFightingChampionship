@@ -10,7 +10,7 @@ import { ComponentSerializer } from '../../Components/port/ComponentSerializer'
 import { SSEMessageType } from './SSE/SSEMessageType'
 import { SSEMessage } from './SSE/SSEMessage'
 import { InMemoryEventBus } from '../../Event/infra/InMemoryEventBus'
-import { NewServerEventInteractor } from '../port/EventInteractor'
+import { NewServerEventInteractor } from '../port/NewEventInteractor'
 import { clientGameEventUrlPath } from '../../Systems/GameEventDispatcher/infra/ServerWebEventInteractor'
 
 export class NewWebServerEventInteractor implements NewServerEventInteractor {

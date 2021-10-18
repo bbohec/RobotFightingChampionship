@@ -9,7 +9,7 @@ import { InMemoryEventBus } from '../../Event/infra/InMemoryEventBus'
 import { NewWebClientEventInteractor } from '../infra/NewWebClientEventInteractor'
 import { NewInMemoryClientEventInteractor } from '../infra/NewInMemoryClientEventInteractor'
 import { NewInMemoryServerEventInteractor } from '../infra/NewInMemoryServerEventInteractor'
-import { NewClientEventInteractor, NewServerEventInteractor } from './EventInteractor'
+import { NewClientEventInteractor, NewServerEventInteractor } from './NewEventInteractor'
 import { webServerPort } from '../../Systems/GameEventDispatcher/infra/ServerWebEventInteractor'
 
 export interface NewClientEventIntegrationTestSuite {

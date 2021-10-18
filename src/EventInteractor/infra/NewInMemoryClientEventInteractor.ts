@@ -1,6 +1,6 @@
 import { GameEvent } from '../../Event/GameEvent'
 import { SerializedGameEvent } from '../../Event/SerializedGameEvent'
-import { NewClientEventInteractor, NewServerEventInteractor } from '../port/EventInteractor'
+import { NewClientEventInteractor, NewServerEventInteractor } from '../port/NewEventInteractor'
 import { EventBus } from '../../Event/port/EventBus'
 import { ComponentBuilder } from '../../Components/port/ComponentBuilder'
 import { ComponentSerializer } from '../../Components/port/ComponentSerializer'

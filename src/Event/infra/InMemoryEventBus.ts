@@ -1,6 +1,6 @@
 import { GameEvent } from '../GameEvent'
 import { stringifyWithDetailledSetAndMap } from '../test'
-import { gameEventNotFoundOnEventInteractor } from '../../EventInteractor/port/EventInteractor'
+import { gameEventNotFoundOnEventInteractor } from '../../EventInteractor/port/NewEventInteractor'
 import { EventBus } from '../port/EventBus'
 
 export class InMemoryEventBus implements EventBus {

@@ -7,7 +7,7 @@ import { SerializedGameEvent } from '../../Event/SerializedGameEvent'
 import { InMemoryEventBus } from '../../Event/infra/InMemoryEventBus'
 import { SSEClient } from './SSE/SSEClient'
 import { SSEMessageType } from './SSE/SSEMessageType'
-import { NewClientEventInteractor } from '../port/EventInteractor'
+import { NewClientEventInteractor } from '../port/NewEventInteractor'
 import { clientGameEventUrlPath } from '../../Systems/GameEventDispatcher/infra/ServerWebEventInteractor'
 export const clientBodyRequest = (stringifiedBody:string): string => `CLIENT POST REQUEST : ${stringifiedBody} `
 
