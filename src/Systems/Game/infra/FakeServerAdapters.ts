@@ -1,5 +1,6 @@
 import { InMemoryEntityRepository } from '../../../Entities/infra/InMemoryEntityRepository'
-import { InMemoryEventRepository } from '../../../EventInteractor/infra/InMemoryEventRepository'
+import { InMemoryEventBus } from '../../../Event/infra/InMemoryEventBus'
+import { NewInMemoryServerEventInteractor } from '../../../EventInteractor/infra/NewInMemoryServerEventInteractor'
 import { InMemorySystemRepository } from '../../Generic/infra/InMemorySystemInteractor'
 import { FakeIdentifierAdapter } from '../../LifeCycle/infra/FakeIdentifierAdapter'
 import { IdentifierAdapter } from '../../LifeCycle/port/IdentifierAdapter'
@@ -11,7 +12,7 @@ export class FakeServerAdapters implements serverAdapters {
     }
 
     identifierInteractor: IdentifierAdapter;
-    eventInteractor = new InMemoryEventRepository();
+    eventInteractor:NewInMemoryServerEventInteractor =new NewInMemoryServerEventInteractor(new InMemoryEventBus())
     systemInteractor = new InMemorySystemRepository();
     entityInteractor = new InMemoryEntityRepository();
 }

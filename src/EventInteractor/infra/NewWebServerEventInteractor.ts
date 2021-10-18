@@ -11,7 +11,6 @@ import { SSEMessageType } from './SSE/SSEMessageType'
 import { SSEMessage } from './SSE/SSEMessage'
 import { InMemoryEventBus } from '../../Event/infra/InMemoryEventBus'
 import { NewServerEventInteractor } from '../port/NewEventInteractor'
-import { clientGameEventUrlPath } from './ServerWebEventInteractor'
 
 export class NewWebServerEventInteractor implements NewServerEventInteractor {
     constructor (webServerPort: number, sseRetryIntervalMilliseconds: number, eventBus: InMemoryEventBus) {
@@ -138,3 +137,7 @@ export class NewWebServerEventInteractor implements NewServerEventInteractor {
     private sseRetryIntervalMilliseconds: number;
     private componentSerializer = new ComponentSerializer();
 }
+
+export const serverBodyRequest = (stringifiedBody:string): string => `SERVER POST REQUEST : ${stringifiedBody}`
+export const clientGameEventUrlPath = '/clientGameEvent'
+export const webServerPort = 80

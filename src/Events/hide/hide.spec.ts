@@ -9,7 +9,7 @@ import { EntityBuilder } from '../../Entities/entityBuilder'
 import { mainMenuPosition, Physical } from '../../Components/Physical'
 import { ShapeType } from '../../Components/port/ShapeType'
 feature(featureEventDescription(Action.hide), () => {
-    clientScenario(`${Action.hide} 1`, hideEvent(EntityType.mainMenu, EntityId.mainMenu, EntityId.playerA),
+    clientScenario(`${Action.hide} 1`, hideEvent(EntityType.mainMenu, EntityId.mainMenu, EntityId.playerA), EntityId.playerA,
         (game, adapters) => () => {
             adapters.drawingInteractor.drawEntity(new Physical(EntityId.mainMenu, mainMenuPosition, ShapeType.mainMenu))
             new EntityBuilder(adapters.entityInteractor).buildEntity(EntityId.playerA).withEntityReferences(EntityType.player).save()

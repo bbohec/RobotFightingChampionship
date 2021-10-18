@@ -46,7 +46,7 @@ feature(featureEventDescription(Action.register), () => {
             (game, adapters) => whenEventOccurs(game, registerGridEvent(EntityId.match, EntityId.grid)),
             (game, adapters) => theEntityWithIdHasTheExpectedComponent(TestStep.Then, adapters, EntityId.match, EntityReference, new EntityReference(EntityId.match, EntityType.match, new Map([[EntityType.grid, [EntityId.grid]]])))
         ])
-    clientScenario(`${Action.register} 5`, registerPlayerEvent(EntityId.playerA),
+    clientScenario(`${Action.register} 5`, registerPlayerEvent(EntityId.playerA), EntityId.playerA,
         (game, adapters) => () => new EntityBuilder(adapters.entityInteractor)
         , [
             (game, adapters) => whenEventOccurs(game, registerPlayerEvent(EntityId.playerA)),
@@ -79,7 +79,7 @@ feature(featureEventDescription(Action.register), () => {
             (game, adapters) => whenEventOccurs(game, registerPlayerPointerEvent(EntityId.playerAPointer, EntityId.playerA)),
             (game, adapters) => theEventIsSent(TestStep.And, adapters, 'client', registerPlayerPointerEvent(EntityId.playerAPointer, EntityId.playerA))
         ])
-    clientScenario(`${Action.register} 9 - Register pointer to client`, registerPlayerPointerEvent(EntityId.playerAPointer, EntityId.playerA),
+    clientScenario(`${Action.register} 9 - Register pointer to client`, registerPlayerPointerEvent(EntityId.playerAPointer, EntityId.playerA), EntityId.playerA,
         (game, adapters) => () => new EntityBuilder(adapters.entityInteractor)
             .buildEntity(EntityId.playerA).withEntityReferences(EntityType.player).save()
         , [

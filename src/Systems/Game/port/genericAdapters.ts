@@ -1,6 +1,6 @@
 import { EntityInteractor } from '../../../Entities/ports/EntityInteractor'
-import { EventInteractor } from '../../../EventInteractor/port/EventInteractor'
+import { NewEventInteractor } from '../../../EventInteractor/port/NewEventInteractor'
 export interface GenericAdapter {
     entityInteractor: EntityInteractor;
-    eventInteractor: EventInteractor;
+    eventInteractor: NewEventInteractor;
 }

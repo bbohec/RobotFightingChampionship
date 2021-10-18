@@ -13,7 +13,7 @@ feature(featureEventDescription(Action.show), () => {
         (game, adapters) => whenEventOccurs(game, showEvent(EntityType.mainMenu, EntityId.mainMenu, EntityId.playerA, new Physical(EntityId.mainMenu, mainMenuPosition, ShapeType.mainMenu))),
         (game, adapters) => theEventIsSent(TestStep.Then, adapters, 'client', showEvent(EntityType.mainMenu, EntityId.mainMenu, EntityId.playerA, new Physical(EntityId.mainMenu, mainMenuPosition, ShapeType.mainMenu)))
     ])
-    clientScenario(`${Action.show} 2`, showEvent(EntityType.mainMenu, EntityId.mainMenu, EntityId.playerA, new Physical(EntityId.mainMenu, mainMenuPosition, ShapeType.mainMenu)),
+    clientScenario(`${Action.show} 2`, showEvent(EntityType.mainMenu, EntityId.mainMenu, EntityId.playerA, new Physical(EntityId.mainMenu, mainMenuPosition, ShapeType.mainMenu)), EntityId.playerA,
         (game, adapters) => () => new EntityBuilder(adapters.entityInteractor)
             .buildEntity(EntityId.playerA).withEntityReferences(EntityType.player).save()
         , [

@@ -3,10 +3,10 @@ import { expect } from 'chai'
 import { GameEvent } from '../../Event/GameEvent'
 import { EntityType } from '../../Event/EntityType'
 import { InMemoryEventBus } from '../../Event/infra/InMemoryEventBus'
-import { ServerWebEventInteractor, webServerPort } from './ServerWebEventInteractor'
 import { NewInMemoryServerEventInteractor } from './NewInMemoryServerEventInteractor'
 import { detailedComparisonMessage } from '../../Event/test'
 import { NewEventIntegrationTestSuite, makeInMemoryClientsEventIntegrationTestSuite, clientQty, makeRestClientsEventIntegrationTestSuite, beforeFunction, afterFunction } from '../port/testUtilities'
+import { NewWebServerEventInteractor, webServerPort } from './NewWebServerEventInteractor'
 
 describe('Integration Test Suite - Event Interactor', () => {
     const testSuites:NewEventIntegrationTestSuite[] = [
@@ -17,7 +17,7 @@ describe('Integration Test Suite - Event Interactor', () => {
         },
         {
             adapterType: 'Rest',
-            serverEventInteractor: new ServerWebEventInteractor(webServerPort, 1000, new InMemoryEventBus()),
+            serverEventInteractor: new NewWebServerEventInteractor(webServerPort, 1000, new InMemoryEventBus()),
             clientsEventIntegrationTestSuite: makeRestClientsEventIntegrationTestSuite(clientQty)
         }
     ]

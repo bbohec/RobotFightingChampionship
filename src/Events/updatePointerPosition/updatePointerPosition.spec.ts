@@ -8,7 +8,7 @@ import { TestStep } from '../../Event/TestStep'
 import { updatePointerPosition } from './updatePointerPosition'
 import { updatePointerState } from '../updatePointerState/updatePointerState'
 feature(featureEventDescription(Action.updatePlayerPointerPosition), () => {
-    clientScenario(`${Action.updatePlayerPointerPosition} 1 - Update client pointer on new position`, updatePointerPosition(EntityId.playerAPointer, position(1, 1)),
+    clientScenario(`${Action.updatePlayerPointerPosition} 1 - Update client pointer on new position`, updatePointerPosition(EntityId.playerAPointer, position(1, 1)), EntityId.playerA,
         (game, adapters) => () => new EntityBuilder(adapters.entityInteractor)
             .buildEntity(EntityId.playerAPointer).withPhysicalComponent(position(0, 0), ShapeType.pointer).save()
         , [
@@ -17,7 +17,7 @@ feature(featureEventDescription(Action.updatePlayerPointerPosition), () => {
             (game, adapters) => theEntityWithIdHasTheExpectedComponent(TestStep.Then, adapters, EntityId.playerAPointer, Physical, new Physical(EntityId.playerAPointer, position(1, 1), ShapeType.pointer)),
             (game, adapters) => theEventIsSent(TestStep.Then, adapters, 'client', updatePointerState(EntityId.playerAPointer, position(1, 1)))
         ])
-    clientScenario(`${Action.updatePlayerPointerPosition} 2 - Don't update client pointer on same position`, updatePointerState(EntityId.playerA, position(0, 0)),
+    clientScenario(`${Action.updatePlayerPointerPosition} 2 - Don't update client pointer on same position`, updatePointerState(EntityId.playerA, position(0, 0)), EntityId.playerA,
         (game, adapters) => () => new EntityBuilder(adapters.entityInteractor)
             .buildEntity(EntityId.playerAPointer).withPhysicalComponent(position(0, 0), ShapeType.pointer).save()
         , [

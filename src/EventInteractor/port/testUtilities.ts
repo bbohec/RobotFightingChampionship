@@ -10,7 +10,7 @@ import { NewWebClientEventInteractor } from '../infra/NewWebClientEventInteracto
 import { NewInMemoryClientEventInteractor } from '../infra/NewInMemoryClientEventInteractor'
 import { NewInMemoryServerEventInteractor } from '../infra/NewInMemoryServerEventInteractor'
 import { NewClientEventInteractor, NewServerEventInteractor } from './NewEventInteractor'
-import { webServerPort } from '../infra/ServerWebEventInteractor'
+import { webServerPort } from '../infra/NewWebServerEventInteractor'
 
 export interface NewClientEventIntegrationTestSuite {
     clientEventInteractor:NewClientEventInteractor

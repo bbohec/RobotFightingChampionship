@@ -7,7 +7,7 @@ import { feature, featureEventDescription, clientScenario, whenEventOccurs, theE
 import { TestStep } from '../../Event/TestStep'
 import { updatePointerState } from './updatePointerState'
 feature(featureEventDescription(Action.updatePlayerPointerPosition), () => {
-    clientScenario(`${Action.updatePlayerPointerState} 1 - forward to server`, updatePointerState(EntityId.playerA, position(1, 1)),
+    clientScenario(`${Action.updatePlayerPointerState} 1 - forward to server`, updatePointerState(EntityId.playerA, position(1, 1)), EntityId.playerA,
         (game, adapters) => () => {
         }, [
             (game, adapters) => whenEventOccurs(game, updatePointerState(EntityId.playerAPointer, position(1, 1))),

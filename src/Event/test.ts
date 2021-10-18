@@ -14,6 +14,7 @@ import { Action } from './Action'
 import { ClientGameSystem } from '../Systems/Game/ClientGame'
 import { ServerGameSystem } from '../Systems/Game/ServerGame'
 import { Physical } from '../Components/Physical'
+import { InMemoryEventBus } from './infra/InMemoryEventBus'
 type ScenarioType = 'client' | 'server'
 export const feature = (featureEventDescription:string, mochaSuite: (this: Suite) => void) => describe(featureEventDescription, mochaSuite)
 export const featureEventDescription = (action:Action): string => `Feature : ${action} events`
@@ -30,7 +31,7 @@ export const scenarioEventDescription = (ref:string, event: GameEvent|GameEvent[
 export const whenEventOccurs = (game:GenericGameSystem, event:GameEvent) => it(eventMessage(event), () => game.onGameEvent(event))
 export const theEntityIsOnRepository = (
     testStep:TestStep,
-    adapters: FakeServerAdapters,
+    adapters: FakeServerAdapters|FakeClientAdapters,
     entityId: string
 ) => it(entityIdOnRepository(testStep, entityId),
     () => expect(adapters
@@ -40,7 +41,7 @@ export const theEntityIsOnRepository = (
 
 export const theEntityIsNotOnRepository = (
     testStep:TestStep,
-    adapters: FakeServerAdapters,
+    adapters: FakeServerAdapters|FakeClientAdapters,
     entityId: string
 ) => it(entityIdIsNotOnRepository(testStep, entityId),
     () => expect(adapters
@@ -65,26 +66,34 @@ export const theEventIsSent = (
     gameEvent: GameEvent,
     eventSentQty?:number,
     skip?:boolean
-) => (skip)
-    ? it.skip(eventSentMessage(testStep, gameEvent, to, eventSentQty),
-        () => expect(((to === 'client') ? adapters.eventInteractor.retrieveClientEvent(gameEvent) : adapters.eventInteractor.retrieveServerEvent(gameEvent))
-            .length)
-            .equal((eventSentQty) || 1))
-    : it(eventSentMessage(testStep, gameEvent, to, eventSentQty),
-        () => expect(((to === 'client') ? adapters.eventInteractor.retrieveClientEvent(gameEvent) : adapters.eventInteractor.retrieveServerEvent(gameEvent))
-            .length)
-            .equal((eventSentQty) || 1))
+) => {
+    const eventBus = adapters.eventInteractor.eventBus
+    if (eventBus instanceof InMemoryEventBus) return (skip)
+        ? it.skip(eventSentMessage(testStep, gameEvent, to, eventSentQty),
+            () => expect((eventBus.retrieveEvent(gameEvent))
+                .length)
+                .equal((eventSentQty) || 1))
+        : it(eventSentMessage(testStep, gameEvent, to, eventSentQty),
+            () => expect((eventBus.retrieveEvent(gameEvent))
+                .length)
+                .equal((eventSentQty) || 1))
+    throw new Error(`Unsupported event bus implementation : ${eventBus.constructor.name}`)
+}
+
 export const theEventIsNotSent = (
     testStep:TestStep,
     adapters: FakeClientAdapters | FakeServerAdapters,
     to:'client'|'server',
     gameEvent: GameEvent
 ) => it(eventNotSentMessage(testStep, gameEvent, to),
-    () => expect(((to === 'client') ? adapters.eventInteractor.hasClientEvent(gameEvent) : adapters.eventInteractor.hasServerEvent(gameEvent)))
-        .to.be.false)
+    () => {
+        const eventBus = adapters.eventInteractor.eventBus
+        if (eventBus instanceof InMemoryEventBus) return expect((eventBus.hasEvent(gameEvent))).to.be.false
+        throw new Error(`Unsupported event bus implementation : ${eventBus.constructor.name}`)
+    })
 export const theEntityWithIdHasTheExpectedComponent = <PotentialComponent extends Component> (
     testStep:TestStep,
-    adapters: FakeServerAdapters,
+    adapters: FakeServerAdapters|FakeClientAdapters,
     entityId: string,
     potentialComponent:PotentialClass<PotentialComponent>,
     expectedComponent: GenericComponent
@@ -158,26 +167,27 @@ export const serverScenario = (
 export const clientScenario = (
     ref:string,
     gameEvent:GameEvent|GameEvent[],
+    clientId:string,
     beforeMochaFunc:((game:ClientGameSystem, adapters:FakeClientAdapters)=>Func)|undefined,
     tests:((game:ClientGameSystem, adapters:FakeClientAdapters)=>Test)[],
     nextIdentifiers?:string[],
     skip?:boolean
 ) => (skip)
     ? describe.skip(scenarioEventDescription(ref, gameEvent, 'client'), () => {
-        const { adapters, game } = createClient(nextIdentifiers)
+        const { adapters, game } = createClient(clientId, nextIdentifiers)
         // eslint-disable-next-line no-unused-expressions
         if (beforeMochaFunc)before(beforeMochaFunc(game, adapters))
         tests.forEach(test => test(game, adapters))
     })
     : describe(scenarioEventDescription(ref, gameEvent, 'client'), () => {
-        const { adapters, game } = createClient(nextIdentifiers)
+        const { adapters, game } = createClient(clientId, nextIdentifiers)
         // eslint-disable-next-line no-unused-expressions
         if (beforeMochaFunc)before(beforeMochaFunc(game, adapters))
         tests.forEach(test => test(game, adapters))
     })
 
-const createClient = (nextIdentifiers?:string[]):{adapters:FakeClientAdapters, game:ClientGameSystem} => {
-    const adapters = new FakeClientAdapters(nextIdentifiers)
+const createClient = (clientId:string, nextIdentifiers?:string[]):{adapters:FakeClientAdapters, game:ClientGameSystem} => {
+    const adapters = new FakeClientAdapters(clientId, nextIdentifiers)
     const game = new ClientGameSystem(adapters)
     return { adapters, game }
 }

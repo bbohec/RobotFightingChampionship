@@ -12,14 +12,14 @@ feature(featureEventDescription(Action.notify), () => {
             (game, adapters) => whenEventOccurs(game, notifyEvent(EntityId.playerA, notEnoughActionPointNotificationMessage)),
             (game, adapters) => theEventIsSent(TestStep.Then, adapters, 'client', notifyEvent(EntityId.playerA, notEnoughActionPointNotificationMessage))
         ])
-    clientScenario(`${Action.notify} 2 - Client Side`, notifyEvent(EntityId.playerA, notEnoughActionPointNotificationMessage),
+    clientScenario(`${Action.notify} 2 - Client Side`, notifyEvent(EntityId.playerA, notEnoughActionPointNotificationMessage), EntityId.playerA,
         (game, adapters) => () => new EntityBuilder(adapters.entityInteractor)
             .buildEntity(EntityId.playerA).withEntityReferences(EntityType.player).save()
         , [
             (game, adapters) => whenEventOccurs(game, notifyEvent(EntityId.playerA, notEnoughActionPointNotificationMessage)),
             (game, adapters) => thereIsANotification(TestStep.Then, adapters, notEnoughActionPointNotificationMessage)
         ], undefined)
-    clientScenario(`${Action.notify} 3 - Client Side bad player`, notifyEvent(EntityId.playerB, notEnoughActionPointNotificationMessage),
+    clientScenario(`${Action.notify} 3 - Client Side bad player`, notifyEvent(EntityId.playerB, notEnoughActionPointNotificationMessage), EntityId.playerA,
         (game, adapters) => () => new EntityBuilder(adapters.entityInteractor)
             .buildEntity(EntityId.playerA).withEntityReferences(EntityType.player).save()
         , [

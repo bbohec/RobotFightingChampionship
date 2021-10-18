@@ -19,7 +19,7 @@ import { mainMenuPosition, Physical, simpleMatchLobbyPosition } from '../../Comp
 import { ShapeType } from '../../Components/port/ShapeType'
 const mainMenuShowEvent = (mainMenuId:string, playerId:string) => showEvent(EntityType.mainMenu, mainMenuId, playerId, new Physical(mainMenuId, mainMenuPosition, ShapeType.mainMenu))
 feature(featureEventDescription(Action.create), () => {
-    clientScenario(`${Action.create} 1 - Create Player Client`, createPlayerEvent,
+    clientScenario(`${Action.create} 1 - Create Player Client`, createPlayerEvent, EntityId.playerA,
         (game, adapters) => () => new EntityBuilder(adapters.entityInteractor)
         , [
             (game, adapters) => theEntityIsNotOnRepository(TestStep.Given, adapters, EntityId.playerA),
