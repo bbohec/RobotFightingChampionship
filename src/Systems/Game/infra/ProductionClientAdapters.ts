@@ -1,6 +1,6 @@
 import { InMemoryEntityRepository } from '../../../Entities/infra/InMemoryEntityRepository'
 import { PixijsDrawingAdapter } from '../../Drawing/infra/PixijsDrawingAdapter'
-import { InMemoryEventRepository } from '../../GameEventDispatcher/infra/InMemoryEventRepository'
+import { InMemoryEventRepository } from '../../../EventInteractor/infra/InMemoryEventRepository'
 import { InMemorySystemRepository } from '../../Generic/infra/InMemorySystemInteractor'
 import { FakeIdentifierAdapter } from '../../LifeCycle/infra/FakeIdentifierAdapter'
 import { IdentifierAdapter } from '../../LifeCycle/port/IdentifierAdapter'

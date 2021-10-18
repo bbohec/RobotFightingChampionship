@@ -1,7 +1,7 @@
 import { GenericComponent } from '../GenericComponent'
 import { Physical, position, Position } from '../Physical'
 import { ShapeType } from './ShapeType'
-import { ComponentPropertyType } from '../../Systems/GameEventDispatcher/port/ComponentPropertyType'
+import { ComponentPropertyType } from '../../EventInteractor/port/ComponentPropertyType'
 import { SerializedComponent } from './SerializedComponent'
 
 export class ComponentBuilder {

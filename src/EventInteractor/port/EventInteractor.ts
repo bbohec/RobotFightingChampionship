@@ -1,6 +1,6 @@
-import { GameEvent } from '../../../Event/GameEvent'
-import { stringifyWithDetailledSetAndMap } from '../../../Event/test'
-import { SerializedGameEvent } from '../../../Event/SerializedGameEvent'
+import { GameEvent } from '../../Event/GameEvent'
+import { stringifyWithDetailledSetAndMap } from '../../Event/test'
+import { SerializedGameEvent } from '../../Event/SerializedGameEvent'
 export interface EventInteractor {
     sendEventToServer(gameEvent: GameEvent|SerializedGameEvent): Promise<void>;
     sendEventToClient(gameEvent: GameEvent|SerializedGameEvent): Promise<void>;

@@ -1,8 +1,8 @@
-import { GameEvent } from '../../../Event/GameEvent'
-import { SerializedGameEvent } from '../../../Event/SerializedGameEvent'
+import { GameEvent } from '../../Event/GameEvent'
+import { SerializedGameEvent } from '../../Event/SerializedGameEvent'
 import { IntegrationEventInteractor } from '../port/IntegrationEventInteractor'
 
-export class ClientRestEventInteractor implements IntegrationEventInteractor {
+export class ServerRestEventInteractor implements IntegrationEventInteractor {
     serializeEvent (gameEvent: GameEvent): SerializedGameEvent {
         throw new Error('Method not implemented.')
     }

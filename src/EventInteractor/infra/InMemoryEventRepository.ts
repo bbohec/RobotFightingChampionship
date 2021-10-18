@@ -1,10 +1,10 @@
-import { GameEvent } from '../../../Event/GameEvent'
-import { stringifyWithDetailledSetAndMap } from '../../../Event/test'
+import { GameEvent } from '../../Event/GameEvent'
+import { stringifyWithDetailledSetAndMap } from '../../Event/test'
 import { gameEventNotFoundOnEventRepository } from '../port/EventInteractor'
-import { SerializedGameEvent } from '../../../Event/SerializedGameEvent'
+import { SerializedGameEvent } from '../../Event/SerializedGameEvent'
 import { IntegrationEventInteractor } from '../port/IntegrationEventInteractor'
-import { ComponentBuilder } from '../../../Components/port/ComponentBuilder'
-import { ComponentSerializer } from '../../../Components/port/ComponentSerializer'
+import { ComponentBuilder } from '../../Components/port/ComponentBuilder'
+import { ComponentSerializer } from '../../Components/port/ComponentSerializer'
 
 export class InMemoryEventRepository implements IntegrationEventInteractor {
     public retrieveServerEvent (expectedEvent: GameEvent) {

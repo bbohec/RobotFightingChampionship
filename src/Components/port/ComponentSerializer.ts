@@ -1,6 +1,6 @@
 import { GenericComponent } from '../GenericComponent'
 import { Physical } from '../Physical'
-import { ComponentPropertyType } from '../../Systems/GameEventDispatcher/port/ComponentPropertyType'
+import { ComponentPropertyType } from '../../EventInteractor/port/ComponentPropertyType'
 import { SerializedComponent } from './SerializedComponent'
 
 export class ComponentSerializer {
