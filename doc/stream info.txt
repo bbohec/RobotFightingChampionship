@@ -1,5 +1,5 @@
 titre
-Développement d'un jeu RPG Tactique eSport  en Typescript
+Développement d'un jeu RPG Tactique eSport en Typescript
 
 Notif
 Le dev de Robot Fighting Championship reprend ...
