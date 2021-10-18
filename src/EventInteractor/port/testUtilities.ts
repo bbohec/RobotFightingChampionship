@@ -6,9 +6,9 @@ import { EntityId } from '../../Event/entityIds'
 import { EntityType } from '../../Event/EntityType'
 import { GameEvent, newGameEvent } from '../../Event/GameEvent'
 import { InMemoryEventBus } from '../../Event/infra/InMemoryEventBus'
-import { NewClientWebEventInteractor } from '../infra/NewClientWebEventInteractor'
-import { NewClientInMemoryEventInteractor } from '../infra/NewClientInMemoryEventInteractor'
-import { NewServerInMemoryEventInteractor } from '../infra/NewServerInMemoryEventInteractor'
+import { NewWebClientEventInteractor } from '../infra/NewWebClientEventInteractor'
+import { NewInMemoryClientEventInteractor } from '../infra/NewInMemoryClientEventInteractor'
+import { NewInMemoryServerEventInteractor } from '../infra/NewInMemoryServerEventInteractor'
 import { NewClientEventInteractor, NewServerEventInteractor } from './EventInteractor'
 import { webServerPort } from '../../Systems/GameEventDispatcher/infra/ServerWebEventInteractor'
 
@@ -29,25 +29,25 @@ export const makeInMemoryClientsEventIntegrationTestSuite = (qty:number) => [...
 export const afterFunction = (testSuite: NewEventIntegrationTestSuite): Func => () => { testSuite.serverEventInteractor.stop() }
 export const beforeFunction = (testSuite: NewEventIntegrationTestSuite): Func => () => {
     testSuite.clientsEventIntegrationTestSuite.forEach(clientEventIntegrationTestSuite => {
-        if (clientEventIntegrationTestSuite.clientEventInteractor instanceof NewClientInMemoryEventInteractor)
+        if (clientEventIntegrationTestSuite.clientEventInteractor instanceof NewInMemoryClientEventInteractor)
             clientEventIntegrationTestSuite.clientEventInteractor.setServerEventInteractor(testSuite.serverEventInteractor)
     })
-    if (testSuite.serverEventInteractor instanceof NewServerInMemoryEventInteractor) configureInMemoryClientsOnServer(testSuite.serverEventInteractor, testSuite)
+    if (testSuite.serverEventInteractor instanceof NewInMemoryServerEventInteractor) configureInMemoryClientsOnServer(testSuite.serverEventInteractor, testSuite)
     testSuite.serverEventInteractor.start()
     testSuite.clientsEventIntegrationTestSuite.forEach(clientEventIntegrationTestSuite => clientEventIntegrationTestSuite.clientEventInteractor.start())
 }
-const configureInMemoryClientsOnServer = (serverEventInteractor: NewServerInMemoryEventInteractor, testSuite:NewEventIntegrationTestSuite) =>
+const configureInMemoryClientsOnServer = (serverEventInteractor: NewInMemoryServerEventInteractor, testSuite:NewEventIntegrationTestSuite) =>
     serverEventInteractor.setClientEventInteractors(testSuite.clientsEventIntegrationTestSuite.map(clientEventIntegrationTestSuite => {
-        if (clientEventIntegrationTestSuite.clientEventInteractor instanceof NewClientInMemoryEventInteractor)
+        if (clientEventIntegrationTestSuite.clientEventInteractor instanceof NewInMemoryClientEventInteractor)
             return clientEventIntegrationTestSuite.clientEventInteractor
         throw new Error(`Unsupported clientEventInteractor ${clientEventIntegrationTestSuite.clientEventInteractor.constructor.name}`)
     }))
 
 export const makeInMemoryClientEventIntegrationTestSuite = (playerId:string, position:Position): NewClientEventIntegrationTestSuite => ({
-    clientEventInteractor: new NewClientInMemoryEventInteractor(playerId, new InMemoryEventBus()),
+    clientEventInteractor: new NewInMemoryClientEventInteractor(playerId, new InMemoryEventBus()),
     clientEvents: [newGameEvent(Action.attack, new Map([[EntityType.player, [playerId]]]), [new Physical(EntityId.playerAPointer, position, ShapeType.pointer)])]
 })
 export const makeRestClientEventIntegrationTestSuite = (playerId:string, position:Position): NewClientEventIntegrationTestSuite => ({
-    clientEventInteractor: new NewClientWebEventInteractor(serverFullyQualifiedDomainName, webServerPort, playerId, new InMemoryEventBus()),
+    clientEventInteractor: new NewWebClientEventInteractor(serverFullyQualifiedDomainName, webServerPort, playerId, new InMemoryEventBus()),
     clientEvents: [newGameEvent(Action.attack, new Map([[EntityType.player, [playerId]]]), [new Physical(EntityId.playerAPointer, position, ShapeType.pointer)])]
 })

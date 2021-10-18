@@ -9,8 +9,9 @@ import { SSEClient } from './SSE/SSEClient'
 import { SSEMessageType } from './SSE/SSEMessageType'
 import { NewClientEventInteractor } from '../port/EventInteractor'
 import { clientGameEventUrlPath } from '../../Systems/GameEventDispatcher/infra/ServerWebEventInteractor'
+export const clientBodyRequest = (stringifiedBody:string): string => `CLIENT POST REQUEST : ${stringifiedBody} `
 
-export class NewClientWebEventInteractor implements NewClientEventInteractor, SSEClient {
+export class NewWebClientEventInteractor implements NewClientEventInteractor, SSEClient {
     constructor (serverFullyQualifiedDomainName: string, webServerPort: number, clientId: string, eventBus: InMemoryEventBus) {
         this.clientId = clientId
         this.serverFullyQualifiedDomainName = serverFullyQualifiedDomainName

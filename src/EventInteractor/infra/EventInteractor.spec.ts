@@ -4,7 +4,7 @@ import { GameEvent } from '../../Event/GameEvent'
 import { EntityType } from '../../Event/EntityType'
 import { InMemoryEventBus } from '../../Event/infra/InMemoryEventBus'
 import { ServerWebEventInteractor, webServerPort } from '../../Systems/GameEventDispatcher/infra/ServerWebEventInteractor'
-import { NewServerInMemoryEventInteractor } from './NewServerInMemoryEventInteractor'
+import { NewInMemoryServerEventInteractor } from './NewInMemoryServerEventInteractor'
 import { detailedComparisonMessage } from '../../Event/test'
 import { NewEventIntegrationTestSuite, makeInMemoryClientsEventIntegrationTestSuite, clientQty, makeRestClientsEventIntegrationTestSuite, beforeFunction, afterFunction } from '../port/testUtilities'
 
@@ -12,7 +12,7 @@ describe('Integration Test Suite - Event Interactor', () => {
     const testSuites:NewEventIntegrationTestSuite[] = [
         {
             adapterType: 'InMemory',
-            serverEventInteractor: new NewServerInMemoryEventInteractor(new InMemoryEventBus()),
+            serverEventInteractor: new NewInMemoryServerEventInteractor(new InMemoryEventBus()),
             clientsEventIntegrationTestSuite: makeInMemoryClientsEventIntegrationTestSuite(clientQty)
         },
         {

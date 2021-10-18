@@ -13,7 +13,7 @@ import { InMemoryEventBus } from '../../Event/infra/InMemoryEventBus'
 import { NewServerEventInteractor } from '../port/EventInteractor'
 import { clientGameEventUrlPath } from '../../Systems/GameEventDispatcher/infra/ServerWebEventInteractor'
 
-export class NewServerWebEventInteractor implements NewServerEventInteractor {
+export class NewWebServerEventInteractor implements NewServerEventInteractor {
     constructor (webServerPort: number, sseRetryIntervalMilliseconds: number, eventBus: InMemoryEventBus) {
         this.webServerPort = webServerPort
         this.sseRetryIntervalMilliseconds = sseRetryIntervalMilliseconds
