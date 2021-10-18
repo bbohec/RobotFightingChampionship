@@ -1,10 +1,11 @@
+import { Physical } from '../../../Components/Physical'
 import { DrawingPort, methodNotImplemented } from '../port/DrawingPort'
 export class PixijsDrawingAdapter implements DrawingPort {
-    eraseEntity (id: string): Promise<void> {
-        throw new Error(methodNotImplemented)
+    drawEntity (physicalComponent: Physical): Promise<void> {
+        throw new Error('Method not implemented.')
     }
 
-    drawEntity (id: string): Promise<void> {
+    eraseEntity (id: string): Promise<void> {
         throw new Error(methodNotImplemented)
     }
 }

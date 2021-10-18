@@ -1,10 +1,10 @@
 import { GameEvent } from '../../Event/GameEvent'
-import { NewEventInteractor } from '../../EventInteractor/port/NewEventInteractor'
+import { EventInteractor } from '../../EventInteractor/port/EventInteractor'
 import { System } from '../Generic/port/System'
 import { SystemInteractor } from '../Generic/port/SystemInteractor'
 
 export abstract class GenericGameEventDispatcherSystem implements System {
-    constructor (systemInteractor:SystemInteractor, eventInteractor:NewEventInteractor) {
+    constructor (systemInteractor:SystemInteractor, eventInteractor:EventInteractor) {
         this.interactWithSystems = systemInteractor
         this.interactWithEvents = eventInteractor
     }
@@ -20,5 +20,5 @@ export abstract class GenericGameEventDispatcherSystem implements System {
     abstract onGameEvent (gameEvent:GameEvent):Promise<void>
 
     protected interactWithSystems: SystemInteractor
-    private interactWithEvents:NewEventInteractor
+    private interactWithEvents:EventInteractor
 }

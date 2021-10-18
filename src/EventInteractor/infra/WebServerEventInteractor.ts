@@ -10,9 +10,11 @@ import { ComponentSerializer } from '../../Components/port/ComponentSerializer'
 import { SSEMessageType } from './SSE/SSEMessageType'
 import { SSEMessage } from './SSE/SSEMessage'
 import { InMemoryEventBus } from '../../Event/infra/InMemoryEventBus'
-import { NewServerEventInteractor } from '../port/NewEventInteractor'
-
-export class NewWebServerEventInteractor implements NewServerEventInteractor {
+import { ServerEventInteractor } from '../port/EventInteractor'
+export const serverBodyRequest = (stringifiedBody:string): string => `SERVER POST REQUEST : ${stringifiedBody}`
+export const clientGameEventUrlPath = '/clientGameEvent'
+export const webServerPort = 80
+export class WebServerEventInteractor implements ServerEventInteractor {
     constructor (webServerPort: number, sseRetryIntervalMilliseconds: number, eventBus: InMemoryEventBus) {
         this.webServerPort = webServerPort
         this.sseRetryIntervalMilliseconds = sseRetryIntervalMilliseconds
@@ -55,18 +57,24 @@ export class NewWebServerEventInteractor implements NewServerEventInteractor {
         return serializedEvent
     }
 
-    sendEventToServer (gameEvent: GameEvent | SerializedGameEvent): Promise<void> {
-        if (!(gameEvent instanceof GameEvent))
-            gameEvent = new GameEvent({
-                action: gameEvent.action,
-                components: gameEvent.components.map(component => this.componentBuilder.buildComponent(component)),
-                entityRefences: gameEvent.entityRefences
-            })
+    sendEventToServer (gameEvent: GameEvent): Promise<void> {
         this.eventBus.events.push(gameEvent)
         return Promise.resolve()
     }
 
-    sendEventToClient (gameEvent: GameEvent | SerializedGameEvent): Promise<void> {
+    private gameEventFromBody (body:string):GameEvent {
+        const parsedBody:SerializedGameEvent = JSON.parse(body, (key, value) => typeof value === 'object' && value !== null
+            ? value.dataType === 'Map' ? new Map(value.value) : value
+            : value
+        )
+        return new GameEvent({
+            action: parsedBody.action,
+            components: parsedBody.components.map(component => this.componentBuilder.buildComponent(component)),
+            entityRefences: parsedBody.entityRefences
+        })
+    }
+
+    sendEventToClient (gameEvent: GameEvent): Promise<void> {
         const gameEventPlayers = gameEvent.entityRefences.get(EntityType.player)
         if (!gameEventPlayers)
             throw new Error('Missing player reference on game event.')
@@ -91,10 +99,7 @@ export class NewWebServerEventInteractor implements NewServerEventInteractor {
         this.app.use(json())
         this.app.post(clientGameEventUrlPath, (request, response) => {
             const body: string | any = JSON.stringify(request.body)
-            this.sendEventToServer(JSON.parse(body, (key, value) => typeof value === 'object' && value !== null
-                ? value.dataType === 'Map' ? new Map(value.value) : value
-                : value
-            ))
+            this.sendEventToServer(this.gameEventFromBody(body))
                 .then(() => response.status(201).send())
                 .catch((error: Error) => response.status(500).send(error.message))
         })
@@ -137,7 +142,3 @@ export class NewWebServerEventInteractor implements NewServerEventInteractor {
     private sseRetryIntervalMilliseconds: number;
     private componentSerializer = new ComponentSerializer();
 }
-
-export const serverBodyRequest = (stringifiedBody:string): string => `SERVER POST REQUEST : ${stringifiedBody}`
-export const clientGameEventUrlPath = '/clientGameEvent'
-export const webServerPort = 80

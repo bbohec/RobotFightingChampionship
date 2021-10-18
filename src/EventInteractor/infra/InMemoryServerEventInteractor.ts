@@ -1,16 +1,16 @@
 import { GameEvent } from '../../Event/GameEvent'
 import { SerializedGameEvent } from '../../Event/SerializedGameEvent'
-import { NewClientEventInteractor, NewServerEventInteractor } from '../port/NewEventInteractor'
+import { ClientEventInteractor, ServerEventInteractor } from '../port/EventInteractor'
 import { EventBus } from '../../Event/port/EventBus'
-import { NewInMemoryClientEventInteractor } from './NewInMemoryClientEventInteractor'
+import { InMemoryClientEventInteractor } from './InMemoryClientEventInteractor'
 import { ComponentBuilder } from '../../Components/port/ComponentBuilder'
 import { ComponentSerializer } from '../../Components/port/ComponentSerializer'
 import { EntityType } from '../../Event/EntityType'
 
-export class NewInMemoryServerEventInteractor implements NewServerEventInteractor {
-    private clientEventInteractors: NewInMemoryClientEventInteractor[] | undefined;
+export class InMemoryServerEventInteractor implements ServerEventInteractor {
+    private clientEventInteractors: InMemoryClientEventInteractor[] | undefined;
 
-    setClientEventInteractors (clientEventInteractors: NewInMemoryClientEventInteractor[]) {
+    setClientEventInteractors (clientEventInteractors: InMemoryClientEventInteractor[]) {
         this.clientEventInteractors = clientEventInteractors
     }
 
@@ -31,7 +31,7 @@ export class NewInMemoryServerEventInteractor implements NewServerEventInteracto
         return Promise.resolve()
     }
 
-    clientEventInteractorByGameEventPlayerId (gameEvent: GameEvent): NewClientEventInteractor {
+    clientEventInteractorByGameEventPlayerId (gameEvent: GameEvent): ClientEventInteractor {
         const playerId = gameEvent.entityByEntityType(EntityType.player)
         const clientEventInteractor = this.clientEventInteractors?.find(clientEventInteractor => clientEventInteractor.clientId === playerId)
         if (clientEventInteractor)

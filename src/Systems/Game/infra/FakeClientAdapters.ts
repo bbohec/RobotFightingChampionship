@@ -6,16 +6,16 @@ import { FakeIdentifierAdapter } from '../../LifeCycle/infra/FakeIdentifierAdapt
 import { IdentifierAdapter } from '../../LifeCycle/port/IdentifierAdapter'
 import { clientAdapters } from '../port/clientAdapters'
 import { InMemoryNotificationAdapter } from '../../Notification/infra/InMemoryNotificationAdapter'
-import { NewInMemoryClientEventInteractor } from '../../../EventInteractor/infra/NewInMemoryClientEventInteractor'
+import { InMemoryClientEventInteractor } from '../../../EventInteractor/infra/InMemoryClientEventInteractor'
 import { InMemoryEventBus } from '../../../Event/infra/InMemoryEventBus'
 
 export class FakeClientAdapters implements clientAdapters {
     constructor (clientId:string, nextIdentifiers?:string[]) {
         this.identifierInteractor = new FakeIdentifierAdapter(nextIdentifiers)
-        this.eventInteractor = new NewInMemoryClientEventInteractor(clientId, new InMemoryEventBus())
+        this.eventInteractor = new InMemoryClientEventInteractor(clientId, new InMemoryEventBus())
     }
 
-    eventInteractor: NewInMemoryClientEventInteractor
+    eventInteractor: InMemoryClientEventInteractor
     identifierInteractor: IdentifierAdapter
     notificationInteractor = new InMemoryNotificationAdapter()
     drawingInteractor= new InMemoryDrawingAdapter();

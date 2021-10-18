@@ -1,12 +1,12 @@
 import { GameEvent } from '../../Event/GameEvent'
 import { SerializedGameEvent } from '../../Event/SerializedGameEvent'
-import { NewClientEventInteractor, NewServerEventInteractor } from '../port/NewEventInteractor'
+import { ClientEventInteractor, ServerEventInteractor } from '../port/EventInteractor'
 import { EventBus } from '../../Event/port/EventBus'
 import { ComponentBuilder } from '../../Components/port/ComponentBuilder'
 import { ComponentSerializer } from '../../Components/port/ComponentSerializer'
 
-export class NewInMemoryClientEventInteractor implements NewClientEventInteractor {
-    private serverEventInteractor: NewServerEventInteractor | undefined;
+export class InMemoryClientEventInteractor implements ClientEventInteractor {
+    private serverEventInteractor: ServerEventInteractor | undefined;
     private componentBuilder = new ComponentBuilder();
     private componentSerializer = new ComponentSerializer();
     constructor (clientId: string, eventBus: EventBus) {
@@ -14,7 +14,7 @@ export class NewInMemoryClientEventInteractor implements NewClientEventInteracto
         this.eventBus = eventBus
     }
 
-    setServerEventInteractor (serverEventInteractor: NewServerEventInteractor) {
+    setServerEventInteractor (serverEventInteractor: ServerEventInteractor) {
         this.serverEventInteractor = serverEventInteractor
     }
 

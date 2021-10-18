@@ -1,9 +1,8 @@
 import { GameEvent } from '../../Event/GameEvent'
 import { stringifyWithDetailledSetAndMap } from '../../Event/test'
 import { EventBus } from '../../Event/port/EventBus'
-import { SerializedGameEvent } from '../../Event/SerializedGameEvent'
 
-export interface NewEventInteractor {
+export interface EventInteractor {
     sendEventToClient(gameEvent: GameEvent): Promise<void>
     sendEventToServer(gameEvent: GameEvent): Promise<void>
     eventBus:EventBus
@@ -11,12 +10,10 @@ export interface NewEventInteractor {
     stop():void
 }
 
-export interface NewClientEventInteractor extends NewEventInteractor {
+export interface ClientEventInteractor extends EventInteractor {
     clientId: string;
-    sendEventToServer(gameEvent: GameEvent | SerializedGameEvent): Promise<void>;
 }
-export interface NewServerEventInteractor extends NewEventInteractor {
-    sendEventToClient(gameEvent: GameEvent | SerializedGameEvent): Promise<void>;
+export interface ServerEventInteractor extends EventInteractor {
 }
 
 export const gameEventNotFoundOnEventInteractor = (expectedEvent: GameEvent, existingEvents: GameEvent[], to:'client'|'server'): string =>

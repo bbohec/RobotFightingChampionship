@@ -7,11 +7,10 @@ import { SerializedGameEvent } from '../../Event/SerializedGameEvent'
 import { InMemoryEventBus } from '../../Event/infra/InMemoryEventBus'
 import { SSEClient } from './SSE/SSEClient'
 import { SSEMessageType } from './SSE/SSEMessageType'
-import { NewClientEventInteractor } from '../port/NewEventInteractor'
-import { clientGameEventUrlPath } from './NewWebServerEventInteractor'
+import { clientGameEventUrlPath } from './WebServerEventInteractor'
+import { ClientEventInteractor } from '../port/EventInteractor'
 export const clientBodyRequest = (stringifiedBody:string): string => `CLIENT POST REQUEST : ${stringifiedBody} `
-
-export class NewWebClientEventInteractor implements NewClientEventInteractor, SSEClient {
+export class WebClientEventInteractor implements ClientEventInteractor, SSEClient {
     constructor (serverFullyQualifiedDomainName: string, webServerPort: number, clientId: string, eventBus: InMemoryEventBus) {
         this.clientId = clientId
         this.serverFullyQualifiedDomainName = serverFullyQualifiedDomainName
@@ -28,16 +27,23 @@ export class NewWebClientEventInteractor implements NewClientEventInteractor, SS
         this.eventSource.addEventListener(SSEMessageType.GAME_EVENT, event => {
             const messageEvent: MessageEvent<string> = (event as MessageEvent)
             // console.log('Event', messageEvent)
-            this.sendEventToClient(
-                JSON.parse(messageEvent.data, (key, value) => typeof value === 'object' && value !== null
-                    ? value.dataType === 'Map' ? new Map(value.value) : value
-                    : value
-                )
-            )
+            this.sendEventToClient(this.messageEventDataToGameEvent(messageEvent.data))
         })
         this.eventSource.addEventListener(SSEMessageType.CLOSE_SSE, event => {
             // console.log('closing client SSE...')
             this.stop()
+        })
+    }
+
+    private messageEventDataToGameEvent (data: string): GameEvent {
+        const serializedGameEvent:SerializedGameEvent = JSON.parse(data, (key, value) => typeof value === 'object' && value !== null
+            ? value.dataType === 'Map' ? new Map(value.value) : value
+            : value
+        )
+        return new GameEvent({
+            action: serializedGameEvent.action,
+            components: serializedGameEvent.components.map(component => this.componentBuilder.buildComponent(component)),
+            entityRefences: serializedGameEvent.entityRefences
         })
     }
 
@@ -76,15 +82,8 @@ export class NewWebClientEventInteractor implements NewClientEventInteractor, SS
             })
     }
 
-    sendEventToClient (gameEvent: GameEvent | SerializedGameEvent): Promise<void> {
-        if (!(gameEvent instanceof GameEvent))
-            gameEvent = new GameEvent({
-                action: gameEvent.action,
-                components: gameEvent.components.map(component => this.componentBuilder.buildComponent(component)),
-                entityRefences: gameEvent.entityRefences
-            })
-        this.eventBus.send(gameEvent)
-        return Promise.resolve()
+    sendEventToClient (gameEvent: GameEvent): Promise<void> {
+        return this.eventBus.send(gameEvent)
     }
 
     readonly clientId: string;

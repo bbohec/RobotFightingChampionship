@@ -3,21 +3,21 @@ import { expect } from 'chai'
 import { GameEvent } from '../../Event/GameEvent'
 import { EntityType } from '../../Event/EntityType'
 import { InMemoryEventBus } from '../../Event/infra/InMemoryEventBus'
-import { NewInMemoryServerEventInteractor } from './NewInMemoryServerEventInteractor'
+import { InMemoryServerEventInteractor } from './InMemoryServerEventInteractor'
 import { detailedComparisonMessage } from '../../Event/test'
-import { NewEventIntegrationTestSuite, makeInMemoryClientsEventIntegrationTestSuite, clientQty, makeRestClientsEventIntegrationTestSuite, beforeFunction, afterFunction } from '../port/testUtilities'
-import { NewWebServerEventInteractor, webServerPort } from './NewWebServerEventInteractor'
+import { EventIntegrationTestSuite, makeInMemoryClientsEventIntegrationTestSuite, clientQty, makeRestClientsEventIntegrationTestSuite, beforeFunction, afterFunction } from '../port/testUtilities'
+import { WebServerEventInteractor, webServerPort } from './WebServerEventInteractor'
 
 describe('Integration Test Suite - Event Interactor', () => {
-    const testSuites:NewEventIntegrationTestSuite[] = [
+    const testSuites:EventIntegrationTestSuite[] = [
         {
             adapterType: 'InMemory',
-            serverEventInteractor: new NewInMemoryServerEventInteractor(new InMemoryEventBus()),
+            serverEventInteractor: new InMemoryServerEventInteractor(new InMemoryEventBus()),
             clientsEventIntegrationTestSuite: makeInMemoryClientsEventIntegrationTestSuite(clientQty)
         },
         {
             adapterType: 'Rest',
-            serverEventInteractor: new NewWebServerEventInteractor(webServerPort, 1000, new InMemoryEventBus()),
+            serverEventInteractor: new WebServerEventInteractor(webServerPort, 1000, new InMemoryEventBus()),
             clientsEventIntegrationTestSuite: makeRestClientsEventIntegrationTestSuite(clientQty)
         }
     ]

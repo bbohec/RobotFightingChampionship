@@ -93,7 +93,7 @@ export const theEventIsNotSent = (
     })
 export const theEntityWithIdHasTheExpectedComponent = <PotentialComponent extends Component> (
     testStep:TestStep,
-    adapters: FakeServerAdapters|FakeClientAdapters,
+    adapters: GenericAdapter,
     entityId: string,
     potentialComponent:PotentialClass<PotentialComponent>,
     expectedComponent: GenericComponent
@@ -104,17 +104,16 @@ export const theEntityWithIdHasTheExpectedComponent = <PotentialComponent extend
                 .retrieveEntityComponentByEntityId(entityId, potentialComponent)
             expect(component).deep.equal(expectedComponent, componentDetailedComparisonMessage<PotentialComponent>(component, expectedComponent))
         })
-export const theEntityWithIdDoNotHaveAnyComponent = <PotentialComponent extends Component> (
+export const theEntityWithIdDoNotHaveAnyComponent = (
     testStep:TestStep,
     adapters: FakeServerAdapters,
     entityId: string,
-    potentialComponent:PotentialClass<PotentialComponent>,
     expectedComponent: GenericComponent
 ) => it(entityDontHaveComponent(testStep, entityId, expectedComponent),
-        () => expect(adapters
-            .entityInteractor
-            .isEntityHasComponentsByEntityId(entityId)
-        ).to.be.false)
+    () => expect(adapters
+        .entityInteractor
+        .isEntityHasComponentsByEntityId(entityId)
+    ).to.be.false)
 
 export const stringifyWithDetailledSetAndMap = (value:any) => JSON.stringify(value, detailledStringifyForSetAndMap)
 export const thereIsANotification = (
@@ -131,18 +130,14 @@ export const entityIsNotVisible = (
     adapters: FakeClientAdapters,
     expectedPhysicalComponent:Physical
 ) => it(entityIsNotVisibleMessage(testStep, expectedPhysicalComponent.entityId),
-    () => expect(adapters
-        .drawingInteractor
-        .drawEntities.get(expectedPhysicalComponent.entityId))
+    () => expect(adapters.drawingInteractor.drawEntities.get(expectedPhysicalComponent.entityId))
         .to.not.be.deep.equal(expectedPhysicalComponent))
 export const entityIsVisible = (
     testStep:TestStep,
     adapters: FakeClientAdapters,
     expectedPhysicalComponent:Physical
 ) => it(entityIsVisibleMessage(testStep, expectedPhysicalComponent.entityId),
-    () => expect(adapters
-        .drawingInteractor
-        .drawEntities.get(expectedPhysicalComponent.entityId))
+    () => expect(adapters.drawingInteractor.drawEntities.get(expectedPhysicalComponent.entityId))
         .to.be.deep.equal(expectedPhysicalComponent))
 export const serverScenario = (
     scenarioName:string,
@@ -198,9 +193,9 @@ const createServer = (nextIdentifiers?:string[]):{adapters:FakeServerAdapters, g
 }
 const detailledStringifyForSetAndMap = (key:string, value:any):any => (value instanceof Set)
     ? [...value.values()]
-    : (value instanceof Map)
-        ? mapToObjectLiteral(value)
-        : value
+    : (value instanceof Map) ? mapToObjectLiteral(value) : value
+export const detailedComparisonMessage = (thing:unknown, expectedThing:unknown):string => `DETAILS\nexpected >>>>>>>> ${stringifyWithDetailledSetAndMap(thing)} \nto deeply equal > ${stringifyWithDetailledSetAndMap(expectedThing)} \n`
+const componentDetailedComparisonMessage = <PotentialComponent extends Component> (component: PotentialComponent, expectedComponent: GenericComponent): string => `DETAILS\nexpected >>>>>>>> ${stringifyWithDetailledSetAndMap(component)} \nto deeply equal > ${stringifyWithDetailledSetAndMap(expectedComponent)} \n`
 const entityDontHaveComponent = (testStep: TestStep, entityId: string, expectedComponent: GenericComponent): string => `${testStep} the entity with id '${entityId}' don't have any component. 
     ${stringifyWithDetailledSetAndMap(expectedComponent)}`
 const entityHasComponent = <PotentialComponent extends Component> (testStep: TestStep, entityId: string, potentialComponent: PotentialClass<PotentialComponent>, expectedComponent: GenericComponent): string => `${testStep} the entity with id '${entityId}' has the expected '${potentialComponent.name}' component : 
@@ -208,9 +203,7 @@ const entityHasComponent = <PotentialComponent extends Component> (testStep: Tes
 const entityIdOnRepository = (testStep: TestStep, potentialEntityOrEntityId: string): string => `${testStep} there is an entity with id '${potentialEntityOrEntityId}' on entities repository.`
 const entityIdIsNotOnRepository = (testStep: TestStep, potentialEntityOrEntityId: string): string => `${testStep} there is no entity with id '${potentialEntityOrEntityId}' on entities repository.`
 const entityIdCreated = (testStep: TestStep, potentialEntityClassOrId: string): string => `${testStep} the entity with id '${potentialEntityClassOrId}' is created.`
-const componentDetailedComparisonMessage = <PotentialComponent extends Component> (component: PotentialComponent, expectedComponent: GenericComponent): string => `DETAILS\nexpected >>>>>>>> ${stringifyWithDetailledSetAndMap(component)} \nto deeply equal > ${stringifyWithDetailledSetAndMap(expectedComponent)} \n`
 
-export const detailedComparisonMessage = (thing:unknown, expectedThing:unknown):string => `DETAILS\nexpected >>>>>>>> ${stringifyWithDetailledSetAndMap(thing)} \nto deeply equal > ${stringifyWithDetailledSetAndMap(expectedThing)} \n`
 const eventMessage = (event:GameEvent): string => `When the event action '${event.action}' occurs with entity references '${stringifyWithDetailledSetAndMap(event.entityRefences)}'.`
 const eventNotSentMessage = (testStep: TestStep, gameEvent: GameEvent, to:'client'|'server'): string => `${testStep} the event with action '${gameEvent.action}' is not sent to '${to}' with the following entity references:'${stringifyWithDetailledSetAndMap(gameEvent.entityRefences)}.`
 const eventSentMessage = (testStep: TestStep, gameEvent: GameEvent, to:'client'|'server', eventSentQty: number | undefined): string => `${testStep} the event with action '${gameEvent.action}' is sent to '${to}' with the following entity references:'${stringifyWithDetailledSetAndMap(gameEvent.entityRefences)}'${(eventSentQty) ? ` ${eventSentQty} times.` : '.'}`

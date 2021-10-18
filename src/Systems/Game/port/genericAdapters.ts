@@ -1,6 +1,10 @@
 import { EntityInteractor } from '../../../Entities/ports/EntityInteractor'
-import { NewEventInteractor } from '../../../EventInteractor/port/NewEventInteractor'
+import { EventInteractor } from '../../../EventInteractor/port/EventInteractor'
+import { SystemInteractor } from '../../Generic/port/SystemInteractor'
+import { IdentifierAdapter } from '../../LifeCycle/port/IdentifierAdapter'
 export interface GenericAdapter {
     entityInteractor: EntityInteractor;
-    eventInteractor: NewEventInteractor;
+    eventInteractor: EventInteractor;
+    systemInteractor: SystemInteractor;
+    identifierInteractor: IdentifierAdapter
 }
