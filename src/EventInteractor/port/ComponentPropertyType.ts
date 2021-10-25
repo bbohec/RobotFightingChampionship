@@ -1,4 +1,4 @@
-import { Dimension } from '../../Components/Dimensional'
+import { Dimension } from '../../Components/port/Dimension'
 import { Position } from '../../Components/Physical'
 import { Phase } from '../../Components/port/Phase'
 import { ShapeType } from '../../Components/port/ShapeType'

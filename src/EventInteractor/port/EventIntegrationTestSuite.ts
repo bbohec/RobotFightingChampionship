@@ -1,7 +1,7 @@
-import { IntegrationEventInteractor } from './IntegrationEventInteractor'
+import { ClientEventInteractor, ServerEventInteractor } from './EventInteractor'
 
 export interface EventIntegrationTestSuite {
     adapterType: string;
-    serverEventInteractor: IntegrationEventInteractor;
-    clientEventInteractor: IntegrationEventInteractor;
+    serverEventInteractor: ServerEventInteractor;
+    clientEventInteractor: ClientEventInteractor;
 }

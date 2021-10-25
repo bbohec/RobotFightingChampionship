@@ -1,4 +1,4 @@
-import { ComponentPropertyType } from '../../Systems/GameEventDispatcher/port/ComponentPropertyType'
+import { ComponentPropertyType } from '../../EventInteractor/port/ComponentPropertyType'
 
 export interface SerializedComponent {
     componentClassName: string;
