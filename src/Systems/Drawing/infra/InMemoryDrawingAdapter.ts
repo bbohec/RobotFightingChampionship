@@ -1,9 +1,10 @@
-import { Dimension, gridDimension } from '../../../Components/port/Dimension'
-import { Physical, Position, position } from '../../../Components/Physical'
+import { Dimension } from '../../../Components/port/Dimension'
+import { Physical, Position } from '../../../Components/Physical'
 import { idAlreadyDraw, idNotFoundOnDrawIds } from '../port/DrawingPort'
 import { DrawingAdapter } from '../port/DrawingAdapter'
+import { CommonDrawingAdapter } from './CommonDrawingAdapter'
 
-export class InMemoryDrawingAdapter implements DrawingAdapter {
+export class InMemoryDrawingAdapter extends CommonDrawingAdapter implements DrawingAdapter {
     public retrieveDrawnEntities (): Map<string, Physical> {
         return this.drawEntities
     }
@@ -22,14 +23,8 @@ export class InMemoryDrawingAdapter implements DrawingAdapter {
 
     public absolutePositionByEntityId (entityId: string): Position|null {
         const entityPosition = this.drawEntities.get(entityId)?.position
-        if (entityPosition) return this.relativePositionToAbsolutePosition(entityPosition)
+        if (entityPosition) return this.relativePositionToAbsolutePosition(entityPosition, 0.5)
         return null
-    }
-
-    public relativePositionToAbsolutePosition (entityRelativePosition: Position): Position {
-        const scalingRatio = this.resolution.x / this.gridDimension.x
-        const offset = 0.5 * scalingRatio
-        return position(Math.floor(entityRelativePosition.x * scalingRatio + offset), Math.floor(entityRelativePosition.y * scalingRatio + offset))
     }
 
     public eraseEntity (entityId:string): Promise<void> {
@@ -45,6 +40,4 @@ export class InMemoryDrawingAdapter implements DrawingAdapter {
     }
 
     public drawEntities:Map<string, Physical> = new Map();
-    public gridDimension: Dimension = gridDimension
-    private resolution: Dimension = { x: 0, y: 0 }
 }

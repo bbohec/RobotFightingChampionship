@@ -6,7 +6,7 @@ import { EntityId } from '../../../Event/entityIds'
 import { ShapeType } from '../../../Components/port/ShapeType'
 import { Dimension } from '../../../Components/port/Dimension'
 import { DrawingAdapter } from '../port/DrawingAdapter'
-import { PixijsDrawingAdapter } from './PixijsDrawingAdapter'
+// import { PixijsDrawingAdapter } from './PixijsDrawingAdapter'
 import { DrawingIntegration } from '../port/DrawingIntegration'
 
 interface DrawingAdapterTestSuite {
