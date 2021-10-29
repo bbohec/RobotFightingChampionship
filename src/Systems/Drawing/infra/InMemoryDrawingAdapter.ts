@@ -5,6 +5,11 @@ import { DrawingAdapter } from '../port/DrawingAdapter'
 import { CommonDrawingAdapter } from './CommonDrawingAdapter'
 
 export class InMemoryDrawingAdapter extends CommonDrawingAdapter implements DrawingAdapter {
+    public updatePlayerPointerId (playerPointerId: string): Promise<void> {
+        this.playerPointerId = playerPointerId
+        return Promise.resolve()
+    }
+
     public retrieveDrawnEntities (): Map<string, Physical> {
         return this.drawEntities
     }

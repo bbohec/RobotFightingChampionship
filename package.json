@@ -2,13 +2,19 @@
   "name": "robotfightingchampionship",
   "version": "0.0.0",
   "description": "",
-  "source":"src/HTML/index.html",
   "browserslist": "> 0.5%, last 2 versions, not dead",
   "scripts": {
     "test": "mocha 'src/**/*.spec.ts'",
-    "build-ts": "tsc ",
-    "build-parcel":"parcel build",
-    "start-parcel":"parcel"
+    "start": "node dist/server/main.js",
+    "build-ts": "tsc",
+    "build-parcel": "parcel build",
+    "start-parcel": "parcel"
+  },
+  "targets": {
+    "frontend": {
+      "source": "src/public/html/testPixiAdapter.html",
+      "distDir": "dist/public"
+    }
   },
   "repository": {
     "type": "git",

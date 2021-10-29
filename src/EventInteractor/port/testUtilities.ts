@@ -10,7 +10,7 @@ import { WebClientEventInteractor } from '../infra/WebClientEventInteractor'
 import { InMemoryClientEventInteractor } from '../infra/InMemoryClientEventInteractor'
 import { InMemoryServerEventInteractor } from '../infra/InMemoryServerEventInteractor'
 import { ClientEventInteractor, ServerEventInteractor } from './EventInteractor'
-import { webServerPort } from '../infra/WebServerEventInteractor'
+import { defaultHTTPWebServerPort } from '../infra/WebServerEventInteractor'
 
 export interface ClientEventIntegrationTestSuite {
     clientEventInteractor:ClientEventInteractor
@@ -22,7 +22,7 @@ export interface EventIntegrationTestSuite {
     clientsEventIntegrationTestSuite: ClientEventIntegrationTestSuite[];
 }
 export const serverFullyQualifiedDomainName = 'localhost'
-export const clientQty = 20
+export const clientQty = 10
 
 export const makeRestClientsEventIntegrationTestSuite = (qty:number) => [...Array(qty).keys()].map(value => makeRestClientEventIntegrationTestSuite(value.toString(), position(0, 0)))
 export const makeInMemoryClientsEventIntegrationTestSuite = (qty:number) => [...Array(qty).keys()].map(value => makeInMemoryClientEventIntegrationTestSuite(value.toString(), position(0, 0)))
@@ -48,6 +48,6 @@ export const makeInMemoryClientEventIntegrationTestSuite = (playerId:string, pos
     clientEvents: [newGameEvent(Action.attack, new Map([[EntityType.player, [playerId]]]), [new Physical(EntityId.playerAPointer, position, ShapeType.pointer)])]
 })
 export const makeRestClientEventIntegrationTestSuite = (playerId:string, position:Position): ClientEventIntegrationTestSuite => ({
-    clientEventInteractor: new WebClientEventInteractor(serverFullyQualifiedDomainName, webServerPort, playerId, new InMemoryEventBus()),
+    clientEventInteractor: new WebClientEventInteractor(serverFullyQualifiedDomainName, defaultHTTPWebServerPort, playerId, new InMemoryEventBus()),
     clientEvents: [newGameEvent(Action.attack, new Map([[EntityType.player, [playerId]]]), [new Physical(EntityId.playerAPointer, position, ShapeType.pointer)])]
 })

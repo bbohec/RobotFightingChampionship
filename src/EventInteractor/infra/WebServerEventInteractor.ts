@@ -1,4 +1,4 @@
-import express from 'express'
+import { Express } from 'express'
 import { v1 as uuid } from 'uuid'
 import { json, urlencoded } from 'body-parser'
 import { OutgoingHttpHeaders, Server, ServerResponse } from 'http'
@@ -13,10 +13,31 @@ import { InMemoryEventBus } from '../../Event/infra/InMemoryEventBus'
 import { ServerEventInteractor } from '../port/EventInteractor'
 export const serverBodyRequest = (stringifiedBody:string): string => `SERVER POST REQUEST : ${stringifiedBody}`
 export const clientGameEventUrlPath = '/clientGameEvent'
-export const webServerPort = 80
+export const productionSSERetryInterval = 5000
+export const defaultHTTPWebServerPort = 80
+export class ExpressWebServerInstance {
+    constructor (instance:Express, port: number) {
+        this.port = port
+        this.instance = instance
+    }
+
+    start () {
+        this.server = this.instance.listen(this.port, () => console.log(serverListeningMessage(this.port)))
+    }
+
+    close () {
+        if (this.server) this.server.close(error => { if (error) throw error })
+    }
+
+    readonly instance:Express
+    readonly port:number
+    private server: Server | undefined;
+}
+
+const serverGameEventUrlPath = '/serverGameEvents'
 export class WebServerEventInteractor implements ServerEventInteractor {
-    constructor (webServerPort: number, sseRetryIntervalMilliseconds: number, eventBus: InMemoryEventBus) {
-        this.webServerPort = webServerPort
+    constructor (webServer: ExpressWebServerInstance, eventBus: InMemoryEventBus, sseRetryIntervalMilliseconds: number) {
+        this.webServer = webServer
         this.sseRetryIntervalMilliseconds = sseRetryIntervalMilliseconds
         this.eventBus = eventBus
         this.config()
@@ -25,26 +46,16 @@ export class WebServerEventInteractor implements ServerEventInteractor {
     eventBus: InMemoryEventBus;
 
     start () {
-        this.server = this.app.listen(this.webServerPort, () => {
-            // console.log(`WebServerEventInteractor listening at http://localhost:${this.webServerPort}`)
-        })
+        this.webServer.start()
     }
 
     stop (): void {
-        const sseCloseMessage: SSEMessage = {
-            id: uuid(),
-            type: SSEMessageType.CLOSE_SSE,
-            retry: this.sseRetryIntervalMilliseconds,
-            data: ''
-        }
-        Promise.all([...this.registeredSSEClientResponses.values()].map(registeredSSEClientResponse => this.sendMessageToSSEClientResponse(registeredSSEClientResponse, sseCloseMessage)))
-            .then(() => {
-                if (this.server)
-                    this.server.close(error => {
-                        if (error)
-                            throw error
-                    })
-            })
+        Promise.all([...this.registeredSSEClientResponses.values()]
+            .map(registeredSSEClientResponse =>
+                this.sendMessageToSSEClientResponse(registeredSSEClientResponse, closeMessage(uuid(), this.sseRetryIntervalMilliseconds))
+            )
+        )
+            .then(() => this.webServer.close())
             .catch(error => { throw error })
     }
 
@@ -76,34 +87,28 @@ export class WebServerEventInteractor implements ServerEventInteractor {
 
     sendEventToClient (gameEvent: GameEvent): Promise<void> {
         const gameEventPlayers = gameEvent.entityRefences.get(EntityType.player)
-        if (!gameEventPlayers)
-            throw new Error('Missing player reference on game event.')
-        const sseClientResponse = this.registeredSSEClientResponses.get(gameEventPlayers[0])
-        if (!sseClientResponse)
-            return Promise.reject(new Error(`SSE Client Id '${gameEventPlayers[0]}' missing on SSE clients.`))
-        return this.sendMessageToSSEClientResponse(sseClientResponse, this.makeSSEMessage(SSEMessageType.GAME_EVENT, gameEvent))
+        if (!gameEventPlayers) return Promise.reject(new Error(missingPlayerReferenceOnGameEventMessage))
+        const playerId = gameEventPlayers[0]
+        const sseClientResponse = this.registeredSSEClientResponses.get(playerId)
+        return (sseClientResponse && playerId)
+            ? this.sendMessageToSSEClientResponse(sseClientResponse, this.makeSSEMessage(SSEMessageType.GAME_EVENT, gameEvent))
+            : Promise.reject(new Error(sseClientMissingMessage(playerId)))
     }
 
     private registerSSEClient (clientId: string, response: ServerResponse) {
-        const headers: OutgoingHttpHeaders = {
-            'Content-Type': 'text/event-stream',
-            Connection: 'keep-alive',
-            'Cache-Control': 'no-cache'
-        }
-        response.writeHead(200, headers)
+        response.writeHead(200, sseKeepAliveHeaders)
         this.registeredSSEClientResponses.set(clientId, response)
     }
 
     private config () {
-        this.app.use(urlencoded({ extended: true }))
-        this.app.use(json())
-        this.app.post(clientGameEventUrlPath, (request, response) => {
-            const body: string | any = JSON.stringify(request.body)
-            this.sendEventToServer(this.gameEventFromBody(body))
+        this.webServer.instance.use(urlencoded({ extended: true }))
+        this.webServer.instance.use(json())
+        this.webServer.instance.post(clientGameEventUrlPath, (request, response) => {
+            this.sendEventToServer(this.gameEventFromBody(JSON.stringify(request.body)))
                 .then(() => response.status(201).send())
                 .catch((error: Error) => response.status(500).send(error.message))
         })
-        this.app.get('/serverGameEvents', (request, response) => {
+        this.webServer.instance.get(serverGameEventUrlPath, (request, response) => {
             (request.query.clientId && typeof request.query.clientId === 'string')
                 ? this.registerSSEClient(request.query.clientId, response)
                 : response.status(500).send('Missing clientId parameter')
@@ -111,19 +116,12 @@ export class WebServerEventInteractor implements ServerEventInteractor {
     }
 
     private makeSSEMessage (sseEventType: SSEMessageType, gameEvent: GameEvent | SerializedGameEvent): SSEMessage {
-        if (gameEvent instanceof GameEvent)
-            gameEvent = this.serializeEvent(gameEvent)
+        if (gameEvent instanceof GameEvent) gameEvent = this.serializeEvent(gameEvent)
         const data = JSON.stringify(gameEvent, (key: string, value: unknown) => value instanceof Map
             ? { dataType: 'Map', value: Array.from(value.entries()) }
             : value
         )
-        const sseMessage: SSEMessage = {
-            id: uuid(),
-            type: sseEventType,
-            retry: this.sseRetryIntervalMilliseconds,
-            data
-        }
-        return sseMessage
+        return sseMessage(uuid(), sseEventType, this.sseRetryIntervalMilliseconds, data)
     }
 
     private sendMessageToSSEClientResponse (sseClientResponse: ServerResponse, sseMessage: SSEMessage) {
@@ -135,10 +133,29 @@ export class WebServerEventInteractor implements ServerEventInteractor {
     }
 
     private componentBuilder = new ComponentBuilder();
-    private app = express();
-    private webServerPort: number;
-    private server: Server | undefined;
+    private webServer:ExpressWebServerInstance
     private registeredSSEClientResponses = new Map<string, ServerResponse>();
     private sseRetryIntervalMilliseconds: number;
     private componentSerializer = new ComponentSerializer();
 }
+
+const serverListeningMessage = (port:number): string => `WebServerEventInteractor listening at http://localhost:${port}`
+const closeMessage = (messageId:string, sseRetryIntervalMilliseconds:number): SSEMessage => ({
+    id: messageId,
+    type: SSEMessageType.CLOSE_SSE,
+    retry: sseRetryIntervalMilliseconds,
+    data: ''
+})
+const sseMessage = (messageId:string, sseEventType: SSEMessageType, sseRetryIntervalMilliseconds:number, data:string): SSEMessage => ({
+    id: messageId,
+    type: sseEventType,
+    retry: sseRetryIntervalMilliseconds,
+    data
+})
+const sseKeepAliveHeaders: OutgoingHttpHeaders = {
+    'Content-Type': 'text/event-stream',
+    Connection: 'keep-alive',
+    'Cache-Control': 'no-cache'
+}
+const sseClientMissingMessage = (playerId: string): string => `SSE Client Id '${playerId}' missing on SSE clients.`
+const missingPlayerReferenceOnGameEventMessage = 'Missing player reference on game event.'

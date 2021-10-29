@@ -6,7 +6,8 @@ import { InMemoryEventBus } from '../../Event/infra/InMemoryEventBus'
 import { InMemoryServerEventInteractor } from './InMemoryServerEventInteractor'
 import { detailedComparisonMessage } from '../../Event/test'
 import { EventIntegrationTestSuite, makeInMemoryClientsEventIntegrationTestSuite, clientQty, makeRestClientsEventIntegrationTestSuite, beforeFunction, afterFunction } from '../port/testUtilities'
-import { WebServerEventInteractor, webServerPort } from './WebServerEventInteractor'
+import { WebServerEventInteractor, defaultHTTPWebServerPort, ExpressWebServerInstance } from './WebServerEventInteractor'
+import express from 'express'
 
 describe('Integration Test Suite - Event Interactor', () => {
     const testSuites:EventIntegrationTestSuite[] = [
@@ -17,7 +18,7 @@ describe('Integration Test Suite - Event Interactor', () => {
         },
         {
             adapterType: 'Rest',
-            serverEventInteractor: new WebServerEventInteractor(webServerPort, 1000, new InMemoryEventBus()),
+            serverEventInteractor: new WebServerEventInteractor(new ExpressWebServerInstance(express(), defaultHTTPWebServerPort), new InMemoryEventBus(), 1000),
             clientsEventIntegrationTestSuite: makeRestClientsEventIntegrationTestSuite(clientQty)
         }
     ]

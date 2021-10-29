@@ -1,6 +1,5 @@
 import { describe, before, it, Func } from 'mocha'
 import { expect } from 'chai'
-import { InMemoryDrawingAdapter } from './InMemoryDrawingAdapter'
 import { Physical, Position, position } from '../../../Components/Physical'
 import { EntityId } from '../../../Event/entityIds'
 import { ShapeType } from '../../../Components/port/ShapeType'
@@ -18,7 +17,7 @@ interface DrawingAdapterTestSuite {
 }
 
 const adapters:DrawingAdapter[] = [
-    new InMemoryDrawingAdapter()
+    // new InMemoryDrawingAdapter(new InMemoryEventBus())
     // new PixijsDrawingAdapter()
 ]
 

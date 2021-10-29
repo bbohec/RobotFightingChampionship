@@ -1,13 +1,23 @@
 import { Dimension } from '../../../Components/port/Dimension'
-import { Physical, Position } from '../../../Components/Physical'
+import { Physical, position, Position } from '../../../Components/Physical'
 import { DrawingAdapter } from '../port/DrawingAdapter'
-import { Application, Sprite } from 'pixi.js'
+import { Application, InteractionEvent, Sprite } from 'pixi.js'
 import { PixiJSEntity } from '../port/PixiJSEntity'
 import { CommonDrawingAdapter } from './CommonDrawingAdapter'
 import { ShapeType } from '../../../Components/port/ShapeType'
-import { shapeAssets } from '../../../HTML/app'
+import { shapeAssets } from '../../../public/scripts/shapeAssets'
+import { PixiEvent } from '../port/PixiEvent'
+
+const drawEntityOnPositionMessage = (physicalComponent:Physical) => `Draw entity ${physicalComponent.entityId} on position ${JSON.stringify(physicalComponent.position)}`
+const eraseEntityMessage = (id: string) => `Erase entity ${id}`
+const entityIdMissingOnPixiEntities = (entityId:string) => `Entity id '${entityId} missing on pixijsEntities'`
+const missingShapeType = (shapeType: ShapeType) => `Missing shape type '${shapeType}''`
 
 export class PixijsDrawingAdapter extends CommonDrawingAdapter implements DrawingAdapter {
+    public updatePlayerPointerId (playerPointerId:string): Promise<void> {
+        return this.loadPixijsEvents(playerPointerId)
+    }
+
     public retrieveDrawnEntities (): Map<string, Physical> {
         const drawnEntities:Map<string, Physical> = new Map()
         for (const [entityId, pixiEntity] of this.pixijsEntities) drawnEntities.set(entityId, pixiEntity.physical)
@@ -19,24 +29,13 @@ export class PixijsDrawingAdapter extends CommonDrawingAdapter implements Drawin
     }
 
     public changeResolution (resolution: Dimension): void {
-        const diffRatio = resolution.x / this.gridDimension.x - resolution.y / this.gridDimension.y
-        if (diffRatio > 0) resolution.x = ((resolution.x / this.gridDimension.x) - Math.abs(diffRatio)) * this.gridDimension.x
-        if (diffRatio < 0) resolution.y = ((resolution.y / this.gridDimension.y) - Math.abs(diffRatio)) * this.gridDimension.y
-        this.resolution = resolution
+        this.resolution = this.conserveAspectRatio(resolution)
         this.updatePixiEntities()
         this.resizePixiAppRenderer()
     }
 
-    private updatePixiEntities () {
-        for (const [, pixiEntity] of this.pixijsEntities) this.updatePixiEntityGraphically(pixiEntity)
-    }
-
-    private resizePixiAppRenderer () {
-        this.pixiApp.renderer.resize(this.resolution.x, this.resolution.y)
-    }
-
     public retrieveResolution (): Dimension {
-        return { x: this.pixiApp.renderer.width, y: this.pixiApp.renderer.height }
+        return { x: this.pixiApp.renderer.view.width, y: this.pixiApp.renderer.view.height }
     }
 
     public absolutePositionByEntityId (entityId: string): Position {
@@ -54,6 +53,43 @@ export class PixijsDrawingAdapter extends CommonDrawingAdapter implements Drawin
         return pixiEntity
             ? this.updatePixiEntity(pixiEntity, physicalComponent)
             : this.createPixiEntity(physicalComponent)
+    }
+
+    public eraseEntity (id: string): Promise<void> {
+        const pixiEntity = this.pixijsEntities.get(id)
+        return pixiEntity ? this.erasePixiEntity(pixiEntity) : Promise.resolve()
+    }
+
+    public addingViewToDom (htmlElement:HTMLElement):void {
+        htmlElement.appendChild(this.pixiApp.view)
+    }
+
+    private loadPixijsEvents (playerPointerId:string):Promise<void> {
+        this.playerPointerId = playerPointerId
+        const stage = this.pixiApp.stage
+        stage.interactive = true
+        stage.buttonMode = true
+        stage.on(PixiEvent.MOUSE_DOWN, (event:InteractionEvent) => this.onPixiEventMouseDown(event))
+        return Promise.resolve()
+    }
+
+    private onPixiEventMouseDown (event: InteractionEvent): Promise<void> {
+        return this.sendUpdatePlayerPointerPositionGameEvent(position(event.data.global.x, event.data.global.y))
+    }
+
+    private conserveAspectRatio (resolution: Dimension) {
+        const diffRatio = resolution.x / this.gridDimension.x - resolution.y / this.gridDimension.y
+        if (diffRatio > 0) resolution.x = ((resolution.x / this.gridDimension.x) - Math.abs(diffRatio)) * this.gridDimension.x
+        if (diffRatio < 0) resolution.y = ((resolution.y / this.gridDimension.y) - Math.abs(diffRatio)) * this.gridDimension.y
+        return resolution
+    }
+
+    private updatePixiEntities () {
+        for (const [, pixiEntity] of this.pixijsEntities) this.updatePixiEntityGraphically(pixiEntity)
+    }
+
+    private resizePixiAppRenderer () {
+        this.pixiApp.renderer.resize(this.resolution.x, this.resolution.y)
     }
 
     private updatePixiEntity (pixiEntity: PixiJSEntity, physicalComponent:Physical): Promise<void> {
@@ -92,15 +128,10 @@ export class PixijsDrawingAdapter extends CommonDrawingAdapter implements Drawin
     }
 
     private updatePixiEntityAbsolutePosition (pixiEntity:PixiJSEntity) :Promise<void> {
-        const absolutePosition = this.relativePositionToAbsolutePosition(pixiEntity.physical.position, 0)
+        const absolutePosition = this.relativePositionToAbsolutePosition(pixiEntity.physical.position, this.offset)
         pixiEntity.sprite.x = absolutePosition.x
         pixiEntity.sprite.y = absolutePosition.y
         return Promise.resolve()
-    }
-
-    public eraseEntity (id: string): Promise<void> {
-        const pixiEntity = this.pixijsEntities.get(id)
-        return pixiEntity ? this.erasePixiEntity(pixiEntity) : Promise.resolve()
     }
 
     private erasePixiEntity (pixiEntity: PixiJSEntity): Promise<void> {
@@ -110,16 +141,7 @@ export class PixijsDrawingAdapter extends CommonDrawingAdapter implements Drawin
         return Promise.resolve()
     }
 
-    public addingViewToDom (htmlElement:HTMLElement):void {
-        htmlElement.appendChild(this.pixiApp.view)
-    }
-
     private pixijsEntities:Map<string, PixiJSEntity> = new Map()
     private shapeAssets: Map<ShapeType, URL> = shapeAssets
     private pixiApp = new Application({ width: this.resolution.x, height: this.resolution.y })
 }
-
-const drawEntityOnPositionMessage = (physicalComponent:Physical) => `Draw entity ${physicalComponent.entityId} on position ${JSON.stringify(physicalComponent.position)}`
-const eraseEntityMessage = (id: string) => `Erase entity ${id}`
-const entityIdMissingOnPixiEntities = (entityId:string) => `Entity id '${entityId} missing on pixijsEntities'`
-const missingShapeType = (shapeType: ShapeType) => `Missing shape type '${shapeType}''`
