@@ -7,5 +7,6 @@ export interface SystemInteractor {
 }
 export const systemNotFoundOnRepository = <Class extends System> (potentialSystem: PotentialClass<Class>): string =>
     `System '${potentialSystem.name}' not found on system repository.`
-export const systemAlreadyInRepository = (system: System): string =>
-    `System '${system.constructor.name}'already in repository.`
+export const systemAlreadyInRepository = (system: System, systems:Map<string, System>): string =>
+    `System '${system.constructor.name}'already in repository.
+    List of current systems: ${[...systems.keys()]}`

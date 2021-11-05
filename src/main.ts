@@ -15,6 +15,6 @@ const loadProductionServer = (expressWebServerInstance:ExpressWebServerInstance,
     )
 }
 const expressIntance = new ExpressWebServerInstance(express(), Number(process.env.PORT || defaultHTTPWebServerPort))
-expressIntance.instance.use(express.static('public'))
+expressIntance.instance.use(express.static('dist/public'))
 loadProductionServer(expressIntance, productionSSERetryInterval)
 expressIntance.start()

@@ -1,7 +1,7 @@
-import { GameEvent } from '../GameEvent'
+import { GameEvent } from '../GameEvent.js'
 import { stringifyWithDetailledSetAndMap } from '../test'
 import { gameEventNotFoundOnEventInteractor } from '../../EventInteractor/port/EventInteractor'
-import { EventBus } from '../port/EventBus'
+import { EventBus } from '../port/EventBus.js'
 
 export class InMemoryEventBus implements EventBus {
     public send (gameEvent: GameEvent): Promise<void> {

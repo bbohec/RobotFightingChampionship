@@ -50,9 +50,9 @@ export class WebServerEventInteractor implements ServerEventInteractor {
     }
 
     stop (): void {
-        Promise.all([...this.registeredSSEClientResponses.values()]
-            .map(registeredSSEClientResponse =>
-                this.sendMessageToSSEClientResponse(registeredSSEClientResponse, closeMessage(uuid(), this.sseRetryIntervalMilliseconds))
+        Promise.all([...this.registeredSSEClientResponses.entries()]
+            .map(([clientId, registeredSSEClientResponse]) =>
+                this.sendMessageToSSEClientResponse(clientId, registeredSSEClientResponse, closeMessage(uuid(), this.sseRetryIntervalMilliseconds))
             )
         )
             .then(() => this.webServer.close())
@@ -91,13 +91,14 @@ export class WebServerEventInteractor implements ServerEventInteractor {
         const playerId = gameEventPlayers[0]
         const sseClientResponse = this.registeredSSEClientResponses.get(playerId)
         return (sseClientResponse && playerId)
-            ? this.sendMessageToSSEClientResponse(sseClientResponse, this.makeSSEMessage(SSEMessageType.GAME_EVENT, gameEvent))
+            ? this.sendMessageToSSEClientResponse(playerId, sseClientResponse, this.makeSSEGameEventMessage(SSEMessageType.GAME_EVENT, gameEvent))
             : Promise.reject(new Error(sseClientMissingMessage(playerId)))
     }
 
     private registerSSEClient (clientId: string, response: ServerResponse) {
         response.writeHead(200, sseKeepAliveHeaders)
         this.registeredSSEClientResponses.set(clientId, response)
+        this.sendMessageToSSEClientResponse(clientId, response, this.makeSSEEmptyMessage(SSEMessageType.CONNECTED))
     }
 
     private config () {
@@ -115,7 +116,11 @@ export class WebServerEventInteractor implements ServerEventInteractor {
         })
     }
 
-    private makeSSEMessage (sseEventType: SSEMessageType, gameEvent: GameEvent | SerializedGameEvent): SSEMessage {
+    private makeSSEEmptyMessage (sseEventType: SSEMessageType): SSEMessage {
+        return sseMessage(uuid(), sseEventType, this.sseRetryIntervalMilliseconds)
+    }
+
+    private makeSSEGameEventMessage (sseEventType: SSEMessageType, gameEvent: GameEvent | SerializedGameEvent): SSEMessage {
         if (gameEvent instanceof GameEvent) gameEvent = this.serializeEvent(gameEvent)
         const data = JSON.stringify(gameEvent, (key: string, value: unknown) => value instanceof Map
             ? { dataType: 'Map', value: Array.from(value.entries()) }
@@ -124,7 +129,8 @@ export class WebServerEventInteractor implements ServerEventInteractor {
         return sseMessage(uuid(), sseEventType, this.sseRetryIntervalMilliseconds, data)
     }
 
-    private sendMessageToSSEClientResponse (sseClientResponse: ServerResponse, sseMessage: SSEMessage) {
+    private sendMessageToSSEClientResponse (playerId:string, sseClientResponse: ServerResponse, sseMessage: SSEMessage) {
+        console.log('Send SSE Message', playerId, sseMessage)
         sseClientResponse.write(`id: ${sseMessage.id}\n`)
         sseClientResponse.write(`event: ${sseMessage.type}\n`)
         sseClientResponse.write(`retry: ${sseMessage.retry}\n`)
@@ -146,7 +152,7 @@ const closeMessage = (messageId:string, sseRetryIntervalMilliseconds:number): SS
     retry: sseRetryIntervalMilliseconds,
     data: ''
 })
-const sseMessage = (messageId:string, sseEventType: SSEMessageType, sseRetryIntervalMilliseconds:number, data:string): SSEMessage => ({
+const sseMessage = (messageId:string, sseEventType: SSEMessageType, sseRetryIntervalMilliseconds:number, data?:string): SSEMessage => ({
     id: messageId,
     type: sseEventType,
     retry: sseRetryIntervalMilliseconds,

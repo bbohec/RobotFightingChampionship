@@ -23,15 +23,20 @@ export class WebClientEventInteractor implements ClientEventInteractor, SSEClien
     }
 
     subscribeServerSentEvent (): void {
-        this.eventSource = new EventSource(`http://${this.serverFullyQualifiedDomainName}:${this.webServerPort}/serverGameEvents?clientId=${this.clientId}`)
+        const sseUrl = `http://${this.serverFullyQualifiedDomainName}:${this.webServerPort}/serverGameEvents?clientId=${this.clientId}`
+        console.log(`subscribeServerSentEvent on url '${sseUrl}'.`)
+        this.eventSource = new EventSource(sseUrl)
         this.eventSource.addEventListener(SSEMessageType.GAME_EVENT, event => {
             const messageEvent: MessageEvent<string> = (event as MessageEvent)
-            // console.log('Event', messageEvent)
+            console.log('Event', messageEvent)
             this.sendEventToClient(this.messageEventDataToGameEvent(messageEvent.data))
         })
         this.eventSource.addEventListener(SSEMessageType.CLOSE_SSE, event => {
-            // console.log('closing client SSE...')
+            console.log('closing client SSE...')
             this.stop()
+        })
+        this.eventSource.addEventListener(SSEMessageType.CONNECTED, event => {
+            console.log('SSE Client Registered.')
         })
     }
 

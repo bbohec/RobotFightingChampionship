@@ -15,6 +15,7 @@ const loadClient = (playerId:string) => {
     window.addEventListener('resize', resizePixiCanvas)
     productionClientDrawingAdapter.addingViewToDom(document.body)
     resizePixiCanvas()
+    productionClientEventInteractor.start()
     return new ClientGameSystem(productionClientAdapters)
 }
 loadClient(uuid())

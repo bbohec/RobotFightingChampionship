@@ -4,7 +4,7 @@ import { System } from '../port/System'
 
 export class InMemorySystemRepository implements SystemInteractor {
     addSystem (system: System): void {
-        if (this.systems.has(system.constructor.name)) throw new Error(systemAlreadyInRepository(system))
+        if (this.systems.has(system.constructor.name)) throw new Error(systemAlreadyInRepository(system, this.systems))
         this.systems.set(system.constructor.name, system)
     }
 

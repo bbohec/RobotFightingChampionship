@@ -4,16 +4,28 @@
   "description": "",
   "browserslist": "> 0.5%, last 2 versions, not dead",
   "scripts": {
-    "test": "mocha 'src/**/*.spec.ts'",
-    "start": "node dist/server/main.js",
+    "test": "mocha --require esm 'src/**/*.spec.ts'",
+    "start": "node dist/main.js",
     "build-ts": "tsc",
     "build-parcel": "parcel build",
-    "start-parcel": "parcel"
+    "start-parcel": "parcel src/public/html/testPixiAdapter.html"
   },
   "targets": {
-    "frontend": {
+    "frontend-testPixiAdapter": {
       "source": "src/public/html/testPixiAdapter.html",
       "distDir": "dist/public"
+    },
+    "frontend-production": {
+        "source": "src/public/html/game.html",
+        "distDir": "dist/public",
+        "outputFormat": "esmodule",
+        "sourceMap":false
+      },
+    "backend": {
+        "source": "src/main.ts",
+        "context":"node",
+        "outputFormat": "commonjs",
+        "distDir":"dist"
     }
   },
   "repository": {
@@ -37,6 +49,7 @@
   "dependencies": {
     "axios": "^0.22.0",
     "body-parser": "^1.19.0",
+    "esm": "^3.2.25",
     "eventsource": "^1.1.0",
     "express": "^4.17.1",
     "pixi.js": "^6.1.3"
