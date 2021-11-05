@@ -9,7 +9,7 @@
         "allowSyntheticDefaultImports": true,
         "sourceMap": true,
         "moduleResolution": "node",
-        "lib": ["ES2017", "DOM"],
+        "lib": ["es6", "DOM"],
         "strict": true,
         "types": ["pixi.js"],
         "esModuleInterop": true,
