@@ -6,11 +6,17 @@
         "clean:build":"rimraf dist",
         "test": "mocha --require esm 'src/**/*.spec.ts'",
         "start": "node dist/main.js",
-        "build-ts": "tsc",
+        "build:ts": "tsc",
         "build:parcel": "npm run clean:build && parcel build",
-        "start:parcel": "npm run clean:build && parcel src/public/html/testPixiAdapter.html"
+        "test:parcel": "npm run clean:build && parcel src/public/html/test.html"
     },
     "targets": {
+        "frontend-test": {
+            "context": "browser",
+            "source": "src/public/html/test.html",
+            "distDir": "dist/public",
+            "optimize":false
+        },
         "frontend-production": {
             "context": "browser",
             "source": "src/public/html/game.html",

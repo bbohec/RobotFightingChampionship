@@ -5,8 +5,8 @@ import { Application, InteractionEvent, Sprite } from 'pixi.js'
 import { PixiJSEntity } from '../port/PixiJSEntity'
 import { CommonDrawingAdapter } from './CommonDrawingAdapter'
 import { ShapeType } from '../../../Components/port/ShapeType'
-import { shapeAssets } from '../../../public/scripts/shapeAssets'
 import { PixiEvent } from '../port/PixiEvent'
+import { EventBus } from '../../../Event/port/EventBus'
 
 const drawEntityOnPositionMessage = (physicalComponent:Physical) => `Draw entity ${physicalComponent.entityId} on position ${JSON.stringify(physicalComponent.position)}`
 const eraseEntityMessage = (id: string) => `Erase entity ${id}`
@@ -14,6 +14,11 @@ const entityIdMissingOnPixiEntities = (entityId:string) => `Entity id '${entityI
 const missingShapeType = (shapeType: ShapeType) => `Missing shape type '${shapeType}''`
 
 export class PixijsDrawingAdapter extends CommonDrawingAdapter implements DrawingAdapter {
+    constructor (eventBus:EventBus, shapeAssets:Map<ShapeType, URL>) {
+        super(eventBus)
+        this.shapeAssets = shapeAssets
+    }
+
     public updatePlayerPointerId (playerPointerId:string): Promise<void> {
         return this.loadPixijsEvents(playerPointerId)
     }
@@ -142,6 +147,6 @@ export class PixijsDrawingAdapter extends CommonDrawingAdapter implements Drawin
     }
 
     private pixijsEntities:Map<string, PixiJSEntity> = new Map()
-    private shapeAssets: Map<ShapeType, URL> = shapeAssets
+    private shapeAssets: Map<ShapeType, URL>
     private pixiApp = new Application({ width: this.resolution.x, height: this.resolution.y })
 }

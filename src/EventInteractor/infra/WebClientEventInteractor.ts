@@ -4,14 +4,14 @@ import { ComponentBuilder } from '../../Components/port/ComponentBuilder'
 import { ComponentSerializer } from '../../Components/port/ComponentSerializer'
 import { GameEvent } from '../../Event/GameEvent'
 import { SerializedGameEvent } from '../../Event/SerializedGameEvent'
-import { InMemoryEventBus } from '../../Event/infra/InMemoryEventBus'
 import { SSEClient } from './SSE/SSEClient'
 import { SSEMessageType } from './SSE/SSEMessageType'
 import { clientGameEventUrlPath } from './WebServerEventInteractor'
 import { ClientEventInteractor } from '../port/EventInteractor'
+import { EventBus } from '../../Event/port/EventBus'
 export const clientBodyRequest = (stringifiedBody:string): string => `CLIENT POST REQUEST : ${stringifiedBody} `
 export class WebClientEventInteractor implements ClientEventInteractor, SSEClient {
-    constructor (serverFullyQualifiedDomainName: string, webServerPort: number, clientId: string, eventBus: InMemoryEventBus) {
+    constructor (serverFullyQualifiedDomainName: string, webServerPort: number, clientId: string, eventBus: EventBus) {
         this.clientId = clientId
         this.serverFullyQualifiedDomainName = serverFullyQualifiedDomainName
         this.webServerPort = webServerPort
@@ -92,7 +92,7 @@ export class WebClientEventInteractor implements ClientEventInteractor, SSEClien
     }
 
     readonly clientId: string;
-    eventBus: InMemoryEventBus;
+    readonly eventBus: EventBus;
     private componentBuilder = new ComponentBuilder();
     private componentSerializer = new ComponentSerializer();
     private serverFullyQualifiedDomainName: string;

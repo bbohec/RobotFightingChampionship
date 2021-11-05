@@ -1,10 +1,11 @@
 import { EntityId } from '../../Event/entityIds'
 import { InMemoryEventBus } from '../../Event/infra/InMemoryEventBus'
 import { PixijsDrawingAdapter } from '../../Systems/Drawing/infra/PixijsDrawingAdapter'
+import { shapeAssets } from './shapeAssets'
 import { drawFixedEntities, drawMovingEntityPhysicals, drawWalls, runInterval } from './utils'
 
 const inMemoryEventBus = new InMemoryEventBus()
-const pixijsAdapter = new PixijsDrawingAdapter(inMemoryEventBus)
+const pixijsAdapter = new PixijsDrawingAdapter(inMemoryEventBus, shapeAssets)
 // throw new Error('Finish Pixi Adapter Public Method coverage')
 const resizePixiCanvas = () => pixijsAdapter.changeResolution({ x: window.innerWidth, y: window.innerHeight })
 window.addEventListener('resize', resizePixiCanvas)
