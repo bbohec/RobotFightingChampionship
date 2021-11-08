@@ -7,6 +7,7 @@ import { ClientGameSystem } from '../../Systems/Game/ClientGame'
 import { defaultHTTPWebServerPort } from '../../EventInteractor/infra/WebServerEventInteractor'
 import { ProductionEventBus } from '../../Event/infra/ProductionEventBus'
 import { shapeAssets } from './shapeAssets'
+import { createPlayerEvent } from '../../Events/create/create'
 const loadClient = (playerId:string) => {
     const productionClientEventBus = new ProductionEventBus()
     const productionClientDrawingAdapter = new PixijsDrawingAdapter(productionClientEventBus, shapeAssets)
@@ -15,9 +16,11 @@ const loadClient = (playerId:string) => {
     window.addEventListener('resize', resizePixiCanvas)
     productionClientDrawingAdapter.addingViewToDom(document.body)
     resizePixiCanvas()
-    productionClientEventInteractor.start()
     productionClientEventBus.setGameSystem(new ClientGameSystem(new ProductionClientAdapters(productionClientDrawingAdapter, productionClientEventInteractor, playerId)))
-    return productionClientEventBus
+    return productionClientEventInteractor
 }
 const playerId = uuid()
-loadClient(playerId)
+const eventInteractor = loadClient(playerId)
+eventInteractor.start()
+    .then(() => eventInteractor.sendEventToClient(createPlayerEvent))
+    .catch(error => { throw error })

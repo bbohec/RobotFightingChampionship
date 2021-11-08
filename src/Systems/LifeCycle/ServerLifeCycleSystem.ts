@@ -6,14 +6,14 @@ import { Dimensional } from '../../Components/Dimensional'
 import { EntityType } from '../../Event/EntityType'
 import { EntityReference } from '../../Components/EntityReference'
 import { Phasing, preparingGamePhase } from '../../Components/Phasing'
-import { registerGridEvent, registerPlayerOnGameEvent, registerPlayerPointerEvent, registerRobotEvent, registerTowerEvent } from '../../Events/register/register'
+import { registerGridEvent, registerPlayerOnGameEvent, registerPlayerPointerEvent, registerRobotEvent, registerSimpleMatchLobbyOnGame, registerTowerEvent } from '../../Events/register/register'
 import { matchWaitingForPlayers } from '../../Events/waiting/waiting'
 import { Hittable } from '../../Components/Hittable'
 import { Offensive } from '../../Components/Offensive'
 import { Action } from '../../Event/Action'
 import { Entity } from '../../Entities/Entity'
 import { showEvent } from '../../Events/show/show'
-import { mainMenuPosition, Physical, simpleMatchLobbyPosition } from '../../Components/Physical'
+import { mainMenuPosition, Physical } from '../../Components/Physical'
 import { ShapeType } from '../../Components/port/ShapeType'
 export class ServerLifeCycleSystem extends GenericServerLifeCycleSystem {
     onGameEvent (gameEvent: GameEvent): Promise<void> {
@@ -55,7 +55,7 @@ export class ServerLifeCycleSystem extends GenericServerLifeCycleSystem {
                                         : (allEntityTypes.includes(EntityType.match))
                                             ? () => this.createMatchEntity(this.interactWithIdentiers.nextIdentifier(), gameEvent.entityByEntityType(EntityType.simpleMatchLobby))
                                             : (allEntityTypes.includes(EntityType.simpleMatchLobby))
-                                                ? () => this.createSimpleMatchLobbyEntity(this.interactWithIdentiers.nextIdentifier())
+                                                ? () => this.createSimpleMatchLobbyEntity(this.interactWithIdentiers.nextIdentifier(), gameEvent.entityByEntityType(EntityType.game))
                                                 : (allEntityTypes.includes(EntityType.game))
                                                     ? () => this.createGameEntity(this.interactWithIdentiers.nextIdentifier())
                                                     : undefined
@@ -138,18 +138,19 @@ export class ServerLifeCycleSystem extends GenericServerLifeCycleSystem {
             new Entity(gameId),
             [new EntityReference(gameId, EntityType.game)]
         )
-        return this.sendNextEvents([createSimpleMatchLobbyEvent(gameId, 'create')])
+        return this.sendNextEvents([createSimpleMatchLobbyEvent(gameId)])
     }
 
-    private createSimpleMatchLobbyEntity (simpleMatchLobbyEntityId: string): Promise<void> {
+    private createSimpleMatchLobbyEntity (simpleMatchLobbyEntityId: string, gameId:string): Promise<void> {
         this.createEntity(
             new Entity(simpleMatchLobbyEntityId),
             [
                 new Playable(simpleMatchLobbyEntityId, []),
-                new Physical(simpleMatchLobbyEntityId, simpleMatchLobbyPosition, ShapeType.simpleMatchLobby)
+                new EntityReference(simpleMatchLobbyEntityId, EntityType.simpleMatchLobby)
+                // new Physical(simpleMatchLobbyEntityId, simpleMatchLobbyPosition, ShapeType.simpleMatchLobby)
             ]
         )
-        return Promise.resolve()
+        return this.sendEvent(registerSimpleMatchLobbyOnGame(gameId, simpleMatchLobbyEntityId))
     }
 
     private createMatchEntity (matchEntityId: string, simpleMatchLobbyEntityId:string): Promise<void> {

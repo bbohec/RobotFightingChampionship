@@ -2,7 +2,7 @@ import { EntityInteractor } from '../ports/EntityInteractor'
 import { Entity } from '../Entity'
 import { PotentialClass } from '../ports/PotentialClass'
 import { Component } from '../../Components/port/Component'
-import { stringifyWithDetailledSetAndMap } from '../../Event/test'
+import { stringifyWithDetailledSetAndMap } from '../../Event/detailledStringify'
 import { EntityReference } from '../../Components/EntityReference'
 import { EntityType } from '../../Event/EntityType'
 

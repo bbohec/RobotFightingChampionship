@@ -1,4 +1,4 @@
-import axios, { AxiosRequestConfig } from 'axios'
+import axios, { AxiosError, AxiosRequestConfig } from 'axios'
 import EventSource from 'eventsource'
 import { ComponentBuilder } from '../../Components/port/ComponentBuilder'
 import { ComponentSerializer } from '../../Components/port/ComponentSerializer'
@@ -18,8 +18,16 @@ export class WebClientEventInteractor implements ClientEventInteractor, SSEClien
         this.eventBus = eventBus
     }
 
-    start (): void {
-        this.subscribeServerSentEvent()
+    start (): Promise<void> {
+        return new Promise<void>((resolve, reject) => {
+            this.subscribeServerSentEvent()
+            const interval = setInterval((): void => {
+                if (this.sseRegistered) {
+                    clearInterval(interval)
+                    resolve()
+                }
+            }, 100)
+        })
     }
 
     subscribeServerSentEvent (): void {
@@ -28,15 +36,17 @@ export class WebClientEventInteractor implements ClientEventInteractor, SSEClien
         this.eventSource = new EventSource(sseUrl)
         this.eventSource.addEventListener(SSEMessageType.GAME_EVENT, event => {
             const messageEvent: MessageEvent<string> = (event as MessageEvent)
-            console.log('Event', messageEvent)
-            this.sendEventToClient(this.messageEventDataToGameEvent(messageEvent.data))
+            const gameEvent = this.messageEventDataToGameEvent(messageEvent.data)
+            console.log('SSE GameEvent', gameEvent)
+            this.sendEventToClient(gameEvent)
         })
         this.eventSource.addEventListener(SSEMessageType.CLOSE_SSE, event => {
             console.log('closing client SSE...')
             this.stop()
         })
         this.eventSource.addEventListener(SSEMessageType.CONNECTED, event => {
-            console.log('SSE Client Registered.')
+            console.log('SSE Client Registered', this.clientId)
+            this.sseRegistered = true
         })
     }
 
@@ -81,10 +91,9 @@ export class WebClientEventInteractor implements ClientEventInteractor, SSEClien
                 // console.log(`Client Sent OK : ${response.status}`)
                 return Promise.resolve()
             })
-            .catch(error => {
-                // console.log('Client Error')
-                return Promise.reject(error)
-            })
+            .catch((error:AxiosError) => (error.response?.status === 500)
+                ? Promise.reject(new Error(`Internal Server Error - ${error.response?.data}`))
+                : Promise.reject(error))
     }
 
     sendEventToClient (gameEvent: GameEvent): Promise<void> {
@@ -98,4 +107,5 @@ export class WebClientEventInteractor implements ClientEventInteractor, SSEClien
     private serverFullyQualifiedDomainName: string;
     private webServerPort: number;
     private eventSource: EventSource | undefined;
+    private sseRegistered: boolean = false
 }

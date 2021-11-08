@@ -22,12 +22,19 @@ export class ServerMatchSystem extends GenericServerSystem {
     }
 
     private onRegister (gameEvent:GameEvent):Promise<void> {
+        if (gameEvent.hasEntitiesByEntityType(EntityType.game)) return this.onRegisterSimpleMatchLobbyOnGame(gameEvent)
         if (gameEvent.hasEntitiesByEntityType(EntityType.grid)) return this.onRegisterGridOnMatch(gameEvent, this.entityReferencesByEntityId(gameEvent.entityByEntityType(EntityType.match)))
         const playerId = gameEvent.entityByEntityType(EntityType.player)
         const playerEntityReference = this.entityReferencesByEntityId(playerId)
         if (gameEvent.hasEntitiesByEntityType(EntityType.robot)) return this.onRegisterRobotOnPlayer(gameEvent, playerId, playerEntityReference)
         if (gameEvent.hasEntitiesByEntityType(EntityType.tower)) return this.onRegisterTowerOnPlayer(gameEvent, playerId, playerEntityReference)
         throw new Error(errorMessageOnUnknownEventAction(ServerMatchSystem.name, gameEvent))
+    }
+
+    private onRegisterSimpleMatchLobbyOnGame (gameEvent: GameEvent): Promise<void> {
+        this.interactWithEntities.retrieveEntityComponentByEntityId(gameEvent.entityByEntityType(EntityType.game), EntityReference)
+            .entityReferences.set(EntityType.simpleMatchLobby, [gameEvent.entityByEntityType(EntityType.simpleMatchLobby)])
+        return Promise.resolve()
     }
 
     private onQuit (gameEvent: GameEvent, playableComponent:Playable): Promise<void> {

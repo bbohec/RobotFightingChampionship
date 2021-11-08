@@ -3,7 +3,7 @@ import { Component } from '../Components/port/Component'
 import { PotentialClass } from '../Entities/ports/PotentialClass'
 import { Action } from './Action'
 import { EntityType } from './EntityType'
-import { stringifyWithDetailledSetAndMap } from './test'
+import { stringifyWithDetailledSetAndMap } from './detailledStringify'
 export type EntityReferences = Map<EntityType, Array<string>>
 interface GameEventContract {
     action:Action

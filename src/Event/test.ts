@@ -1,20 +1,21 @@
 import { describe, before, Func, it, Test, Suite } from 'mocha'
 import { expect } from 'chai'
 import { GameEvent } from './GameEvent'
-import { GenericGameSystem } from '../Systems/Game/GenericGame'
 import { PotentialClass } from '../Entities/ports/PotentialClass'
-import { FakeClientAdapters } from '../Systems/Game/infra/FakeClientAdapters'
 import { LifeCycle } from '../Components/LifeCycle'
 import { TestStep } from './TestStep'
+import { GenericGameSystem } from '../Systems/Game/GenericGame'
+import { FakeClientAdapters } from '../Systems/Game/infra/FakeClientAdapters'
 import { GenericAdapter } from '../Systems/Game/port/genericAdapters'
 import { FakeServerAdapters } from '../Systems/Game/infra/FakeServerAdapters'
+import { ClientGameSystem } from '../Systems/Game/ClientGame'
+import { ServerGameSystem } from '../Systems/Game/ServerGame'
 import { GenericComponent } from '../Components/GenericComponent'
 import { Component } from '../Components/port/Component'
 import { Action } from './Action'
-import { ClientGameSystem } from '../Systems/Game/ClientGame'
-import { ServerGameSystem } from '../Systems/Game/ServerGame'
 import { Physical } from '../Components/Physical'
 import { InMemoryEventBus } from './infra/InMemoryEventBus'
+import { stringifyWithDetailledSetAndMap } from './detailledStringify'
 type ScenarioType = 'client' | 'server'
 export const feature = (featureEventDescription:string, mochaSuite: (this: Suite) => void) => describe(featureEventDescription, mochaSuite)
 export const featureEventDescription = (action:Action): string => `Feature : ${action} events`
@@ -115,7 +116,6 @@ export const theEntityWithIdDoNotHaveAnyComponent = (
         .isEntityHasComponentsByEntityId(entityId)
     ).to.be.false)
 
-export const stringifyWithDetailledSetAndMap = (value:any) => JSON.stringify(value, detailledStringifyForSetAndMap)
 export const thereIsANotification = (
     testStep:TestStep,
     adapters: FakeClientAdapters,
@@ -191,9 +191,6 @@ const createServer = (nextIdentifiers?:string[]):{adapters:FakeServerAdapters, g
     const game = new ServerGameSystem(adapters)
     return { adapters, game }
 }
-const detailledStringifyForSetAndMap = (key:string, value:any):any => (value instanceof Set)
-    ? [...value.values()]
-    : (value instanceof Map) ? mapToObjectLiteral(value) : value
 export const detailedComparisonMessage = (thing:unknown, expectedThing:unknown):string => `DETAILS\nexpected >>>>>>>> ${stringifyWithDetailledSetAndMap(thing)} \nto deeply equal > ${stringifyWithDetailledSetAndMap(expectedThing)} \n`
 const componentDetailedComparisonMessage = <PotentialComponent extends Component> (component: PotentialComponent, expectedComponent: GenericComponent): string => `DETAILS\nexpected >>>>>>>> ${stringifyWithDetailledSetAndMap(component)} \nto deeply equal > ${stringifyWithDetailledSetAndMap(expectedComponent)} \n`
 const entityDontHaveComponent = (testStep: TestStep, entityId: string, expectedComponent: GenericComponent): string => `${testStep} the entity with id '${entityId}' don't have any component. 
@@ -207,10 +204,6 @@ const entityIdCreated = (testStep: TestStep, potentialEntityClassOrId: string): 
 const eventMessage = (event:GameEvent): string => `When the event action '${event.action}' occurs with entity references '${stringifyWithDetailledSetAndMap(event.entityRefences)}'.`
 const eventNotSentMessage = (testStep: TestStep, gameEvent: GameEvent, to:'client'|'server'): string => `${testStep} the event with action '${gameEvent.action}' is not sent to '${to}' with the following entity references:'${stringifyWithDetailledSetAndMap(gameEvent.entityRefences)}.`
 const eventSentMessage = (testStep: TestStep, gameEvent: GameEvent, to:'client'|'server', eventSentQty: number | undefined): string => `${testStep} the event with action '${gameEvent.action}' is sent to '${to}' with the following entity references:'${stringifyWithDetailledSetAndMap(gameEvent.entityRefences)}'${(eventSentQty) ? ` ${eventSentQty} times.` : '.'}`
-const mapToObjectLiteral = (value: Map<any, any>): any => Array.from(value).reduce((obj: any, [key, value]) => {
-    obj[key] = value
-    return obj
-}, {})
 const entityIsNotVisibleMessage = (testStep: TestStep, entityId: string): string => `${testStep} the entity with id '${entityId}' is not visible.`
 const entityIsVisibleMessage = (testStep: TestStep, entityId: string): string => `${testStep} the entity with id '${entityId}' is visible.`
 const thereIsANotificationMessage = (testStep: TestStep, notification: string): string => `${testStep} there is a notification : '${notification}'`

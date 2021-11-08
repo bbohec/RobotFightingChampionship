@@ -1,5 +1,5 @@
 import { GameEvent } from '../../Event/GameEvent'
-import { stringifyWithDetailledSetAndMap } from '../../Event/test'
+import { stringifyWithDetailledSetAndMap } from '../../Event/detailledStringify'
 import { EventBus } from '../../Event/port/EventBus'
 
 export interface EventInteractor {

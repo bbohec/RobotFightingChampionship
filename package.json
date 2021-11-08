@@ -3,9 +3,11 @@
     "version": "0.0.0",
     "description": "",
     "scripts": {
-        "clean:build":"rimraf dist",
+        "clean:build": "rimraf dist",
         "test": "mocha --require esm 'src/**/*.spec.ts'",
         "start": "node dist/main.js",
+        "madge:server": "madge -c dist/main.js",
+        "madge:client": "madge -c dist/public/scripts/game.js",
         "build:ts": "tsc",
         "build:parcel": "npm run clean:build && parcel build",
         "test:parcel": "npm run clean:build && parcel src/public/html/test.html"
@@ -15,13 +17,13 @@
             "context": "browser",
             "source": "src/public/html/test.html",
             "distDir": "dist/public",
-            "optimize":false
+            "optimize": false
         },
         "frontend-production": {
             "context": "browser",
             "source": "src/public/html/game.html",
             "distDir": "dist/public",
-            "optimize":false
+            "optimize": false
         },
         "backend": {
             "context": "node",
@@ -44,8 +46,8 @@
         "reporter": "spec",
         "full-trace": true,
         "require": [
-        "ts-node/register",
-        "source-map-support/register"
+            "ts-node/register",
+            "source-map-support/register"
         ]
     },
     "dependencies": {
@@ -71,6 +73,7 @@
         "eslint-plugin-import": "^2.23.4",
         "eslint-plugin-node": "^11.1.0",
         "eslint-plugin-promise": "^5.1.0",
+        "madge": "^5.0.1",
         "mocha": "^8.4.0",
         "parcel": "^2.0.0",
         "rimraf": "^3.0.2",

@@ -1,5 +1,5 @@
 import { Component } from '../Components/port/Component'
-import { stringifyWithDetailledSetAndMap } from '../Event/test'
+import { stringifyWithDetailledSetAndMap } from '../Event/detailledStringify'
 import { ComponentManagement } from './ports/ComponentManagement'
 import { EntityContract } from './ports/Entity'
 import { PotentialClass } from './ports/PotentialClass'

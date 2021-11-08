@@ -1,7 +1,6 @@
-import { Express } from 'express'
 import { v1 as uuid } from 'uuid'
 import { json, urlencoded } from 'body-parser'
-import { OutgoingHttpHeaders, Server, ServerResponse } from 'http'
+import { OutgoingHttpHeaders, ServerResponse } from 'http'
 import { ComponentBuilder } from '../../Components/port/ComponentBuilder'
 import { GameEvent } from '../../Event/GameEvent'
 import { SerializedGameEvent } from '../../Event/SerializedGameEvent'
@@ -9,41 +8,21 @@ import { EntityType } from '../../Event/EntityType'
 import { ComponentSerializer } from '../../Components/port/ComponentSerializer'
 import { SSEMessageType } from './SSE/SSEMessageType'
 import { SSEMessage } from './SSE/SSEMessage'
-import { InMemoryEventBus } from '../../Event/infra/InMemoryEventBus'
 import { ServerEventInteractor } from '../port/EventInteractor'
+import { ExpressWebServerInstance } from './ExpressWebServerInstance'
+import { EventBus } from '../../Event/port/EventBus'
 export const serverBodyRequest = (stringifiedBody:string): string => `SERVER POST REQUEST : ${stringifiedBody}`
 export const clientGameEventUrlPath = '/clientGameEvent'
 export const productionSSERetryInterval = 5000
 export const defaultHTTPWebServerPort = 80
-export class ExpressWebServerInstance {
-    constructor (instance:Express, port: number) {
-        this.port = port
-        this.instance = instance
-    }
-
-    start () {
-        this.server = this.instance.listen(this.port, () => console.log(serverListeningMessage(this.port)))
-    }
-
-    close () {
-        if (this.server) this.server.close(error => { if (error) throw error })
-    }
-
-    readonly instance:Express
-    readonly port:number
-    private server: Server | undefined;
-}
-
 const serverGameEventUrlPath = '/serverGameEvents'
 export class WebServerEventInteractor implements ServerEventInteractor {
-    constructor (webServer: ExpressWebServerInstance, eventBus: InMemoryEventBus, sseRetryIntervalMilliseconds: number) {
+    constructor (webServer: ExpressWebServerInstance, eventBus: EventBus, sseRetryIntervalMilliseconds: number) {
         this.webServer = webServer
         this.sseRetryIntervalMilliseconds = sseRetryIntervalMilliseconds
         this.eventBus = eventBus
         this.config()
     }
-
-    eventBus: InMemoryEventBus;
 
     start () {
         this.webServer.start()
@@ -69,8 +48,7 @@ export class WebServerEventInteractor implements ServerEventInteractor {
     }
 
     sendEventToServer (gameEvent: GameEvent): Promise<void> {
-        this.eventBus.events.push(gameEvent)
-        return Promise.resolve()
+        return this.eventBus.send(gameEvent)
     }
 
     private gameEventFromBody (body:string):GameEvent {
@@ -107,7 +85,10 @@ export class WebServerEventInteractor implements ServerEventInteractor {
         this.webServer.instance.post(clientGameEventUrlPath, (request, response) => {
             this.sendEventToServer(this.gameEventFromBody(JSON.stringify(request.body)))
                 .then(() => response.status(201).send())
-                .catch((error: Error) => response.status(500).send(error.message))
+                .catch((error: Error) => {
+                    console.log(error.message)
+                    response.status(500).send(error.message)
+                })
         })
         this.webServer.instance.get(serverGameEventUrlPath, (request, response) => {
             (request.query.clientId && typeof request.query.clientId === 'string')
@@ -138,6 +119,7 @@ export class WebServerEventInteractor implements ServerEventInteractor {
         return Promise.resolve()
     }
 
+    readonly eventBus: EventBus;
     private componentBuilder = new ComponentBuilder();
     private webServer:ExpressWebServerInstance
     private registeredSSEClientResponses = new Map<string, ServerResponse>();
@@ -145,7 +127,7 @@ export class WebServerEventInteractor implements ServerEventInteractor {
     private componentSerializer = new ComponentSerializer();
 }
 
-const serverListeningMessage = (port:number): string => `WebServerEventInteractor listening at http://localhost:${port}`
+export const serverListeningMessage = (port:number): string => `WebServerEventInteractor listening at http://localhost:${port}`
 const closeMessage = (messageId:string, sseRetryIntervalMilliseconds:number): SSEMessage => ({
     id: messageId,
     type: SSEMessageType.CLOSE_SSE,

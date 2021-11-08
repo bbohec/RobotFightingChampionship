@@ -1,6 +1,7 @@
+import { EntityReference } from '../../Components/EntityReference'
 import { EntityType } from '../../Event/EntityType'
 import { errorMessageOnUnknownEventAction, GameEvent } from '../../Event/GameEvent'
-import { createPlayerPointerEvent } from '../../Events/create/create'
+import { createMainMenuEvent, createPlayerPointerEvent, createPlayerSimpleMatchLobbyButtonEvent } from '../../Events/create/create'
 import { GenericServerSystem } from '../Generic/GenericServerSystem'
 
 export class PlayerSystem extends GenericServerSystem {
@@ -9,9 +10,21 @@ export class PlayerSystem extends GenericServerSystem {
         throw new Error(errorMessageOnUnknownEventAction(PlayerSystem.name, gameEvent))
     }
 
-    registerPlayerOnGame (gameEvent: GameEvent): Promise<void> {
+    private registerPlayerOnGame (gameEvent: GameEvent): Promise<void> {
         const playerId = gameEvent.entityByEntityType(EntityType.player)
         this.interactWithEntities.linkEntityToEntities(playerId, [gameEvent.entityByEntityType(EntityType.game)])
-        return this.sendEvent(createPlayerPointerEvent(playerId))
+        const gameId = gameEvent.entityByEntityType(EntityType.game)
+        const gameEntityReferences = this.interactWithEntities.retrieveEntityComponentByEntityId(gameId, EntityReference)
+        return this.sendEvents([
+            createPlayerPointerEvent(playerId),
+            createMainMenuEvent(gameId, playerId),
+            createPlayerSimpleMatchLobbyButtonEvent(gameEntityReferences.retreiveReference(EntityType.simpleMatchLobby), playerId)
+        ])
+    }
+
+    private sendEvents (gameEvents:GameEvent[]):Promise<void> {
+        return Promise.all(gameEvents.map(gameEvent => this.sendEvent(gameEvent)))
+            .then(() => Promise.resolve())
+            .catch(error => Promise.reject(error))
     }
 }

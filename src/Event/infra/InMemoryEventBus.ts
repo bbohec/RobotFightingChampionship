@@ -1,5 +1,5 @@
 import { GameEvent } from '../GameEvent.js'
-import { stringifyWithDetailledSetAndMap } from '../test'
+import { stringifyWithDetailledSetAndMap } from '../detailledStringify'
 import { gameEventNotFoundOnEventInteractor } from '../../EventInteractor/port/EventInteractor'
 import { EventBus } from '../port/EventBus.js'
 
