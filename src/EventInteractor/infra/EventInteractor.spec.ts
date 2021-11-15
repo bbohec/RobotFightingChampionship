@@ -9,6 +9,7 @@ import { EventIntegrationTestSuite, makeInMemoryClientsEventIntegrationTestSuite
 import { WebServerEventInteractor, defaultHTTPWebServerPort } from './WebServerEventInteractor'
 import { ExpressWebServerInstance } from './ExpressWebServerInstance'
 import express from 'express'
+import { Log4jsLogger } from '../../Log/infra/log4jsLogger'
 describe('Integration Test Suite - Event Interactor', () => {
     const testSuites:EventIntegrationTestSuite[] = [
         {
@@ -18,7 +19,7 @@ describe('Integration Test Suite - Event Interactor', () => {
         },
         {
             adapterType: 'Rest',
-            serverEventInteractor: new WebServerEventInteractor(new ExpressWebServerInstance(express(), defaultHTTPWebServerPort), new InMemoryEventBus(), 1000),
+            serverEventInteractor: new WebServerEventInteractor(new ExpressWebServerInstance(express(), defaultHTTPWebServerPort, new Log4jsLogger('expressInstance')), new InMemoryEventBus(), 1000, new Log4jsLogger('eventInteractor')),
             clientsEventIntegrationTestSuite: makeRestClientsEventIntegrationTestSuite(clientQty)
         }
     ]

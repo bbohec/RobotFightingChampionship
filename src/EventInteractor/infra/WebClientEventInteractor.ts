@@ -9,16 +9,20 @@ import { SSEMessageType } from './SSE/SSEMessageType'
 import { clientGameEventUrlPath } from './WebServerEventInteractor'
 import { ClientEventInteractor } from '../port/EventInteractor'
 import { EventBus } from '../../Event/port/EventBus'
+import { Logger } from '../../Log/port/logger'
+import { stringifyWithDetailledSetAndMap } from '../../Event/detailledStringify'
 export const clientBodyRequest = (stringifiedBody:string): string => `CLIENT POST REQUEST : ${stringifiedBody} `
 export class WebClientEventInteractor implements ClientEventInteractor, SSEClient {
-    constructor (serverFullyQualifiedDomainName: string, webServerPort: number, clientId: string, eventBus: EventBus) {
+    constructor (serverFullyQualifiedDomainName: string, webServerPort: number, clientId: string, eventBus: EventBus, logger:Logger) {
         this.clientId = clientId
         this.serverFullyQualifiedDomainName = serverFullyQualifiedDomainName
         this.webServerPort = webServerPort
         this.eventBus = eventBus
+        this.logger = logger
     }
 
     start (): Promise<void> {
+        this.logger.info('Start WebClientEventInteractor')
         return new Promise<void>((resolve, reject) => {
             this.subscribeServerSentEvent()
             const interval = setInterval((): void => {
@@ -30,22 +34,32 @@ export class WebClientEventInteractor implements ClientEventInteractor, SSEClien
         })
     }
 
+    stop (): void {
+        this.logger.info('Stop WebClientEventInteractor')
+        if (this.eventSource)
+            this.eventSource.close()
+        this.eventSource = undefined
+    }
+
     subscribeServerSentEvent (): void {
+        if (this.eventSource) return this.logger.warn('EventSource already configured.')
         const sseUrl = `http://${this.serverFullyQualifiedDomainName}:${this.webServerPort}/serverGameEvents?clientId=${this.clientId}`
-        console.log(`subscribeServerSentEvent on url '${sseUrl}'.`)
+        this.logger.info(`subscribeServerSentEvent on url '${sseUrl}'.`)
         this.eventSource = new EventSource(sseUrl)
         this.eventSource.addEventListener(SSEMessageType.GAME_EVENT, event => {
             const messageEvent: MessageEvent<string> = (event as MessageEvent)
+            this.logger.info('SSE Message Received', 'message id:', messageEvent.lastEventId)
+            this.logger.info('SSE Message Data', messageEvent.data)
             const gameEvent = this.messageEventDataToGameEvent(messageEvent.data)
-            console.log('SSE GameEvent', gameEvent)
+            this.logger.info('SSE GameEvent', stringifyWithDetailledSetAndMap(gameEvent))
             this.sendEventToClient(gameEvent)
         })
         this.eventSource.addEventListener(SSEMessageType.CLOSE_SSE, event => {
-            console.log('closing client SSE...')
+            this.logger.info('closing client SSE...')
             this.stop()
         })
         this.eventSource.addEventListener(SSEMessageType.CONNECTED, event => {
-            console.log('SSE Client Registered', this.clientId)
+            this.logger.info('SSE Client Registered', this.clientId)
             this.sseRegistered = true
         })
     }
@@ -55,17 +69,17 @@ export class WebClientEventInteractor implements ClientEventInteractor, SSEClien
             ? value.dataType === 'Map' ? new Map(value.value) : value
             : value
         )
-        return new GameEvent({
+        this.logger.warn('BEFORE BUILD COMPONENTS', serializedGameEvent.components)
+        const gameEvent = new GameEvent({
             action: serializedGameEvent.action,
-            components: serializedGameEvent.components.map(component => this.componentBuilder.buildComponent(component)),
+            components: serializedGameEvent.components.map(serializedComponent => {
+                const component = this.componentBuilder.buildComponent(serializedComponent)
+                return component
+            }),
             entityRefences: serializedGameEvent.entityRefences
         })
-    }
-
-    stop (): void {
-        if (this.eventSource)
-            this.eventSource.close()
-        this.eventSource = undefined
+        this.logger.warn('AFTER BUILD COMPONENTS', gameEvent.components)
+        return gameEvent
     }
 
     serializeEvent (gameEvent: GameEvent): SerializedGameEvent {
@@ -88,7 +102,7 @@ export class WebClientEventInteractor implements ClientEventInteractor, SSEClien
         const url = `http://${this.serverFullyQualifiedDomainName}:${this.webServerPort}${clientGameEventUrlPath}`
         return axios.post(url, body, axiosRequestConfig)
             .then(response => {
-                // console.log(`Client Sent OK : ${response.status}`)
+                this.logger.info(`Client Sent OK : ${response.status}`)
                 return Promise.resolve()
             })
             .catch((error:AxiosError) => (error.response?.status === 500)
@@ -108,4 +122,5 @@ export class WebClientEventInteractor implements ClientEventInteractor, SSEClien
     private webServerPort: number;
     private eventSource: EventSource | undefined;
     private sseRegistered: boolean = false
+    private logger:Logger
 }

@@ -8,10 +8,11 @@ import { defaultHTTPWebServerPort } from '../../EventInteractor/infra/WebServerE
 import { ProductionEventBus } from '../../Event/infra/ProductionEventBus'
 import { shapeAssets } from './shapeAssets'
 import { createPlayerEvent } from '../../Events/create/create'
+import { ConsoleLogger } from '../../Log/infra/consoleLogger'
 const loadClient = (playerId:string) => {
-    const productionClientEventBus = new ProductionEventBus()
-    const productionClientDrawingAdapter = new PixijsDrawingAdapter(productionClientEventBus, shapeAssets)
-    const productionClientEventInteractor = new WebClientEventInteractor(serverFullyQualifiedDomainName, defaultHTTPWebServerPort, playerId, productionClientEventBus)
+    const productionClientEventBus = new ProductionEventBus(new ConsoleLogger('eventBus'))
+    const productionClientDrawingAdapter = new PixijsDrawingAdapter(productionClientEventBus, shapeAssets, new ConsoleLogger('drawingAdapter'))
+    const productionClientEventInteractor = new WebClientEventInteractor(serverFullyQualifiedDomainName, defaultHTTPWebServerPort, playerId, productionClientEventBus, new ConsoleLogger('eventInteractor'))
     const resizePixiCanvas = () => productionClientDrawingAdapter.changeResolution({ x: window.innerWidth, y: window.innerHeight })
     window.addEventListener('resize', resizePixiCanvas)
     productionClientDrawingAdapter.addingViewToDom(document.body)

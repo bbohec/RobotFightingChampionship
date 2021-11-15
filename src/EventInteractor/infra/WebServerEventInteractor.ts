@@ -11,16 +11,18 @@ import { SSEMessage } from './SSE/SSEMessage'
 import { ServerEventInteractor } from '../port/EventInteractor'
 import { ExpressWebServerInstance } from './ExpressWebServerInstance'
 import { EventBus } from '../../Event/port/EventBus'
+import { Logger } from '../../Log/port/logger'
 export const serverBodyRequest = (stringifiedBody:string): string => `SERVER POST REQUEST : ${stringifiedBody}`
 export const clientGameEventUrlPath = '/clientGameEvent'
 export const productionSSERetryInterval = 5000
 export const defaultHTTPWebServerPort = 80
 const serverGameEventUrlPath = '/serverGameEvents'
 export class WebServerEventInteractor implements ServerEventInteractor {
-    constructor (webServer: ExpressWebServerInstance, eventBus: EventBus, sseRetryIntervalMilliseconds: number) {
+    constructor (webServer: ExpressWebServerInstance, eventBus: EventBus, sseRetryIntervalMilliseconds: number, logger:Logger) {
         this.webServer = webServer
         this.sseRetryIntervalMilliseconds = sseRetryIntervalMilliseconds
         this.eventBus = eventBus
+        this.logger = logger
         this.config()
     }
 
@@ -38,29 +40,8 @@ export class WebServerEventInteractor implements ServerEventInteractor {
             .catch(error => { throw error })
     }
 
-    serializeEvent (gameEvent: GameEvent): SerializedGameEvent {
-        const serializedEvent = {
-            action: gameEvent.action,
-            entityRefences: gameEvent.entityRefences,
-            components: gameEvent.components.map(component => this.componentSerializer.serializeComponent(component))
-        }
-        return serializedEvent
-    }
-
     sendEventToServer (gameEvent: GameEvent): Promise<void> {
         return this.eventBus.send(gameEvent)
-    }
-
-    private gameEventFromBody (body:string):GameEvent {
-        const parsedBody:SerializedGameEvent = JSON.parse(body, (key, value) => typeof value === 'object' && value !== null
-            ? value.dataType === 'Map' ? new Map(value.value) : value
-            : value
-        )
-        return new GameEvent({
-            action: parsedBody.action,
-            components: parsedBody.components.map(component => this.componentBuilder.buildComponent(component)),
-            entityRefences: parsedBody.entityRefences
-        })
     }
 
     sendEventToClient (gameEvent: GameEvent): Promise<void> {
@@ -71,6 +52,31 @@ export class WebServerEventInteractor implements ServerEventInteractor {
         return (sseClientResponse && playerId)
             ? this.sendMessageToSSEClientResponse(playerId, sseClientResponse, this.makeSSEGameEventMessage(SSEMessageType.GAME_EVENT, gameEvent))
             : Promise.reject(new Error(sseClientMissingMessage(playerId)))
+    }
+
+    private serializeEvent (gameEvent: GameEvent): SerializedGameEvent {
+        const serializedEvent = {
+            action: gameEvent.action,
+            entityRefences: gameEvent.entityRefences,
+            components: gameEvent.components.map(component => this.componentSerializer.serializeComponent(component))
+        }
+        return serializedEvent
+    }
+
+    private gameEventFromBody (body:string):GameEvent {
+        const parsedBody:SerializedGameEvent = JSON.parse(body, (key, value) => typeof value === 'object' && value !== null
+            ? value.dataType === 'Map' ? new Map(value.value) : value
+            : value
+        )
+        return new GameEvent({
+            action: parsedBody.action,
+            components: parsedBody.components.map(serializedComponent => {
+                const component = this.componentBuilder.buildComponent(serializedComponent)
+                if (component instanceof Error) throw component
+                return component
+            }),
+            entityRefences: parsedBody.entityRefences
+        })
     }
 
     private registerSSEClient (clientId: string, response: ServerResponse) {
@@ -86,7 +92,7 @@ export class WebServerEventInteractor implements ServerEventInteractor {
             this.sendEventToServer(this.gameEventFromBody(JSON.stringify(request.body)))
                 .then(() => response.status(201).send())
                 .catch((error: Error) => {
-                    console.log(error.message)
+                    this.logger.error(error.message)
                     response.status(500).send(error.message)
                 })
         })
@@ -111,7 +117,7 @@ export class WebServerEventInteractor implements ServerEventInteractor {
     }
 
     private sendMessageToSSEClientResponse (playerId:string, sseClientResponse: ServerResponse, sseMessage: SSEMessage) {
-        console.log('Send SSE Message', playerId, sseMessage)
+        this.logger.info('Send SSE Message', 'message id:', sseMessage.id, 'player id:', playerId, 'message type:', sseMessage.type)
         sseClientResponse.write(`id: ${sseMessage.id}\n`)
         sseClientResponse.write(`event: ${sseMessage.type}\n`)
         sseClientResponse.write(`retry: ${sseMessage.retry}\n`)
@@ -125,6 +131,7 @@ export class WebServerEventInteractor implements ServerEventInteractor {
     private registeredSSEClientResponses = new Map<string, ServerResponse>();
     private sseRetryIntervalMilliseconds: number;
     private componentSerializer = new ComponentSerializer();
+    private logger:Logger
 }
 
 export const serverListeningMessage = (port:number): string => `WebServerEventInteractor listening at http://localhost:${port}`

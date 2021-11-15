@@ -5,21 +5,19 @@ import { ProductionServerAdapters } from './Systems/Game/infra/ProductionServerA
 import { ServerGameSystem } from './Systems/Game/ServerGame'
 import { ProductionEventBus } from './Event/infra/ProductionEventBus'
 import { createServerGameEvent } from './Events/create/create'
+import { Log4jsLogger } from './Log/infra/log4jsLogger'
 const loadProductionServer = (expressWebServerInstance:ExpressWebServerInstance, sseRetryInterval:number) => {
-    const eventBus = new ProductionEventBus()
+    const eventBus = new ProductionEventBus(new Log4jsLogger('eventBus'))
     const gameSystem = new ServerGameSystem(
         new ProductionServerAdapters(
-            new WebServerEventInteractor(
-                expressWebServerInstance,
-                eventBus,
-                sseRetryInterval
-            )
+            new WebServerEventInteractor(expressWebServerInstance, eventBus, sseRetryInterval, new Log4jsLogger('eventInteractor'))
         )
     )
     eventBus.setGameSystem(gameSystem)
     return eventBus
 }
-const expressIntance = new ExpressWebServerInstance(express(), Number(process.env.PORT || defaultHTTPWebServerPort))
+
+const expressIntance = new ExpressWebServerInstance(express(), Number(process.env.PORT || defaultHTTPWebServerPort), new Log4jsLogger('expressInstance'))
 expressIntance.instance.use(express.static('dist/public'))
 loadProductionServer(expressIntance, productionSSERetryInterval)
     .send(createServerGameEvent)

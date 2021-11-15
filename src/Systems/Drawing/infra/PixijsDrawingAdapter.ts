@@ -7,6 +7,7 @@ import { CommonDrawingAdapter } from './CommonDrawingAdapter'
 import { ShapeType } from '../../../Components/port/ShapeType'
 import { PixiEvent } from '../port/PixiEvent'
 import { EventBus } from '../../../Event/port/EventBus'
+import { Logger } from '../../../Log/port/logger'
 
 const drawEntityOnPositionMessage = (physicalComponent:Physical) => `Draw entity ${physicalComponent.entityId} on position ${JSON.stringify(physicalComponent.position)}`
 const eraseEntityMessage = (id: string) => `Erase entity ${id}`
@@ -14,9 +15,10 @@ const entityIdMissingOnPixiEntities = (entityId:string) => `Entity id '${entityI
 const missingShapeType = (shapeType: ShapeType) => `Missing shape type '${shapeType}''`
 
 export class PixijsDrawingAdapter extends CommonDrawingAdapter implements DrawingAdapter {
-    constructor (eventBus:EventBus, shapeAssets:Map<ShapeType, URL>) {
+    constructor (eventBus:EventBus, shapeAssets:Map<ShapeType, URL>, logger:Logger) {
         super(eventBus)
         this.shapeAssets = shapeAssets
+        this.logger = logger
     }
 
     public updatePlayerPointerId (playerPointerId:string): Promise<void> {
@@ -53,7 +55,7 @@ export class PixijsDrawingAdapter extends CommonDrawingAdapter implements Drawin
     }
 
     public drawEntity (physicalComponent: Physical): Promise<void> {
-        console.log(drawEntityOnPositionMessage(physicalComponent))
+        this.logger.info(drawEntityOnPositionMessage(physicalComponent))
         const pixiEntity = this.pixijsEntities.get(physicalComponent.entityId)
         return pixiEntity
             ? this.updatePixiEntity(pixiEntity, physicalComponent)
@@ -140,7 +142,7 @@ export class PixijsDrawingAdapter extends CommonDrawingAdapter implements Drawin
     }
 
     private erasePixiEntity (pixiEntity: PixiJSEntity): Promise<void> {
-        console.log(eraseEntityMessage(pixiEntity.physical.entityId))
+        this.logger.info(eraseEntityMessage(pixiEntity.physical.entityId))
         pixiEntity.sprite.destroy()
         this.pixijsEntities.delete(pixiEntity.physical.entityId)
         return Promise.resolve()
@@ -149,4 +151,5 @@ export class PixijsDrawingAdapter extends CommonDrawingAdapter implements Drawin
     private pixijsEntities:Map<string, PixiJSEntity> = new Map()
     private shapeAssets: Map<ShapeType, URL>
     private pixiApp = new Application({ width: this.resolution.x, height: this.resolution.y })
+    private logger :Logger
 }

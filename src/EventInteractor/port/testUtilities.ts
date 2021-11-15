@@ -11,6 +11,7 @@ import { InMemoryClientEventInteractor } from '../infra/InMemoryClientEventInter
 import { InMemoryServerEventInteractor } from '../infra/InMemoryServerEventInteractor'
 import { ClientEventInteractor, ServerEventInteractor } from './EventInteractor'
 import { defaultHTTPWebServerPort } from '../infra/WebServerEventInteractor'
+import { ConsoleLogger } from '../../Log/infra/consoleLogger'
 
 export interface ClientEventIntegrationTestSuite {
     clientEventInteractor:ClientEventInteractor
@@ -48,6 +49,6 @@ export const makeInMemoryClientEventIntegrationTestSuite = (playerId:string, pos
     clientEvents: [newGameEvent(Action.attack, new Map([[EntityType.player, [playerId]]]), [new Physical(EntityId.playerAPointer, position, ShapeType.pointer)])]
 })
 export const makeRestClientEventIntegrationTestSuite = (playerId:string, position:Position): ClientEventIntegrationTestSuite => ({
-    clientEventInteractor: new WebClientEventInteractor(serverFullyQualifiedDomainName, defaultHTTPWebServerPort, playerId, new InMemoryEventBus()),
+    clientEventInteractor: new WebClientEventInteractor(serverFullyQualifiedDomainName, defaultHTTPWebServerPort, playerId, new InMemoryEventBus(), new ConsoleLogger('eventInteractor')),
     clientEvents: [newGameEvent(Action.attack, new Map([[EntityType.player, [playerId]]]), [new Physical(EntityId.playerAPointer, position, ShapeType.pointer)])]
 })

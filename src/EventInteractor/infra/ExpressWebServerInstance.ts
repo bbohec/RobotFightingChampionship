@@ -1,15 +1,17 @@
 import { Express } from 'express'
 import { Server } from 'http'
+import { Logger } from '../../Log/port/logger'
 import { serverListeningMessage } from './WebServerEventInteractor'
 
 export class ExpressWebServerInstance {
-    constructor (instance: Express, port: number) {
+    constructor (instance: Express, port: number, logger:Logger) {
+        this.logger = logger
         this.port = port
         this.instance = instance
     }
 
     start () {
-        this.server = this.instance.listen(this.port, () => console.log(serverListeningMessage(this.port)))
+        this.server = this.instance.listen(this.port, () => this.logger.info(serverListeningMessage(this.port)))
     }
 
     close () {
@@ -23,4 +25,5 @@ export class ExpressWebServerInstance {
     readonly instance: Express;
     readonly port: number;
     private server: Server | undefined;
+    private logger:Logger
 }

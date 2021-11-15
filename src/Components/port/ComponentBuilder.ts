@@ -6,6 +6,7 @@ import { SerializedComponent } from './SerializedComponent'
 
 export class ComponentBuilder {
     public buildComponent (serializeComponent: SerializedComponent): GenericComponent {
+        console.log('COMPONENT BUILDER', serializeComponent.componentClassName, '<>', Physical.name)
         if (serializeComponent.componentClassName === Physical.name)
             return this.buildPhyisicalComponent(serializeComponent)
         throw new Error(`Unsupported component '${serializeComponent.componentClassName}'`)
