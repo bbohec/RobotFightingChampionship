@@ -11,6 +11,7 @@ import { EntityId } from '../../Event/entityIds'
 import { createMainMenuEvent, createPlayerPointerEvent, createPlayerSimpleMatchLobbyButtonEvent } from '../create/create'
 import { ShapeType } from '../../Components/port/ShapeType'
 import { Physical, position } from '../../Components/Physical'
+import { activatePointerEvent } from '../activate/activate'
 feature(featureEventDescription(Action.register), () => {
     serverScenario(`${Action.register} 1`, registerTowerEvent(EntityId.playerBTower, EntityId.playerA),
         (game, adapters) => () => new EntityBuilder(adapters.entityInteractor)
@@ -89,7 +90,8 @@ feature(featureEventDescription(Action.register), () => {
             (game, adapters) => whenEventOccurs(game, registerPlayerPointerEvent(EntityId.playerAPointer, EntityId.playerA)),
             (game, adapters) => theEntityWithIdHasTheExpectedComponent(TestStep.Then, adapters, EntityId.playerA, EntityReference, new EntityReference(EntityId.playerA, EntityType.player, new Map([[EntityType.pointer, [EntityId.playerAPointer]]]))),
             (game, adapters) => theEntityWithIdHasTheExpectedComponent(TestStep.And, adapters, EntityId.playerAPointer, EntityReference, new EntityReference(EntityId.playerAPointer, EntityType.pointer, new Map([[EntityType.player, [EntityId.playerA]]]))),
-            (game, adapters) => theEntityWithIdHasTheExpectedComponent(TestStep.And, adapters, EntityId.playerAPointer, Physical, new Physical(EntityId.playerAPointer, position(0, 0), ShapeType.pointer))
+            (game, adapters) => theEntityWithIdHasTheExpectedComponent(TestStep.And, adapters, EntityId.playerAPointer, Physical, new Physical(EntityId.playerAPointer, position(0, 0), ShapeType.pointer)),
+            (game, adapters) => theEventIsSent(TestStep.And, adapters, 'client', activatePointerEvent(EntityId.playerAPointer))
         ])
     serverScenario(`${Action.register} 10`, registerSimpleMatchLobbyOnGame(EntityId.game, EntityId.simpleMatchLobby),
         (game, adapters) => () => new EntityBuilder(adapters.entityInteractor)

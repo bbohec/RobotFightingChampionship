@@ -3,13 +3,14 @@ import { Physical, position, Position } from '../Physical'
 import { ShapeType } from './ShapeType'
 import { ComponentPropertyType } from '../../EventInteractor/port/ComponentPropertyType'
 import { SerializedComponent } from './SerializedComponent'
+import { ComponentName } from './ComponentName'
 
 export class ComponentBuilder {
     public buildComponent (serializeComponent: SerializedComponent): GenericComponent {
-        console.log('COMPONENT BUILDER', serializeComponent.componentClassName, '<>', Physical.name)
-        if (serializeComponent.componentClassName === Physical.name)
+        console.log('COMPONENT BUILDER', serializeComponent.componentName, '<>', ComponentName.Physical)
+        if (serializeComponent.componentName === ComponentName.Physical)
             return this.buildPhyisicalComponent(serializeComponent)
-        throw new Error(`Unsupported component '${serializeComponent.componentClassName}'`)
+        throw new Error(`Unsupported component '${serializeComponent.componentName}'`)
     }
 
     private buildPhyisicalComponent (serializeComponent: SerializedComponent) {

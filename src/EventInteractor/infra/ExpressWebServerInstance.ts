@@ -10,8 +10,13 @@ export class ExpressWebServerInstance {
         this.instance = instance
     }
 
-    start () {
-        this.server = this.instance.listen(this.port, () => this.logger.info(serverListeningMessage(this.port)))
+    start ():Promise<void> {
+        return new Promise<void>((resolve, reject) => {
+            this.server = this.instance.listen(this.port, () => {
+                this.logger.info(serverListeningMessage(this.port))
+                resolve()
+            })
+        })
     }
 
     close () {

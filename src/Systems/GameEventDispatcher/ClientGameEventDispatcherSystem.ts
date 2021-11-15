@@ -12,6 +12,7 @@ export class ClientGameEventDispatcherSystem extends GenericGameEventDispatcherS
         if (gameEvent.action === Action.updatePlayerPointerPosition) return this.interactWithSystems.retrieveSystemByClass(ControllerSystem).onGameEvent(gameEvent)
         if (gameEvent.action === Action.updatePlayerPointerState) return this.sendEventToServer(gameEvent)
         if (gameEvent.action === Action.register) return this.onRegister(gameEvent)
+        if (gameEvent.action === Action.activate) return this.interactWithSystems.retrieveSystemByClass(ControllerSystem).onGameEvent(gameEvent)
         if (gameEvent.action === Action.notify) return this.interactWithSystems.retrieveSystemByClass(NotificationSystem).onGameEvent(gameEvent)
         if (gameEvent.action === Action.show || gameEvent.action === Action.hide) return this.interactWithSystems.retrieveSystemByClass(DrawingSystem).onGameEvent(gameEvent)
         throw new Error(errorMessageOnUnknownEventAction(ClientGameEventDispatcherSystem.name, gameEvent))

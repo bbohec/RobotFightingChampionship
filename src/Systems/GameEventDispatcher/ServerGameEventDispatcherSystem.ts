@@ -11,23 +11,21 @@ import { AttackingSystem } from '../Attacking/AttackingSystem'
 import { MovingSystem } from '../Moving/MovingSystem'
 import { CollisionSystem } from '../Collision/CollisionSystem'
 import { PlayerSystem } from '../Player/Player'
+import { LoopSystem } from '../Loop/LoopSystem'
 export class ServerGameEventDispatcherSystem extends GenericGameEventDispatcherSystem {
     onGameEvent (gameEvent: GameEvent): Promise<void> {
         if (gameEvent.action === Action.hide || gameEvent.action === Action.show || gameEvent.action === Action.notify) return this.sendEventToClient(gameEvent)
         if (gameEvent.action === Action.create ||
             gameEvent.action === Action.destroy) return this.interactWithSystems.retrieveSystemByClass(ServerLifeCycleSystem).onGameEvent(gameEvent)
-        if ((
-            gameEvent.action === Action.join &&
-            gameEvent.hasEntitiesByEntityType(EntityType.simpleMatchLobby)
-        ) ||
-        gameEvent.action === Action.waitingForPlayers
-        ) return this.interactWithSystems.retrieveSystemByClass(WaitingAreaSystem).onGameEvent(gameEvent)
+        if ((gameEvent.action === Action.join && gameEvent.hasEntitiesByEntityType(EntityType.simpleMatchLobby)) || gameEvent.action === Action.waitingForPlayers)
+            return this.interactWithSystems.retrieveSystemByClass(WaitingAreaSystem).onGameEvent(gameEvent)
         if (gameEvent.action === Action.join || gameEvent.action === Action.quit) return this.interactWithSystems.retrieveSystemByClass(ServerMatchSystem).onGameEvent(gameEvent)
         if (gameEvent.action === Action.register) return this.onRegister(gameEvent)
         if (gameEvent.action === Action.ready ||
             gameEvent.action === Action.nextTurn ||
             gameEvent.action === Action.victory
         ) return this.interactWithSystems.retrieveSystemByClass(PhasingSystem).onGameEvent(gameEvent)
+        if (gameEvent.action === Action.newLoop) return this.interactWithSystems.retrieveSystemByClass(LoopSystem).onGameEvent(gameEvent)
         if (gameEvent.action === Action.hit) return this.interactWithSystems.retrieveSystemByClass(HitSystem).onGameEvent(gameEvent)
         if (gameEvent.action === Action.move || gameEvent.action === Action.updatePlayerPointerState) return this.interactWithSystems.retrieveSystemByClass(MovingSystem).onGameEvent(gameEvent)
         if (gameEvent.action === Action.attack) return this.interactWithSystems.retrieveSystemByClass(AttackingSystem).onGameEvent(gameEvent)

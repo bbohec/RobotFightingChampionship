@@ -20,6 +20,7 @@ export enum EntityType {
     message = 'message',
     unknown = 'unknown',
     button = 'button',
-    pointer = 'pointer'
+    pointer = 'pointer',
+    simpleMatchLobbyMenu = 'simpleMatchLobbyMenu'
 }
 export const unsupportedEntityTypeMessage = (entityType:EntityType) => `Entity type ${entityType} is not supported.`

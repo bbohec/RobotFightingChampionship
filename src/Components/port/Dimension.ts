@@ -3,4 +3,4 @@ export interface Dimension {
     y: number;
 }
 
-export const gridDimension:Dimension = { x: 120, y: 140 }
+export const gridDimension:Dimension = { x: 100, y: 120 }

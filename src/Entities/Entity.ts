@@ -1,3 +1,4 @@
+import { GenericComponent } from '../Components/GenericComponent'
 import { Component } from '../Components/port/Component'
 import { stringifyWithDetailledSetAndMap } from '../Event/detailledStringify'
 import { ComponentManagement } from './ports/ComponentManagement'
@@ -30,7 +31,7 @@ export class Entity implements EntityContract, ComponentManagement {
         for (const component of components) this.addComponent(component)
     }
 
-    retrieveComponent <Class extends Component> (potentialComponent: PotentialClass<Class>):Class {
+    retrieveComponent <Class extends GenericComponent> (potentialComponent: PotentialClass<Class>):Class {
         for (const component of this.components.values()) if (component instanceof potentialComponent) return component as Class
         throw new Error(componentMissingOnEntity<Class>(potentialComponent, this.id, this.components))
     }

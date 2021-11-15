@@ -1,14 +1,12 @@
 import { maxPlayerPerMatch, Playable } from '../../Components/Playable'
-import { createMatchEvent } from '../../Events/create/create'
+import { createMatchEvent, createPlayerSimpleMatchLobbyMenu } from '../../Events/create/create'
 import { playerJoinMatchEvent } from '../../Events/join/join'
 import { errorMessageOnUnknownEventAction, GameEvent } from '../../Event/GameEvent'
 import { GenericServerSystem } from '../Generic/GenericServerSystem'
 import { EntityType } from '../../Event/EntityType'
 import { Action } from '../../Event/Action'
 import { hideEvent } from '../../Events/hide/hide'
-import { EntityId } from '../../Event/entityIds'
-import { showEvent } from '../../Events/show/show'
-import { Physical } from '../../Components/Physical'
+import { EntityReference } from '../../Components/EntityReference'
 
 export class WaitingAreaSystem extends GenericServerSystem {
     onGameEvent (gameEvent: GameEvent): Promise<void> {
@@ -42,11 +40,21 @@ export class WaitingAreaSystem extends GenericServerSystem {
         playersIds.push(playerId)
         return Promise.all([
             this.createMatchForEachTwoPlayers(playersIds, simpleMatchLobbyEntityId),
-            this.sendEvent(hideEvent(EntityType.mainMenu, EntityId.mainMenu, playerId)),
-            this.sendEvent(showEvent(EntityType.simpleMatchLobby, simpleMatchLobbyEntityId, playerId, this.interactWithEntities.retrieveEntityComponentByEntityId(simpleMatchLobbyEntityId, Physical)))
+            this.sendEvent(hideEvent(EntityType.mainMenu, this.interactWithEntities.retrieveEntityComponentByEntityId(playerId, EntityReference).retreiveReference(EntityType.mainMenu), playerId)),
+            this.sendEvent(hideEvent(EntityType.button, this.playerSimpleMatchLobbyButtonId(playerId, simpleMatchLobbyEntityId), playerId)),
+            this.sendEvent(createPlayerSimpleMatchLobbyMenu(playerId))
         ])
             .then(() => Promise.resolve())
             .catch(error => Promise.reject(error))
+    }
+
+    private playerSimpleMatchLobbyButtonId (playerId: string, simpleMatchLobbyEntityId: string):string {
+        const playerButtons = this.interactWithEntities.retrieveEntityComponentByEntityId(playerId, EntityReference).retrieveReferences(EntityType.button)
+        const simpleMatchLobbyButtons = this.interactWithEntities.retrieveEntityComponentByEntityId(simpleMatchLobbyEntityId, EntityReference).retrieveReferences(EntityType.button)
+        const playerSimpleMatchButton = playerButtons.filter(playerButtonId => simpleMatchLobbyButtons.some(simpleMatchButtonId => simpleMatchButtonId === playerButtonId))
+        if (playerSimpleMatchButton.length === 1) return playerSimpleMatchButton[0]
+        if (playerSimpleMatchButton.length === 0) throw new Error('No player simple match button found.')
+        throw new Error('Multiple player simple match button found.')
     }
 
     private createMatchForEachTwoPlayers (playerIds: string[], simpleMatchLobbyEntityId:string): Promise<void> {

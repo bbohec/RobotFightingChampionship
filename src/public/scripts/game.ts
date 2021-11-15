@@ -9,15 +9,19 @@ import { ProductionEventBus } from '../../Event/infra/ProductionEventBus'
 import { shapeAssets } from './shapeAssets'
 import { createPlayerEvent } from '../../Events/create/create'
 import { ConsoleLogger } from '../../Log/infra/consoleLogger'
+import { PixijsControllerAdapter } from '../../Systems/Controller/infra/PixijsControllerAdapter'
+import { Application } from '@pixi/app'
 const loadClient = (playerId:string) => {
     const productionClientEventBus = new ProductionEventBus(new ConsoleLogger('eventBus'))
-    const productionClientDrawingAdapter = new PixijsDrawingAdapter(productionClientEventBus, shapeAssets, new ConsoleLogger('drawingAdapter'))
+    const pixiApplication = new Application()
+    const controllerAdapter = new PixijsControllerAdapter(productionClientEventBus, pixiApplication, new ConsoleLogger('controllerAdapter'))
+    const productionClientDrawingAdapter = new PixijsDrawingAdapter(shapeAssets, new ConsoleLogger('drawingAdapter'), pixiApplication)
     const productionClientEventInteractor = new WebClientEventInteractor(serverFullyQualifiedDomainName, defaultHTTPWebServerPort, playerId, productionClientEventBus, new ConsoleLogger('eventInteractor'))
     const resizePixiCanvas = () => productionClientDrawingAdapter.changeResolution({ x: window.innerWidth, y: window.innerHeight })
     window.addEventListener('resize', resizePixiCanvas)
     productionClientDrawingAdapter.addingViewToDom(document.body)
     resizePixiCanvas()
-    productionClientEventBus.setGameSystem(new ClientGameSystem(new ProductionClientAdapters(productionClientDrawingAdapter, productionClientEventInteractor, playerId)))
+    productionClientEventBus.setGameSystem(new ClientGameSystem(new ProductionClientAdapters(productionClientDrawingAdapter, productionClientEventInteractor, playerId, controllerAdapter)))
     return productionClientEventInteractor
 }
 const playerId = uuid()

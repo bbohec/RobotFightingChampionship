@@ -9,7 +9,6 @@ import { createGridEvent, createRobotEvent, createTowerEvent } from '../../Event
 import { destroyMatchEvent, destroyRobotEvent, destroyTowerEvent } from '../../Events/destroy/destroy'
 import { showEvent } from '../../Events/show/show'
 import { playerNotFoundOnMatchPlayers } from './port/matchSystem'
-import { EntityId } from '../../Event/entityIds'
 import { Physical } from '../../Components/Physical'
 
 export class ServerMatchSystem extends GenericServerSystem {
@@ -44,11 +43,12 @@ export class ServerMatchSystem extends GenericServerSystem {
     }
 
     private onPlayerRemoved (playableComponent: Playable, playerId:string): Promise<void> {
+        const playerMainMenuId = this.interactWithEntities.retrieveEntityComponentByEntityId(playerId, EntityReference).retreiveReference(EntityType.mainMenu)
         const playerEntityReference = this.entityReferencesByEntityId(playerId)
         const events:GameEvent[] = [
             destroyRobotEvent(playerEntityReference.retreiveReference(EntityType.robot)),
             destroyTowerEvent(playerEntityReference.retreiveReference(EntityType.tower)),
-            showEvent(EntityType.mainMenu, EntityId.mainMenu, playerId, this.interactWithEntities.retrieveEntityComponentByEntityId(EntityId.mainMenu, Physical))
+            showEvent(EntityType.mainMenu, playerMainMenuId, playerId, this.interactWithEntities.retrieveEntityComponentByEntityId(playerMainMenuId, Physical))
         ]
         if (playableComponent.players.length === 0) events.push(destroyMatchEvent(playableComponent.entityId))
         return Promise.all(events.map(event => this.sendEvent(event)))
@@ -102,7 +102,7 @@ export class ServerMatchSystem extends GenericServerSystem {
         const matchId = gameEvent.entityByEntityType(EntityType.match)
         const players = playableComponent.players
         players.push(playerId)
-        this.entityReferencesByEntityId(playerId).entityReferences.set(EntityType.match, [EntityId.match])
+        this.entityReferencesByEntityId(playerId).entityReferences.set(EntityType.match, [matchId])
         return (this.isMatchHasAllPlayers(players))
             ? this.onMatchHasAllPlayers(players, matchId)
             : Promise.resolve()

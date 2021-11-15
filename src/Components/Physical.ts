@@ -1,4 +1,5 @@
 import { GenericComponent } from './GenericComponent'
+import { ComponentName } from './port/ComponentName'
 import { ShapeType } from './port/ShapeType'
 
 export interface Position {
@@ -7,6 +8,8 @@ export interface Position {
 }
 export const defaultWeaponMaxRange = 10
 export const position = (x:number, y:number):Position => ({ x, y })
+export const defaultPointerPosition:Position = position(0, 0)
+export const defaultJoinSimpleMatchButtonPosition:Position = position(50, 60)
 export const playerATowerFirstPosition:Position = position(1, 1)
 export const playerARobotFirstPosition:Position = position(2, 2)
 export const playerBTowerFirstPosition:Position = position(24, 24)
@@ -28,4 +31,5 @@ export class Physical extends GenericComponent {
 
     position: Position;
     shape:ShapeType
+    componentName: ComponentName = ComponentName.Physical
 }

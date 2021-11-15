@@ -14,7 +14,6 @@ export enum EntityId {
     cellx9y9 = 'cellx9y9Id',
     cellx10y10 = 'cellx10y10Id',
     cellMissing = 'cellmissingId',
-    mainMenu = 'mainMenuId',
     victory = 'victoryId',
     defeat = 'defeatId',
     simpleMatchLobby = 'simpleMatchLobbyEntityId',
@@ -23,8 +22,11 @@ export enum EntityId {
     playerAPointer = 'playerAPointerId',
     playerAJoinSimpleMatchButton = 'playerAJoinMatchButtonId',
     playerEndTurnButton = 'playerEndTurnButtonId',
-    playerAMainMenu = 'playerAMainMenu'
+    playerAMainMenu = 'playerAMainMenu',
+    playerBMainMenu = 'playerBMainMenu'
 }
 export const players = ['playerAId', 'playerBId', 'playerCId', 'playerDId', 'playerEId', 'playerFId', 'playerGId', 'playerHId']
+export const simpleMatchButtons = ['playerAJoinMatchButtonId', 'playerBJoinMatchButtonId', 'playerCJoinMatchButtonId', 'playerDJoinMatchButtonId', 'playerEJoinMatchButtonId', 'playerFJoinMatchButtonId', 'playerGJoinMatchButtonId', 'playerHJoinMatchButtonId']
+export const mainMenus = ['playerAMainMenuId', 'playerBMainMenuId', 'playerCMainMenuId', 'playerDMainMenuId', 'playerEMainMenuId', 'playerFMainMenuId', 'playerGMainMenuId', 'playerHMainMenuId']
 export const expectedAddedPlayers = ['playerAId', 'playerBId']
 export const expectedStillWaitingPlayers = ['playerCId', 'playerDId']

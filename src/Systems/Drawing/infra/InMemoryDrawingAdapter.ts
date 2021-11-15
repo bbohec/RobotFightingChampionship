@@ -2,9 +2,9 @@ import { Dimension } from '../../../Components/port/Dimension'
 import { Physical, Position } from '../../../Components/Physical'
 import { idAlreadyDraw, idNotFoundOnDrawIds } from '../port/DrawingPort'
 import { DrawingAdapter } from '../port/DrawingAdapter'
-import { CommonDrawingAdapter } from './CommonDrawingAdapter'
+import { PixiApplicationCommon } from '../../Controller/infra/PixiApplication'
 
-export class InMemoryDrawingAdapter extends CommonDrawingAdapter implements DrawingAdapter {
+export class InMemoryDrawingAdapter extends PixiApplicationCommon implements DrawingAdapter {
     public updatePlayerPointerId (playerPointerId: string): Promise<void> {
         this.playerPointerId = playerPointerId
         return Promise.resolve()
@@ -28,7 +28,7 @@ export class InMemoryDrawingAdapter extends CommonDrawingAdapter implements Draw
 
     public absolutePositionByEntityId (entityId: string): Position|null {
         const entityPosition = this.drawEntities.get(entityId)?.position
-        if (entityPosition) return this.relativePositionToAbsolutePosition(entityPosition, 0.5)
+        if (entityPosition) return this.relativePositionToAbsolutePosition(entityPosition, 0.5, this.resolution)
         return null
     }
 
@@ -45,4 +45,5 @@ export class InMemoryDrawingAdapter extends CommonDrawingAdapter implements Draw
     }
 
     public drawEntities:Map<string, Physical> = new Map();
+    private resolution:Dimension = { x: 0, y: 0 }
 }

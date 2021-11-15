@@ -1,6 +1,8 @@
+import { Application } from 'pixi.js'
 import { EntityId } from '../../Event/entityIds'
 import { InMemoryEventBus } from '../../Event/infra/InMemoryEventBus'
 import { ConsoleLogger } from '../../Log/infra/consoleLogger'
+import { PixijsControllerAdapter } from '../../Systems/Controller/infra/PixijsControllerAdapter'
 import { PixijsDrawingAdapter } from '../../Systems/Drawing/infra/PixijsDrawingAdapter'
 import { shapeAssets } from './shapeAssets'
 import { drawFixedEntities, drawMovingEntityPhysicals, drawWalls, runInterval } from './utils'
@@ -8,29 +10,32 @@ import { drawFixedEntities, drawMovingEntityPhysicals, drawWalls, runInterval } 
 const inMemoryEventBus = new InMemoryEventBus()
 const drawingAdapterLogger = new ConsoleLogger('drawingAdapter')
 const eventBusLogger = new ConsoleLogger('eventBus')
-const pixijsAdapter = new PixijsDrawingAdapter(inMemoryEventBus, shapeAssets, drawingAdapterLogger)
+const controllerLogger = new ConsoleLogger('controllerAdapter')
+const pixiApp = new Application({ width: window.innerWidth, height: window.innerHeight })
+const pixijsControllerAdapter = new PixijsControllerAdapter(inMemoryEventBus, pixiApp, controllerLogger)
+const pixijsDrawingAdapter = new PixijsDrawingAdapter(shapeAssets, drawingAdapterLogger, pixiApp)
 // throw new Error('Finish Pixi Adapter Public Method coverage')
-const resizePixiCanvas = () => pixijsAdapter.changeResolution({ x: window.innerWidth, y: window.innerHeight })
+const resizePixiCanvas = () => pixijsDrawingAdapter.changeResolution({ x: window.innerWidth, y: window.innerHeight })
 window.addEventListener('resize', resizePixiCanvas)
-pixijsAdapter.addingViewToDom(document.body)
+pixijsDrawingAdapter.addingViewToDom(document.body)
 resizePixiCanvas()
 
 const waitingIntervalSeconds = 0.03
 const waitingTimeSeconds = 3
 
 Promise.all([
-    drawFixedEntities(pixijsAdapter),
-    drawWalls(pixijsAdapter)
+    drawFixedEntities(pixijsDrawingAdapter),
+    drawWalls(pixijsDrawingAdapter)
 ])
     .then(() => {
-        drawingAdapterLogger.info(pixijsAdapter.absolutePositionByEntityId(EntityId.playerBRobot))
-        drawingAdapterLogger.info(pixijsAdapter.retrieveResolution())
-        drawingAdapterLogger.info(pixijsAdapter.retrieveDrawnEntities().get(EntityId.playerBRobot))
+        drawingAdapterLogger.info(pixijsDrawingAdapter.absolutePositionByEntityId(EntityId.playerBRobot))
+        drawingAdapterLogger.info(pixijsDrawingAdapter.retrieveResolution())
+        drawingAdapterLogger.info(pixijsDrawingAdapter.retrieveDrawnEntities().get(EntityId.playerBRobot))
         // return setTimeout(() => pixijsAdapter.eraseAll(), waitingTimeSeconds * 1000)
     })
     .catch(error => { throw error })
 
-const interval:NodeJS.Timeout = setTimeout(() => runInterval(pixijsAdapter, interval, drawMovingEntityPhysicals(10, 80), waitingIntervalSeconds), waitingTimeSeconds * 1000)
+const interval:NodeJS.Timeout = setTimeout(() => runInterval(pixijsDrawingAdapter, interval, drawMovingEntityPhysicals(10, 80), waitingIntervalSeconds), waitingTimeSeconds * 1000)
 
-setTimeout(() => pixijsAdapter.updatePlayerPointerId(EntityId.playerAPointer), waitingTimeSeconds * 1000)
+setTimeout(() => pixijsControllerAdapter.activate(EntityId.playerAPointer), waitingTimeSeconds * 1000)
 setTimeout(() => eventBusLogger.info(inMemoryEventBus.events), waitingTimeSeconds * 1000 * 3)

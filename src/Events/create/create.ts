@@ -12,4 +12,5 @@ export const createGridEvent = (matchId: string) => newGameEvent(Action.create, 
 export const createSimpleMatchLobbyEvent = (gameId: string) => newGameEvent(Action.create, new Map([[EntityType.game, [gameId]], [EntityType.simpleMatchLobby, ['create']]]))
 export const createPlayerSimpleMatchLobbyButtonEvent = (simpleMatchLobbyId:string, playerId:string) => newGameEvent(Action.create, new Map([[EntityType.button, ['create']], [EntityType.simpleMatchLobby, [simpleMatchLobbyId]], [EntityType.player, [playerId]]]))
 export const createPlayerNextTurnMatchButtonEvent = (matchId:string, playerId:string) => newGameEvent(Action.create, new Map([[EntityType.button, ['create']], [EntityType.match, [matchId]], [EntityType.player, [playerId]]]))
+export const createPlayerSimpleMatchLobbyMenu = (playerId:string) => newGameEvent(Action.create, new Map([[EntityType.simpleMatchLobbyMenu, ['create']], [EntityType.player, [playerId]]]))
 export const createPlayerPointerEvent = (playerId:string) => newGameEvent(Action.create, new Map([[EntityType.player, [playerId]], [EntityType.pointer, ['create']]]))

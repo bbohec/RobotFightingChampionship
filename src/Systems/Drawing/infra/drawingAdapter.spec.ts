@@ -44,7 +44,7 @@ const testSuites:DrawingAdapterTestSuite[] = [
         expectedAbsolutePositionAfterResize: position(202, 312)
     },
     {
-        entityPhysicalComponent: new Physical(EntityId.mainMenu, position(40, 62), ShapeType.mainMenu),
+        entityPhysicalComponent: new Physical(EntityId.playerAMainMenu, position(40, 62), ShapeType.mainMenu),
         defaultResolution: { x: 2000, y: 2400 },
         resizeResolution: { x: 1000, y: 1200 },
         expectedInitialAbsolutePosition: position(810, 1250),

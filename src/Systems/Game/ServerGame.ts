@@ -6,6 +6,7 @@ import { ServerGameEventDispatcherSystem } from '../GameEventDispatcher/ServerGa
 import { System } from '../Generic/port/System'
 import { HitSystem } from '../Hit/HitSystem'
 import { ServerLifeCycleSystem } from '../LifeCycle/ServerLifeCycleSystem'
+import { LoopSystem } from '../Loop/LoopSystem'
 import { ServerMatchSystem } from '../Match/ServerMatchSystem'
 import { MovingSystem } from '../Moving/MovingSystem'
 import { PhasingSystem } from '../Phasing/PhasingSystem'
@@ -28,6 +29,7 @@ export class ServerGameSystem extends GenericGameSystem {
         systems.add(new MovingSystem(adapters.entityInteractor, serverEventDispatcherSystem))
         systems.add(new CollisionSystem(adapters.entityInteractor, serverEventDispatcherSystem))
         systems.add(new PlayerSystem(adapters.entityInteractor, serverEventDispatcherSystem))
+        systems.add(new LoopSystem(adapters.entityInteractor, serverEventDispatcherSystem))
         super(adapters.systemInteractor, systems)
     }
 

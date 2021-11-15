@@ -139,6 +139,18 @@ export const entityIsVisible = (
 ) => it(entityIsVisibleMessage(testStep, expectedPhysicalComponent.entityId),
     () => expect(adapters.drawingInteractor.drawEntities.get(expectedPhysicalComponent.entityId))
         .to.be.deep.equal(expectedPhysicalComponent))
+export const theControllerAdapterIsInteractive = (
+    testStep:TestStep,
+    adapters: FakeClientAdapters
+) => it(theControllerAdapterIsInteractiveMessage(testStep),
+    () => expect(adapters.controllerAdapter.isInteractive)
+        .to.be.true)
+export const theControllerAdapterIsNotInteractive = (
+    testStep:TestStep,
+    adapters: FakeClientAdapters
+) => it(theControllerAdapterIsNotInteractiveMessage(testStep),
+    () => expect(adapters.controllerAdapter.isInteractive)
+        .to.be.false)
 export const serverScenario = (
     scenarioName:string,
     gameEvent:GameEvent|GameEvent[],
@@ -206,4 +218,6 @@ const eventNotSentMessage = (testStep: TestStep, gameEvent: GameEvent, to:'clien
 const eventSentMessage = (testStep: TestStep, gameEvent: GameEvent, to:'client'|'server', eventSentQty: number | undefined): string => `${testStep} the event with action '${gameEvent.action}' is sent to '${to}' with the following entity references:'${stringifyWithDetailledSetAndMap(gameEvent.entityRefences)}'${(eventSentQty) ? ` ${eventSentQty} times.` : '.'}`
 const entityIsNotVisibleMessage = (testStep: TestStep, entityId: string): string => `${testStep} the entity with id '${entityId}' is not visible.`
 const entityIsVisibleMessage = (testStep: TestStep, entityId: string): string => `${testStep} the entity with id '${entityId}' is visible.`
+const theControllerAdapterIsInteractiveMessage = (testStep: TestStep): string => `${testStep} the controller adapter is interactive.`
+const theControllerAdapterIsNotInteractiveMessage = (testStep: TestStep): string => `${testStep} the controller adapter is not interactive.`
 const thereIsANotificationMessage = (testStep: TestStep, notification: string): string => `${testStep} there is a notification : '${notification}'`

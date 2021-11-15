@@ -1,6 +1,7 @@
 import { EntityType } from '../Event/EntityType'
 import { EntityReferences } from '../Event/GameEvent'
 import { GenericComponent } from './GenericComponent'
+import { ComponentName } from './port/ComponentName'
 
 export class EntityReference extends GenericComponent {
     constructor (entityId: string, entityType:EntityType[] | EntityType, entityReferences:EntityReferences = new Map()) {
@@ -29,6 +30,7 @@ export class EntityReference extends GenericComponent {
 
     entityReferences:EntityReferences = new Map()
     entityType :EntityType[]
+    componentName: ComponentName = ComponentName.EntityReference
 }
 const missingEntityReferenceByEntityType = (entityType: EntityType, entityId: string): string => `There is not entity type '${entityType}' on entity references component of entity '${entityId}'.`
 const multipleEntitiesReferencedByEntityType = (entityType: EntityType, entityId: string): string => `There is multiples references for entity type '${entityType}' on entity references component of entity '${entityId}'.`

@@ -4,6 +4,7 @@ import { ShapeType } from '../../Components/port/ShapeType'
 import { Entity } from '../../Entities/Entity'
 import { EntityType } from '../../Event/EntityType'
 import { errorMessageOnUnknownEventAction, GameEvent } from '../../Event/GameEvent'
+import { activatePointerEvent } from '../../Events/activate/activate'
 import { registerPlayerEvent } from '../../Events/register/register'
 import { GenericClientLifeCycleSystem } from './GenericClientLifeCycleSystem'
 
@@ -24,7 +25,7 @@ export class ClientLifeCycleSystem extends GenericClientLifeCycleSystem {
             ]
         )
         this.interactWithEntities.linkEntityToEntities(pointerId, [gameEvent.entityByEntityType(EntityType.player)])
-        return Promise.resolve()
+        return this.sendEvent(activatePointerEvent(pointerId))
     }
 
     private createPlayerEntity (playerId: string): Promise<void> {

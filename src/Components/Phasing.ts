@@ -1,5 +1,6 @@
 import { EntityId } from '../Event/entityIds'
 import { GenericComponent } from './GenericComponent'
+import { ComponentName } from './port/ComponentName'
 import { Phase, PhaseType } from './port/Phase'
 const noActionPoint = 0
 export const defaultActionPoints = 12
@@ -32,6 +33,7 @@ export class Phasing extends GenericComponent {
 
     currentPhase: Phase
     readyPlayers:Set<string>
+    componentName: ComponentName = ComponentName.Phasing
 }
 
 function missingCurrentUnitIdOnPhase (currentPhase: Phase): string | undefined {

@@ -6,7 +6,7 @@ import { SerializedComponent } from './SerializedComponent'
 export class ComponentSerializer {
     public serializeComponent (component: GenericComponent): SerializedComponent {
         return {
-            componentClassName: component.constructor.name,
+            componentName: component.componentName,
             properties: this.propertiesFromComponent(component)
         }
     }

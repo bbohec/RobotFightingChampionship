@@ -15,7 +15,7 @@ export class ClientGameSystem extends GenericGameSystem {
         systems.add(clientEventDispatcherSystem)
         systems.add(new ClientLifeCycleSystem(adapters.entityInteractor, clientEventDispatcherSystem, adapters.identifierInteractor))
         systems.add(new DrawingSystem(adapters.entityInteractor, clientEventDispatcherSystem, adapters.drawingInteractor))
-        systems.add(new ControllerSystem(adapters.entityInteractor, clientEventDispatcherSystem))
+        systems.add(new ControllerSystem(adapters.entityInteractor, clientEventDispatcherSystem, adapters.controllerAdapter))
         systems.add(new NotificationSystem(adapters.entityInteractor, clientEventDispatcherSystem, adapters.notificationInteractor))
         super(adapters.systemInteractor, systems)
     }

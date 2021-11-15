@@ -30,6 +30,7 @@
             "source": "src/main.ts",
             "distDir": "dist",
             "outputFormat": "commonjs",
+            "sourceMap":true,
             "optimize":false
         }
     },

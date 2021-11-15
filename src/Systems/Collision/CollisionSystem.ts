@@ -2,6 +2,7 @@ import { EntityReference } from '../../Components/EntityReference'
 import { Phasing } from '../../Components/Phasing'
 import { Physical, Position } from '../../Components/Physical'
 import { Action } from '../../Event/Action'
+import { stringifyWithDetailledSetAndMap } from '../../Event/detailledStringify'
 import { EntityType } from '../../Event/EntityType'
 import { errorMessageOnUnknownEventAction, GameEvent } from '../../Event/GameEvent'
 import { attackEvent } from '../../Events/attack/attack'
@@ -32,7 +33,7 @@ export class CollisionSystem extends GenericServerSystem {
                 entityReferenceWithEntityType(collisionnedEntityReferenceComponents, EntityType.tower),
                 entityReferenceWithEntityType(collisionnedEntityReferenceComponents, EntityType.robot)
             )
-            : Promise.reject(new Error(missingEntityReference(EntityType.pointer)))
+            : Promise.reject(new Error(missingEntityReference(EntityType.pointer, collisionnedEntityReferenceComponents)))
     }
 
     private onPointerCollision (playerId:string, buttonEntityReference: EntityReference | undefined, cellEntityReference: EntityReference | undefined, towerEntityReference: EntityReference | undefined, robotEntityReference: EntityReference | undefined) {
@@ -124,4 +125,4 @@ export class CollisionSystem extends GenericServerSystem {
     }
 }
 const unsupportedMovingEntity = `Current unit is not '${EntityType.robot}' or '${EntityType.robot}' entity type.`
-const missingEntityReference = (entityType:EntityType): string => `Missing '${entityType}' entity reference.`
+const missingEntityReference = (entityType:EntityType, entityReferences:EntityReference[]): string => `Missing '${entityType}' entity reference. List of entity references: ${stringifyWithDetailledSetAndMap(entityReferences)}`

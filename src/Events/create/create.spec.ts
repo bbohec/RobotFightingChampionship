@@ -14,9 +14,9 @@ import { matchWaitingForPlayers } from '../waiting/waiting'
 import { Phasing, preparingGamePhase } from '../../Components/Phasing'
 import { EntityBuilder } from '../../Entities/entityBuilder'
 import { EntityId } from '../../Event/entityIds'
-import { mainMenuPosition, Physical } from '../../Components/Physical'
+import { defaultJoinSimpleMatchButtonPosition, defaultPointerPosition, mainMenuPosition, Physical } from '../../Components/Physical'
 import { ShapeType } from '../../Components/port/ShapeType'
-import { mainMenuShowEvent } from '../show/show'
+import { mainMenuShowEvent, showEvent } from '../show/show'
 
 feature(featureEventDescription(Action.create), () => {
     clientScenario(`${Action.create} 1 - Create Player Client`, createPlayerEvent, EntityId.playerA,
@@ -33,16 +33,16 @@ feature(featureEventDescription(Action.create), () => {
         (game, adapters) => () => new EntityBuilder(adapters.entityInteractor)
             .buildEntity(EntityId.playerA).withEntityReferences(EntityType.player, new Map()).save()
         , [
-            (game, adapters) => theEntityIsNotOnRepository(TestStep.Given, adapters, EntityId.mainMenu),
+            (game, adapters) => theEntityIsNotOnRepository(TestStep.Given, adapters, EntityId.playerAMainMenu),
             (game, adapters) => theEntityIsOnRepository(TestStep.Given, adapters, EntityId.playerA),
             (game, adapters) => whenEventOccurs(game, createMainMenuEvent(EntityId.game, EntityId.playerA)),
-            (game, adapters) => theEntityIsOnRepository(TestStep.Then, adapters, EntityId.mainMenu),
-            (game, adapters) => theEntityIsCreated(TestStep.And, adapters, EntityId.mainMenu),
-            (game, adapters) => theEntityWithIdHasTheExpectedComponent(TestStep.And, adapters, EntityId.mainMenu, EntityReference, new EntityReference(EntityId.mainMenu, EntityType.mainMenu, new Map([[EntityType.player, [EntityId.playerA]]]))),
-            (game, adapters) => theEntityWithIdHasTheExpectedComponent(TestStep.And, adapters, EntityId.mainMenu, Physical, new Physical(EntityId.mainMenu, mainMenuPosition, ShapeType.mainMenu)),
-            (game, adapters) => theEventIsSent(TestStep.And, adapters, 'server', mainMenuShowEvent(EntityId.mainMenu, EntityId.playerA, mainMenuPosition))
+            (game, adapters) => theEntityIsOnRepository(TestStep.Then, adapters, EntityId.playerAMainMenu),
+            (game, adapters) => theEntityIsCreated(TestStep.And, adapters, EntityId.playerAMainMenu),
+            (game, adapters) => theEntityWithIdHasTheExpectedComponent(TestStep.And, adapters, EntityId.playerAMainMenu, EntityReference, new EntityReference(EntityId.playerAMainMenu, EntityType.mainMenu, new Map([[EntityType.player, [EntityId.playerA]]]))),
+            (game, adapters) => theEntityWithIdHasTheExpectedComponent(TestStep.And, adapters, EntityId.playerAMainMenu, Physical, new Physical(EntityId.playerAMainMenu, mainMenuPosition, ShapeType.mainMenu)),
+            (game, adapters) => theEventIsSent(TestStep.And, adapters, 'server', mainMenuShowEvent(EntityId.playerAMainMenu, EntityId.playerA, mainMenuPosition))
         ],
-        [EntityId.mainMenu])
+        [EntityId.playerAMainMenu])
     serverScenario(`${Action.create} 3 - Create Game Event`, createServerGameEvent, undefined, [
         (game, adapters) => whenEventOccurs(game, createServerGameEvent),
         (game, adapters) => theEntityIsCreated(TestStep.Then, adapters, EntityId.game),
@@ -102,7 +102,9 @@ feature(featureEventDescription(Action.create), () => {
             (game, adapters) => theEntityIsCreated(TestStep.Then, adapters, EntityId.playerAJoinSimpleMatchButton),
             (game, adapters) => theEntityWithIdHasTheExpectedComponent(TestStep.And, adapters, EntityId.playerAJoinSimpleMatchButton, EntityReference, new EntityReference(EntityId.playerAJoinSimpleMatchButton, EntityType.button, new Map([[EntityType.simpleMatchLobby, [EntityId.simpleMatchLobby]], [EntityType.player, [EntityId.playerA]]]))),
             (game, adapters) => theEntityWithIdHasTheExpectedComponent(TestStep.And, adapters, EntityId.playerA, EntityReference, new EntityReference(EntityId.playerA, EntityType.player, new Map([[EntityType.button, [EntityId.playerAJoinSimpleMatchButton]]]))),
-            (game, adapters) => theEntityWithIdHasTheExpectedComponent(TestStep.And, adapters, EntityId.simpleMatchLobby, EntityReference, new EntityReference(EntityId.simpleMatchLobby, EntityType.simpleMatchLobby, new Map([[EntityType.button, [EntityId.playerAJoinSimpleMatchButton]]])))
+            (game, adapters) => theEntityWithIdHasTheExpectedComponent(TestStep.And, adapters, EntityId.simpleMatchLobby, EntityReference, new EntityReference(EntityId.simpleMatchLobby, EntityType.simpleMatchLobby, new Map([[EntityType.button, [EntityId.playerAJoinSimpleMatchButton]]]))),
+            (game, adapters) => theEntityWithIdHasTheExpectedComponent(TestStep.And, adapters, EntityId.playerAJoinSimpleMatchButton, Physical, new Physical(EntityId.playerAJoinSimpleMatchButton, defaultJoinSimpleMatchButtonPosition, ShapeType.simpleMatchLobby)),
+            (game, adapters) => theEventIsSent(TestStep.And, adapters, 'server', showEvent(EntityType.button, EntityId.playerAJoinSimpleMatchButton, EntityId.playerA, new Physical(EntityId.playerAJoinSimpleMatchButton, defaultJoinSimpleMatchButtonPosition, ShapeType.simpleMatchLobby)))
         ], [EntityId.playerAJoinSimpleMatchButton])
     serverScenario(`${Action.create} 10 - Create Player Next Turn Match Button`, createPlayerNextTurnMatchButtonEvent(EntityId.match, EntityId.playerA),
         (game, adapters) => () => new EntityBuilder(adapters.entityInteractor)
@@ -127,6 +129,7 @@ feature(featureEventDescription(Action.create), () => {
             (game, adapters) => theEntityIsOnRepository(TestStep.Then, adapters, EntityId.playerAPointer),
             (game, adapters) => theEntityWithIdHasTheExpectedComponent(TestStep.And, adapters, EntityId.playerA, EntityReference, new EntityReference(EntityId.playerA, EntityType.player, new Map([[EntityType.pointer, [EntityId.playerAPointer]]]))),
             (game, adapters) => theEntityWithIdHasTheExpectedComponent(TestStep.And, adapters, EntityId.playerAPointer, EntityReference, new EntityReference(EntityId.playerAPointer, EntityType.pointer, new Map([[EntityType.player, [EntityId.playerA]]]))),
+            (game, adapters) => theEntityWithIdHasTheExpectedComponent(TestStep.And, adapters, EntityId.playerAPointer, Physical, new Physical(EntityId.playerAPointer, defaultPointerPosition, ShapeType.pointer)),
             (game, adapters) => theEventIsSent(TestStep.And, adapters, 'server', registerPlayerPointerEvent(EntityId.playerAPointer, EntityId.playerA))
         ], [EntityId.playerAPointer])
 })
