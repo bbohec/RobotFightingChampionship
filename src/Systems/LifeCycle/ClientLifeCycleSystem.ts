@@ -21,7 +21,7 @@ export class ClientLifeCycleSystem extends GenericClientLifeCycleSystem {
             new Entity(pointerId),
             [
                 new EntityReference(pointerId, EntityType.pointer),
-                new Physical(pointerId, position(0, 0), ShapeType.pointer)
+                new Physical(pointerId, position(0, 0), ShapeType.pointer, true)
             ]
         )
         this.interactWithEntities.linkEntityToEntities(pointerId, [gameEvent.entityByEntityType(EntityType.player)])

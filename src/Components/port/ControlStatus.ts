@@ -1,5 +1,5 @@
 /* eslint-disable no-unused-vars */
 export enum ControlStatus {
-    Active,
-    Idle
+    Active = 'Active',
+    Idle = 'Idle'
 }

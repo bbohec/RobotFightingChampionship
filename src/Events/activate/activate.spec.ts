@@ -1,7 +1,7 @@
 import { EntityBuilder } from '../../Entities/entityBuilder'
 import { Action } from '../../Event/Action'
 import { EntityId } from '../../Event/entityIds'
-import { clientScenario, feature, featureEventDescription, theControllerAdapterIsInteractive, theControllerAdapterIsNotInteractive, whenEventOccurs } from '../../Event/test'
+import { clientScenario, feature, featureEventDescription, theControllerAdapterIsInteractive, theControllerAdapterIsNotInteractive, whenEventOccured } from '../../Event/test'
 import { TestStep } from '../../Event/TestStep'
 import { activatePointerEvent } from './activate'
 
@@ -10,7 +10,7 @@ feature(featureEventDescription(Action.activate), () => {
         (game, adapters) => () => new EntityBuilder(adapters.entityInteractor)
         , [
             (game, adapters) => theControllerAdapterIsNotInteractive(TestStep.Given, adapters),
-            (game, adapters) => whenEventOccurs(game, activatePointerEvent(EntityId.playerAPointer)),
+            ...whenEventOccured(),
             (game, adapters) => theControllerAdapterIsInteractive(TestStep.Then, adapters)
         ]
     )

@@ -7,7 +7,7 @@ import { updatePointerPosition } from '../../../Events/updatePointerPosition/upd
 import { Logger } from '../../../Log/port/logger'
 import { PixiEvent } from '../../Drawing/port/PixiEvent'
 import { ControllerPort } from '../port/ControllerPort'
-import { PixiApplicationCommon } from './PixiApplication'
+import { PixiApplicationCommon } from './PixiApplicationCommon'
 
 export interface ScaleRatio {
     x:number

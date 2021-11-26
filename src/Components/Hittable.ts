@@ -1,5 +1,4 @@
 import { GenericComponent } from './GenericComponent'
-import { ComponentName } from './port/ComponentName'
 
 export class Hittable extends GenericComponent {
     constructor (entityId: string, hitPoints: number) {
@@ -8,5 +7,4 @@ export class Hittable extends GenericComponent {
     }
 
     hitPoints: number;
-    componentName: ComponentName = ComponentName.Hittable
 }

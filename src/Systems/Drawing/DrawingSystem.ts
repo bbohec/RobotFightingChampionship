@@ -26,8 +26,7 @@ export class DrawingSystem extends GenericClientSystem {
 
     onPlayerEvent (gameEvent: GameEvent):Promise<void> {
         gameEvent.entityRefences.delete(EntityType.player)
-        if (gameEvent.action === Action.show) return this.drawEntities(gameEvent)
-        if (gameEvent.action === Action.hide) return this.hideEntities(gameEvent.allEntities())
+        if (gameEvent.action === Action.draw) return this.drawEntities(gameEvent)
         throw errorMessageOnUnknownEventAction(DrawingSystem.name, gameEvent)
     }
 
@@ -38,11 +37,11 @@ export class DrawingSystem extends GenericClientSystem {
     }
 
     drawEntity (entityId: string, gameEvent: GameEvent): Promise<void> {
-        return this.drawingPort.drawEntity(gameEvent.retrieveComponent(entityId, Physical))
+        return this.drawingPort.refreshEntity(gameEvent.retrieveComponent(entityId, Physical))
     }
 
-    hideEntities (entities:string[]):Promise<void> {
-        return Promise.all(Array.from(entities).map(entityId => this.drawingPort.eraseEntity(entityId)))
+    hideEntities (gameEvent: GameEvent):Promise<void> {
+        return Promise.all(Array.from(gameEvent.allEntities()).map(entityId => this.drawingPort.refreshEntity(gameEvent.retrieveComponent(entityId, Physical))))
             .then(() => Promise.resolve())
             .catch(error => Promise.reject(error))
     }

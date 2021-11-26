@@ -6,11 +6,13 @@ import { errorMessageOnUnknownEventAction, GameEvent } from '../../Event/GameEve
 import { GenericServerSystem } from '../Generic/GenericServerSystem'
 import { EntityType } from '../../Event/EntityType'
 import { Playable } from '../../Components/Playable'
-import { showEvent } from '../../Events/show/show'
 import { Physical, playerARobotFirstPosition, playerATowerFirstPosition, playerBRobotFirstPosition, playerBTowerFirstPosition, Position } from '../../Components/Physical'
 import { moveEvent } from '../../Events/move/move'
 import { cellMissingOnGrid, currentPhaseNotSupported, missingDefeatPlayerId, missingInitialPosition, missingPlayerInderOnPlayableComponent, unitMissingOnPlayerTowersAndRobots, victoryPlayerMissingOnPlayableComponent } from './port/phasingSystem'
 import { EntityId } from '../../Event/entityIds'
+import { drawEvent } from '../../Events/show/draw'
+import { Dimension } from '../../Components/port/Dimension'
+import { Dimensional } from '../../Components/Dimensional'
 
 export interface PhaseSequence {
     currentPhase:Phase,
@@ -43,9 +45,13 @@ export class PhasingSystem extends GenericServerSystem {
     }
 
     private sendVictoryAndDefeatShowEvents (playableComponent: Playable, victoryPlayerId: string): Promise<void> {
+        const victoryPhyisicalComponent = this.interactWithEntities.retrieveEntityComponentByEntityId(EntityId.victory, Physical)
+        victoryPhyisicalComponent.visible = true
+        const defeatPhysicalComponent = this.interactWithEntities.retrieveEntityComponentByEntityId(EntityId.defeat, Physical)
+        defeatPhysicalComponent.visible = true
         return Promise.all([
-            this.sendEvent(showEvent(EntityType.victory, EntityId.victory, victoryPlayerId, this.interactWithEntities.retrieveEntityComponentByEntityId(EntityId.victory, Physical))),
-            this.sendEvent(showEvent(EntityType.defeat, EntityId.defeat, this.defeatPlayerIdFromPlayableComponentAndVictoryPlayer(playableComponent, victoryPlayerId), this.interactWithEntities.retrieveEntityComponentByEntityId(EntityId.defeat, Physical)))
+            this.sendEvent(drawEvent(EntityType.victory, EntityId.victory, victoryPlayerId, victoryPhyisicalComponent)),
+            this.sendEvent(drawEvent(EntityType.defeat, EntityId.defeat, this.defeatPlayerIdFromPlayableComponentAndVictoryPlayer(playableComponent, victoryPlayerId), defeatPhysicalComponent))
         ])
             .then(() => Promise.resolve())
             .catch(error => Promise.reject(error))
@@ -89,17 +95,17 @@ export class PhasingSystem extends GenericServerSystem {
     private onAutomatedPlayablePhase (phase :Phase, gameEvent: GameEvent): Promise<void> {
         return (phase.currentPlayerId && phase.currentUnitId)
             ? this.sendMoveToPositionEvent(gameEvent, phase.currentPlayerId, phase.currentUnitId)
-                .then(() => this.sendNextTurnEvent(gameEvent.entityByEntityType(EntityType.match)))
-                .catch(error => Promise.reject(error))
+        // .then(() => this.sendNextTurnEvent(gameEvent.entityByEntityType(EntityType.match)))
+        // .catch(error => Promise.reject(error))
             : Promise.resolve()
     }
 
-    private initialPositionFromEntityTypeAndMatchPlayer (entityType:EntityType, playerIndex:number):Position {
+    private initialPositionFromEntityTypeAndMatchPlayer (entityType:EntityType, playerIndex:number, gridDimension:Dimension):Position {
         const positionsMapping :{entityType:EntityType, playerIndex:number, position:Position}[] = [
-            { entityType: EntityType.tower, playerIndex: 0, position: playerATowerFirstPosition },
-            { entityType: EntityType.robot, playerIndex: 0, position: playerARobotFirstPosition },
-            { entityType: EntityType.tower, playerIndex: 1, position: playerBTowerFirstPosition },
-            { entityType: EntityType.robot, playerIndex: 1, position: playerBRobotFirstPosition }
+            { entityType: EntityType.tower, playerIndex: 0, position: playerATowerFirstPosition() },
+            { entityType: EntityType.robot, playerIndex: 0, position: playerARobotFirstPosition() },
+            { entityType: EntityType.tower, playerIndex: 1, position: playerBTowerFirstPosition(gridDimension) },
+            { entityType: EntityType.robot, playerIndex: 1, position: playerBRobotFirstPosition(gridDimension) }
         ]
         const positionMapping = positionsMapping.find(positionMapping => (
             positionMapping.entityType === entityType &&
@@ -113,13 +119,14 @@ export class PhasingSystem extends GenericServerSystem {
         const matchId = gameEvent.entityByEntityType(EntityType.match)
         const matchEntityReference = this.entityReferencesByEntityId(matchId)
         const entityType = this.entityTypeFromPlayerUnits(currentPlayerId, currentUnitId)
-        const playableComponent = this.interactWithEntities.retrieveEntityComponentByEntityId(EntityId.match, Playable)
+        const playableComponent = this.interactWithEntities.retrieveEntityComponentByEntityId(matchId, Playable)
+        const gridDimensionalComponent = this.interactWithEntities.retrieveEntityComponentByEntityId(matchEntityReference.retreiveReference(EntityType.grid), Dimensional)
         return this.sendEvent(moveEvent(
             currentPlayerId,
             entityType,
             currentUnitId,
             this.retrieveCellIdWithPosition(
-                this.initialPositionFromEntityTypeAndMatchPlayer(entityType, this.playerIndexOnMatch(playableComponent, currentPlayerId)),
+                this.initialPositionFromEntityTypeAndMatchPlayer(entityType, this.playerIndexOnMatch(playableComponent, currentPlayerId), gridDimensionalComponent.dimensions),
                 matchEntityReference.retreiveReference(EntityType.grid)
             )
         ))
@@ -168,11 +175,11 @@ export class PhasingSystem extends GenericServerSystem {
         const playerBRobotId = playerBEntityReference.retreiveReference(EntityType.robot)
         const PlayerBTowerId = playerBEntityReference.retreiveReference(EntityType.tower)
         return [
-            { currentPhase: preparingGamePhase, nextPhase: placementPhase(playerAId, playerATowerId) },
-            { currentPhase: placementPhase(playerAId, playerATowerId), nextPhase: placementPhase(playerAId, playerARobotId) },
-            { currentPhase: placementPhase(playerAId, playerARobotId), nextPhase: placementPhase(playerBId, PlayerBTowerId) },
-            { currentPhase: placementPhase(playerBId, PlayerBTowerId), nextPhase: placementPhase(playerBId, playerBRobotId) },
-            { currentPhase: placementPhase(playerBId, playerBRobotId), nextPhase: fightPhase(playerAId, playerARobotId) },
+            { currentPhase: preparingGamePhase, nextPhase: placementPhase(playerAId, playerATowerId, true) },
+            { currentPhase: placementPhase(playerAId, playerATowerId, true), nextPhase: placementPhase(playerAId, playerARobotId, true) },
+            { currentPhase: placementPhase(playerAId, playerARobotId, true), nextPhase: placementPhase(playerBId, PlayerBTowerId, true) },
+            { currentPhase: placementPhase(playerBId, PlayerBTowerId, true), nextPhase: placementPhase(playerBId, playerBRobotId, true) },
+            { currentPhase: placementPhase(playerBId, playerBRobotId, true), nextPhase: fightPhase(playerAId, playerARobotId) },
             { currentPhase: fightPhase(playerAId, playerARobotId), nextPhase: fightPhase(playerBId, playerBRobotId) },
             { currentPhase: fightPhase(playerBId, playerBRobotId), nextPhase: fightPhase(playerAId, playerATowerId) },
             { currentPhase: fightPhase(playerAId, playerATowerId), nextPhase: fightPhase(playerBId, PlayerBTowerId) },

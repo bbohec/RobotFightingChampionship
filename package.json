@@ -17,21 +17,24 @@
             "context": "browser",
             "source": "src/public/html/test.html",
             "distDir": "dist/public",
-            "optimize":false
+            "optimize": false,
+            "scopeHoist": false
         },
         "frontend-production": {
             "context": "browser",
             "source": "src/public/html/game.html",
             "distDir": "dist/public",
-            "optimize":false
+            "optimize": false,
+            "scopeHoist": false
         },
         "backend": {
             "context": "node",
             "source": "src/main.ts",
             "distDir": "dist",
             "outputFormat": "commonjs",
-            "sourceMap":true,
-            "optimize":false
+            "sourceMap": true,
+            "optimize": false,
+            "scopeHoist": false
         }
     },
     "repository": {
@@ -64,6 +67,7 @@
     },
     "devDependencies": {
         "@types/chai": "^4.2.18",
+        "@types/deep-equal-in-any-order": "^1.0.1",
         "@types/eventsource": "^1.1.6",
         "@types/express": "^4.17.13",
         "@types/mocha": "^8.2.2",
@@ -72,6 +76,7 @@
         "@typescript-eslint/eslint-plugin": "^4.26.0",
         "@typescript-eslint/parser": "^4.26.0",
         "chai": "^4.3.4",
+        "deep-equal-in-any-order": "^1.1.15",
         "eslint": "^7.28.0",
         "eslint-config-standard": "^16.0.3",
         "eslint-plugin-import": "^2.23.4",

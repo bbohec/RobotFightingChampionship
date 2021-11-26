@@ -4,7 +4,7 @@ import { DrawingAdapter } from '../port/DrawingAdapter'
 import { PixiJSEntity } from '../port/PixiJSEntity'
 import { ShapeType } from '../../../Components/port/ShapeType'
 import { Logger } from '../../../Log/port/logger'
-import { PixiApplicationCommon } from '../../Controller/infra/PixiApplication'
+import { PixiApplicationCommon } from '../../Controller/infra/PixiApplicationCommon'
 import { Application } from '@pixi/app'
 import { Sprite } from 'pixi.js'
 
@@ -19,6 +19,25 @@ export class PixijsDrawingAdapter extends PixiApplicationCommon implements Drawi
         this.applicationInstance = applicationInstance
         this.shapeAssets = shapeAssets
         this.logger = logger
+    }
+
+    public refreshEntity (physicalComponent: Physical): Promise<void> {
+        return (physicalComponent.visible)
+            ? this.drawEntity(physicalComponent)
+            : this.eraseEntity(physicalComponent.entityId)
+    }
+
+    private drawEntity (physicalComponent: Physical): Promise<void> {
+        this.logger.info(drawEntityOnPositionMessage(physicalComponent))
+        const pixiEntity = this.pixijsEntities.get(physicalComponent.entityId)
+        return pixiEntity
+            ? this.updatePixiEntity(pixiEntity, physicalComponent)
+            : this.createPixiEntity(physicalComponent)
+    }
+
+    private eraseEntity (id: string): Promise<void> {
+        const pixiEntity = this.pixijsEntities.get(id)
+        return pixiEntity ? this.erasePixiEntity(pixiEntity) : Promise.resolve()
     }
 
     public retrieveDrawnEntities (): Map<string, Physical> {
@@ -47,19 +66,6 @@ export class PixijsDrawingAdapter extends PixiApplicationCommon implements Drawi
             y: entity.sprite.y
         }
         throw new Error(entityIdMissingOnPixiEntities(entityId))
-    }
-
-    public drawEntity (physicalComponent: Physical): Promise<void> {
-        this.logger.info(drawEntityOnPositionMessage(physicalComponent))
-        const pixiEntity = this.pixijsEntities.get(physicalComponent.entityId)
-        return pixiEntity
-            ? this.updatePixiEntity(pixiEntity, physicalComponent)
-            : this.createPixiEntity(physicalComponent)
-    }
-
-    public eraseEntity (id: string): Promise<void> {
-        const pixiEntity = this.pixijsEntities.get(id)
-        return pixiEntity ? this.erasePixiEntity(pixiEntity) : Promise.resolve()
     }
 
     public addingViewToDom (htmlElement:HTMLElement):void {

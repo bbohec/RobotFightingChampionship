@@ -23,35 +23,35 @@ const adapters:DrawingAdapter[] = [
 
 const testSuites:DrawingAdapterTestSuite[] = [
     {
-        entityPhysicalComponent: new Physical(EntityId.playerATower, position(10, 10), ShapeType.tower),
+        entityPhysicalComponent: new Physical(EntityId.playerATower, position(10, 10), ShapeType.tower, true),
         defaultResolution: { x: 1000, y: 1200 },
         resizeResolution: { x: 2000, y: 2400 },
         expectedInitialAbsolutePosition: position(105, 105),
         expectedAbsolutePositionAfterResize: position(210, 210)
     },
     {
-        entityPhysicalComponent: new Physical(EntityId.playerARobot, position(20, 20), ShapeType.robot),
+        entityPhysicalComponent: new Physical(EntityId.playerARobot, position(20, 20), ShapeType.robot, true),
         defaultResolution: { x: 1000, y: 1200 },
         resizeResolution: { x: 3000, y: 3600 },
         expectedInitialAbsolutePosition: position(205, 205),
         expectedAbsolutePositionAfterResize: position(615, 615)
     },
     {
-        entityPhysicalComponent: new Physical(EntityId.cellx1y1, position(40, 62), ShapeType.cell),
+        entityPhysicalComponent: new Physical(EntityId.cellx1y1, position(40, 62), ShapeType.cell, true),
         defaultResolution: { x: 1000, y: 1200 },
         resizeResolution: { x: 500, y: 600 },
         expectedInitialAbsolutePosition: position(405, 625),
         expectedAbsolutePositionAfterResize: position(202, 312)
     },
     {
-        entityPhysicalComponent: new Physical(EntityId.playerAMainMenu, position(40, 62), ShapeType.mainMenu),
+        entityPhysicalComponent: new Physical(EntityId.playerAMainMenu, position(40, 62), ShapeType.mainMenu, true),
         defaultResolution: { x: 2000, y: 2400 },
         resizeResolution: { x: 1000, y: 1200 },
         expectedInitialAbsolutePosition: position(810, 1250),
         expectedAbsolutePositionAfterResize: position(405, 625)
     },
     {
-        entityPhysicalComponent: new Physical(EntityId.playerAPointer, position(40, 62), ShapeType.pointer),
+        entityPhysicalComponent: new Physical(EntityId.playerAPointer, position(40, 62), ShapeType.pointer, true),
         defaultResolution: { x: 2001, y: 2401 },
         resizeResolution: { x: 1001, y: 1201 },
         expectedInitialAbsolutePosition: position(810, 1250),
@@ -77,7 +77,7 @@ describe('Integration Test Suite - Drawing Adapters', () => {
                         expect(adapter.retrieveResolution()).deep.equal(testSuite.defaultResolution)
                     })
                     it(`When the entity with the following Physical component is drawn : ${JSON.stringify(testSuite.entityPhysicalComponent)}`, () => {
-                        return adapter.drawEntity(testSuite.entityPhysicalComponent)
+                        return adapter.refreshEntity(testSuite.entityPhysicalComponent)
                     })
                     it('Then the entity is drawn.', () => {
                         expect(adapter.retrieveDrawnEntities().get(testSuite.entityPhysicalComponent.entityId)).deep.equal(testSuite.entityPhysicalComponent)
@@ -88,12 +88,12 @@ describe('Integration Test Suite - Drawing Adapters', () => {
                 })
                 describe('Hide Entity', () => {
                     before(resetAdapter(adapter, testSuite.defaultResolution))
-                    before(() => adapter.drawEntity(testSuite.entityPhysicalComponent))
+                    before(() => adapter.refreshEntity(testSuite.entityPhysicalComponent))
                     it('Given the entity is drawn.', () => {
                         expect(adapter.retrieveDrawnEntities().get(testSuite.entityPhysicalComponent.entityId)).deep.equal(testSuite.entityPhysicalComponent)
                     })
                     it(`When the entity with id is erased : ${JSON.stringify(testSuite.entityPhysicalComponent)}`, () => {
-                        return adapter.eraseEntity(testSuite.entityPhysicalComponent.entityId)
+                        return adapter.refreshEntity(testSuite.entityPhysicalComponent)
                     })
                     it('Then there is no entities drawn.', () => {
                         expect(Array.from(adapter.retrieveDrawnEntities().values()).length).equal(0)
@@ -104,7 +104,7 @@ describe('Integration Test Suite - Drawing Adapters', () => {
                 })
                 describe(`Change Resolution from ${JSON.stringify(testSuite.defaultResolution)} to ${JSON.stringify(testSuite.resizeResolution)}`, () => {
                     before(resetAdapter(adapter, testSuite.defaultResolution))
-                    before(() => adapter.drawEntity(testSuite.entityPhysicalComponent))
+                    before(() => adapter.refreshEntity(testSuite.entityPhysicalComponent))
                     it(`Given the entity absolute position is ${JSON.stringify(testSuite.expectedInitialAbsolutePosition)}.`, () => {
                         expect(adapter.absolutePositionByEntityId(testSuite.entityPhysicalComponent.entityId)).deep.equal(testSuite.expectedInitialAbsolutePosition)
                     })

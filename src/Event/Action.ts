@@ -1,7 +1,5 @@
 /* eslint-disable no-unused-vars */
 export enum Action {
-    hide = 'Hide',
-    show = 'Show',
     newLoop = 'New Loop',
     waitingForPlayers = 'Waiting for players',
     join = 'Join',
@@ -20,5 +18,6 @@ export enum Action {
     collision = 'collision',
     updatePlayerPointerState = 'updatePlayerPointerState',
     updatePlayerPointerPosition = 'updatePlayerPointerPosition',
-    activate = 'activate'
+    activate = 'activate',
+    draw = 'draw'
 }

@@ -1,6 +1,6 @@
 
 import { Action } from '../../Event/Action'
-import { feature, featureEventDescription, serverScenario, theEntityWithIdHasTheExpectedComponent, theEventIsSent, whenEventOccurs } from '../../Event/test'
+import { feature, featureEventDescription, serverScenario, theEntityWithIdHasTheExpectedComponent, eventsAreSent, whenEventOccured } from '../../Event/test'
 import { TestStep } from '../../Event/TestStep'
 import { Hittable } from '../../Components/Hittable'
 import { hitEvent } from './hit'
@@ -16,7 +16,7 @@ feature(featureEventDescription(Action.hit), () => {
             .buildEntity(EntityId.playerBTower).withHitPoints(100).save()
         , [
             (game, adapters) => theEntityWithIdHasTheExpectedComponent(TestStep.Given, adapters, EntityId.playerBTower, Hittable, new Hittable(EntityId.playerBTower, 100)),
-            (game, adapters) => whenEventOccurs(game, hitEvent(EntityId.playerARobot, EntityId.playerBTower)),
+            ...whenEventOccured(),
             (game, adapters) => theEntityWithIdHasTheExpectedComponent(TestStep.Then, adapters, EntityId.playerBTower, Hittable, new Hittable(EntityId.playerBTower, 80))
         ])
 
@@ -32,13 +32,13 @@ feature(featureEventDescription(Action.hit), () => {
             (game, adapters) => theEntityWithIdHasTheExpectedComponent(TestStep.And, adapters, EntityId.playerARobot, EntityReference, new EntityReference(EntityId.playerARobot, EntityType.robot, new Map([[EntityType.player, [EntityId.playerA]]]))),
             (game, adapters) => theEntityWithIdHasTheExpectedComponent(TestStep.And, adapters, EntityId.playerBTower, EntityReference, new EntityReference(EntityId.playerBTower, EntityType.tower, new Map([[EntityType.player, [EntityId.playerB]]]))),
             (game, adapters) => theEntityWithIdHasTheExpectedComponent(TestStep.And, adapters, EntityId.playerA, EntityReference, new EntityReference(EntityId.playerA, EntityType.player, new Map([[EntityType.match, [EntityId.match]]]))),
-            (game, adapters) => whenEventOccurs(game, hitEvent(EntityId.playerARobot, EntityId.playerBTower)),
-            (game, adapters) => whenEventOccurs(game, hitEvent(EntityId.playerARobot, EntityId.playerBTower)),
-            (game, adapters) => whenEventOccurs(game, hitEvent(EntityId.playerARobot, EntityId.playerBTower)),
-            (game, adapters) => whenEventOccurs(game, hitEvent(EntityId.playerARobot, EntityId.playerBTower)),
-            (game, adapters) => whenEventOccurs(game, hitEvent(EntityId.playerARobot, EntityId.playerBTower)),
+            ...whenEventOccured(),
+            ...whenEventOccured(),
+            ...whenEventOccured(),
+            ...whenEventOccured(),
+            ...whenEventOccured(),
             (game, adapters) => theEntityWithIdHasTheExpectedComponent(TestStep.Then, adapters, EntityId.playerBTower, Hittable, new Hittable(EntityId.playerBTower, 0)),
-            (game, adapters) => theEventIsSent(TestStep.And, adapters, 'server', victoryEvent(EntityId.match, EntityId.playerA))
+            (game, adapters) => eventsAreSent(TestStep.And, adapters, 'server', [victoryEvent(EntityId.match, EntityId.playerA)])
         ])
     serverScenario(`${Action.hit} 3 - Robot Kill Robot`, hitEvent(EntityId.playerARobot, EntityId.playerBRobot),
         (game, adapters) => () => new EntityBuilder(adapters.entityInteractor)
@@ -52,11 +52,11 @@ feature(featureEventDescription(Action.hit), () => {
             (game, adapters) => theEntityWithIdHasTheExpectedComponent(TestStep.And, adapters, EntityId.playerARobot, EntityReference, new EntityReference(EntityId.playerARobot, EntityType.robot, new Map([[EntityType.player, [EntityId.playerA]]]))),
             (game, adapters) => theEntityWithIdHasTheExpectedComponent(TestStep.And, adapters, EntityId.playerBRobot, EntityReference, new EntityReference(EntityId.playerBRobot, EntityType.robot, new Map([[EntityType.player, [EntityId.playerB]]]))),
             (game, adapters) => theEntityWithIdHasTheExpectedComponent(TestStep.And, adapters, EntityId.playerA, EntityReference, new EntityReference(EntityId.playerA, EntityType.player, new Map([[EntityType.match, [EntityId.match]]]))),
-            (game, adapters) => whenEventOccurs(game, hitEvent(EntityId.playerARobot, EntityId.playerBRobot)),
-            (game, adapters) => whenEventOccurs(game, hitEvent(EntityId.playerARobot, EntityId.playerBRobot)),
-            (game, adapters) => whenEventOccurs(game, hitEvent(EntityId.playerARobot, EntityId.playerBRobot)),
+            ...whenEventOccured(),
+            ...whenEventOccured(),
+            ...whenEventOccured(),
             (game, adapters) => theEntityWithIdHasTheExpectedComponent(TestStep.Then, adapters, EntityId.playerBRobot, Hittable, new Hittable(EntityId.playerBRobot, -10)),
-            (game, adapters) => theEventIsSent(TestStep.And, adapters, 'server', victoryEvent(EntityId.match, EntityId.playerA))
+            (game, adapters) => eventsAreSent(TestStep.And, adapters, 'server', [victoryEvent(EntityId.match, EntityId.playerA)])
         ])
     serverScenario(`${Action.hit} 4 - Tower Kill Robot`, hitEvent(EntityId.playerATower, EntityId.playerBRobot),
         (game, adapters) => () => new EntityBuilder(adapters.entityInteractor)
@@ -70,18 +70,18 @@ feature(featureEventDescription(Action.hit), () => {
             (game, adapters) => theEntityWithIdHasTheExpectedComponent(TestStep.And, adapters, EntityId.playerATower, EntityReference, new EntityReference(EntityId.playerATower, EntityType.tower, new Map([[EntityType.player, [EntityId.playerA]]]))),
             (game, adapters) => theEntityWithIdHasTheExpectedComponent(TestStep.And, adapters, EntityId.playerBRobot, EntityReference, new EntityReference(EntityId.playerBRobot, EntityType.robot, new Map([[EntityType.player, [EntityId.playerB]]]))),
             (game, adapters) => theEntityWithIdHasTheExpectedComponent(TestStep.And, adapters, EntityId.playerA, EntityReference, new EntityReference(EntityId.playerA, EntityType.player, new Map([[EntityType.match, [EntityId.match]]]))),
-            (game, adapters) => whenEventOccurs(game, hitEvent(EntityId.playerATower, EntityId.playerBRobot)),
-            (game, adapters) => whenEventOccurs(game, hitEvent(EntityId.playerATower, EntityId.playerBRobot)),
-            (game, adapters) => whenEventOccurs(game, hitEvent(EntityId.playerATower, EntityId.playerBRobot)),
-            (game, adapters) => whenEventOccurs(game, hitEvent(EntityId.playerATower, EntityId.playerBRobot)),
-            (game, adapters) => whenEventOccurs(game, hitEvent(EntityId.playerATower, EntityId.playerBRobot)),
-            (game, adapters) => whenEventOccurs(game, hitEvent(EntityId.playerATower, EntityId.playerBRobot)),
-            (game, adapters) => whenEventOccurs(game, hitEvent(EntityId.playerATower, EntityId.playerBRobot)),
-            (game, adapters) => whenEventOccurs(game, hitEvent(EntityId.playerATower, EntityId.playerBRobot)),
-            (game, adapters) => whenEventOccurs(game, hitEvent(EntityId.playerATower, EntityId.playerBRobot)),
-            (game, adapters) => whenEventOccurs(game, hitEvent(EntityId.playerATower, EntityId.playerBRobot)),
+            ...whenEventOccured(),
+            ...whenEventOccured(),
+            ...whenEventOccured(),
+            ...whenEventOccured(),
+            ...whenEventOccured(),
+            ...whenEventOccured(),
+            ...whenEventOccured(),
+            ...whenEventOccured(),
+            ...whenEventOccured(),
+            ...whenEventOccured(),
             (game, adapters) => theEntityWithIdHasTheExpectedComponent(TestStep.Then, adapters, EntityId.playerBRobot, Hittable, new Hittable(EntityId.playerBRobot, 0)),
-            (game, adapters) => theEventIsSent(TestStep.And, adapters, 'server', victoryEvent(EntityId.match, EntityId.playerA))
+            (game, adapters) => eventsAreSent(TestStep.And, adapters, 'server', [victoryEvent(EntityId.match, EntityId.playerA)])
         ])
     serverScenario(`${Action.hit} 5 - Tower Kill Tower`, hitEvent(EntityId.playerBTower, EntityId.playerATower),
         (game, adapters) => () => new EntityBuilder(adapters.entityInteractor)
@@ -95,30 +95,30 @@ feature(featureEventDescription(Action.hit), () => {
             (game, adapters) => theEntityWithIdHasTheExpectedComponent(TestStep.And, adapters, EntityId.playerATower, EntityReference, new EntityReference(EntityId.playerATower, EntityType.tower, new Map([[EntityType.player, [EntityId.playerA]]]))),
             (game, adapters) => theEntityWithIdHasTheExpectedComponent(TestStep.And, adapters, EntityId.playerBTower, EntityReference, new EntityReference(EntityId.playerBTower, EntityType.tower, new Map([[EntityType.player, [EntityId.playerB]]]))),
             (game, adapters) => theEntityWithIdHasTheExpectedComponent(TestStep.And, adapters, EntityId.playerB, EntityReference, new EntityReference(EntityId.playerB, EntityType.player, new Map([[EntityType.match, [EntityId.match]]]))),
-            (game, adapters) => whenEventOccurs(game, hitEvent(EntityId.playerBTower, EntityId.playerATower)),
-            (game, adapters) => whenEventOccurs(game, hitEvent(EntityId.playerBTower, EntityId.playerATower)),
-            (game, adapters) => whenEventOccurs(game, hitEvent(EntityId.playerBTower, EntityId.playerATower)),
-            (game, adapters) => whenEventOccurs(game, hitEvent(EntityId.playerBTower, EntityId.playerATower)),
-            (game, adapters) => whenEventOccurs(game, hitEvent(EntityId.playerBTower, EntityId.playerATower)),
-            (game, adapters) => whenEventOccurs(game, hitEvent(EntityId.playerBTower, EntityId.playerATower)),
-            (game, adapters) => whenEventOccurs(game, hitEvent(EntityId.playerBTower, EntityId.playerATower)),
-            (game, adapters) => whenEventOccurs(game, hitEvent(EntityId.playerBTower, EntityId.playerATower)),
-            (game, adapters) => whenEventOccurs(game, hitEvent(EntityId.playerBTower, EntityId.playerATower)),
-            (game, adapters) => whenEventOccurs(game, hitEvent(EntityId.playerBTower, EntityId.playerATower)),
-            (game, adapters) => whenEventOccurs(game, hitEvent(EntityId.playerBTower, EntityId.playerATower)),
-            (game, adapters) => whenEventOccurs(game, hitEvent(EntityId.playerBTower, EntityId.playerATower)),
-            (game, adapters) => whenEventOccurs(game, hitEvent(EntityId.playerBTower, EntityId.playerATower)),
-            (game, adapters) => whenEventOccurs(game, hitEvent(EntityId.playerBTower, EntityId.playerATower)),
-            (game, adapters) => whenEventOccurs(game, hitEvent(EntityId.playerBTower, EntityId.playerATower)),
-            (game, adapters) => whenEventOccurs(game, hitEvent(EntityId.playerBTower, EntityId.playerATower)),
-            (game, adapters) => whenEventOccurs(game, hitEvent(EntityId.playerBTower, EntityId.playerATower)),
-            (game, adapters) => whenEventOccurs(game, hitEvent(EntityId.playerBTower, EntityId.playerATower)),
-            (game, adapters) => whenEventOccurs(game, hitEvent(EntityId.playerBTower, EntityId.playerATower)),
-            (game, adapters) => whenEventOccurs(game, hitEvent(EntityId.playerBTower, EntityId.playerATower)),
+            ...whenEventOccured(),
+            ...whenEventOccured(),
+            ...whenEventOccured(),
+            ...whenEventOccured(),
+            ...whenEventOccured(),
+            ...whenEventOccured(),
+            ...whenEventOccured(),
+            ...whenEventOccured(),
+            ...whenEventOccured(),
+            ...whenEventOccured(),
+            ...whenEventOccured(),
+            ...whenEventOccured(),
+            ...whenEventOccured(),
+            ...whenEventOccured(),
+            ...whenEventOccured(),
+            ...whenEventOccured(),
+            ...whenEventOccured(),
+            ...whenEventOccured(),
+            ...whenEventOccured(),
+            ...whenEventOccured(),
             (game, adapters) => theEntityWithIdHasTheExpectedComponent(TestStep.Then, adapters, EntityId.playerATower, Hittable, new Hittable(EntityId.playerATower, 0)),
-            (game, adapters) => theEventIsSent(TestStep.And, adapters, 'server', victoryEvent(EntityId.match, EntityId.playerB))
+            (game, adapters) => eventsAreSent(TestStep.And, adapters, 'server', [victoryEvent(EntityId.match, EntityId.playerB)])
         ])
     serverScenario(`${Action.hit} 6 - Friendly Fire`, hitEvent(EntityId.playerATower, EntityId.playerBRobot), undefined, [
-        (game, adapters) => whenEventOccurs(game, hitEvent(EntityId.playerARobot, EntityId.playerBRobot))
+        ...whenEventOccured()
     ], undefined, true)
 })

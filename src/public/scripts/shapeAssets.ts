@@ -6,6 +6,7 @@ export const shapeAssets = new Map([
     [ShapeType.defeate, new URL('../shapes/fire.png', import.meta.url)],
     [ShapeType.mainMenu, new URL('../shapes/mainMenu.png', import.meta.url)],
     [ShapeType.pointer, new URL('../shapes/pointer.png', import.meta.url)],
-    [ShapeType.simpleMatchLobby, new URL('../shapes/simpleMatchLobby.png', import.meta.url)],
+    [ShapeType.simpleMatchLobbyButton, new URL('../shapes/simpleMatchLobbyButton.png', import.meta.url)],
+    [ShapeType.simpleMatchLobbyMenu, new URL('../shapes/simpleMatchLobbyMenu.png', import.meta.url)],
     [ShapeType.victory, new URL('../shapes/victory.png', import.meta.url)]
 ])

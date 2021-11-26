@@ -14,7 +14,7 @@ import { PlayerSystem } from '../Player/Player'
 import { LoopSystem } from '../Loop/LoopSystem'
 export class ServerGameEventDispatcherSystem extends GenericGameEventDispatcherSystem {
     onGameEvent (gameEvent: GameEvent): Promise<void> {
-        if (gameEvent.action === Action.hide || gameEvent.action === Action.show || gameEvent.action === Action.notify) return this.sendEventToClient(gameEvent)
+        if (gameEvent.action === Action.draw || gameEvent.action === Action.notify) return this.sendEventToClient(gameEvent)
         if (gameEvent.action === Action.create ||
             gameEvent.action === Action.destroy) return this.interactWithSystems.retrieveSystemByClass(ServerLifeCycleSystem).onGameEvent(gameEvent)
         if ((gameEvent.action === Action.join && gameEvent.hasEntitiesByEntityType(EntityType.simpleMatchLobby)) || gameEvent.action === Action.waitingForPlayers)

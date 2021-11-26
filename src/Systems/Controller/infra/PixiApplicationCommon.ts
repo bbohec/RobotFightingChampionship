@@ -3,7 +3,7 @@ import { Dimension, gridDimension } from '../../../Components/port/Dimension'
 import { ScaleRatio } from './PixijsControllerAdapter'
 
 export abstract class PixiApplicationCommon {
-    protected relativePositionToAbsolutePosition (entityRelativePosition: Position, offset: number, resolution:Dimension): Position {
+    protected relativePositionToAbsolutePosition (entityRelativePosition: Position, offset: number, resolution: Dimension): Position {
         const scaleRatio = this.retrieveScaleRatio(resolution)
         return position(
             entityRelativePosition.x * scaleRatio.x + offset * scaleRatio.x,
@@ -11,19 +11,16 @@ export abstract class PixiApplicationCommon {
         )
     }
 
-    protected absolutePositionToRelativePosition (entityRelativePosition: Position, resolution:Dimension): Position {
+    protected absolutePositionToRelativePosition (entityRelativePosition: Position, resolution: Dimension): Position {
         const scaleRatio = this.retrieveScaleRatio(resolution)
         const relativePosition = position(
             entityRelativePosition.x / scaleRatio.x - this.offset / scaleRatio.x,
             entityRelativePosition.y / scaleRatio.y - this.offset / scaleRatio.y
         )
-        console.log(relativePosition)
         return relativePosition
     }
 
-    private retrieveScaleRatio (resolution:Dimension): ScaleRatio {
-        console.log(resolution)
-        console.log(this.gridDimension)
+    private retrieveScaleRatio (resolution: Dimension): ScaleRatio {
         return {
             x: resolution.x / this.gridDimension.x,
             y: resolution.y / this.gridDimension.y

@@ -5,8 +5,9 @@ import { errorMessageOnUnknownEventAction, GameEvent } from '../../Event/GameEve
 import { GenericServerSystem } from '../Generic/GenericServerSystem'
 import { EntityType } from '../../Event/EntityType'
 import { Action } from '../../Event/Action'
-import { hideEvent } from '../../Events/hide/hide'
 import { EntityReference } from '../../Components/EntityReference'
+import { drawEvent } from '../../Events/show/draw'
+import { Physical } from '../../Components/Physical'
 
 export class WaitingAreaSystem extends GenericServerSystem {
     onGameEvent (gameEvent: GameEvent): Promise<void> {
@@ -38,10 +39,16 @@ export class WaitingAreaSystem extends GenericServerSystem {
 
     private onPlayerJoinGameEvent (playerId: string, playersIds: string[], simpleMatchLobbyEntityId:string) {
         playersIds.push(playerId)
+        const mainMenuId = this.interactWithEntities.retrieveEntityComponentByEntityId(playerId, EntityReference).retreiveReference(EntityType.mainMenu)
+        const playerSimpleMatchLobbyButtonId = this.playerSimpleMatchLobbyButtonId(playerId, simpleMatchLobbyEntityId)
+        const mainMenuPhysicalComponent = this.interactWithEntities.retrieveEntityComponentByEntityId(mainMenuId, Physical)
+        mainMenuPhysicalComponent.visible = false
+        const simpleMatchLobbyButtonPhysicalComponent = this.interactWithEntities.retrieveEntityComponentByEntityId(playerSimpleMatchLobbyButtonId, Physical)
+        simpleMatchLobbyButtonPhysicalComponent.visible = false
         return Promise.all([
             this.createMatchForEachTwoPlayers(playersIds, simpleMatchLobbyEntityId),
-            this.sendEvent(hideEvent(EntityType.mainMenu, this.interactWithEntities.retrieveEntityComponentByEntityId(playerId, EntityReference).retreiveReference(EntityType.mainMenu), playerId)),
-            this.sendEvent(hideEvent(EntityType.button, this.playerSimpleMatchLobbyButtonId(playerId, simpleMatchLobbyEntityId), playerId)),
+            this.sendEvent(drawEvent(EntityType.mainMenu, mainMenuId, playerId, mainMenuPhysicalComponent)),
+            this.sendEvent(drawEvent(EntityType.button, playerSimpleMatchLobbyButtonId, playerId, simpleMatchLobbyButtonPhysicalComponent)),
             this.sendEvent(createPlayerSimpleMatchLobbyMenu(playerId))
         ])
             .then(() => Promise.resolve())

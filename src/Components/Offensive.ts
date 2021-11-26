@@ -1,5 +1,4 @@
 import { GenericComponent } from './GenericComponent'
-import { ComponentName } from './port/ComponentName'
 export class Offensive extends GenericComponent {
     constructor (entityId: string, damagePoints: number) {
         super(entityId)
@@ -7,5 +6,4 @@ export class Offensive extends GenericComponent {
     }
 
     damagePoints: number;
-    componentName: ComponentName= ComponentName.Offensive
 }

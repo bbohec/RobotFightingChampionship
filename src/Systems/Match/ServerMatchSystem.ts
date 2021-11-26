@@ -7,9 +7,10 @@ import { EntityReference } from '../../Components/EntityReference'
 import { playerReadyForMatch } from '../../Events/ready/ready'
 import { createGridEvent, createRobotEvent, createTowerEvent } from '../../Events/create/create'
 import { destroyMatchEvent, destroyRobotEvent, destroyTowerEvent } from '../../Events/destroy/destroy'
-import { showEvent } from '../../Events/show/show'
 import { playerNotFoundOnMatchPlayers } from './port/matchSystem'
 import { Physical } from '../../Components/Physical'
+import { drawEvent } from '../../Events/show/draw'
+import { gridDimension } from '../../Components/port/Dimension'
 
 export class ServerMatchSystem extends GenericServerSystem {
     onGameEvent (gameEvent: GameEvent): Promise<void> {
@@ -45,10 +46,12 @@ export class ServerMatchSystem extends GenericServerSystem {
     private onPlayerRemoved (playableComponent: Playable, playerId:string): Promise<void> {
         const playerMainMenuId = this.interactWithEntities.retrieveEntityComponentByEntityId(playerId, EntityReference).retreiveReference(EntityType.mainMenu)
         const playerEntityReference = this.entityReferencesByEntityId(playerId)
+        const physicalComponent = this.interactWithEntities.retrieveEntityComponentByEntityId(playerMainMenuId, Physical)
+        physicalComponent.visible = true
         const events:GameEvent[] = [
             destroyRobotEvent(playerEntityReference.retreiveReference(EntityType.robot)),
             destroyTowerEvent(playerEntityReference.retreiveReference(EntityType.tower)),
-            showEvent(EntityType.mainMenu, playerMainMenuId, playerId, this.interactWithEntities.retrieveEntityComponentByEntityId(playerMainMenuId, Physical))
+            drawEvent(EntityType.mainMenu, playerMainMenuId, playerId, physicalComponent)
         ]
         if (playableComponent.players.length === 0) events.push(destroyMatchEvent(playableComponent.entityId))
         return Promise.all(events.map(event => this.sendEvent(event)))
@@ -110,9 +113,9 @@ export class ServerMatchSystem extends GenericServerSystem {
 
     private onMatchHasAllPlayers (playerIds: string[], matchId: string): Promise<void> {
         return Promise.all([
+            this.sendEvent(createGridEvent(matchId, gridDimension)),
             ...playerIds.map(playerId => this.sendEvent(createTowerEvent(playerId))),
-            ...playerIds.map(playerId => this.sendEvent(createRobotEvent(playerId))),
-            this.sendEvent(createGridEvent(matchId))
+            ...playerIds.map(playerId => this.sendEvent(createRobotEvent(playerId)))
         ])
             .then(() => Promise.resolve())
             .catch(error => Promise.reject(error))

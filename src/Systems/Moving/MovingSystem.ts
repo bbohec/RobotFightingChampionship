@@ -1,9 +1,12 @@
+import { Controller } from '../../Components/Controller'
 import { Phasing } from '../../Components/Phasing'
 import { Physical, Position } from '../../Components/Physical'
 import { Playable } from '../../Components/Playable'
+import { PhaseType } from '../../Components/port/Phase'
 import { Action } from '../../Event/Action'
 import { EntityType } from '../../Event/EntityType'
 import { GameEvent } from '../../Event/GameEvent'
+import { nextTurnEvent } from '../../Events/nextTurn/nextTurn'
 import { wrongPlayerPhaseNotificationMessage, notEnoughActionPointNotificationMessage, notifyEvent, positionAlreadyOccupiedNotificationMessage, wrongUnitPhaseNotificationMessage } from '../../Events/notify/notify'
 import { ArtithmeticSystem } from '../Generic/ArithmeticSystem'
 const unsupportedMovingEntity = (entityTypes:EntityType[]):string => `Unsupported moving entity type. Current entity types: ${entityTypes}`
@@ -25,7 +28,7 @@ export class MovingSystem extends ArtithmeticSystem {
                     ? this.sendEvent(notifyEvent(playerId, positionAlreadyOccupiedNotificationMessage))
                     : this.isNotEnoughActionPoint(matchPhasingComponent, actionPoints)
                         ? this.sendEvent(notifyEvent(playerId, notEnoughActionPointNotificationMessage))
-                        : this.move(movingEntityPhysicalComponent, cellPhysicalComponent, matchPhasingComponent, actionPoints)
+                        : this.move(movingEntityPhysicalComponent, cellPhysicalComponent, matchPhasingComponent, actionPoints, matchId)
     }
 
     private onUpdatePointerPosition (gameEvent: GameEvent): Promise<void> {
@@ -34,6 +37,10 @@ export class MovingSystem extends ArtithmeticSystem {
             .interactWithEntities
             .retrieveEntityComponentByEntityId(pointerId, Physical)
             .position = gameEvent.retrieveComponent(pointerId, Physical).position
+        this
+            .interactWithEntities
+            .retrieveEntityComponentByEntityId(pointerId, Controller)
+            .primaryButton = gameEvent.retrieveComponent(pointerId, Controller).primaryButton
         return Promise.resolve()
     }
 
@@ -68,9 +75,10 @@ export class MovingSystem extends ArtithmeticSystem {
             }))
     }
 
-    private move (movingEntityPhysicalComponent:Physical, destinationCellPhysicalComponent:Physical, phasingComponent:Phasing, actionPoints:number):Promise<void> {
+    private move (movingEntityPhysicalComponent:Physical, destinationCellPhysicalComponent:Physical, phasingComponent:Phasing, actionPoints:number, matchId:string):Promise<void> {
         this.removeActionPoint(phasingComponent, actionPoints)
         this.changePosition(movingEntityPhysicalComponent, destinationCellPhysicalComponent)
+        if (phasingComponent.currentPhase.phaseType === PhaseType.Placement && phasingComponent.currentPhase.auto) return this.sendEvent(nextTurnEvent(matchId))
         return Promise.resolve()
     }
 

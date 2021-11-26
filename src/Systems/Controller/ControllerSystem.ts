@@ -1,4 +1,5 @@
 import { Physical } from '../../Components/Physical'
+import { ControlStatus } from '../../Components/port/ControlStatus'
 import { EntityInteractor } from '../../Entities/ports/EntityInteractor'
 import { Action } from '../../Event/Action'
 import { EntityType } from '../../Event/EntityType'
@@ -29,7 +30,7 @@ export class ControllerSystem extends GenericClientSystem {
         const pointerPhysicalComponent = this.interactWithEntities.retrieveEntityComponentByEntityId(pointerEntityId, Physical)
         if (!pointerPhysicalComponent.isPositionIdentical(gameEvent.retrieveComponent(pointerEntityId, Physical).position)) {
             pointerPhysicalComponent.position = gameEvent.retrieveComponent(pointerEntityId, Physical).position
-            return this.sendEvent(updatePointerState(pointerEntityId, pointerPhysicalComponent.position))
+            return this.sendEvent(updatePointerState(pointerEntityId, pointerPhysicalComponent.position, ControlStatus.Active))
         }
         return Promise.resolve()
     }
