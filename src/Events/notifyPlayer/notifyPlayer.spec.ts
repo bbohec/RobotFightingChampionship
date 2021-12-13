@@ -4,22 +4,22 @@ import { EntityId } from '../../Event/entityIds'
 import { EntityType } from '../../Event/EntityType'
 import { clientScenario, feature, featureEventDescription, serverScenario, theEntityIsOnRepository, eventsAreSent, thereIsANotification, whenEventOccured } from '../../Event/test'
 import { TestStep } from '../../Event/TestStep'
-import { notEnoughActionPointNotificationMessage, notifyEvent, wrongPlayerNotificationMessage } from './notify'
+import { notEnoughActionPointNotificationMessage, notifyPlayerEvent, wrongPlayerNotificationMessage } from './notifyPlayer'
 
-feature(featureEventDescription(Action.notify), () => {
-    serverScenario(`${Action.notify} 1 - Server Side`, notifyEvent(EntityId.playerA, notEnoughActionPointNotificationMessage), undefined
+feature(featureEventDescription(Action.notifyPlayer), () => {
+    serverScenario(`${Action.notifyPlayer} 1 - Server Side`, notifyPlayerEvent(EntityId.playerA, notEnoughActionPointNotificationMessage), undefined
         , [
             ...whenEventOccured(),
-            (game, adapters) => eventsAreSent(TestStep.Then, adapters, 'client', [notifyEvent(EntityId.playerA, notEnoughActionPointNotificationMessage)])
+            (game, adapters) => eventsAreSent(TestStep.Then, adapters, 'client', [notifyPlayerEvent(EntityId.playerA, notEnoughActionPointNotificationMessage)])
         ])
-    clientScenario(`${Action.notify} 2 - Client Side`, notifyEvent(EntityId.playerA, notEnoughActionPointNotificationMessage), EntityId.playerA,
+    clientScenario(`${Action.notifyPlayer} 2 - Client Side`, notifyPlayerEvent(EntityId.playerA, notEnoughActionPointNotificationMessage), EntityId.playerA,
         (game, adapters) => () => new EntityBuilder(adapters.entityInteractor)
             .buildEntity(EntityId.playerA).withEntityReferences(EntityType.player).save()
         , [
             ...whenEventOccured(),
             (game, adapters) => thereIsANotification(TestStep.Then, adapters, notEnoughActionPointNotificationMessage)
         ], undefined)
-    clientScenario(`${Action.notify} 3 - Client Side bad player`, notifyEvent(EntityId.playerB, notEnoughActionPointNotificationMessage), EntityId.playerA,
+    clientScenario(`${Action.notifyPlayer} 3 - Client Side bad player`, notifyPlayerEvent(EntityId.playerB, notEnoughActionPointNotificationMessage), EntityId.playerA,
         (game, adapters) => () => new EntityBuilder(adapters.entityInteractor)
             .buildEntity(EntityId.playerA).withEntityReferences(EntityType.player).save()
         , [

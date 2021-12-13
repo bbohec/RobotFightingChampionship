@@ -7,6 +7,10 @@ import { EntityReference } from '../../Components/EntityReference'
 import { EntityType } from '../../Event/EntityType'
 
 export class InMemoryEntityRepository implements EntityInteractor {
+    isEntityExist (entityId: string): boolean {
+        return this.entities.has(entityId)
+    }
+
     linkEntityToEntities (originEntityId: string, targetEntityIds: string[]): void {
         // [[EntityType.match, [gameEvent.entityByEntityType(EntityType.match)]], [EntityType.player, [gameEvent.entityByEntityType(EntityType.player)]]]
         // this.interactWithEntities.retrieveEntityComponentByEntityId(gameEvent.entityByEntityType(EntityType.match), EntityReference).entityReferences.set(EntityType.button, [playerMatchButtonId])
@@ -67,4 +71,4 @@ export class InMemoryEntityRepository implements EntityInteractor {
 
     entities: Map<string, Entity> = new Map([])
 }
-const missingEntityId = (entityId: string, entities: IterableIterator<Entity>): string => `Entity with id '${entityId}' missing on entity repository. Current entities: ${stringifyWithDetailledSetAndMap(entities)}`
+export const missingEntityId = (entityId: string, entities?: IterableIterator<Entity>): string => `Entity with id '${entityId}' missing on entity repository.${entities ? ` Current entities: ${stringifyWithDetailledSetAndMap(entities)}` : ''}`

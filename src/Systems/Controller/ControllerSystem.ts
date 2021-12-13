@@ -16,23 +16,22 @@ export class ControllerSystem extends GenericClientSystem {
     }
 
     onGameEvent (gameEvent: GameEvent): Promise<void> {
-        if (gameEvent.action === Action.updatePlayerPointerPosition) return this.onUpdatePlayerPointerPosition(gameEvent)
-        if (gameEvent.action === Action.activate) return this.onActivateController(gameEvent)
-        throw new Error(errorMessageOnUnknownEventAction(ControllerSystem.name, gameEvent))
+        return gameEvent.action === Action.updatePlayerPointerPosition
+            ? this.onUpdatePlayerPointerPosition(gameEvent)
+            : gameEvent.action === Action.activate
+                ? this.onActivateController(gameEvent)
+                : Promise.reject(new Error(errorMessageOnUnknownEventAction(ControllerSystem.name, gameEvent)))
     }
 
-    onActivateController (gameEvent: GameEvent): Promise<void> {
+    private onActivateController (gameEvent: GameEvent): Promise<void> {
         return this.interactWithControllerAdapter.activate(gameEvent.entityByEntityType(EntityType.pointer))
     }
 
-    onUpdatePlayerPointerPosition (gameEvent: GameEvent): Promise<void> {
+    private onUpdatePlayerPointerPosition (gameEvent: GameEvent): Promise<void> {
         const pointerEntityId = gameEvent.entityByEntityType(EntityType.pointer)
         const pointerPhysicalComponent = this.interactWithEntities.retrieveEntityComponentByEntityId(pointerEntityId, Physical)
-        if (!pointerPhysicalComponent.isPositionIdentical(gameEvent.retrieveComponent(pointerEntityId, Physical).position)) {
-            pointerPhysicalComponent.position = gameEvent.retrieveComponent(pointerEntityId, Physical).position
-            return this.sendEvent(updatePointerState(pointerEntityId, pointerPhysicalComponent.position, ControlStatus.Active))
-        }
-        return Promise.resolve()
+        pointerPhysicalComponent.position = gameEvent.retrieveComponent(pointerEntityId, Physical).position
+        return this.sendEvent(updatePointerState(pointerEntityId, pointerPhysicalComponent.position, ControlStatus.Active))
     }
 
     private interactWithControllerAdapter: ControllerPort

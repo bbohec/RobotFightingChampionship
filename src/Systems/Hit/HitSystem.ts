@@ -7,14 +7,9 @@ import { Offensive } from '../../Components/Offensive'
 
 export class HitSystem extends GenericServerSystem {
     onGameEvent (gameEvent: GameEvent): Promise<void> {
-        if (gameEvent.hasEntitiesByEntityType(EntityType.hittable) &&
-            gameEvent.hasEntitiesByEntityType(EntityType.attacker))
-            return this.onHit(
-                gameEvent.entityByEntityType(EntityType.hittable),
-                gameEvent.entityByEntityType(EntityType.attacker)
-            )
-
-        throw new Error(errorMessageOnUnknownEventAction(HitSystem.name, gameEvent))
+        return gameEvent.hasEntitiesByEntityType(EntityType.hittable) && gameEvent.hasEntitiesByEntityType(EntityType.attacker) 
+        ? this.onHit(gameEvent.entityByEntityType(EntityType.hittable),gameEvent.entityByEntityType(EntityType.attacker))
+        : Promise.reject(new Error(errorMessageOnUnknownEventAction(HitSystem.name, gameEvent)))
     }
 
     private onHit (hittableEntityId:string, offensiveEntityId:string): Promise<void> {
@@ -28,7 +23,7 @@ export class HitSystem extends GenericServerSystem {
     }
 
     private onNoMoreHitPoints (hittingEntityId:string):Promise<void> {
-        const playerId = this.entityReferencesByEntityId(hittingEntityId).retreiveReference(EntityType.player)
-        return this.sendEvent(victoryEvent(this.entityReferencesByEntityId(playerId).retreiveReference(EntityType.match), playerId))
+        const playerId = this.entityReferencesByEntityId(hittingEntityId).retrieveReference(EntityType.player)
+        return this.sendEvent(victoryEvent(this.entityReferencesByEntityId(playerId).retrieveReference(EntityType.match), playerId))
     }
 }

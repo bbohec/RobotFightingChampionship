@@ -2,7 +2,6 @@ import { EntityReference } from '../Components/EntityReference'
 import { GenericComponent } from '../Components/GenericComponent'
 import { Phasing } from '../Components/Phasing'
 import { Position, Physical } from '../Components/Physical'
-import { Playable } from '../Components/Playable'
 import { Phase } from '../Components/port/Phase'
 import { Entity } from './Entity'
 import { EntityReferences } from '../Event/GameEvent'
@@ -68,11 +67,6 @@ export class EntityBuilder {
 
     withPhase (phase: Phase) {
         this.addComponents([new Phasing(this.getEntityId(), phase)])
-        return this
-    }
-
-    withPlayers (playerIds: string[]) {
-        this.addComponents([new Playable(this.getEntityId(), playerIds)])
         return this
     }
 

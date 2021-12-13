@@ -17,8 +17,8 @@ module.exports = {
         '@typescript-eslint'
     ],
     rules: {
-        indent: ['error', 4],
-        curly: ['error', 'multi', 'consistent']
+        curly: ['error', 'multi', 'consistent'],
+        indent: ['error', 4]
     },
     overrides: [
         {

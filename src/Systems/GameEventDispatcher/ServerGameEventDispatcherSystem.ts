@@ -14,23 +14,31 @@ import { PlayerSystem } from '../Player/Player'
 import { LoopSystem } from '../Loop/LoopSystem'
 export class ServerGameEventDispatcherSystem extends GenericGameEventDispatcherSystem {
     onGameEvent (gameEvent: GameEvent): Promise<void> {
-        if (gameEvent.action === Action.draw || gameEvent.action === Action.notify) return this.sendEventToClient(gameEvent)
-        if (gameEvent.action === Action.create ||
-            gameEvent.action === Action.destroy) return this.interactWithSystems.retrieveSystemByClass(ServerLifeCycleSystem).onGameEvent(gameEvent)
-        if ((gameEvent.action === Action.join && gameEvent.hasEntitiesByEntityType(EntityType.simpleMatchLobby)) || gameEvent.action === Action.waitingForPlayers)
-            return this.interactWithSystems.retrieveSystemByClass(WaitingAreaSystem).onGameEvent(gameEvent)
-        if (gameEvent.action === Action.join || gameEvent.action === Action.quit) return this.interactWithSystems.retrieveSystemByClass(ServerMatchSystem).onGameEvent(gameEvent)
-        if (gameEvent.action === Action.register) return this.onRegister(gameEvent)
-        if (gameEvent.action === Action.ready ||
-            gameEvent.action === Action.nextTurn ||
-            gameEvent.action === Action.victory
-        ) return this.interactWithSystems.retrieveSystemByClass(PhasingSystem).onGameEvent(gameEvent)
-        if (gameEvent.action === Action.newLoop) return this.interactWithSystems.retrieveSystemByClass(LoopSystem).onGameEvent(gameEvent)
-        if (gameEvent.action === Action.hit) return this.interactWithSystems.retrieveSystemByClass(HitSystem).onGameEvent(gameEvent)
-        if (gameEvent.action === Action.move || gameEvent.action === Action.updatePlayerPointerState) return this.interactWithSystems.retrieveSystemByClass(MovingSystem).onGameEvent(gameEvent)
-        if (gameEvent.action === Action.attack) return this.interactWithSystems.retrieveSystemByClass(AttackingSystem).onGameEvent(gameEvent)
-        if (gameEvent.action === Action.checkCollision || gameEvent.action === Action.collision) return this.interactWithSystems.retrieveSystemByClass(CollisionSystem).onGameEvent(gameEvent)
-        throw new Error(errorMessageOnUnknownEventAction(ServerGameEventDispatcherSystem.name, gameEvent))
+        return gameEvent.action === Action.draw || gameEvent.action === Action.notifyPlayer
+            ? this.sendEventToClient(gameEvent)
+            : gameEvent.action === Action.create || gameEvent.action === Action.destroy
+                ? this.interactWithSystems.retrieveSystemByClass(ServerLifeCycleSystem).onGameEvent(gameEvent)
+                : (gameEvent.action === Action.join && gameEvent.hasEntitiesByEntityType(EntityType.simpleMatchLobby)) || gameEvent.action === Action.waitingForPlayers
+                    ? this.interactWithSystems.retrieveSystemByClass(WaitingAreaSystem).onGameEvent(gameEvent)
+                    : gameEvent.action === Action.join || gameEvent.action === Action.quit
+                        ? this.interactWithSystems.retrieveSystemByClass(ServerMatchSystem).onGameEvent(gameEvent)
+                        : gameEvent.action === Action.register
+                            ? this.onRegister(gameEvent)
+                            : gameEvent.action === Action.ready || gameEvent.action === Action.nextTurn || gameEvent.action === Action.victory
+                                ? this.interactWithSystems.retrieveSystemByClass(PhasingSystem).onGameEvent(gameEvent)
+                                : gameEvent.action === Action.newLoop
+                                    ? this.interactWithSystems.retrieveSystemByClass(LoopSystem).onGameEvent(gameEvent)
+                                    : gameEvent.action === Action.hit
+                                        ? this.interactWithSystems.retrieveSystemByClass(HitSystem).onGameEvent(gameEvent)
+                                        : gameEvent.action === Action.move || gameEvent.action === Action.updatePlayerPointerState
+                                            ? this.interactWithSystems.retrieveSystemByClass(MovingSystem).onGameEvent(gameEvent)
+                                            : gameEvent.action === Action.attack
+                                                ? this.interactWithSystems.retrieveSystemByClass(AttackingSystem).onGameEvent(gameEvent)
+                                                : gameEvent.action === Action.checkCollision || gameEvent.action === Action.collision
+                                                    ? this.interactWithSystems.retrieveSystemByClass(CollisionSystem).onGameEvent(gameEvent)
+                                                    : gameEvent.action === Action.notifyServer
+                                                        ? Promise.resolve()
+                                                        : Promise.reject(new Error(errorMessageOnUnknownEventAction(ServerGameEventDispatcherSystem.name, gameEvent)))
     }
 
     onRegister (gameEvent: GameEvent): Promise<void> {
@@ -41,9 +49,13 @@ export class ServerGameEventDispatcherSystem extends GenericGameEventDispatcherS
         const includesPlayer = isGameEventHasEntityType(gameEvent, EntityType.player)
         const includesGame = isGameEventHasEntityType(gameEvent, EntityType.game)
         const includesPointer = isGameEventHasEntityType(gameEvent, EntityType.pointer)
-        if (includesPlayer && includesPointer) return this.sendEventToClient(gameEvent)
-        if (includesPlayer && includesGame) return this.interactWithSystems.retrieveSystemByClass(PlayerSystem).onGameEvent(gameEvent)
-        if (includesPlayer && !includesGrid && !includesRobot && !includesTower) return this.interactWithSystems.retrieveSystemByClass(ServerLifeCycleSystem).onGameEvent(gameEvent)
-        return this.interactWithSystems.retrieveSystemByClass(ServerMatchSystem).onGameEvent(gameEvent)
+        const includesMatch = isGameEventHasEntityType(gameEvent, EntityType.match)
+        return includesPlayer && includesPointer
+            ? this.sendEventToClient(gameEvent)
+            : includesPlayer && includesGame
+                ? this.interactWithSystems.retrieveSystemByClass(PlayerSystem).onGameEvent(gameEvent)
+                : includesPlayer && !includesGrid && !includesRobot && !includesTower && !includesMatch
+                    ? this.interactWithSystems.retrieveSystemByClass(ServerLifeCycleSystem).onGameEvent(gameEvent)
+                    : this.interactWithSystems.retrieveSystemByClass(ServerMatchSystem).onGameEvent(gameEvent)
     }
 }

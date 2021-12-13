@@ -13,11 +13,12 @@ export enum Action {
     destroy = 'destroy',
     move = 'move',
     attack = 'attack',
-    notify = 'notify',
+    notifyPlayer = 'notifyPlayer',
+    notifyServer = 'notifyServer',
     checkCollision = 'checkCollision',
     collision = 'collision',
     updatePlayerPointerState = 'updatePlayerPointerState',
     updatePlayerPointerPosition = 'updatePlayerPointerPosition',
     activate = 'activate',
-    draw = 'draw'
+    draw = 'draw',
 }

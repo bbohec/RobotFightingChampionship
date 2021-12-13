@@ -6,8 +6,9 @@ import { GenericServerSystem } from '../Generic/GenericServerSystem'
 
 export class PlayerSystem extends GenericServerSystem {
     onGameEvent (gameEvent: GameEvent): Promise<void> {
-        if (gameEvent.hasEntitiesByEntityType(EntityType.game) && gameEvent.hasEntitiesByEntityType(EntityType.player)) return this.registerPlayerOnGame(gameEvent)
-        throw new Error(errorMessageOnUnknownEventAction(PlayerSystem.name, gameEvent))
+        return gameEvent.hasEntitiesByEntityType(EntityType.game) && gameEvent.hasEntitiesByEntityType(EntityType.player) 
+            ? this.registerPlayerOnGame(gameEvent)
+            : Promise.reject(new Error(errorMessageOnUnknownEventAction(PlayerSystem.name, gameEvent)))
     }
 
     private registerPlayerOnGame (gameEvent: GameEvent): Promise<void> {
@@ -18,13 +19,7 @@ export class PlayerSystem extends GenericServerSystem {
         return this.sendEvents([
             createPlayerPointerEvent(playerId),
             createMainMenuEvent(gameId, playerId),
-            createPlayerSimpleMatchLobbyButtonEvent(gameEntityReferences.retreiveReference(EntityType.simpleMatchLobby), playerId)
+            createPlayerSimpleMatchLobbyButtonEvent(gameEntityReferences.retrieveReference(EntityType.simpleMatchLobby), playerId)
         ])
-    }
-
-    private sendEvents (gameEvents:GameEvent[]):Promise<void> {
-        return Promise.all(gameEvents.map(gameEvent => this.sendEvent(gameEvent)))
-            .then(() => Promise.resolve())
-            .catch(error => Promise.reject(error))
     }
 }

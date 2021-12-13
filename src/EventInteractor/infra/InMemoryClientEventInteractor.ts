@@ -37,9 +37,11 @@ export class InMemoryClientEventInteractor implements ClientEventInteractor {
     }
 
     eventBus: EventBus;
-    start (): void {
+    start (): Promise<void> {
+        return Promise.resolve()
     }
 
-    stop (): void {
+    stop ():  Promise<void>  {
+        return Promise.resolve()
     }
 }

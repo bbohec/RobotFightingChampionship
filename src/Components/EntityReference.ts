@@ -15,7 +15,7 @@ export class EntityReference extends GenericComponent {
         throw new Error(multipleEntityTypeOnEntityReference(this.entityId, this.entityType))
     }
 
-    retreiveReference (entityType:EntityType) {
+    retrieveReference (entityType:EntityType) {
         const references = this.retrieveReferences(entityType)
         if (references.length === 1) return references[0]
         throw new Error(multipleEntitiesReferencedByEntityType(entityType, this.entityId))
@@ -23,7 +23,7 @@ export class EntityReference extends GenericComponent {
 
     retrieveReferences (entityType:EntityType) {
         const entityReferences = this.entityReferences.get(entityType)
-        if (entityReferences && entityReferences.length > 0) return entityReferences
+        if (entityReferences) return entityReferences
         throw new Error(missingEntityReferenceByEntityType(entityType, this.entityType, this.entityId))
     }
 

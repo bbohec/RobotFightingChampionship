@@ -9,4 +9,4 @@ export const outOfRangeNotificationMessage:string = 'The target is out of Range.
 export const notEnoughActionPointNotificationMessage:string = 'Not enough action point.'
 export const positionAlreadyOccupiedNotificationMessage:string = 'The position is already occupied.'
 export const wrongPlayerNotificationMessage = (playerId:string, notification: string): string => `The notification '${notification}' should be sent to player '${playerId}'.`
-export const notifyEvent = (playerId: string, message:string) => newGameEvent(Action.notify, new Map([[EntityType.player, [playerId]], [EntityType.message, [message]]]))
+export const notifyPlayerEvent = (playerId: string, message:string) => newGameEvent(Action.notifyPlayer, new Map([[EntityType.player, [playerId]], [EntityType.message, [message]]]))

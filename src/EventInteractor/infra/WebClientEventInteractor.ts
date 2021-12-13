@@ -12,6 +12,7 @@ import { EventBus } from '../../Event/port/EventBus'
 import { Logger } from '../../Log/port/logger'
 import { stringifyWithDetailledSetAndMap } from '../../Event/detailledStringify'
 export const clientBodyRequest = (stringifiedBody:string): string => `CLIENT POST REQUEST : ${stringifiedBody} `
+const sseRegisteredCheckInterval = 100
 export class WebClientEventInteractor implements ClientEventInteractor, SSEClient {
     constructor (serverFullyQualifiedDomainName: string, webServerPort: number, clientId: string, eventBus: EventBus, logger:Logger) {
         this.clientId = clientId
@@ -22,23 +23,31 @@ export class WebClientEventInteractor implements ClientEventInteractor, SSEClien
     }
 
     start (): Promise<void> {
-        this.logger.info('Start WebClientEventInteractor')
+        this.logger.info(`Starting ${this.constructor.name} ...`)
         return new Promise<void>((resolve, reject) => {
             this.subscribeServerSentEvent()
             const interval = setInterval((): void => {
                 if (this.sseRegistered) {
                     clearInterval(interval)
+                    this.logger.info(`${this.constructor.name} started.`)
                     resolve()
-                }
-            }, 100)
+                } // else this.logger.info("Not SSE Registered.")
+            }, sseRegisteredCheckInterval)
         })
     }
 
-    stop (): void {
-        this.logger.info('Stop WebClientEventInteractor')
-        if (this.eventSource)
-            this.eventSource.close()
-        this.eventSource = undefined
+    stop (): Promise<void> {
+        return new Promise<void>((resolve, reject) => {
+            this.logger.info(`Stoping ${this.constructor.name} ...`)
+            if (this.eventSource) {
+                this.eventSource.close()
+                this.logger.info(`${this.constructor.name} stoped.`)
+                this.eventSource = undefined
+            } else {
+                this.logger.warn(`${this.constructor.name} already stoped.`)
+                resolve()
+            }
+        })
     }
 
     subscribeServerSentEvent (): void {
@@ -46,6 +55,12 @@ export class WebClientEventInteractor implements ClientEventInteractor, SSEClien
         const sseUrl = `http://${this.serverFullyQualifiedDomainName}:${this.webServerPort}/serverGameEvents?clientId=${this.clientId}`
         this.logger.info(`subscribeServerSentEvent on url '${sseUrl}'.`)
         this.eventSource = new EventSource(sseUrl)
+        this.eventSource.addEventListener(SSEMessageType.CONNECTED, event => {
+            const messageEvent: MessageEvent<string> = (event as MessageEvent)
+            this.logger.info('SSE Message Received', 'message id:', messageEvent.lastEventId)
+            this.logger.info('SSE Client Registered', this.clientId)
+            this.sseRegistered = true
+        })
         this.eventSource.addEventListener(SSEMessageType.GAME_EVENT, event => {
             const messageEvent: MessageEvent<string> = (event as MessageEvent)
             this.logger.info('SSE Message Received', 'message id:', messageEvent.lastEventId)
@@ -55,21 +70,17 @@ export class WebClientEventInteractor implements ClientEventInteractor, SSEClien
             this.sendEventToClient(gameEvent)
         })
         this.eventSource.addEventListener(SSEMessageType.CLOSE_SSE, event => {
-            this.logger.info('closing client SSE...')
+            const messageEvent: MessageEvent<string> = (event as MessageEvent)
+            this.logger.info('SSE Message Received', 'message id:', messageEvent.lastEventId)
+            this.logger.info('Closing client SSE...')
             this.stop()
-        })
-        this.eventSource.addEventListener(SSEMessageType.CONNECTED, event => {
-            this.logger.info('SSE Client Registered', this.clientId)
-            this.sseRegistered = true
         })
     }
 
     private messageEventDataToGameEvent (data: string): GameEvent {
-        const serializedGameEvent:SerializedGameEvent = JSON.parse(data, (key, value) => typeof value === 'object' && value !== null
-            ? value.dataType === 'Map' ? new Map(value.value) : value
-            : value
+        const serializedGameEvent:SerializedGameEvent = JSON.parse(data, (key, value) =>
+            typeof value === 'object' && value !== null ? value.dataType === 'Map' ? new Map(value.value) : value : value
         )
-        this.logger.warn('BEFORE BUILD COMPONENTS', serializedGameEvent.components)
         const gameEvent = new GameEvent({
             action: serializedGameEvent.action,
             components: serializedGameEvent.components.map(serializedComponent => {
@@ -78,7 +89,6 @@ export class WebClientEventInteractor implements ClientEventInteractor, SSEClien
             }),
             entityRefences: serializedGameEvent.entityRefences
         })
-        this.logger.warn('AFTER BUILD COMPONENTS', gameEvent.components)
         return gameEvent
     }
 
@@ -94,9 +104,7 @@ export class WebClientEventInteractor implements ClientEventInteractor, SSEClien
     sendEventToServer (gameEvent: GameEvent | SerializedGameEvent): Promise<void> {
         if (gameEvent instanceof GameEvent)
             gameEvent = this.serializeEvent(gameEvent)
-        const body = JSON.stringify(gameEvent, (key: string, value: unknown) => value instanceof Map
-            ? { dataType: 'Map', value: Array.from(value.entries()) }
-            : value
+        const body = JSON.stringify(gameEvent, (key: string, value: unknown) => value instanceof Map ? { dataType: 'Map', value: Array.from(value.entries()) } : value
         )
         const axiosRequestConfig: AxiosRequestConfig = { headers: { 'Content-type': 'application/json' } }
         const url = `http://${this.serverFullyQualifiedDomainName}:${this.webServerPort}${clientGameEventUrlPath}`
@@ -105,9 +113,7 @@ export class WebClientEventInteractor implements ClientEventInteractor, SSEClien
                 this.logger.info(`Client Sent OK : ${response.status}`)
                 return Promise.resolve()
             })
-            .catch((error:AxiosError) => (error.response?.status === 500)
-                ? Promise.reject(new Error(`Internal Server Error - ${error.response?.data}`))
-                : Promise.reject(error))
+            .catch((error:AxiosError) => (error.response?.status === 500) ? Promise.reject(new Error(`Internal Server Error - ${error.response?.data}`)) : Promise.reject(error))
     }
 
     sendEventToClient (gameEvent: GameEvent): Promise<void> {

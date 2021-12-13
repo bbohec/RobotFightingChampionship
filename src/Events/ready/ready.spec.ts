@@ -23,8 +23,8 @@ feature(featureEventDescription(Action.ready), () => {
         , [
             (game, adapters) => theEntityIsOnRepository(TestStep.Given, adapters, EntityId.match),
             (game, adapters) => theEntityWithIdHasTheExpectedComponent(TestStep.And, adapters, EntityId.match, Phasing, new Phasing(EntityId.match, preparingGamePhase)),
-            (game, adapters) => whenEventOccurs(game, playerReadyForMatch(EntityId.match, EntityId.playerA)),
-            (game, adapters) => whenEventOccurs(game, playerReadyForMatch(EntityId.match, EntityId.playerB)),
+            (game, adapters) => whenEventOccurs(game, adapters, playerReadyForMatch(EntityId.match, EntityId.playerA)),
+            (game, adapters) => whenEventOccurs(game, adapters, playerReadyForMatch(EntityId.match, EntityId.playerB)),
             (game, adapters) => theEntityWithIdHasTheExpectedComponent(TestStep.And, adapters, EntityId.match, Phasing, new Phasing(EntityId.match, preparingGamePhase, new Set([EntityId.playerA, EntityId.playerB]))),
             (game, adapters) => eventsAreSent(TestStep.And, adapters, 'server', [nextTurnEvent(EntityId.match)])
         ])

@@ -1,5 +1,5 @@
 import { Position, position } from '../../../Components/Physical'
-import { Dimension, gridDimension } from '../../../Components/port/Dimension'
+import { Dimension, gameScreenDimension } from '../../../Components/port/Dimension'
 import { ScaleRatio } from './PixijsControllerAdapter'
 
 export abstract class PixiApplicationCommon {
@@ -27,7 +27,7 @@ export abstract class PixiApplicationCommon {
         }
     }
 
-    public gridDimension: Dimension = gridDimension;
+    public gridDimension: Dimension = gameScreenDimension;
     public offset: number = 0;
     public playerPointerId: string | undefined;
 }

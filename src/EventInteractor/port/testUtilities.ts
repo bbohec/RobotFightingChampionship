@@ -18,25 +18,36 @@ export interface ClientEventIntegrationTestSuite {
     clientEvents:GameEvent[]
 }
 export interface EventIntegrationTestSuite {
-    adapterType: string;
+    adapterType: string
     serverEventInteractor: ServerEventInteractor
-    clientsEventIntegrationTestSuite: ClientEventIntegrationTestSuite[];
+    clientsEventIntegrationTestSuite: ClientEventIntegrationTestSuite[]
 }
 export const serverFullyQualifiedDomainName = 'localhost'
 export const clientQty = 10
 
 export const makeRestClientsEventIntegrationTestSuite = (qty:number) => [...Array(qty).keys()].map(value => makeRestClientEventIntegrationTestSuite(value.toString(), position(0, 0)))
 export const makeInMemoryClientsEventIntegrationTestSuite = (qty:number) => [...Array(qty).keys()].map(value => makeInMemoryClientEventIntegrationTestSuite(value.toString(), position(0, 0)))
-export const afterFunction = (testSuite: EventIntegrationTestSuite): Func => () => { testSuite.serverEventInteractor.stop() }
-export const beforeFunction = (testSuite: EventIntegrationTestSuite): Func => () => {
+export const beforeFunction = (testSuite: EventIntegrationTestSuite): Func => function (done) {
+    this.timeout(5000)
+    console.log(`BEFORE TEST SUITE - ${testSuite.adapterType}`)
     testSuite.clientsEventIntegrationTestSuite.forEach(clientEventIntegrationTestSuite => {
         if (clientEventIntegrationTestSuite.clientEventInteractor instanceof InMemoryClientEventInteractor)
             clientEventIntegrationTestSuite.clientEventInteractor.setServerEventInteractor(testSuite.serverEventInteractor)
     })
     if (testSuite.serverEventInteractor instanceof InMemoryServerEventInteractor) configureInMemoryClientsOnServer(testSuite.serverEventInteractor, testSuite)
     testSuite.serverEventInteractor.start()
-    testSuite.clientsEventIntegrationTestSuite.forEach(clientEventIntegrationTestSuite => clientEventIntegrationTestSuite.clientEventInteractor.start())
+        .then(() => Promise.all(testSuite.clientsEventIntegrationTestSuite.map(clientEventIntegrationTestSuite => clientEventIntegrationTestSuite.clientEventInteractor.start())))
+        .then(() => done())
+        .catch(error => done(error))
 }
+export const afterFunction = (testSuite: EventIntegrationTestSuite): Func => function (done) {
+    this.timeout(5000)
+    console.log(`AFTER TEST SUITE - ${testSuite.adapterType}`)
+    testSuite.serverEventInteractor.stop()
+        .then(() => done())
+        .catch(error => done(error))
+}
+
 const configureInMemoryClientsOnServer = (serverEventInteractor: InMemoryServerEventInteractor, testSuite:EventIntegrationTestSuite) =>
     serverEventInteractor.setClientEventInteractors(testSuite.clientsEventIntegrationTestSuite.map(clientEventIntegrationTestSuite => {
         if (clientEventIntegrationTestSuite.clientEventInteractor instanceof InMemoryClientEventInteractor)

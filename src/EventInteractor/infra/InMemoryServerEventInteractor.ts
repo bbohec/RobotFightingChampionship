@@ -6,6 +6,7 @@ import { InMemoryClientEventInteractor } from './InMemoryClientEventInteractor'
 import { ComponentBuilder } from '../../Components/port/ComponentBuilder'
 import { ComponentSerializer } from '../../Components/port/ComponentSerializer'
 import { EntityType } from '../../Event/EntityType'
+import { playerARobotManualPlacementPhase } from '../../Components/Phasing'
 
 export class InMemoryServerEventInteractor implements ServerEventInteractor {
     private clientEventInteractors: InMemoryClientEventInteractor[] | undefined;
@@ -34,8 +35,7 @@ export class InMemoryServerEventInteractor implements ServerEventInteractor {
     clientEventInteractorByGameEventPlayerId (gameEvent: GameEvent): ClientEventInteractor {
         const playerId = gameEvent.entityByEntityType(EntityType.player)
         const clientEventInteractor = this.clientEventInteractors?.find(clientEventInteractor => clientEventInteractor.clientId === playerId)
-        if (clientEventInteractor)
-            return clientEventInteractor
+        if (clientEventInteractor) return clientEventInteractor
         throw new Error(`Client event interactor with client id '${playerId}' missing.`)
     }
 
@@ -44,10 +44,12 @@ export class InMemoryServerEventInteractor implements ServerEventInteractor {
     }
 
     eventBus: EventBus;
-    start (): void {
+    start (): Promise<void> {
+        return Promise.resolve()
     }
 
-    stop (): void {
+    stop ():  Promise<void>  {
+        return Promise.resolve()
     }
 
     private componentBuilder = new ComponentBuilder();

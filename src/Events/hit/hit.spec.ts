@@ -22,7 +22,7 @@ feature(featureEventDescription(Action.hit), () => {
 
     serverScenario(`${Action.hit} 2 - Robot Kill Tower`, hitEvent(EntityId.playerARobot, EntityId.playerBTower),
         (game, adapters) => () => new EntityBuilder(adapters.entityInteractor)
-            .buildEntity(EntityId.match).withPlayers([EntityId.playerA, EntityId.playerB]).save()
+            .buildEntity(EntityId.match).withEntityReferences(EntityType.match, new Map([[EntityType.player, [EntityId.playerA, EntityId.playerB]]])).save()
             .buildEntity(EntityId.playerA).withEntityReferences(EntityType.player, new Map([[EntityType.match, [EntityId.match]]])).save()
             .buildEntity(EntityId.playerB).withEntityReferences(EntityType.player, new Map([[EntityType.match, [EntityId.match]]])).save()
             .buildEntity(EntityId.playerARobot).withEntityReferences(EntityType.robot, new Map([[EntityType.player, [EntityId.playerA]]])).withDamagePoints(20).save()
@@ -42,7 +42,7 @@ feature(featureEventDescription(Action.hit), () => {
         ])
     serverScenario(`${Action.hit} 3 - Robot Kill Robot`, hitEvent(EntityId.playerARobot, EntityId.playerBRobot),
         (game, adapters) => () => new EntityBuilder(adapters.entityInteractor)
-            .buildEntity(EntityId.match).withPlayers([EntityId.playerA, EntityId.playerB]).save()
+            .buildEntity(EntityId.match).withEntityReferences(EntityType.match, new Map([[EntityType.player, [EntityId.playerA, EntityId.playerB]]])).save()
             .buildEntity(EntityId.playerA).withEntityReferences(EntityType.player, new Map([[EntityType.match, [EntityId.match]]])).save()
             .buildEntity(EntityId.playerB).withEntityReferences(EntityType.player, new Map([[EntityType.match, [EntityId.match]]])).save()
             .buildEntity(EntityId.playerARobot).withEntityReferences(EntityType.robot, new Map([[EntityType.player, [EntityId.playerA]]])).withDamagePoints(20).save()
@@ -60,7 +60,7 @@ feature(featureEventDescription(Action.hit), () => {
         ])
     serverScenario(`${Action.hit} 4 - Tower Kill Robot`, hitEvent(EntityId.playerATower, EntityId.playerBRobot),
         (game, adapters) => () => new EntityBuilder(adapters.entityInteractor)
-            .buildEntity(EntityId.match).withPlayers([EntityId.playerA, EntityId.playerB]).save()
+            .buildEntity(EntityId.match).withEntityReferences(EntityType.match, new Map([[EntityType.player, [EntityId.playerA, EntityId.playerB]]])).save()
             .buildEntity(EntityId.playerA).withEntityReferences(EntityType.player, new Map([[EntityType.match, [EntityId.match]]])).save()
             .buildEntity(EntityId.playerB).withEntityReferences(EntityType.player, new Map([[EntityType.match, [EntityId.match]]])).save()
             .buildEntity(EntityId.playerATower).withEntityReferences(EntityType.tower, new Map([[EntityType.player, [EntityId.playerA]]])).withDamagePoints(5).save()
@@ -85,7 +85,7 @@ feature(featureEventDescription(Action.hit), () => {
         ])
     serverScenario(`${Action.hit} 5 - Tower Kill Tower`, hitEvent(EntityId.playerBTower, EntityId.playerATower),
         (game, adapters) => () => new EntityBuilder(adapters.entityInteractor)
-            .buildEntity(EntityId.match).withPlayers([EntityId.playerA, EntityId.playerB]).save()
+            .buildEntity(EntityId.match).withEntityReferences(EntityType.match, new Map([[EntityType.player, [EntityId.playerA, EntityId.playerB]]])).save()
             .buildEntity(EntityId.playerA).withEntityReferences(EntityType.player, new Map([[EntityType.match, [EntityId.match]]])).save()
             .buildEntity(EntityId.playerB).withEntityReferences(EntityType.player, new Map([[EntityType.match, [EntityId.match]]])).save()
             .buildEntity(EntityId.playerATower).withEntityReferences(EntityType.tower, new Map([[EntityType.player, [EntityId.playerA]]])).withHitPoints(100).save()

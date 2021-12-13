@@ -1,4 +1,4 @@
-import { maxPlayerPerMatch, Playable } from '../../Components/Playable'
+import { maxPlayerPerMatch } from '../../Components/port/maxPlayerPerMatch'
 import { createMatchEvent, createPlayerSimpleMatchLobbyMenu } from '../../Events/create/create'
 import { playerJoinMatchEvent } from '../../Events/join/join'
 import { errorMessageOnUnknownEventAction, GameEvent } from '../../Event/GameEvent'
@@ -11,16 +11,21 @@ import { Physical } from '../../Components/Physical'
 
 export class WaitingAreaSystem extends GenericServerSystem {
     onGameEvent (gameEvent: GameEvent): Promise<void> {
-        if (gameEvent.hasEntitiesByEntityType(EntityType.simpleMatchLobby)) return this.simpleMatchLobbyEvent(gameEvent)
-        throw new Error(errorMessageOnUnknownEventAction(WaitingAreaSystem.name, gameEvent))
+        return gameEvent.hasEntitiesByEntityType(EntityType.simpleMatchLobby)
+            ? this.onSimpleMatchLobbyEvent(gameEvent)
+            : Promise.reject(new Error(errorMessageOnUnknownEventAction(WaitingAreaSystem.name, gameEvent)))
     }
 
-    private simpleMatchLobbyEvent (gameEvent:GameEvent):Promise<void> {
+    private onSimpleMatchLobbyEvent (gameEvent:GameEvent):Promise<void> {
         const simpleMatchLobbyEntityId = gameEvent.entityByEntityType(EntityType.simpleMatchLobby)
-        const players = this.interactWithEntities.retrieveEntityComponentByEntityId(simpleMatchLobbyEntityId, Playable).players
-        if (gameEvent.action === Action.waitingForPlayers) return this.onMatchWaitingForPlayersEvent(gameEvent.entityByEntityType(EntityType.match), players)
-        if (gameEvent.action === Action.join) return this.onPlayerJoinGameEvent(gameEvent.entityByEntityType(EntityType.player), players, simpleMatchLobbyEntityId)
-        throw new Error(errorMessageOnUnknownEventAction(WaitingAreaSystem.name, gameEvent))
+        const simpleMatchLobbyEntityReference = this.interactWithEntities.retrieveEntityComponentByEntityId(simpleMatchLobbyEntityId, EntityReference)
+        if (!simpleMatchLobbyEntityReference.hasReferences(EntityType.player)) simpleMatchLobbyEntityReference.entityReferences.set(EntityType.player, [])
+        const players = simpleMatchLobbyEntityReference.retrieveReferences(EntityType.player)
+        return gameEvent.action === Action.waitingForPlayers
+            ? this.onMatchWaitingForPlayersEvent(gameEvent.entityByEntityType(EntityType.match), players)
+            : gameEvent.action === Action.join
+                ? this.onPlayerJoinGameEvent(gameEvent.entityByEntityType(EntityType.player), players, simpleMatchLobbyEntityId)
+                : Promise.reject(new Error(errorMessageOnUnknownEventAction(WaitingAreaSystem.name, gameEvent)))
     }
 
     private onMatchWaitingForPlayersEvent (matchId: string, playerIds: string[]):Promise<void> {
@@ -30,29 +35,29 @@ export class WaitingAreaSystem extends GenericServerSystem {
             : Promise.resolve()
     }
 
-    private onEnoughPlayers (matchLobbyId: string, playerIds: string[]) {
+    private onEnoughPlayers (matchId: string, playerIds: string[]) {
         const playersToJoinMatch = [playerIds.shift()!, playerIds.shift()!]
-        return Promise.all(playersToJoinMatch.map(playerId => this.sendEvent(playerJoinMatchEvent(playerId, matchLobbyId))))
+        return Promise.all(playersToJoinMatch.map(playerId => this.sendEvent(playerJoinMatchEvent(playerId, matchId))))
             .then(() => Promise.resolve())
             .catch(error => Promise.reject(error))
     }
 
     private onPlayerJoinGameEvent (playerId: string, playersIds: string[], simpleMatchLobbyEntityId:string) {
         playersIds.push(playerId)
-        const mainMenuId = this.interactWithEntities.retrieveEntityComponentByEntityId(playerId, EntityReference).retreiveReference(EntityType.mainMenu)
+        const mainMenuId = this.interactWithEntities.retrieveEntityComponentByEntityId(playerId, EntityReference).retrieveReference(EntityType.mainMenu)
         const playerSimpleMatchLobbyButtonId = this.playerSimpleMatchLobbyButtonId(playerId, simpleMatchLobbyEntityId)
         const mainMenuPhysicalComponent = this.interactWithEntities.retrieveEntityComponentByEntityId(mainMenuId, Physical)
         mainMenuPhysicalComponent.visible = false
         const simpleMatchLobbyButtonPhysicalComponent = this.interactWithEntities.retrieveEntityComponentByEntityId(playerSimpleMatchLobbyButtonId, Physical)
         simpleMatchLobbyButtonPhysicalComponent.visible = false
-        return Promise.all([
-            this.createMatchForEachTwoPlayers(playersIds, simpleMatchLobbyEntityId),
-            this.sendEvent(drawEvent(EntityType.mainMenu, mainMenuId, playerId, mainMenuPhysicalComponent)),
-            this.sendEvent(drawEvent(EntityType.button, playerSimpleMatchLobbyButtonId, playerId, simpleMatchLobbyButtonPhysicalComponent)),
-            this.sendEvent(createPlayerSimpleMatchLobbyMenu(playerId))
-        ])
-            .then(() => Promise.resolve())
-            .catch(error => Promise.reject(error))
+        const events:GameEvent[] = [
+            drawEvent(EntityType.mainMenu, mainMenuId, playerId, mainMenuPhysicalComponent),
+            drawEvent(EntityType.button, playerSimpleMatchLobbyButtonId, playerId, simpleMatchLobbyButtonPhysicalComponent),
+            createPlayerSimpleMatchLobbyMenu(playerId)
+        ]
+        const createMatchEvent = this.createMatchWhenEnoughWaitingPlayers(playersIds, simpleMatchLobbyEntityId)
+        if (createMatchEvent) events.push(createMatchEvent)
+        return this.sendEvents(events)
     }
 
     private playerSimpleMatchLobbyButtonId (playerId: string, simpleMatchLobbyEntityId: string):string {
@@ -64,10 +69,10 @@ export class WaitingAreaSystem extends GenericServerSystem {
         throw new Error('Multiple player simple match button found.')
     }
 
-    private createMatchForEachTwoPlayers (playerIds: string[], simpleMatchLobbyEntityId:string): Promise<void> {
-        const isEvenPlayers = (players: string[]) => players.length % maxPlayerPerMatch === 0
-        return (isEvenPlayers(playerIds))
-            ? this.sendEvent(createMatchEvent(simpleMatchLobbyEntityId))
-            : Promise.resolve()
+    private createMatchWhenEnoughWaitingPlayers (playerIds: string[], simpleMatchLobbyEntityId:string): GameEvent|undefined {
+        const isEnoughWaitingPlayers = (players: string[]) => players.length % maxPlayerPerMatch === 0
+        return (isEnoughWaitingPlayers(playerIds))
+            ? createMatchEvent(simpleMatchLobbyEntityId)
+            : undefined
     }
 }

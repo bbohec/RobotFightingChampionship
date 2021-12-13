@@ -10,9 +10,9 @@ import { GenericClientLifeCycleSystem } from './GenericClientLifeCycleSystem'
 
 export class ClientLifeCycleSystem extends GenericClientLifeCycleSystem {
     onGameEvent (gameEvent: GameEvent): Promise<void> {
-        if (gameEvent.hasEntitiesByEntityType(EntityType.player) && gameEvent.hasEntitiesByEntityType(EntityType.pointer)) return this.createPointerEntity(gameEvent)
-        if (gameEvent.hasEntitiesByEntityType(EntityType.player)) return this.createPlayerEntity(this.interactWithIdentiers.nextIdentifier())
-        throw new Error(errorMessageOnUnknownEventAction(ClientLifeCycleSystem.name, gameEvent))
+        return gameEvent.hasEntitiesByEntityType(EntityType.player) && gameEvent.hasEntitiesByEntityType(EntityType.pointer) ? this.createPointerEntity(gameEvent)
+        : gameEvent.hasEntitiesByEntityType(EntityType.player) ? this.createPlayerEntity(this.interactWithIdentiers.nextIdentifier())
+        : Promise.reject(new Error(errorMessageOnUnknownEventAction(ClientLifeCycleSystem.name, gameEvent))) 
     }
 
     private createPointerEntity (gameEvent: GameEvent): Promise<void> {

@@ -19,12 +19,20 @@ export class ExpressWebServerInstance {
         })
     }
 
-    close () {
-        if (this.server)
-            this.server.close(error => {
-                if (error)
-                    throw error
-            })
+    close ():Promise<void> {
+        return new Promise<void>((resolve, reject) => {
+            this.logger.info(`Closing ${this.constructor.name} ...`)
+            if (this.server) {
+                this.server.close(error => {
+                    if (error) reject(error)
+                    this.logger.info(`${this.constructor.name} closed.`)
+                    resolve()
+                })
+            } else {
+                this.logger.warn('Server already closed.')
+                resolve()
+            }
+        })
     }
 
     readonly instance: Express;

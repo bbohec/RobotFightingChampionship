@@ -6,19 +6,22 @@ export class ConsoleLogger implements Logger {
     }
 
     info (message?: any, ...optionalParams: any[]): void {
-        console.log('INFO', this.loggerName, message, ...optionalParams)
+        console.log( `[${this.isoDate()}]`,'[INFO]', this.loggerName, message, ...optionalParams)
     }
 
     warn (message?: any, ...optionalParams: any[]): void {
-        console.log('WARN', this.loggerName, message, ...optionalParams)
+        console.log( `[${this.isoDate()}]`, this.loggerName, message, ...optionalParams)
     }
 
     debug (message?: any, ...optionalParams: any[]): void {
-        console.log('DEBUG', this.loggerName, message, ...optionalParams)
+        console.log( `[${this.isoDate()}]`,'[DEBUG]', this.loggerName, message, ...optionalParams)
     }
 
     error (message?: any, ...optionalParams: any[]): void {
-        console.log('ERROR', this.loggerName, message, ...optionalParams)
+        console.log( `[${this.isoDate()}]`,'[ERROR]', this.loggerName, message, ...optionalParams)
+    }
+    private isoDate(): any {
+        return new Date(Date.now()).toISOString()
     }
 
     private loggerName: LoggerName

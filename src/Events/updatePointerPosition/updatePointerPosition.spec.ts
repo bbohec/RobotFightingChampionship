@@ -18,13 +18,13 @@ feature(featureEventDescription(Action.updatePlayerPointerPosition), () => {
             (game, adapters) => theEntityWithIdHasTheExpectedComponent(TestStep.Then, adapters, EntityId.playerAPointer, Physical, new Physical(EntityId.playerAPointer, position(1, 1), ShapeType.pointer, true)),
             (game, adapters) => eventsAreSent(TestStep.Then, adapters, 'client', [updatePointerState(EntityId.playerAPointer, position(1, 1), ControlStatus.Active)])
         ])
-    clientScenario(`${Action.updatePlayerPointerPosition} 2 - Don't update client pointer on same position`, updatePointerPosition(EntityId.playerAPointer, position(0, 0)), EntityId.playerA,
+    clientScenario(`${Action.updatePlayerPointerPosition} 2 - Allow update client pointer on same position`, updatePointerPosition(EntityId.playerAPointer, position(0, 0)), EntityId.playerA,
         (game, adapters) => () => new EntityBuilder(adapters.entityInteractor)
             .buildEntity(EntityId.playerAPointer).withPhysicalComponent(position(0, 0), ShapeType.pointer, true).save()
         , [
             (game, adapters) => theEntityWithIdHasTheExpectedComponent(TestStep.Given, adapters, EntityId.playerAPointer, Physical, new Physical(EntityId.playerAPointer, position(0, 0), ShapeType.pointer, true)),
             ...whenEventOccured(),
             (game, adapters) => theEntityWithIdHasTheExpectedComponent(TestStep.Given, adapters, EntityId.playerAPointer, Physical, new Physical(EntityId.playerAPointer, position(0, 0), ShapeType.pointer, true)),
-            (game, adapters) => eventsAreSent(TestStep.Then, adapters, 'server', [])
+            (game, adapters) => eventsAreSent(TestStep.Then, adapters, 'server', [updatePointerState(EntityId.playerAPointer, position(0, 0), ControlStatus.Active)])
         ])
 })

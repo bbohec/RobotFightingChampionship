@@ -4,10 +4,6 @@ import { newGameEvent } from '../../Event/GameEvent'
 
 export const registerSimpleMatchLobbyOnGame = (gameId:string, simpleMatchLobbyId:string) => newGameEvent(Action.register, new Map([[EntityType.game, [gameId]], [EntityType.simpleMatchLobby, [simpleMatchLobbyId]]]))
 
-export const registerGridEvent = (matchId: string, gridId: string) => newGameEvent(Action.register, new Map([
-    [EntityType.match, [matchId]],
-    [EntityType.grid, [gridId]]
-]))
 export const registerTowerEvent = (towerId: string, playerId: string) => newGameEvent(Action.register, new Map([
     [EntityType.player, [playerId]],
     [EntityType.tower, [towerId]]
@@ -21,4 +17,9 @@ export const registerPlayerOnGameEvent = (playerId:string, gameId:string) => new
 export const registerPlayerPointerEvent = (playerPointerId:string, playerId:string) => newGameEvent(Action.register, new Map([
     [EntityType.pointer, [playerPointerId]],
     [EntityType.player, [playerId]]
+]))
+export const registerNextTurnButtonEvent = (playerId:string, matchId:string, nextTurnButtonId:string) => newGameEvent(Action.register, new Map([
+    [EntityType.player, [playerId]],
+    [EntityType.match, [matchId]],
+    [EntityType.nextTurnButton, [nextTurnButtonId]]
 ]))

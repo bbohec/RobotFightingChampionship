@@ -21,8 +21,6 @@ export const playerBRobotPhase = (actionPoints = defaultActionPoints):Phase => f
 export const playerATowerPhase = (actionPoints = defaultActionPoints):Phase => fightPhase(EntityId.playerA, EntityId.playerATower, actionPoints)
 export const playerBTowerPhase = (actionPoints = defaultActionPoints):Phase => fightPhase(EntityId.playerB, EntityId.playerBTower, actionPoints)
 export const victoryPhase = (currentPlayerId:string):Phase => ({ phaseType: PhaseType.Victory, currentPlayerId, currentUnitId: null, actionPoints: noActionPoint, auto: true })
-export const playerAVictoryPhase :Phase = victoryPhase(EntityId.playerA)
-export const playerBVictoryPhase :Phase = victoryPhase(EntityId.playerB)
 export class Phasing extends GenericComponent {
     constructor (entityId:string, phase:Phase, readyPlayers:Set<string> = new Set([])) {
         super(entityId)

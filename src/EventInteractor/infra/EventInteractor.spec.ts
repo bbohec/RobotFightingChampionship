@@ -28,7 +28,6 @@ describe('Integration Test Suite - Event Interactor', () => {
         after(afterFunction(testSuite))
         describe(`Adapter Type - ${testSuite.adapterType}`, () => {
             const clientsEvents = ([] as GameEvent[]).concat(...testSuite.clientsEventIntegrationTestSuite.map(clientEventIntegrationTestSuite => clientEventIntegrationTestSuite.clientEvents))
-
             describe('Client send event to Server.', () => {
                 const serverEventBus = testSuite.serverEventInteractor.eventBus
                 if (serverEventBus instanceof InMemoryEventBus) {
@@ -64,7 +63,7 @@ describe('Integration Test Suite - Event Interactor', () => {
                     Promise.all(clientsEvents.map(event => testSuite.serverEventInteractor.sendEventToClient(event)))
                         .then(() => done())
                         .catch(error => done(error))
-                })
+                }).timeout(5000)
                 testSuite.clientsEventIntegrationTestSuite.forEach((clientEventIntegrationTestSuite, index) => {
                     const clientEventBus = clientEventIntegrationTestSuite.clientEventInteractor.eventBus
                     if (clientEventBus instanceof InMemoryEventBus)

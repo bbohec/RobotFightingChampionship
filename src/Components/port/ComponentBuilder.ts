@@ -5,7 +5,6 @@ import { ComponentPropertyType } from '../../EventInteractor/port/ComponentPrope
 import { SerializedComponent } from './SerializedComponent'
 import { Controller } from '../Controller'
 import { ControlStatus } from './ControlStatus'
-import { stringifyWithDetailledSetAndMap } from '../../Event/detailledStringify'
 
 export class ComponentBuilder {
     public buildComponent (serializeComponent: SerializedComponent): GenericComponent {
@@ -17,7 +16,6 @@ export class ComponentBuilder {
     }
 
     private buildControllerComponent (serializeComponent: SerializedComponent): Controller {
-        console.log(`buildControllerComponent >>>> ${stringifyWithDetailledSetAndMap(serializeComponent)}`)
         return new Controller(
             this.asString(serializeComponent.properties.get('entityId')),
             this.asControlStatus(serializeComponent.properties.get('primaryButton'))
@@ -25,7 +23,6 @@ export class ComponentBuilder {
     }
 
     private buildPhysicalComponent (serializeComponent: SerializedComponent) {
-        console.log(`buildPhysicalComponent >>>> ${stringifyWithDetailledSetAndMap(serializeComponent)}`)
         return new Physical(
             this.asString(serializeComponent.properties.get('entityId')),
             this.asPosition(serializeComponent.properties.get('position')),

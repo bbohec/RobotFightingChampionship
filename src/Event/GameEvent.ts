@@ -9,12 +9,14 @@ interface GameEventContract {
     action:Action
     entityRefences:EntityReferences
     components:GenericComponent[]
+    message?:string
 }
 export class GameEvent implements GameEventContract {
     constructor (gameEvent:GameEventContract) {
         this.action = gameEvent.action
         this.entityRefences = gameEvent.entityRefences
         this.components = gameEvent.components
+        this.message = gameEvent.message
     }
 
     entitiesByEntityType (entityType:EntityType) {
@@ -49,6 +51,7 @@ export class GameEvent implements GameEventContract {
         throw new Error(componentMissingOnGameEvent<Class>(potentialComponent, entityId, this.components))
     }
 
+    readonly message?: string | undefined;
     readonly components: GenericComponent[]
     readonly action: Action
     readonly entityRefences: EntityReferences
@@ -60,7 +63,7 @@ export const errorMessageOnUnknownEventAction = (systemName:string, gameEvent: G
 - entity references : '${stringifyWithDetailledSetAndMap(gameEvent.entityRefences)}'
 - component : '${stringifyWithDetailledSetAndMap(gameEvent.components)}'`
 
-export const newGameEvent = (action:Action, entityRefences:EntityReferences, components:GenericComponent[] = []):GameEvent => new GameEvent({ action, entityRefences, components: components })
+export const newGameEvent = (action:Action, entityRefences:EntityReferences, components:GenericComponent[] = [], message?:string):GameEvent => new GameEvent({ action, entityRefences, components, message })
 const noEntitiesReferenced = (entityType: EntityType, action: Action, entityReferences: EntityReferences): string => `No entities referenced with type '${entityType}' on event with action '${action}'.\n Actual references: ${stringifyWithDetailledSetAndMap(entityReferences)}`
 const noEntityReferenced = (entityType: EntityType): string => `No '${entityType}' entities is not supported.`
 const multipleEntityReferenced = (entityType: EntityType): string => `Multiple '${entityType}' entities referenced.`

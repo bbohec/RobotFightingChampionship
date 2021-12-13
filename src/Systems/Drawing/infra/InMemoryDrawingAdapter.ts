@@ -6,7 +6,6 @@ import { PixiApplicationCommon } from '../../Controller/infra/PixiApplicationCom
 
 export class InMemoryDrawingAdapter extends PixiApplicationCommon implements DrawingAdapter {
     public refreshEntity (physicalComponent: Physical): Promise<void> {
-        console.log(physicalComponent.visible)
         return (physicalComponent.visible === true)
             ? this.drawEntity(physicalComponent)
             : this.eraseEntity(physicalComponent.entityId)

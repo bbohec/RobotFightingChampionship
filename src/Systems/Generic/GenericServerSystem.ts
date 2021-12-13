@@ -13,6 +13,12 @@ export abstract class GenericServerSystem implements System {
         return this.gameEventDispatcher.sendEventToServer(event)
     }
 
+    public sendEvents (events:GameEvent[]):Promise<void> {
+        return Promise.all(events.map(event => this.sendEvent(event)))
+            .then(() => Promise.resolve())
+            .catch(error => Promise.reject(error))
+    }
+
     protected entityReferencesByEntityId (playerId: string) {
         return this.interactWithEntities.retrieveEntityComponentByEntityId(playerId, EntityReference)
     }

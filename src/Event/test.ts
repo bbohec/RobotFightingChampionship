@@ -1,6 +1,5 @@
 import { describe, before, Func, it, Test, Suite } from 'mocha'
 import chai from 'chai'
-import deepEqualInAnyOrder from 'deep-equal-in-any-order'
 import { GameEvent } from './GameEvent'
 import { PotentialClass } from '../Entities/ports/PotentialClass'
 import { LifeCycle } from '../Components/LifeCycle'
@@ -18,27 +17,69 @@ import { Physical } from '../Components/Physical'
 import { InMemoryEventBus } from './infra/InMemoryEventBus'
 import { stringifyWithDetailledSetAndMap } from './detailledStringify'
 
-chai.use(deepEqualInAnyOrder)
 const { expect } = chai
 
 type ScenarioType = 'client' | 'server'
+type UnitTestWithContext = (game: GenericGameSystem, adapters: FakeServerAdapters | FakeClientAdapters, gameEvents: GameEvent | GameEvent[]) => Test
+
+export const serverScenario = (
+    title:string,
+    gameEvent:GameEvent|GameEvent[],
+    beforeMochaFunc:((game:ServerGameSystem, adapters:FakeServerAdapters)=>Func)|undefined,
+    tests:((game:ServerGameSystem, adapters:FakeServerAdapters, gameEvent:GameEvent|GameEvent[])=>Test)[],
+    nextIdentifiers?:string[],
+    skip?:boolean
+) => {
+    const serverTestSuite = () => {
+        const adapters = new FakeServerAdapters(nextIdentifiers)
+        const game = new ServerGameSystem(adapters)
+        // eslint-disable-next-line no-unused-expressions
+        if (beforeMochaFunc)before(beforeMochaFunc(game, adapters))
+        tests.forEach(test => test(game, adapters, gameEvent))
+    }
+    return (skip)
+        ? describe.skip(scenarioEventDescription(title, gameEvent, 'server'), serverTestSuite)
+        : describe(scenarioEventDescription(title, gameEvent, 'server'), serverTestSuite)
+}
+export const clientScenario = (
+    title:string,
+    gameEvents:GameEvent|GameEvent[],
+    clientId:string,
+    beforeMochaFunc:((game:ClientGameSystem, adapters:FakeClientAdapters)=>Func)|undefined,
+    tests:((game:ClientGameSystem, adapters:FakeClientAdapters, gameEvent:GameEvent|GameEvent[])=>Test)[],
+    nextIdentifiers?:string[],
+    skip?:boolean
+) => {
+    const clientTestSuite = () => {
+        const adapters = new FakeClientAdapters(clientId, nextIdentifiers)
+        const game = new ClientGameSystem(adapters)
+        // eslint-disable-next-line no-unused-expressions
+        if (beforeMochaFunc)before(beforeMochaFunc(game, adapters))
+        tests.forEach(test => test(game, adapters, gameEvents))
+    }
+    return (skip)
+        ? describe.skip(scenarioEventDescription(title, gameEvents, 'client'), clientTestSuite)
+        : describe(scenarioEventDescription(title, gameEvents, 'client'), clientTestSuite)
+}
+
 export const feature = (featureEventDescription:string, mochaSuite: (this: Suite) => void) => describe(featureEventDescription, mochaSuite)
 export const featureEventDescription = (action:Action): string => `Feature : ${action} events`
-export const scenarioEventDescription = (ref:string, event: GameEvent|GameEvent[], scenarioType:ScenarioType): string => ((Array.isArray(event))
+export const scenarioEventDescription = (title:string, events: GameEvent|GameEvent[], scenarioType:ScenarioType): string => ((Array.isArray(events))
     ? `
-    Scenario ${ref} - ${scenarioType}:\n${event.map(event => `        Event action '${event.action}.'
+    Scenario ${title} - ${scenarioType}:\n${events.map(event => `        Event action '${event.action}.'
         Entity references :'${stringifyWithDetailledSetAndMap(event.entityRefences)}'`).join('\n        And\n')}`
     : `
-    Scenario ${ref} - ${scenarioType}:
-        Event action '${event.action}.'
-        Entity references :'${stringifyWithDetailledSetAndMap(event.entityRefences)}'
+    Scenario ${title} - ${scenarioType}:
+        Event action '${events.action}.'
+        Entity references :'${stringifyWithDetailledSetAndMap(events.entityRefences)}'
     `
 )
-export const whenEventOccured = (): ((game: ServerGameSystem, adapters: FakeServerAdapters|FakeClientAdapters, gameEvent: GameEvent|GameEvent[]) => Test)[] => [(game, adapters, gameEvent) => {
-    if (Array.isArray(gameEvent)) throw new Error('array not supported')
-    return whenEventOccurs(game, gameEvent)
+
+export const whenEventOccured = (): UnitTestWithContext[] => [(game, adapters, gameEvents) => {
+    if (Array.isArray(gameEvents)) throw new Error('array not supported')
+    return whenEventOccurs(game, adapters, gameEvents)
 }]
-export const whenEventOccurs = (game:GenericGameSystem, event:GameEvent):Test => it(eventMessage(event), () => game.onGameEvent(event))
+export const whenEventOccurs = (game:GenericGameSystem, adapters: FakeServerAdapters | FakeClientAdapters, event:GameEvent):Test => it(eventMessage(event), () => game.onGameEvent(event))
 export const theEntityIsOnRepository = (
     testStep:TestStep,
     adapters: FakeServerAdapters|FakeClientAdapters,
@@ -79,11 +120,10 @@ export const eventsAreSent = (
 ) => {
     const eventBus = adapters.eventInteractor.eventBus
     if (eventBus instanceof InMemoryEventBus) {
-        const events = eventBus.events
-        const identicalEventsTest = () => expect(events).deep.equalInAnyOrder(expectedGameEvents, eventDetailedComparisonMessage(events, expectedGameEvents))
+        const identicalEventsTest = (events:GameEvent[]) => expect(events).deep.equal(expectedGameEvents, eventDetailedComparisonMessage(events, expectedGameEvents))
         return (skip)
-            ? it.skip(eventsAreSentMessage(testStep, expectedGameEvents, to), identicalEventsTest)
-            : it(eventsAreSentMessage(testStep, expectedGameEvents, to), identicalEventsTest)
+            ? it.skip(eventsAreSentMessage(testStep, expectedGameEvents, to), () => identicalEventsTest(eventBus.events))
+            : it(eventsAreSentMessage(testStep, expectedGameEvents, to), () => identicalEventsTest(eventBus.events))
     }
     throw new Error(`Unsupported event bus implementation : ${eventBus.constructor.name}`)
 }
@@ -182,58 +222,7 @@ export const theControllerAdapterIsNotInteractive = (
 ) => it(theControllerAdapterIsNotInteractiveMessage(testStep),
     () => expect(adapters.controllerAdapter.isInteractive)
         .to.be.false)
-export const serverScenario = (
-    scenarioName:string,
-    gameEvent:GameEvent|GameEvent[],
-    beforeMochaFunc:((game:ServerGameSystem, adapters:FakeServerAdapters)=>Func)|undefined,
-    tests:((game:ServerGameSystem, adapters:FakeServerAdapters, gameEvent:GameEvent|GameEvent[])=>Test)[],
-    nextIdentifiers?:string[],
-    skip?:boolean
-) => (skip)
-    ? describe.skip(scenarioEventDescription(scenarioName, gameEvent, 'server'), () => {
-        const { adapters, game } = createServer(nextIdentifiers)
-        // eslint-disable-next-line no-unused-expressions
-        if (beforeMochaFunc)before(beforeMochaFunc(game, adapters))
-        tests.forEach(test => test(game, adapters, gameEvent))
-    })
-    : describe(scenarioEventDescription(scenarioName, gameEvent, 'server'), () => {
-        const { adapters, game } = createServer(nextIdentifiers)
-        // eslint-disable-next-line no-unused-expressions
-        if (beforeMochaFunc)before(beforeMochaFunc(game, adapters))
-        tests.forEach(test => test(game, adapters, gameEvent))
-    })
-export const clientScenario = (
-    ref:string,
-    gameEvent:GameEvent|GameEvent[],
-    clientId:string,
-    beforeMochaFunc:((game:ClientGameSystem, adapters:FakeClientAdapters)=>Func)|undefined,
-    tests:((game:ClientGameSystem, adapters:FakeClientAdapters, gameEvent:GameEvent|GameEvent[])=>Test)[],
-    nextIdentifiers?:string[],
-    skip?:boolean
-) => (skip)
-    ? describe.skip(scenarioEventDescription(ref, gameEvent, 'client'), () => {
-        const { adapters, game } = createClient(clientId, nextIdentifiers)
-        // eslint-disable-next-line no-unused-expressions
-        if (beforeMochaFunc)before(beforeMochaFunc(game, adapters))
-        tests.forEach(test => test(game, adapters, gameEvent))
-    })
-    : describe(scenarioEventDescription(ref, gameEvent, 'client'), () => {
-        const { adapters, game } = createClient(clientId, nextIdentifiers)
-        // eslint-disable-next-line no-unused-expressions
-        if (beforeMochaFunc)before(beforeMochaFunc(game, adapters))
-        tests.forEach(test => test(game, adapters, gameEvent))
-    })
 
-const createClient = (clientId:string, nextIdentifiers?:string[]):{adapters:FakeClientAdapters, game:ClientGameSystem} => {
-    const adapters = new FakeClientAdapters(clientId, nextIdentifiers)
-    const game = new ClientGameSystem(adapters)
-    return { adapters, game }
-}
-const createServer = (nextIdentifiers?:string[]):{adapters:FakeServerAdapters, game:ServerGameSystem} => {
-    const adapters = new FakeServerAdapters(nextIdentifiers)
-    const game = new ServerGameSystem(adapters)
-    return { adapters, game }
-}
 export const detailedComparisonMessage = (thing:unknown, expectedThing:unknown):string => `DETAILS\nexpected >>>>>>>> ${stringifyWithDetailledSetAndMap(thing)} \nto deeply equal > ${stringifyWithDetailledSetAndMap(expectedThing)} \n`
 const eventDetailedComparisonMessage = (gameEvents: GameEvent[], expectedGameEvents: GameEvent[]): string => `DETAILS\nexpected >>>>>>>> ${stringifyWithDetailledSetAndMap(gameEvents)} \nto deeply equal > ${stringifyWithDetailledSetAndMap(expectedGameEvents)} \n`
 const componentDetailedComparisonMessage = <PotentialComponent extends Component> (component: PotentialComponent, expectedComponent: GenericComponent): string => `DETAILS\nexpected >>>>>>>> ${stringifyWithDetailledSetAndMap(component)} \nto deeply equal > ${stringifyWithDetailledSetAndMap(expectedComponent)} \n`

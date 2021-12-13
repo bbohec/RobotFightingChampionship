@@ -1,6 +1,6 @@
 import { v1 as uuid } from 'uuid'
 import { json, urlencoded } from 'body-parser'
-import { OutgoingHttpHeaders, ServerResponse } from 'http'
+import { IncomingMessage, OutgoingHttpHeaders, ServerResponse } from 'http'
 import { ComponentBuilder } from '../../Components/port/ComponentBuilder'
 import { GameEvent } from '../../Event/GameEvent'
 import { SerializedGameEvent } from '../../Event/SerializedGameEvent'
@@ -16,6 +16,8 @@ export const serverBodyRequest = (stringifiedBody:string): string => `SERVER POS
 export const clientGameEventUrlPath = '/clientGameEvent'
 export const productionSSERetryInterval = 5000
 export const defaultHTTPWebServerPort = 80
+const sseClientClosedCheckInterval = 100
+const sseSendingMessageIntervalCheck = 50
 const serverGameEventUrlPath = '/serverGameEvents'
 export class WebServerEventInteractor implements ServerEventInteractor {
     constructor (webServer: ExpressWebServerInstance, eventBus: EventBus, sseRetryIntervalMilliseconds: number, logger:Logger) {
@@ -26,18 +28,32 @@ export class WebServerEventInteractor implements ServerEventInteractor {
         this.config()
     }
 
-    start () {
-        this.webServer.start()
+    start ():Promise<void> {
+        return this.webServer.start()
     }
 
-    stop (): void {
-        Promise.all([...this.registeredSSEClientResponses.entries()]
+    stop (): Promise<void> {
+        this.logger.info(`Stopping ${this.constructor.name} ...`)
+        return Promise.all([...this.registeredSSEClientResponses.entries()]
             .map(([clientId, registeredSSEClientResponse]) =>
                 this.sendMessageToSSEClientResponse(clientId, registeredSSEClientResponse, closeMessage(uuid(), this.sseRetryIntervalMilliseconds))
-            )
-        )
+            ))
+            .then(() => this.waitForAllClientSSEClosed())
             .then(() => this.webServer.close())
-            .catch(error => { throw error })
+            .catch(error => Promise.reject(error))
+    }
+
+    waitForAllClientSSEClosed (): Promise<void> {
+        this.logger.info('Waiting all SSE client closed ...')
+        return new Promise<void>((resolve, reject) => {
+            const interval = setInterval((): void => {
+                if (this.registeredSSEClientResponses.size === 0) {
+                    clearInterval(interval)
+                    this.logger.info('All SSE client closed.')
+                    resolve()
+                } else { this.logger.info(this.registeredSSEClientResponses.size) }
+            }, sseClientClosedCheckInterval)
+        })
     }
 
     sendEventToServer (gameEvent: GameEvent): Promise<void> {
@@ -79,10 +95,15 @@ export class WebServerEventInteractor implements ServerEventInteractor {
         })
     }
 
-    private registerSSEClient (clientId: string, response: ServerResponse) {
+    private registerSSEClient (clientId: string, request:IncomingMessage, response: ServerResponse) {
+        request.on('close', () => this.clientDisconnected(clientId))
         response.writeHead(200, sseKeepAliveHeaders)
         this.registeredSSEClientResponses.set(clientId, response)
         this.sendMessageToSSEClientResponse(clientId, response, this.makeSSEEmptyMessage(SSEMessageType.CONNECTED))
+    }
+
+    private clientDisconnected (clientId:string): void {
+        this.registeredSSEClientResponses.delete(clientId)
     }
 
     private config () {
@@ -98,7 +119,7 @@ export class WebServerEventInteractor implements ServerEventInteractor {
         })
         this.webServer.instance.get(serverGameEventUrlPath, (request, response) => {
             (request.query.clientId && typeof request.query.clientId === 'string')
-                ? this.registerSSEClient(request.query.clientId, response)
+                ? this.registerSSEClient(request.query.clientId, request, response)
                 : response.status(500).send('Missing clientId parameter')
         })
     }
@@ -117,15 +138,47 @@ export class WebServerEventInteractor implements ServerEventInteractor {
     }
 
     private sendMessageToSSEClientResponse (playerId:string, sseClientResponse: ServerResponse, sseMessage: SSEMessage) {
-        this.logger.info('Send SSE Message', 'message id:', sseMessage.id, 'player id:', playerId, 'message type:', sseMessage.type)
-        sseClientResponse.write(`id: ${sseMessage.id}\n`)
-        sseClientResponse.write(`event: ${sseMessage.type}\n`)
-        sseClientResponse.write(`retry: ${sseMessage.retry}\n`)
-        sseClientResponse.write(`data: ${sseMessage.data}\n\n`)
-        return Promise.resolve()
+        return new Promise<void>((resolve, reject) => {
+            const interval = setInterval(() => {
+                if (!this.sseSendingMessage) {
+                    this.sseSendingMessage = true
+                    clearInterval(interval)
+                    const sendEventType = (): (error: Error | null | undefined) => void => error => {
+                        if (error) reject(error)
+                        this.logger.info('[Stream Send]', 'messageType', `'${sseMessage.type}'`)
+                        sseClientResponse.write(`event: ${sseMessage.type}\n`, sendRetry())
+                    }
+                    const sendRetry = (): (error: Error | null | undefined) => void => error => {
+                        if (error) reject(error)
+                        this.logger.info('[Stream Send]', 'retry', `'${sseMessage.retry}'`)
+                        sseClientResponse.write(`retry: ${sseMessage.retry}\n`, sendData())
+                    }
+                    const sendData = (): (error: Error | null | undefined) => void => error => {
+                        if (error) reject(error)
+                        this.logger.info('[Stream Send]', 'data', `'${sseMessage.data}'`)
+                        sseClientResponse.write(`data: ${sseMessage.data}\n\n`, onSuccess())
+                    }
+                    const onSuccess = (): (error: Error | null | undefined) => void => error => {
+                        if (error) reject(error)
+                        this.logger.info('[SSE Message Sent]', 'messageId:', sseMessage.id, 'playerId:', playerId, 'messageType:', sseMessage.type)
+                        this.sseSendingMessage = false
+                        resolve()
+                    }
+                    this.logger.info('[Stream Send]', 'id', sseMessage.id)
+                    sseClientResponse.write(`id: ${sseMessage.id}\n`, sendEventType())
+                }
+            }, sseSendingMessageIntervalCheck)
+        })
+
+        // sseClientResponse.write(`id: ${sseMessage.id}\n`)
+        // sseClientResponse.write(`event: ${sseMessage.type}\n`)
+        // sseClientResponse.write(`retry: ${sseMessage.retry}\n`)
+        // sseClientResponse.write(`data: ${sseMessage.data}\n\n`)
+        //
     }
 
     readonly eventBus: EventBus;
+    private sseSendingMessage: boolean = false
     private componentBuilder = new ComponentBuilder();
     private webServer:ExpressWebServerInstance
     private registeredSSEClientResponses = new Map<string, ServerResponse>();

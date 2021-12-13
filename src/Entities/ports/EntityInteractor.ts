@@ -5,7 +5,7 @@ export interface EntityInteractor {
     linkEntityToEntities(entityId: string, entityIds: string[]):void
     deleteEntityById(entityId: string):void
     retrieveEntitiesThatHaveComponent<PotentialComponent extends Component> (potentialComponent:PotentialClass<PotentialComponent>): Entity[];
-    // retrieveEntityById (entityId:string): Entity;
+    isEntityExist(entityId:string):boolean
     retrieveEntityComponentByEntityId <Class extends Component> (entityId:string, potentialComponent: PotentialClass<Class>):Class;
     saveEntity(entity: Entity): void;
 }

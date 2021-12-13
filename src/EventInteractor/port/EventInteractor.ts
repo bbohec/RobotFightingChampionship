@@ -6,8 +6,8 @@ export interface EventInteractor {
     sendEventToClient(gameEvent: GameEvent): Promise<void>
     sendEventToServer(gameEvent: GameEvent): Promise<void>
     eventBus:EventBus
-    start():void
-    stop():void
+    start():Promise<void>
+    stop():Promise<void>
 }
 
 export interface ClientEventInteractor extends EventInteractor {

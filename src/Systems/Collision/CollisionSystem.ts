@@ -3,6 +3,8 @@ import { EntityReference } from '../../Components/EntityReference'
 import { Phasing } from '../../Components/Phasing'
 import { Physical, Position } from '../../Components/Physical'
 import { ControlStatus } from '../../Components/port/ControlStatus'
+import { PhaseType } from '../../Components/port/Phase'
+import { missingEntityId } from '../../Entities/infra/InMemoryEntityRepository'
 import { Action } from '../../Event/Action'
 import { EntityType } from '../../Event/EntityType'
 import { errorMessageOnUnknownEventAction, GameEvent } from '../../Event/GameEvent'
@@ -11,6 +13,8 @@ import { collisionGameEvent } from '../../Events/collision/collision'
 import { joinSimpleMatchLobby } from '../../Events/join/join'
 import { moveEvent } from '../../Events/move/move'
 import { nextTurnEvent } from '../../Events/nextTurn/nextTurn'
+import { notifyServerEvent } from '../../Events/notifyServer/notifyServer'
+import { quitMatchEvent } from '../../Events/quit/quit'
 import { GenericServerSystem } from '../Generic/GenericServerSystem'
 
 export class CollisionSystem extends GenericServerSystem {
@@ -27,15 +31,21 @@ export class CollisionSystem extends GenericServerSystem {
     }
 
     private onCollision (gameEvent: GameEvent): Promise<void> {
-        const collisionnedEntityReferenceComponents = gameEvent.entitiesByEntityType(EntityType.unknown).map(entityId => this.interactWithEntities.retrieveEntityComponentByEntityId(entityId, EntityReference))
+        const entities = gameEvent.entitiesByEntityType(EntityType.unknown)
+        const missingEntities = entities.filter(entity => !this.interactWithEntities.isEntityExist(entity))
+        const existingEntities = entities.filter(entity => this.interactWithEntities.isEntityExist(entity))
+        const collisionnedEntityReferenceComponents = existingEntities.map(entityId => this.interactWithEntities.retrieveEntityComponentByEntityId(entityId, EntityReference))
         const pointerEntityReference = this.entityReferencesWithEntityType(collisionnedEntityReferenceComponents, EntityType.pointer)
         const pointerCollisionGeneratedEvents:GameEvent[] = []
         pointerEntityReference.forEach(pointerEntityReference => pointerCollisionGeneratedEvents.push(...this.onPointerCollisionEvents(
-            pointerEntityReference.retreiveReference(EntityType.player),
+            pointerEntityReference.retrieveReference(EntityType.player),
             this.interactWithEntities.retrieveEntityComponentByEntityId(pointerEntityReference.entityId, Controller),
             collisionnedEntityReferenceComponents
         )))
-        return Promise.all(pointerCollisionGeneratedEvents.map(gameEvent => this.sendEvent(gameEvent)))
+        return Promise.all([
+            ...pointerCollisionGeneratedEvents.map(gameEvent => this.sendEvent(gameEvent)),
+            ...missingEntities.map(missingEntity => this.sendEvent(notifyServerEvent(missingEntityId(missingEntity))))
+        ])
             .then(() => Promise.resolve())
             .catch(error => Promise.reject(error))
     }
@@ -48,6 +58,9 @@ export class CollisionSystem extends GenericServerSystem {
             const robotEntityReferences = this.entityReferencesWithEntityType(collisionnedEntityReferenceComponents, EntityType.robot)
             const towerEntityReferences = this.entityReferencesWithEntityType(collisionnedEntityReferenceComponents, EntityType.tower)
             generatedPointerCollisionEvents.push(...this.pointerAndButtonCollisionEvents(playerId, this.entityReferencesWithEntityType(collisionnedEntityReferenceComponents, EntityType.button)))
+            generatedPointerCollisionEvents.push(...this.pointerAndNextTurnButtonCollisionEvents(playerId, this.entityReferencesWithEntityType(collisionnedEntityReferenceComponents, EntityType.nextTurnButton)))
+            generatedPointerCollisionEvents.push(...this.pointerAndDefeatCollisionEvents(playerId, this.entityReferencesWithEntityType(collisionnedEntityReferenceComponents, EntityType.defeat)))
+            generatedPointerCollisionEvents.push(...this.pointerAndVictoryCollisionEvents(playerId, this.entityReferencesWithEntityType(collisionnedEntityReferenceComponents, EntityType.victory)))
             generatedPointerCollisionEvents.push(...this.pointerAndCellAndUnitCollisionEvents(playerId, cellEntityReferences, towerEntityReferences))
             generatedPointerCollisionEvents.push(...this.pointerAndCellAndUnitCollisionEvents(playerId, cellEntityReferences, robotEntityReferences))
             generatedPointerCollisionEvents.push(...this.pointerAndCellColisionEvents(playerId, cellEntityReferences, towerEntityReferences, robotEntityReferences))
@@ -55,12 +68,51 @@ export class CollisionSystem extends GenericServerSystem {
         return generatedPointerCollisionEvents
     }
 
+    private pointerAndVictoryCollisionEvents (playerId: string, victoryEntityReferences: EntityReference[]):GameEvent[] {
+        const generatedPointerAndDefeatCollisionEvents:GameEvent[] = []
+        victoryEntityReferences.forEach(victoryEntityReference => {
+            const matchId = victoryEntityReference.retrieveReference(EntityType.match)
+            if (
+                this.isPlayerOnMatch(matchId, playerId) &&
+                this.interactWithEntities.retrieveEntityComponentByEntityId(victoryEntityReference.entityId, Physical).visible &&
+                victoryEntityReference.retrieveReference(EntityType.player) === playerId
+            ) generatedPointerAndDefeatCollisionEvents.push(quitMatchEvent(matchId, playerId))
+        })
+        return generatedPointerAndDefeatCollisionEvents
+    }
+
+    private pointerAndDefeatCollisionEvents (playerId: string, defeatEntityReferences: EntityReference[]):GameEvent[] {
+        const generatedPointerAndDefeatCollisionEvents:GameEvent[] = []
+        defeatEntityReferences.forEach(defeatEntityReference => {
+            const matchId = defeatEntityReference.retrieveReference(EntityType.match)
+            if (
+                this.isPlayerOnMatch(matchId, playerId) &&
+                this.interactWithEntities.retrieveEntityComponentByEntityId(defeatEntityReference.entityId, Physical).visible &&
+                defeatEntityReference.retrieveReference(EntityType.player) === playerId
+            ) generatedPointerAndDefeatCollisionEvents.push(quitMatchEvent(matchId, playerId))
+        })
+        return generatedPointerAndDefeatCollisionEvents
+    }
+
+    private pointerAndNextTurnButtonCollisionEvents (playerId: string, nextTurnButtonEntityReferences: EntityReference[]):GameEvent[] {
+        const events:GameEvent[] = []
+        nextTurnButtonEntityReferences.forEach(nextTurnButtonEntityReference => {
+            if (nextTurnButtonEntityReference.retrieveReference(EntityType.player) === playerId &&
+                this.interactWithEntities.retrieveEntityComponentByEntityId(nextTurnButtonEntityReference.retrieveReference(EntityType.match), Phasing).currentPhase.phaseType !== PhaseType.Victory)
+                events.push(nextTurnEvent(nextTurnButtonEntityReference.retrieveReference(EntityType.match)))
+        })
+        return events
+    }
+
     private pointerAndCellAndUnitCollisionEvents (playerId:string, cellEntityReferences: EntityReference[], unitEntityReferences: EntityReference[]): GameEvent[] {
         const generatedPointerAndButtonCollision:GameEvent[] = []
         cellEntityReferences.forEach(cellEntityReference => {
-            const matchId = this.entityReferencesByEntityId(cellEntityReference.retreiveReference(EntityType.grid)).retreiveReference(EntityType.match)
-            if (this.isPlayerOnMatch(matchId, playerId))
-                unitEntityReferences.forEach(unitEntityReference => generatedPointerAndButtonCollision.push(attackEvent(playerId, this.currentPhaseUnit(matchId), unitEntityReference.entityId)))
+            const matchId = this.entityReferencesByEntityId(cellEntityReference.retrieveReference(EntityType.grid)).retrieveReference(EntityType.match)
+            if (this.isPlayerOnMatch(matchId, playerId)) {
+                const matchPhasingComponent = this.retrieveMatchPhasingComponent(matchId)
+                if (matchPhasingComponent.currentPhase.phaseType !== PhaseType.Victory)
+                    unitEntityReferences.forEach(unitEntityReference => generatedPointerAndButtonCollision.push(attackEvent(playerId, matchPhasingComponent.getCurrentUnitId(), unitEntityReference.entityId)))
+            }
         })
         return generatedPointerAndButtonCollision
     }
@@ -74,23 +126,25 @@ export class CollisionSystem extends GenericServerSystem {
             throw new Error(unsupportedMovingEntity)
         }
         cellEntityReferences.forEach(cellEntityReference => {
-            const matchId = this.entityReferencesByEntityId(cellEntityReference.retreiveReference(EntityType.grid)).retreiveReference(EntityType.match)
-            const currentUnitToMove = this.currentPhaseUnit(matchId)
-            if (this.isPlayerOnMatch(matchId, playerId)) generatedPointerAndCellColisionEvents.push(moveEvent(playerId, supportedMovingEntityType(currentUnitToMove), currentUnitToMove, cellEntityReference.entityId))
+            const matchId = this.entityReferencesByEntityId(cellEntityReference.retrieveReference(EntityType.grid)).retrieveReference(EntityType.match)
+            if (this.isPlayerOnMatch(matchId, playerId)) {
+                const matchPhasingComponent = this.retrieveMatchPhasingComponent(matchId)
+                if (matchPhasingComponent.currentPhase.phaseType !== PhaseType.Victory) {
+                    const currentUnitToMove = matchPhasingComponent.getCurrentUnitId()
+                    generatedPointerAndCellColisionEvents.push(moveEvent(playerId, supportedMovingEntityType(currentUnitToMove), currentUnitToMove, cellEntityReference.entityId))
+                }
+            }
         })
         return generatedPointerAndCellColisionEvents
     }
 
     private pointerAndButtonCollisionEvents (playerId:string, buttonEntityReferences: EntityReference[]):GameEvent[] {
         const generatedPointerAndButtonCollision:GameEvent[] = []
-        const isSamePlayerButtonAndPointer = (buttonEntityReference:EntityReference, playerId:string):boolean => buttonEntityReference.retreiveReference(EntityType.player) === playerId
+        const isSamePlayerButtonAndPointer = (buttonEntityReference:EntityReference, playerId:string):boolean => buttonEntityReference.retrieveReference(EntityType.player) === playerId
         buttonEntityReferences.forEach(buttonEntityReferences => {
-            if (isSamePlayerButtonAndPointer(buttonEntityReferences, playerId)) {
+            if (isSamePlayerButtonAndPointer(buttonEntityReferences, playerId))
                 if (buttonEntityReferences.hasReferences(EntityType.simpleMatchLobby))
-                    generatedPointerAndButtonCollision.push(joinSimpleMatchLobby(playerId, this.entityReferencesByEntityId(playerId).retreiveReference(EntityType.mainMenu), buttonEntityReferences.retreiveReference(EntityType.simpleMatchLobby)))
-                if (buttonEntityReferences.hasReferences(EntityType.match))
-                    generatedPointerAndButtonCollision.push(nextTurnEvent(buttonEntityReferences.retreiveReference(EntityType.match)))
-            }
+                    generatedPointerAndButtonCollision.push(joinSimpleMatchLobby(playerId, this.entityReferencesByEntityId(playerId).retrieveReference(EntityType.mainMenu), buttonEntityReferences.retrieveReference(EntityType.simpleMatchLobby)))
         })
         return generatedPointerAndButtonCollision
     }
@@ -132,8 +186,8 @@ export class CollisionSystem extends GenericServerSystem {
         return physicalComponentsGroupedByPosition
     }
 
-    private currentPhaseUnit (matchId: string) {
-        return this.interactWithEntities.retrieveEntityComponentByEntityId(matchId, Phasing).getCurrentUnitId()
+    private retrieveMatchPhasingComponent (matchId: string) {
+        return this.interactWithEntities.retrieveEntityComponentByEntityId(matchId, Phasing)
     }
 
     private isPlayerOnMatch (matchId: string, playerId: string): boolean {
@@ -141,4 +195,5 @@ export class CollisionSystem extends GenericServerSystem {
     }
 }
 const unsupportedMovingEntity = `Current unit is not '${EntityType.robot}' or '${EntityType.robot}' entity type.`
+
 // const missingEntityReference = (entityType:EntityType, entityReferences:EntityReference[]): string => `Missing '${entityType}' entity reference. List of entity references: ${stringifyWithDetailledSetAndMap(entityReferences)}`
