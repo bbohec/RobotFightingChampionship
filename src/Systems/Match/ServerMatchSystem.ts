@@ -9,8 +9,9 @@ import { createGridEvent, createPlayerNextTurnMatchButtonEvent, createRobotEvent
 import { destroyMatchEvent, destroyRobotEvent, destroyTowerEvent } from '../../Events/destroy/destroy'
 import { playerNotFoundOnMatchPlayers } from './port/matchSystem'
 import { Physical } from '../../Components/Physical'
-import { drawEvent } from '../../Events/show/draw'
+import { drawEvent } from '../../Events/draw/draw'
 import { matchGridDimension } from '../../Components/port/Dimension'
+import { Phasing } from '../../Components/Phasing'
 
 export class ServerMatchSystem extends GenericServerSystem {
     onGameEvent (gameEvent: GameEvent): Promise<void> {
@@ -41,31 +42,54 @@ export class ServerMatchSystem extends GenericServerSystem {
         return Promise.resolve()
     }
 
-    private onQuit (gameEvent: GameEvent, entityReferenceComponent:EntityReference): Promise<void> {
-        const playerId = gameEvent.entityByEntityType(EntityType.player)
-        this.removePlayerFromEntityReferenceComponent(entityReferenceComponent, playerId)
-        return this.onPlayerRemoved(entityReferenceComponent, playerId)
+    private onQuit (gameEvent: GameEvent, matchEntityReferenceComponent:EntityReference): Promise<void> {
+        const quittingPlayerId = gameEvent.entityByEntityType(EntityType.player)
+        this.removePlayerFromEntityReferenceComponent(matchEntityReferenceComponent, quittingPlayerId)
+        return this.onPlayerRemoved(matchEntityReferenceComponent, quittingPlayerId)
     }
 
-    private onPlayerRemoved (EntityReferenceComponent: EntityReference, playerId:string): Promise<void> {
-        const playerMainMenuId = this.interactWithEntities.retrieveEntityComponentByEntityId(playerId, EntityReference).retrieveReference(EntityType.mainMenu)
-        const playerEntityReference = this.entityReferencesByEntityId(playerId)
-        const physicalComponent = this.interactWithEntities.retrieveEntityComponentByEntityId(playerMainMenuId, Physical)
-        physicalComponent.visible = true
+    private onPlayerRemoved (matchEntityReferenceComponent: EntityReference, quittingPlayerId:string): Promise<void> {
+        const quittingPlayerEntityReference = this.interactWithEntities.retrieveEntityComponentByEntityId(quittingPlayerId, EntityReference)
+        const remainingPlayers = this.interactWithEntities.retrieveEntityComponentByEntityId(quittingPlayerEntityReference.retrieveReference(EntityType.match), EntityReference).retrieveReferences(EntityType.player)
+        const matchPlayers = [quittingPlayerId, ...remainingPlayers]
+        const remainingPlayerEntityReferences = remainingPlayers.map(remainingPlayer => this.interactWithEntities.retrieveEntityComponentByEntityId(remainingPlayer, EntityReference))
+        const quittingPlayerRobotPhysical = this.updateEntityPhysicalComponent(quittingPlayerEntityReference.retrieveReference(EntityType.robot), false)
+        const quittingPlayerTowerPhysical = this.updateEntityPhysicalComponent(quittingPlayerEntityReference.retrieveReference(EntityType.tower), false)
+        const quittingPlayerRobotPhysicals = remainingPlayerEntityReferences.map(entityReferences => this.updateEntityPhysicalComponent(entityReferences.retrieveReference(EntityType.robot), false))
+        const quittingPlayerTowerPhysicals = remainingPlayerEntityReferences.map(entityReferences => this.updateEntityPhysicalComponent(entityReferences.retrieveReference(EntityType.tower), false))
+        const gridEntityReference = this.interactWithEntities.retrieveEntityComponentByEntityId(matchEntityReferenceComponent.retrieveReference(EntityType.grid), EntityReference)
+        const cellPhysicals = gridEntityReference.retrieveReferences(EntityType.cell).map(cellId => this.updateEntityPhysicalComponent(cellId, false))
         const events:GameEvent[] = [
-            destroyRobotEvent(playerEntityReference.retrieveReference(EntityType.robot)),
-            destroyTowerEvent(playerEntityReference.retrieveReference(EntityType.tower)),
-            drawEvent(EntityType.mainMenu, playerMainMenuId, playerId, physicalComponent)
+            ...matchPlayers.map(playerId => drawEvent(playerId, quittingPlayerRobotPhysical)),
+            ...matchPlayers.map(playerId => drawEvent(playerId, quittingPlayerTowerPhysical)),
+            ...quittingPlayerRobotPhysicals.map(physical => drawEvent(quittingPlayerId, physical)),
+            ...quittingPlayerTowerPhysicals.map(physical => drawEvent(quittingPlayerId, physical)),
+            ...cellPhysicals.map(physical => drawEvent(quittingPlayerId, physical)),
+            drawEvent(quittingPlayerId, this.updateEntityPhysicalComponent(quittingPlayerEntityReference.retrieveReference(EntityType.nextTurnButton), false)),
+            drawEvent(quittingPlayerId, this.updateEntityPhysicalComponent(quittingPlayerEntityReference.retrieveReference(EntityType.mainMenu), true)),
+            drawEvent(quittingPlayerId, this.updateEntityPhysicalComponent(quittingPlayerEntityReference.retrieveReference(EntityType.button), true)),
+            this.drawVictoryOrDefeatEvent(quittingPlayerId, matchEntityReferenceComponent),
+            destroyRobotEvent(quittingPlayerRobotPhysical.entityId),
+            destroyTowerEvent(quittingPlayerTowerPhysical.entityId)
         ]
-        if (!EntityReferenceComponent.hasReferences(EntityType.player)) events.push(destroyMatchEvent(EntityReferenceComponent.entityId))
-        return Promise.all(events.map(event => this.sendEvent(event)))
-            .then(() => Promise.resolve())
-            .catch(error => Promise.reject(error))
+        if (!matchEntityReferenceComponent.hasReferences(EntityType.player)) events.push(destroyMatchEvent(matchEntityReferenceComponent.entityId))
+        return this.sendEvents(events)
+    }
+
+    drawVictoryOrDefeatEvent (quittingPlayerId: string, matchEntityReference:EntityReference): GameEvent {
+        return quittingPlayerId === this.interactWithEntities.retrieveEntityComponentByEntityId(matchEntityReference.entityId, Phasing).currentPhase.currentPlayerId
+            ? drawEvent(quittingPlayerId, this.updateEntityPhysicalComponent(matchEntityReference.retrieveReference(EntityType.victory), false))
+            : drawEvent(quittingPlayerId, this.updateEntityPhysicalComponent(matchEntityReference.retrieveReference(EntityType.defeat), false))
+    }
+
+    private updateEntityPhysicalComponent (entityId:string, visible:boolean):Physical {
+        const entityPhysicalComponent = this.interactWithEntities.retrieveEntityComponentByEntityId(entityId, Physical)
+        entityPhysicalComponent.visible = visible
+        return entityPhysicalComponent
     }
 
     private removePlayerFromEntityReferenceComponent (entityReferenceComponent: EntityReference, quitingPlayerId: string) {
         const players = entityReferenceComponent.retrieveReferences(EntityType.player)
-        console.log(players)
         const playerIndex = players.findIndex(playerId => playerId === quitingPlayerId)
         if (playerIndex < 0) throw new Error(playerNotFoundOnMatchPlayers(quitingPlayerId))
         players.splice(playerIndex, 1)
@@ -82,9 +106,9 @@ export class ServerMatchSystem extends GenericServerSystem {
 
     private isPlayerReadyForMatch (entityReferenceComponent:EntityReference):Boolean {
         return (
-            entityReferenceComponent.entityReferences.has(EntityType.robot) &&
-            entityReferenceComponent.entityReferences.has(EntityType.tower) &&
-            entityReferenceComponent.entityReferences.has(EntityType.nextTurnButton)
+            entityReferenceComponent.hasReferences(EntityType.robot) &&
+            entityReferenceComponent.hasReferences(EntityType.tower) &&
+            entityReferenceComponent.hasReferences(EntityType.nextTurnButton)
         )
     }
 

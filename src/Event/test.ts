@@ -38,8 +38,8 @@ export const serverScenario = (
         tests.forEach(test => test(game, adapters, gameEvent))
     }
     return (skip)
-        ? describe.skip(scenarioEventDescription(title, gameEvent, 'server'), serverTestSuite)
-        : describe(scenarioEventDescription(title, gameEvent, 'server'), serverTestSuite)
+        ? describe.skip(scenarioEventDescription(title, gameEvent, 'server', skip), serverTestSuite)
+        : describe(scenarioEventDescription(title, gameEvent, 'server', skip), serverTestSuite)
 }
 export const clientScenario = (
     title:string,
@@ -58,22 +58,24 @@ export const clientScenario = (
         tests.forEach(test => test(game, adapters, gameEvents))
     }
     return (skip)
-        ? describe.skip(scenarioEventDescription(title, gameEvents, 'client'), clientTestSuite)
-        : describe(scenarioEventDescription(title, gameEvents, 'client'), clientTestSuite)
+        ? describe.skip(scenarioEventDescription(title, gameEvents, 'client', skip), clientTestSuite)
+        : describe(scenarioEventDescription(title, gameEvents, 'client', skip), clientTestSuite)
 }
 
 export const feature = (featureEventDescription:string, mochaSuite: (this: Suite) => void) => describe(featureEventDescription, mochaSuite)
 export const featureEventDescription = (action:Action): string => `Feature : ${action} events`
-export const scenarioEventDescription = (title:string, events: GameEvent|GameEvent[], scenarioType:ScenarioType): string => ((Array.isArray(events))
-    ? `
-    Scenario ${title} - ${scenarioType}:\n${events.map(event => `        Event action '${event.action}.'
+const pendingTestPrefix = '[PENDING] '
+export const scenarioEventDescription = (title:string, events: GameEvent|GameEvent[], scenarioType:ScenarioType, skip?:boolean): string =>
+    ((Array.isArray(events))
+        ? `
+    ${(skip) ? pendingTestPrefix : ''}Scenario ${title} - ${scenarioType}:\n${events.map(event => `        Event action '${event.action}.'
         Entity references :'${stringifyWithDetailledSetAndMap(event.entityRefences)}'`).join('\n        And\n')}`
-    : `
-    Scenario ${title} - ${scenarioType}:
+        : `
+    ${(skip) ? pendingTestPrefix : ''}Scenario ${title} - ${scenarioType}:
         Event action '${events.action}.'
         Entity references :'${stringifyWithDetailledSetAndMap(events.entityRefences)}'
     `
-)
+    )
 
 export const whenEventOccured = (): UnitTestWithContext[] => [(game, adapters, gameEvents) => {
     if (Array.isArray(gameEvents)) throw new Error('array not supported')
@@ -179,9 +181,8 @@ export const theEntityWithIdHasTheExpectedComponent = <PotentialComponent extend
 export const theEntityWithIdDoNotHaveAnyComponent = (
     testStep:TestStep,
     adapters: FakeServerAdapters,
-    entityId: string,
-    expectedComponent: GenericComponent
-) => it(entityDontHaveComponent(testStep, entityId, expectedComponent),
+    entityId: string
+) => it(entityDontHaveComponent(testStep, entityId),
     () => expect(adapters
         .entityInteractor
         .isEntityHasComponentsByEntityId(entityId)
@@ -226,8 +227,7 @@ export const theControllerAdapterIsNotInteractive = (
 export const detailedComparisonMessage = (thing:unknown, expectedThing:unknown):string => `DETAILS\nexpected >>>>>>>> ${stringifyWithDetailledSetAndMap(thing)} \nto deeply equal > ${stringifyWithDetailledSetAndMap(expectedThing)} \n`
 const eventDetailedComparisonMessage = (gameEvents: GameEvent[], expectedGameEvents: GameEvent[]): string => `DETAILS\nexpected >>>>>>>> ${stringifyWithDetailledSetAndMap(gameEvents)} \nto deeply equal > ${stringifyWithDetailledSetAndMap(expectedGameEvents)} \n`
 const componentDetailedComparisonMessage = <PotentialComponent extends Component> (component: PotentialComponent, expectedComponent: GenericComponent): string => `DETAILS\nexpected >>>>>>>> ${stringifyWithDetailledSetAndMap(component)} \nto deeply equal > ${stringifyWithDetailledSetAndMap(expectedComponent)} \n`
-const entityDontHaveComponent = (testStep: TestStep, entityId: string, expectedComponent: GenericComponent): string => `${testStep} the entity with id '${entityId}' don't have any component. 
-    ${stringifyWithDetailledSetAndMap(expectedComponent)}`
+const entityDontHaveComponent = (testStep: TestStep, entityId: string): string => `${testStep} the entity with id '${entityId}' don't have any component.`
 const entityHasComponent = <PotentialComponent extends Component> (testStep: TestStep, entityId: string, potentialComponent: PotentialClass<PotentialComponent>, expectedComponent: GenericComponent): string => `${testStep} the entity with id '${entityId}' has the expected '${potentialComponent.name}' component : 
     ${stringifyWithDetailledSetAndMap(expectedComponent)}`
 const entityIdOnRepository = (testStep: TestStep, potentialEntityOrEntityId: string): string => `${testStep} there is an entity with id '${potentialEntityOrEntityId}' on entities repository.`

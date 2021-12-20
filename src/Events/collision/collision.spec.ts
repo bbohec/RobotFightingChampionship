@@ -5,6 +5,7 @@ import { position } from '../../Components/Physical'
 import { ControlStatus } from '../../Components/port/ControlStatus'
 import { ShapeType } from '../../Components/port/ShapeType'
 import { EntityBuilder } from '../../Entities/entityBuilder'
+import { missingEntityId } from '../../Entities/infra/InMemoryEntityRepository'
 import { Action } from '../../Event/Action'
 import { EntityId } from '../../Event/entityIds'
 import { EntityType } from '../../Event/EntityType'
@@ -266,6 +267,26 @@ feature(featureEventDescription(Action.collision), () => {
             .buildEntity(EntityId.cellx0y0).withEntityReferences(EntityType.cell).save()
         , [
             ...whenEventOccured(),
-            (game, adapters) => eventsAreSent(TestStep.Then, adapters, 'server', [notifyServerEvent("Entity with id 'playerATowerId' missing on entity repository.")])
+            (game, adapters) => eventsAreSent(TestStep.Then, adapters, 'server', [notifyServerEvent(missingEntityId(EntityId.playerATower))])
+        ])
+    serverScenario(`${Action.collision} 5 - Collision with player pointer &  match cell & Tower & Other Match Tower`, collisionGameEvent(new Map([[EntityType.unknown, [EntityId.playerAPointer, EntityId.cellx1y1, EntityId.playerBTower, EntityId.playerCTower]]])),
+        (game, adapters) => () => new EntityBuilder(adapters.entityInteractor)
+            .buildEntity(EntityId.playerAPointer).withEntityReferences(EntityType.pointer, new Map([[EntityType.player, [EntityId.playerA]]])).withController(ControlStatus.Active).save()
+            .buildEntity(EntityId.match).withEntityReferences(EntityType.match, new Map([[EntityType.player, [EntityId.playerA]], [EntityType.grid, [EntityId.grid]]])).withPhase(playerARobotPhase()).save()
+            .buildEntity(EntityId.grid).withEntityReferences(EntityType.grid, new Map([[EntityType.match, [EntityId.match]], [EntityType.cell, [EntityId.cellx1y1]]])).save()
+            .buildEntity(EntityId.playerARobot).withEntityReferences(EntityType.robot, new Map()).save()
+            .buildEntity(EntityId.playerBTower).withEntityReferences(EntityType.tower, new Map([])).save()
+            .buildEntity(EntityId.playerCTower).withEntityReferences(EntityType.tower, new Map([])).save()
+            .buildEntity(EntityId.cellx1y1).withEntityReferences(EntityType.cell, new Map([[EntityType.grid, [EntityId.grid]]])).save()
+        , [
+            (game, adapters) => theEntityWithIdHasTheExpectedComponent(TestStep.Given, adapters, EntityId.playerAPointer, EntityReference, new EntityReference(EntityId.playerAPointer, EntityType.pointer, new Map([[EntityType.player, [EntityId.playerA]]]))),
+            (game, adapters) => theEntityWithIdHasTheExpectedComponent(TestStep.And, adapters, EntityId.match, EntityReference, new EntityReference(EntityId.match, EntityType.match, new Map([[EntityType.player, [EntityId.playerA]], [EntityType.grid, [EntityId.grid]]]))),
+            (game, adapters) => theEntityWithIdHasTheExpectedComponent(TestStep.And, adapters, EntityId.match, Phasing, new Phasing(EntityId.match, playerARobotPhase())),
+            (game, adapters) => theEntityWithIdHasTheExpectedComponent(TestStep.And, adapters, EntityId.grid, EntityReference, new EntityReference(EntityId.grid, EntityType.grid, new Map([[EntityType.match, [EntityId.match]], [EntityType.cell, [EntityId.cellx1y1]]]))),
+            (game, adapters) => theEntityWithIdHasTheExpectedComponent(TestStep.And, adapters, EntityId.playerARobot, EntityReference, new EntityReference(EntityId.playerARobot, EntityType.robot, new Map())),
+            (game, adapters) => theEntityWithIdHasTheExpectedComponent(TestStep.And, adapters, EntityId.playerBTower, EntityReference, new EntityReference(EntityId.playerBTower, EntityType.tower, new Map())),
+            (game, adapters) => theEntityWithIdHasTheExpectedComponent(TestStep.And, adapters, EntityId.cellx1y1, EntityReference, new EntityReference(EntityId.cellx1y1, EntityType.cell, new Map([[EntityType.grid, [EntityId.grid]]]))),
+            ...whenEventOccured(),
+            (game, adapters) => eventsAreSent(TestStep.Then, adapters, 'server', [attackEvent(EntityId.playerA, EntityId.playerARobot, EntityId.playerBTower)])
         ])
 })

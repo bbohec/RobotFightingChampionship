@@ -11,14 +11,15 @@ export class EntityReference extends GenericComponent {
 
     retrieveEntityType (): EntityType {
         if (this.entityType.length === 1) return this.entityType[0]
-        if (this.entityType.length === 0) throw new Error(noEntityTypeOnEntityReference(this.entityId))
+        if (this.entityType.length === 0) throw new Error(noEntityTypeOnEntityReference(this.entityId, this.entityType))
         throw new Error(multipleEntityTypeOnEntityReference(this.entityId, this.entityType))
     }
 
-    retrieveReference (entityType:EntityType) {
-        const references = this.retrieveReferences(entityType)
+    retrieveReference (referenceEntityType:EntityType) {
+        const references = this.retrieveReferences(referenceEntityType)
         if (references.length === 1) return references[0]
-        throw new Error(multipleEntitiesReferencedByEntityType(entityType, this.entityId))
+        if (references.length > 1) throw new Error(multipleEntitiesReferencedByEntityType(referenceEntityType, this.entityId, this.entityType, this.retrieveReferences(referenceEntityType)))
+        throw new Error(missingEntityReferenceByEntityType(referenceEntityType, this.entityType, this.entityId))
     }
 
     retrieveReferences (entityType:EntityType) {
@@ -37,6 +38,6 @@ export class EntityReference extends GenericComponent {
     entityType :EntityType[]
 }
 const missingEntityReferenceByEntityType = (entityRefType: EntityType, entityType:EntityType[], entityId: string): string => `There is not entity type '${entityRefType}' on entity references component of entity '${entityType}' with id '${entityId}'.`
-const multipleEntitiesReferencedByEntityType = (entityType: EntityType, entityId: string): string => `There is multiples references for entity type '${entityType}' on entity references component of entity '${entityId}'.`
-const noEntityTypeOnEntityReference = (entityId: string): string => `There is no entity type for entity '${entityId}'.`
+const multipleEntitiesReferencedByEntityType = (referenceEntityType: EntityType, entityId: string, entityType:EntityType[], references:string []): string => `There is multiples '${referenceEntityType}' references for entity type on entity references component of the '${entityType}' entity '${entityId}' : ${references}`
+const noEntityTypeOnEntityReference = (entityId: string, entityType:EntityType[]): string => `There is no entity type for the '${entityType}' entity '${entityId}'.`
 const multipleEntityTypeOnEntityReference = (entityId: string, entityTypes:EntityType[]): string => `There is multiple entity types for entity '${entityId}' : ${entityTypes}`

@@ -30,7 +30,9 @@ export enum EntityId {
     cellx24y24 = 'cellx24y24',
     cellx0y0 = 'cellx0y0',
     playerANextTurnButton = 'playerANextTurnButton',
-    playerBNextTurnButton = 'playerBNextTurnButton'
+    playerBNextTurnButton = 'playerBNextTurnButton',
+    playerBSimpleMatchLobbyMenu = 'playerBSimpleMatchLobbyMenu',
+    playerCTower = 'playerCTower'
 }
 export const players = ['playerAId', 'playerBId', 'playerCId', 'playerDId', 'playerEId', 'playerFId', 'playerGId', 'playerHId']
 export const simpleMatchButtons = ['playerAJoinMatchButtonId', 'playerBJoinMatchButtonId', 'playerCJoinMatchButtonId', 'playerDJoinMatchButtonId', 'playerEJoinMatchButtonId', 'playerFJoinMatchButtonId', 'playerGJoinMatchButtonId', 'playerHJoinMatchButtonId']

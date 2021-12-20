@@ -1,7 +1,9 @@
+import { EntityReference } from '../../Components/EntityReference'
 import { Component } from '../../Components/port/Component'
 import { Entity } from '../Entity'
 import { PotentialClass } from './PotentialClass'
 export interface EntityInteractor {
+    unlinkEntities(originEntityReference: EntityReference, targetEntityReference: EntityReference):void
     linkEntityToEntities(entityId: string, entityIds: string[]):void
     deleteEntityById(entityId: string):void
     retrieveEntitiesThatHaveComponent<PotentialComponent extends Component> (potentialComponent:PotentialClass<PotentialComponent>): Entity[];

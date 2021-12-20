@@ -6,7 +6,7 @@ import { GenericServerSystem } from '../Generic/GenericServerSystem'
 import { EntityType } from '../../Event/EntityType'
 import { Action } from '../../Event/Action'
 import { EntityReference } from '../../Components/EntityReference'
-import { drawEvent } from '../../Events/show/draw'
+import { drawEvent } from '../../Events/draw/draw'
 import { Physical } from '../../Components/Physical'
 
 export class WaitingAreaSystem extends GenericServerSystem {
@@ -51,8 +51,8 @@ export class WaitingAreaSystem extends GenericServerSystem {
         const simpleMatchLobbyButtonPhysicalComponent = this.interactWithEntities.retrieveEntityComponentByEntityId(playerSimpleMatchLobbyButtonId, Physical)
         simpleMatchLobbyButtonPhysicalComponent.visible = false
         const events:GameEvent[] = [
-            drawEvent(EntityType.mainMenu, mainMenuId, playerId, mainMenuPhysicalComponent),
-            drawEvent(EntityType.button, playerSimpleMatchLobbyButtonId, playerId, simpleMatchLobbyButtonPhysicalComponent),
+            drawEvent(playerId, mainMenuPhysicalComponent),
+            drawEvent(playerId, simpleMatchLobbyButtonPhysicalComponent),
             createPlayerSimpleMatchLobbyMenu(playerId)
         ]
         const createMatchEvent = this.createMatchWhenEnoughWaitingPlayers(playersIds, simpleMatchLobbyEntityId)

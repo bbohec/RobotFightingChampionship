@@ -62,6 +62,19 @@ feature(featureEventDescription(Action.register), () => {
             (game, adapters) => whenEventOccurs(game, adapters, registerNextTurnButtonEvent(EntityId.playerA, EntityId.match, EntityId.playerANextTurnButton)),
             (game, adapters) => eventsAreSent(TestStep.Then, adapters, 'server', [playerReadyForMatch(EntityId.match, EntityId.playerA)])
         ])
+    serverScenario(`${Action.register} 5`, [registerRobotEvent(EntityId.playerARobot, EntityId.playerA), registerTowerEvent(EntityId.playerBTower, EntityId.playerA)],
+        (game, adapters) => () => new EntityBuilder(adapters.entityInteractor)
+            .buildEntity(EntityId.match).withEntityReferences(EntityType.match, new Map([[EntityType.player, [EntityId.playerA]]])).save()
+            .buildEntity(EntityId.playerA).withEntityReferences(EntityType.player, new Map([[EntityType.match, [EntityId.match]], [EntityType.robot, []]])).save()
+            .buildEntity(EntityId.playerARobot).withEntityReferences(EntityType.robot).save()
+            .buildEntity(EntityId.playerBTower).withEntityReferences(EntityType.tower).save()
+            .buildEntity(EntityId.playerANextTurnButton).withEntityReferences(EntityType.nextTurnButton).save()
+        , [
+            (game, adapters) => theEntityIsOnRepository(TestStep.Given, adapters, EntityId.playerA),
+            (game, adapters) => whenEventOccurs(game, adapters, registerTowerEvent(EntityId.playerBTower, EntityId.playerA)),
+            (game, adapters) => whenEventOccurs(game, adapters, registerNextTurnButtonEvent(EntityId.playerA, EntityId.match, EntityId.playerANextTurnButton)),
+            (game, adapters) => eventsAreSent(TestStep.Then, adapters, 'server', [])
+        ])
     clientScenario(`${Action.register} 6`, registerPlayerEvent(EntityId.playerA), EntityId.playerA,
         (game, adapters) => () => new EntityBuilder(adapters.entityInteractor)
         , [

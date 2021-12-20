@@ -6,7 +6,7 @@ import { GenericServerSystem } from '../Generic/GenericServerSystem'
 
 export class PlayerSystem extends GenericServerSystem {
     onGameEvent (gameEvent: GameEvent): Promise<void> {
-        return gameEvent.hasEntitiesByEntityType(EntityType.game) && gameEvent.hasEntitiesByEntityType(EntityType.player) 
+        return gameEvent.hasEntitiesByEntityType(EntityType.game) && gameEvent.hasEntitiesByEntityType(EntityType.player)
             ? this.registerPlayerOnGame(gameEvent)
             : Promise.reject(new Error(errorMessageOnUnknownEventAction(PlayerSystem.name, gameEvent)))
     }

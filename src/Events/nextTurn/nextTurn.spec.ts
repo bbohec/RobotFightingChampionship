@@ -15,7 +15,7 @@ import { EntityBuilder } from '../../Entities/entityBuilder'
 import { EntityId } from '../../Event/entityIds'
 import { ShapeType } from '../../Components/port/ShapeType'
 import { Dimension } from '../../Components/port/Dimension'
-import { drawEvent } from '../show/draw'
+import { drawEvent } from '../draw/draw'
 
 feature(featureEventDescription(Action.nextTurn), () => {
     interface Scenario {
@@ -76,8 +76,8 @@ feature(featureEventDescription(Action.nextTurn), () => {
             },
             additionnalTests: [
                 (game, adapters) => eventsAreSent(TestStep.And, adapters, 'server', [
-                    drawEvent(EntityType.nextTurnButton, EntityId.playerANextTurnButton, EntityId.playerA, new Physical(EntityId.playerANextTurnButton, playerNextTurnButtonPosition, ShapeType.nextTurnButton, true)),
-                    drawEvent(EntityType.nextTurnButton, EntityId.playerBNextTurnButton, EntityId.playerB, new Physical(EntityId.playerBNextTurnButton, playerNextTurnButtonPosition, ShapeType.nextTurnButton, false))
+                    drawEvent(EntityId.playerA, new Physical(EntityId.playerANextTurnButton, playerNextTurnButtonPosition, ShapeType.nextTurnButton, true)),
+                    drawEvent(EntityId.playerB, new Physical(EntityId.playerBNextTurnButton, playerNextTurnButtonPosition, ShapeType.nextTurnButton, false))
                 ]),
                 (game, adapters) => theEntityWithIdHasTheExpectedComponent(TestStep.And, adapters, EntityId.playerANextTurnButton, Physical, new Physical(EntityId.playerANextTurnButton, playerNextTurnButtonPosition, ShapeType.nextTurnButton, true)),
                 (game, adapters) => theEntityWithIdHasTheExpectedComponent(TestStep.And, adapters, EntityId.playerBNextTurnButton, Physical, new Physical(EntityId.playerBNextTurnButton, playerNextTurnButtonPosition, ShapeType.nextTurnButton, false))
@@ -90,8 +90,8 @@ feature(featureEventDescription(Action.nextTurn), () => {
             },
             additionnalTests: [
                 (game, adapters) => eventsAreSent(TestStep.And, adapters, 'server', [
-                    drawEvent(EntityType.nextTurnButton, EntityId.playerANextTurnButton, EntityId.playerA, new Physical(EntityId.playerANextTurnButton, playerNextTurnButtonPosition, ShapeType.nextTurnButton, false)),
-                    drawEvent(EntityType.nextTurnButton, EntityId.playerBNextTurnButton, EntityId.playerB, new Physical(EntityId.playerBNextTurnButton, playerNextTurnButtonPosition, ShapeType.nextTurnButton, true))
+                    drawEvent(EntityId.playerA, new Physical(EntityId.playerANextTurnButton, playerNextTurnButtonPosition, ShapeType.nextTurnButton, false)),
+                    drawEvent(EntityId.playerB, new Physical(EntityId.playerBNextTurnButton, playerNextTurnButtonPosition, ShapeType.nextTurnButton, true))
                 ]),
                 (game, adapters) => theEntityWithIdHasTheExpectedComponent(TestStep.And, adapters, EntityId.playerANextTurnButton, Physical, new Physical(EntityId.playerANextTurnButton, playerNextTurnButtonPosition, ShapeType.nextTurnButton, false)),
                 (game, adapters) => theEntityWithIdHasTheExpectedComponent(TestStep.And, adapters, EntityId.playerBNextTurnButton, Physical, new Physical(EntityId.playerBNextTurnButton, playerNextTurnButtonPosition, ShapeType.nextTurnButton, true))
@@ -104,8 +104,8 @@ feature(featureEventDescription(Action.nextTurn), () => {
             },
             additionnalTests: [
                 (game, adapters) => eventsAreSent(TestStep.And, adapters, 'server', [
-                    drawEvent(EntityType.nextTurnButton, EntityId.playerANextTurnButton, EntityId.playerA, new Physical(EntityId.playerANextTurnButton, playerNextTurnButtonPosition, ShapeType.nextTurnButton, true)),
-                    drawEvent(EntityType.nextTurnButton, EntityId.playerBNextTurnButton, EntityId.playerB, new Physical(EntityId.playerBNextTurnButton, playerNextTurnButtonPosition, ShapeType.nextTurnButton, false))
+                    drawEvent(EntityId.playerA, new Physical(EntityId.playerANextTurnButton, playerNextTurnButtonPosition, ShapeType.nextTurnButton, true)),
+                    drawEvent(EntityId.playerB, new Physical(EntityId.playerBNextTurnButton, playerNextTurnButtonPosition, ShapeType.nextTurnButton, false))
                 ]),
                 (game, adapters) => theEntityWithIdHasTheExpectedComponent(TestStep.And, adapters, EntityId.playerANextTurnButton, Physical, new Physical(EntityId.playerANextTurnButton, playerNextTurnButtonPosition, ShapeType.nextTurnButton, true)),
                 (game, adapters) => theEntityWithIdHasTheExpectedComponent(TestStep.And, adapters, EntityId.playerBNextTurnButton, Physical, new Physical(EntityId.playerBNextTurnButton, playerNextTurnButtonPosition, ShapeType.nextTurnButton, false))
@@ -118,8 +118,8 @@ feature(featureEventDescription(Action.nextTurn), () => {
             },
             additionnalTests: [
                 (game, adapters) => eventsAreSent(TestStep.And, adapters, 'server', [
-                    drawEvent(EntityType.nextTurnButton, EntityId.playerANextTurnButton, EntityId.playerA, new Physical(EntityId.playerANextTurnButton, playerNextTurnButtonPosition, ShapeType.nextTurnButton, false)),
-                    drawEvent(EntityType.nextTurnButton, EntityId.playerBNextTurnButton, EntityId.playerB, new Physical(EntityId.playerBNextTurnButton, playerNextTurnButtonPosition, ShapeType.nextTurnButton, true))
+                    drawEvent(EntityId.playerA, new Physical(EntityId.playerANextTurnButton, playerNextTurnButtonPosition, ShapeType.nextTurnButton, false)),
+                    drawEvent(EntityId.playerB, new Physical(EntityId.playerBNextTurnButton, playerNextTurnButtonPosition, ShapeType.nextTurnButton, true))
                 ]),
                 (game, adapters) => theEntityWithIdHasTheExpectedComponent(TestStep.And, adapters, EntityId.playerANextTurnButton, Physical, new Physical(EntityId.playerANextTurnButton, playerNextTurnButtonPosition, ShapeType.nextTurnButton, false)),
                 (game, adapters) => theEntityWithIdHasTheExpectedComponent(TestStep.And, adapters, EntityId.playerBNextTurnButton, Physical, new Physical(EntityId.playerBNextTurnButton, playerNextTurnButtonPosition, ShapeType.nextTurnButton, true))
@@ -132,8 +132,8 @@ feature(featureEventDescription(Action.nextTurn), () => {
             },
             additionnalTests: [
                 (game, adapters) => eventsAreSent(TestStep.And, adapters, 'server', [
-                    drawEvent(EntityType.nextTurnButton, EntityId.playerANextTurnButton, EntityId.playerA, new Physical(EntityId.playerANextTurnButton, playerNextTurnButtonPosition, ShapeType.nextTurnButton, true)),
-                    drawEvent(EntityType.nextTurnButton, EntityId.playerBNextTurnButton, EntityId.playerB, new Physical(EntityId.playerBNextTurnButton, playerNextTurnButtonPosition, ShapeType.nextTurnButton, false))
+                    drawEvent(EntityId.playerA, new Physical(EntityId.playerANextTurnButton, playerNextTurnButtonPosition, ShapeType.nextTurnButton, true)),
+                    drawEvent(EntityId.playerB, new Physical(EntityId.playerBNextTurnButton, playerNextTurnButtonPosition, ShapeType.nextTurnButton, false))
                 ]),
                 (game, adapters) => theEntityWithIdHasTheExpectedComponent(TestStep.And, adapters, EntityId.playerANextTurnButton, Physical, new Physical(EntityId.playerANextTurnButton, playerNextTurnButtonPosition, ShapeType.nextTurnButton, true)),
                 (game, adapters) => theEntityWithIdHasTheExpectedComponent(TestStep.And, adapters, EntityId.playerBNextTurnButton, Physical, new Physical(EntityId.playerBNextTurnButton, playerNextTurnButtonPosition, ShapeType.nextTurnButton, false))
@@ -162,7 +162,4 @@ feature(featureEventDescription(Action.nextTurn), () => {
                 .buildEntity(EntityId.playerBNextTurnButton).withPhysicalComponent(playerNextTurnButtonPosition, ShapeType.nextTurnButton, false).save()
             , tests)
     })
-    serverScenario('Unit position on grid scale', nextTurnEvent(EntityId.match), undefined, [
-        ...whenEventOccured()
-    ], undefined, true)
 })

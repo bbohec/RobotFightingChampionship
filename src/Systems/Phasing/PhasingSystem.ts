@@ -8,10 +8,11 @@ import { EntityType } from '../../Event/EntityType'
 import { Physical, playerARobotFirstPosition, playerATowerFirstPosition, playerBRobotFirstPosition, playerBTowerFirstPosition, Position } from '../../Components/Physical'
 import { moveEvent } from '../../Events/move/move'
 import { cellMissingOnGrid, currentPhaseNotSupported, missingDefeatPlayerId, missingInitialPosition, missingPlayerInderOnPlayableComponent, unitMissingOnPlayerTowersAndRobots, victoryPlayerMissingOnPlayableComponent } from './port/phasingSystem'
-import { drawEvent } from '../../Events/show/draw'
+import { drawEvent } from '../../Events/draw/draw'
 import { Dimension } from '../../Components/port/Dimension'
 import { Dimensional } from '../../Components/Dimensional'
 import { EntityReference } from '../../Components/EntityReference'
+import { destroySimpleMatchLobbyMenuEvent } from '../../Events/destroy/destroy'
 
 export interface PhaseSequence {
     currentPhase:Phase,
@@ -61,8 +62,8 @@ export class PhasingSystem extends GenericServerSystem {
         victoryPhysicalComponent.visible = true
         defeatPhysicalComponent.visible = true
         return Promise.all([
-            this.sendEvent(drawEvent(EntityType.victory, victoryPhysicalComponent.entityId, victoryPlayerId, victoryPhysicalComponent)),
-            this.sendEvent(drawEvent(EntityType.defeat, defeatPhysicalComponent.entityId, defeatPlayerId, defeatPhysicalComponent))
+            this.sendEvent(drawEvent(victoryPlayerId, victoryPhysicalComponent)),
+            this.sendEvent(drawEvent(defeatPlayerId, defeatPhysicalComponent))
         ])
             .then(() => Promise.resolve())
             .catch(error => Promise.reject(error))
@@ -95,25 +96,21 @@ export class PhasingSystem extends GenericServerSystem {
 
     private onSupportedCurrentPhase (matchPhasingComponent: Phasing, matchEntityReferenceComponent:EntityReference, nextPhase: Phase, gameEvent:GameEvent):Promise<void> {
         this.updatePhasingComponentCurrentPhaseWithNextPhase(matchPhasingComponent, nextPhase)
-        const events:GameEvent[] = [
-            ...this.eventsOnManualPhases(matchPhasingComponent, matchEntityReferenceComponent, gameEvent)
-        ]
+        const events:GameEvent[] = this.eventsOnManualPhases(matchPhasingComponent, matchEntityReferenceComponent)
         const autoMoveEvent = this.eventsOnPlacementPhase(matchPhasingComponent, gameEvent)
         if (autoMoveEvent) events.push(autoMoveEvent)
         return this.sendEvents(events)
     }
 
-    private eventsOnManualPhases (matchPhasingComponent: Phasing, matchEntityReferenceComponent:EntityReference, gameEvent: GameEvent):GameEvent[] {
+    private eventsOnManualPhases (matchPhasingComponent: Phasing, matchEntityReferenceComponent:EntityReference):GameEvent[] {
         const gameEvents:GameEvent[] = []
-        if (matchPhasingComponent.currentPhase.phaseType === PhaseType.Fight) {
-            const matchPlayers = [...matchEntityReferenceComponent.retrieveReferences(EntityType.player)]
-            matchPlayers.forEach(player => {
+        if (matchPhasingComponent.currentPhase.phaseType === PhaseType.Fight)
+            matchEntityReferenceComponent.retrieveReferences(EntityType.player).forEach(player => {
                 const nextTurnButtonId = this.interactWithEntities.retrieveEntityComponentByEntityId(player, EntityReference).retrieveReference(EntityType.nextTurnButton)
                 const nextTurnButtonPhysicalComponent = this.interactWithEntities.retrieveEntityComponentByEntityId(nextTurnButtonId, Physical)
                 nextTurnButtonPhysicalComponent.visible = player === matchPhasingComponent.currentPhase.currentPlayerId
-                gameEvents.push(drawEvent(EntityType.nextTurnButton, nextTurnButtonId, player, nextTurnButtonPhysicalComponent))
+                gameEvents.push(drawEvent(player, nextTurnButtonPhysicalComponent))
             })
-        }
         return gameEvents
     }
 
@@ -197,10 +194,23 @@ export class PhasingSystem extends GenericServerSystem {
     private onReady (gameEvent: GameEvent): Promise<void> {
         const matchId = gameEvent.entityByEntityType(EntityType.match)
         const matchPhasingComponent = this.interactWithEntities.retrieveEntityComponentByEntityId(matchId, Phasing)
-        matchPhasingComponent.readyPlayers.add(gameEvent.entityByEntityType(EntityType.player))
-        return (matchPhasingComponent.readyPlayers.size === 2)
-            ? this.sendEvent(nextTurnEvent(matchId))
-            : Promise.resolve()
+        const playerId = gameEvent.entityByEntityType(EntityType.player)
+        matchPhasingComponent.readyPlayers.add(playerId)
+        const events:GameEvent[] = [
+            ...this.hideAndDestroySimpleMatchLobbyMenuEvents(playerId)
+        ]
+        if (matchPhasingComponent.readyPlayers.size === 2) events.push(nextTurnEvent(matchId))
+        return this.sendEvents(events)
+    }
+
+    private hideAndDestroySimpleMatchLobbyMenuEvents (playerId: string): GameEvent[] {
+        const playerSimpleMatchLobbyMenu = this.interactWithEntities.retrieveEntityComponentByEntityId(playerId, EntityReference).retrieveReference(EntityType.simpleMatchLobbyMenu)
+        const physicalComponent = this.interactWithEntities.retrieveEntityComponentByEntityId(playerSimpleMatchLobbyMenu, Physical)
+        physicalComponent.visible = false
+        return [
+            drawEvent(playerId, physicalComponent),
+            destroySimpleMatchLobbyMenuEvent(playerSimpleMatchLobbyMenu)
+        ]
     }
 
     private phasing (playerAId:string, playerBId:string):PhaseSequence[] {

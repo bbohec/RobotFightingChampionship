@@ -8,6 +8,7 @@ export const destroyGridEvent = (gridId:string) => destroyEvent(EntityType.grid,
 export const destroyVictoryEvent = (victoryId:string) => destroyEvent(EntityType.victory, victoryId)
 export const destroyDefeatEvent = (defeatId:string) => destroyEvent(EntityType.defeat, defeatId)
 export const destroyNextTurnButtonEvent = (nextTurnButtonId:string) => destroyEvent(EntityType.nextTurnButton, nextTurnButtonId)
-export const destroyCellEvent = (nextTurnButtonId:string) => destroyEvent(EntityType.nextTurnButton, nextTurnButtonId)
+export const destroyCellEvent = (cellId:string) => destroyEvent(EntityType.cell, cellId)
+export const destroySimpleMatchLobbyMenuEvent = (simpleMatchLobbyMenuId:string) => destroyEvent(EntityType.simpleMatchLobbyMenu, simpleMatchLobbyMenuId)
 
 const destroyEvent = (entityType:EntityType, entityId: string) => newGameEvent(Action.destroy, new Map([[entityType, [entityId]]]))

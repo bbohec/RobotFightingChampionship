@@ -10,7 +10,7 @@ import { EntityBuilder } from '../../Entities/entityBuilder'
 import { EntityId, mainMenus, players, simpleMatchButtons } from '../../Event/entityIds'
 import { defaultJoinSimpleMatchButtonPosition, mainMenuPosition, Physical, simpleMatchLobbyPosition } from '../../Components/Physical'
 import { ShapeType } from '../../Components/port/ShapeType'
-import { drawEvent } from '../show/draw'
+import { drawEvent } from '../draw/draw'
 import { matchGridDimension } from '../../Components/port/Dimension'
 
 feature(featureEventDescription(Action.join), () => {
@@ -59,8 +59,8 @@ feature(featureEventDescription(Action.join), () => {
             ...whenEventOccured(),
             (game, adapters) => theEntityWithIdHasTheExpectedComponent(TestStep.Then, adapters, EntityId.simpleMatchLobby, EntityReference, new EntityReference(EntityId.simpleMatchLobby, EntityType.simpleMatchLobby, new Map([[EntityType.player, [EntityId.playerA]], [EntityType.button, [EntityId.playerAJoinSimpleMatchButton]]]))),
             (game, adapters) => eventsAreSent(TestStep.And, adapters, 'server', [
-                drawEvent(EntityType.mainMenu, EntityId.playerAMainMenu, EntityId.playerA, new Physical(EntityId.playerAMainMenu, mainMenuPosition, ShapeType.mainMenu, false)),
-                drawEvent(EntityType.button, EntityId.playerAJoinSimpleMatchButton, EntityId.playerA, new Physical(EntityId.playerAJoinSimpleMatchButton, defaultJoinSimpleMatchButtonPosition, ShapeType.simpleMatchLobbyButton, false)),
+                drawEvent(EntityId.playerA, new Physical(EntityId.playerAMainMenu, mainMenuPosition, ShapeType.mainMenu, false)),
+                drawEvent(EntityId.playerA, new Physical(EntityId.playerAJoinSimpleMatchButton, defaultJoinSimpleMatchButtonPosition, ShapeType.simpleMatchLobbyButton, false)),
                 createPlayerSimpleMatchLobbyMenu(players[0])
             ])
         ])
@@ -105,32 +105,32 @@ feature(featureEventDescription(Action.join), () => {
             (game, adapters) => whenEventOccurs(game, adapters, playerWantJoinSimpleMatchLobby(players[7], EntityId.simpleMatchLobby)),
             (game, adapters) => theEntityWithIdHasTheExpectedComponent(TestStep.Then, adapters, EntityId.simpleMatchLobby, EntityReference, new EntityReference(EntityId.simpleMatchLobby, EntityType.simpleMatchLobby, new Map([[EntityType.player, players], [EntityType.button, simpleMatchButtons]]))),
             (game, adapters) => eventsAreSent(TestStep.And, adapters, 'server', [
-                drawEvent(EntityType.mainMenu, mainMenus[0], players[0], new Physical(mainMenus[0], mainMenuPosition, ShapeType.mainMenu, false)),
-                drawEvent(EntityType.button, simpleMatchButtons[0], players[0], new Physical(simpleMatchButtons[0], defaultJoinSimpleMatchButtonPosition, ShapeType.simpleMatchLobbyButton, false)),
+                drawEvent(players[0], new Physical(mainMenus[0], mainMenuPosition, ShapeType.mainMenu, false)),
+                drawEvent(players[0], new Physical(simpleMatchButtons[0], defaultJoinSimpleMatchButtonPosition, ShapeType.simpleMatchLobbyButton, false)),
                 createPlayerSimpleMatchLobbyMenu(players[0]),
-                drawEvent(EntityType.mainMenu, mainMenus[1], players[1], new Physical(mainMenus[1], mainMenuPosition, ShapeType.mainMenu, false)),
-                drawEvent(EntityType.button, simpleMatchButtons[1], players[1], new Physical(simpleMatchButtons[1], defaultJoinSimpleMatchButtonPosition, ShapeType.simpleMatchLobbyButton, false)),
+                drawEvent(players[1], new Physical(mainMenus[1], mainMenuPosition, ShapeType.mainMenu, false)),
+                drawEvent(players[1], new Physical(simpleMatchButtons[1], defaultJoinSimpleMatchButtonPosition, ShapeType.simpleMatchLobbyButton, false)),
                 createPlayerSimpleMatchLobbyMenu(players[1]),
                 createMatchEvent(EntityId.simpleMatchLobby),
-                drawEvent(EntityType.mainMenu, mainMenus[2], players[2], new Physical(mainMenus[2], mainMenuPosition, ShapeType.mainMenu, false)),
-                drawEvent(EntityType.button, simpleMatchButtons[2], players[2], new Physical(simpleMatchButtons[2], defaultJoinSimpleMatchButtonPosition, ShapeType.simpleMatchLobbyButton, false)),
+                drawEvent(players[2], new Physical(mainMenus[2], mainMenuPosition, ShapeType.mainMenu, false)),
+                drawEvent(players[2], new Physical(simpleMatchButtons[2], defaultJoinSimpleMatchButtonPosition, ShapeType.simpleMatchLobbyButton, false)),
                 createPlayerSimpleMatchLobbyMenu(players[2]),
-                drawEvent(EntityType.mainMenu, mainMenus[3], players[3], new Physical(mainMenus[3], mainMenuPosition, ShapeType.mainMenu, false)),
-                drawEvent(EntityType.button, simpleMatchButtons[3], players[3], new Physical(simpleMatchButtons[3], defaultJoinSimpleMatchButtonPosition, ShapeType.simpleMatchLobbyButton, false)),
+                drawEvent(players[3], new Physical(mainMenus[3], mainMenuPosition, ShapeType.mainMenu, false)),
+                drawEvent(players[3], new Physical(simpleMatchButtons[3], defaultJoinSimpleMatchButtonPosition, ShapeType.simpleMatchLobbyButton, false)),
                 createPlayerSimpleMatchLobbyMenu(players[3]),
                 createMatchEvent(EntityId.simpleMatchLobby),
-                drawEvent(EntityType.mainMenu, mainMenus[4], players[4], new Physical(mainMenus[4], mainMenuPosition, ShapeType.mainMenu, false)),
-                drawEvent(EntityType.button, simpleMatchButtons[4], players[4], new Physical(simpleMatchButtons[4], defaultJoinSimpleMatchButtonPosition, ShapeType.simpleMatchLobbyButton, false)),
+                drawEvent(players[4], new Physical(mainMenus[4], mainMenuPosition, ShapeType.mainMenu, false)),
+                drawEvent(players[4], new Physical(simpleMatchButtons[4], defaultJoinSimpleMatchButtonPosition, ShapeType.simpleMatchLobbyButton, false)),
                 createPlayerSimpleMatchLobbyMenu(players[4]),
-                drawEvent(EntityType.mainMenu, mainMenus[5], players[5], new Physical(mainMenus[5], mainMenuPosition, ShapeType.mainMenu, false)),
-                drawEvent(EntityType.button, simpleMatchButtons[5], players[5], new Physical(simpleMatchButtons[5], defaultJoinSimpleMatchButtonPosition, ShapeType.simpleMatchLobbyButton, false)),
+                drawEvent(players[5], new Physical(mainMenus[5], mainMenuPosition, ShapeType.mainMenu, false)),
+                drawEvent(players[5], new Physical(simpleMatchButtons[5], defaultJoinSimpleMatchButtonPosition, ShapeType.simpleMatchLobbyButton, false)),
                 createPlayerSimpleMatchLobbyMenu(players[5]),
                 createMatchEvent(EntityId.simpleMatchLobby),
-                drawEvent(EntityType.mainMenu, mainMenus[6], players[6], new Physical(mainMenus[6], mainMenuPosition, ShapeType.mainMenu, false)),
-                drawEvent(EntityType.button, simpleMatchButtons[6], players[6], new Physical(simpleMatchButtons[6], defaultJoinSimpleMatchButtonPosition, ShapeType.simpleMatchLobbyButton, false)),
+                drawEvent(players[6], new Physical(mainMenus[6], mainMenuPosition, ShapeType.mainMenu, false)),
+                drawEvent(players[6], new Physical(simpleMatchButtons[6], defaultJoinSimpleMatchButtonPosition, ShapeType.simpleMatchLobbyButton, false)),
                 createPlayerSimpleMatchLobbyMenu(players[6]),
-                drawEvent(EntityType.mainMenu, mainMenus[7], players[7], new Physical(mainMenus[7], mainMenuPosition, ShapeType.mainMenu, false)),
-                drawEvent(EntityType.button, simpleMatchButtons[7], players[7], new Physical(simpleMatchButtons[7], defaultJoinSimpleMatchButtonPosition, ShapeType.simpleMatchLobbyButton, false)),
+                drawEvent(players[7], new Physical(mainMenus[7], mainMenuPosition, ShapeType.mainMenu, false)),
+                drawEvent(players[7], new Physical(simpleMatchButtons[7], defaultJoinSimpleMatchButtonPosition, ShapeType.simpleMatchLobbyButton, false)),
                 createPlayerSimpleMatchLobbyMenu(players[7]),
                 createMatchEvent(EntityId.simpleMatchLobby)
             ])
