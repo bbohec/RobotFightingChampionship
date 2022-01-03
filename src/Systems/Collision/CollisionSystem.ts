@@ -110,11 +110,20 @@ export class CollisionSystem extends GenericServerSystem {
             const matchId = this.entityReferencesByEntityId(cellEntityReference.retrieveReference(EntityType.grid)).retrieveReference(EntityType.match)
             if (this.isPlayerOnMatch(matchId, playerId)) {
                 const matchPhasingComponent = this.retrieveMatchPhasingComponent(matchId)
-                if (matchPhasingComponent.currentPhase.phaseType !== PhaseType.Victory)
-                    unitEntityReferences.forEach(unitEntityReference => generatedPointerAndButtonCollision.push(attackEvent(playerId, matchPhasingComponent.getCurrentUnitId(), unitEntityReference.entityId)))
+                if (matchPhasingComponent.currentPhase.phaseType !== PhaseType.Victory) {
+                    const matchEntityReferenceComponent = this.retrieveEntityReferenceComponent(matchId)
+                    unitEntityReferences.forEach(unitEntityReference => {
+                        if (matchEntityReferenceComponent.retrieveReferences(EntityType.player).includes(unitEntityReference.retrieveReference(EntityType.player)))
+                            generatedPointerAndButtonCollision.push(attackEvent(playerId, matchPhasingComponent.getCurrentUnitId(), unitEntityReference.entityId))
+                    })
+                }
             }
         })
         return generatedPointerAndButtonCollision
+    }
+
+    private retrieveEntityReferenceComponent (entityId: string) :EntityReference {
+        return this.interactWithEntities.retrieveEntityComponentByEntityId(entityId, EntityReference)
     }
 
     private pointerAndCellColisionEvents (playerId:string, cellEntityReferences: EntityReference[], towerEntityReferences: EntityReference[], robotEntityReferences: EntityReference[]): GameEvent[] {
