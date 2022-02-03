@@ -115,11 +115,12 @@ export class PhasingSystem extends GenericServerSystem {
     }
 
     private eventsOnPlacementPhase (matchPhasingComponent: Phasing, gameEvent:GameEvent):GameEvent|undefined {
-        return (matchPhasingComponent.currentPhase.phaseType === PhaseType.Placement)
-            ? (matchPhasingComponent.currentPhase.currentPlayerId && matchPhasingComponent.currentPhase.currentUnitId)
-                ? this.sendMoveToPositionEvent(gameEvent, matchPhasingComponent.currentPhase.currentPlayerId, matchPhasingComponent.currentPhase.currentUnitId)
-                : undefined
-            : undefined
+        if (matchPhasingComponent.currentPhase.phaseType === PhaseType.Placement &&
+            matchPhasingComponent.currentPhase.currentPlayerId &&
+            matchPhasingComponent.currentPhase.currentUnitId)
+            return this.sendMoveToPositionEvent(gameEvent, matchPhasingComponent.currentPhase.currentPlayerId, matchPhasingComponent.currentPhase.currentUnitId)
+
+        return undefined
     }
 
     private updatePhasingComponentCurrentPhaseWithNextPhase (matchPhasingComponent: Phasing, nextPhase: Phase) {

@@ -31,6 +31,10 @@ export class Physical extends GenericComponent {
         return Math.floor(position.x) === Math.floor(this.position.x) && Math.floor(position.y) === Math.floor(this.position.y)
     }
 
+    public move (newPosition : Position) {
+        this.position = newPosition
+    }
+
     position: Position
     visible:boolean
     shape:ShapeType
