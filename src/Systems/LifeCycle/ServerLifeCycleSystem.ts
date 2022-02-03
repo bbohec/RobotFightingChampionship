@@ -1,4 +1,4 @@
-import { errorMessageOnUnknownEventAction, GameEvent } from '../../Event/GameEvent'
+import { GameEvent } from '../../Event/GameEvent'
 import { GenericServerLifeCycleSystem } from './GenericServerLifeCycleSystem'
 import { createCellEvent, createDefeatEvent, createSimpleMatchLobbyEvent, createVictoryEvent } from '../../Events/create/create'
 import { Dimensional } from '../../Components/Dimensional'
@@ -22,18 +22,22 @@ import { destroyCellEvent, destroyDefeatEvent, destroyGridEvent, destroyNextTurn
 
 export class ServerLifeCycleSystem extends GenericServerLifeCycleSystem {
     onGameEvent (gameEvent: GameEvent): Promise<void> {
-        return gameEvent.action === Action.destroy
-            ? this.onDestroyEvent(gameEvent)
-            : gameEvent.action === Action.create
-                ? this.onCreateEvent(gameEvent)
-                : gameEvent.action === Action.register
-                    ? this.onCreateEvent(gameEvent)
-                    : Promise.reject(new Error(errorMessageOnUnknownEventAction(ServerLifeCycleSystem.name, gameEvent)))
+        switch (gameEvent.action) {
+        case Action.destroy :
+            return this.onDestroyEvent(gameEvent)
+        case Action.create :
+            return this.onCreateEvent(gameEvent)
+        case Action.register:
+            return this.onCreateEvent(gameEvent)
+        case undefined:
+        default :
+            return this.sendErrorMessageOnUnknownEventAction(gameEvent)
+        }
     }
 
     private onCreateEvent (gameEvent: GameEvent): Promise<void> {
         const strategy = this.retrieveCreateStrategy(gameEvent)
-        return strategy ? strategy() : Promise.reject(new Error(errorMessageOnUnknownEventAction(ServerLifeCycleSystem.name, gameEvent)))
+        return strategy ? strategy() : this.sendErrorMessageOnUnknownEventAction(gameEvent)
     }
 
     private onDestroyEvent (gameEvent: GameEvent): Promise<void> {
@@ -75,37 +79,39 @@ export class ServerLifeCycleSystem extends GenericServerLifeCycleSystem {
 
     private retrieveCreateStrategy (gameEvent:GameEvent):(()=>Promise<void>) | undefined {
         const allEntityTypes = gameEvent.allEntityTypes()
-        return (gameEvent.hasEntitiesByEntityType(EntityType.mainMenu) && gameEvent.entitiesByEntityType(EntityType.mainMenu).some(entityId => entityId === EntityId.create))
-            ? () => this.createPlayerMainMenu(this.interactWithIdentiers.nextIdentifier(), gameEvent)
-            : allEntityTypes.includes(EntityType.player) && allEntityTypes.includes(EntityType.simpleMatchLobbyMenu)
-                ? () => this.createPlayerSimpleMatchLobbyMenuEntity(this.interactWithIdentiers.nextIdentifier(), gameEvent)
-                : allEntityTypes.includes(EntityType.player) && allEntityTypes.includes(EntityType.pointer)
-                    ? () => this.createPointerEntity(this.interactWithIdentiers.nextIdentifier(), gameEvent)
-                    : allEntityTypes.includes(EntityType.simpleMatchLobby) && allEntityTypes.includes(EntityType.player)
-                        ? () => this.createSimpleMatchLobbyButtonEntity(this.interactWithIdentiers.nextIdentifier(), gameEvent)
-                        : allEntityTypes.includes(EntityType.player) && allEntityTypes.includes(EntityType.match)
-                            ? () => this.createNextTurnPlayerMatchButton(this.interactWithIdentiers.nextIdentifier(), gameEvent)
-                            : allEntityTypes.includes(EntityType.tower) && allEntityTypes.includes(EntityType.player)
-                                ? () => this.createTowerEntity(this.interactWithIdentiers.nextIdentifier(), gameEvent)
-                                : allEntityTypes.includes(EntityType.victory)
-                                    ? () => this.createVictoryEntity(this.interactWithIdentiers.nextIdentifier(), gameEvent)
-                                    : allEntityTypes.includes(EntityType.defeat)
-                                        ? () => this.createDefeatEntity(this.interactWithIdentiers.nextIdentifier(), gameEvent)
-                                        : allEntityTypes.includes(EntityType.robot)
-                                            ? () => this.createRobotEntity(this.interactWithIdentiers.nextIdentifier(), gameEvent)
-                                            : allEntityTypes.includes(EntityType.player)
-                                                ? () => this.createPlayerEntity(gameEvent)
-                                                : allEntityTypes.includes(EntityType.grid) && allEntityTypes.includes(EntityType.cell)
-                                                    ? () => this.createCellEntity(this.interactWithIdentiers.nextIdentifier(), gameEvent)
-                                                    : allEntityTypes.includes(EntityType.grid)
-                                                        ? () => this.createGridEntity(this.interactWithIdentiers.nextIdentifier(), gameEvent)
-                                                        : allEntityTypes.includes(EntityType.match)
-                                                            ? () => this.createMatchEntity(this.interactWithIdentiers.nextIdentifier(), gameEvent.entityByEntityType(EntityType.simpleMatchLobby))
-                                                            : allEntityTypes.includes(EntityType.simpleMatchLobby)
-                                                                ? () => this.createSimpleMatchLobbyEntity(this.interactWithIdentiers.nextIdentifier(), gameEvent.entityByEntityType(EntityType.game))
-                                                                : allEntityTypes.includes(EntityType.game)
-                                                                    ? () => this.createGameEntity(this.interactWithIdentiers.nextIdentifier())
-                                                                    : undefined
+        const nextIdentifier = this.interactWithIdentiers.nextIdentifier()
+
+        if (gameEvent.hasEntitiesByEntityType(EntityType.mainMenu) && gameEvent.entitiesByEntityType(EntityType.mainMenu).some(entityId => entityId === EntityId.create))
+            return () => this.createPlayerMainMenu(nextIdentifier, gameEvent)
+        if (allEntityTypes.includes(EntityType.player) && allEntityTypes.includes(EntityType.simpleMatchLobbyMenu))
+            return () => this.createPlayerSimpleMatchLobbyMenuEntity(nextIdentifier, gameEvent)
+        if (allEntityTypes.includes(EntityType.player) && allEntityTypes.includes(EntityType.pointer))
+            return () => this.createPointerEntity(nextIdentifier, gameEvent)
+        if (allEntityTypes.includes(EntityType.simpleMatchLobby) && allEntityTypes.includes(EntityType.player))
+            return () => this.createSimpleMatchLobbyButtonEntity(nextIdentifier, gameEvent)
+        if (allEntityTypes.includes(EntityType.player) && allEntityTypes.includes(EntityType.match))
+            return () => this.createNextTurnPlayerMatchButton(nextIdentifier, gameEvent)
+        if (allEntityTypes.includes(EntityType.tower) && allEntityTypes.includes(EntityType.player))
+            return () => this.createTowerEntity(nextIdentifier, gameEvent)
+        if (allEntityTypes.includes(EntityType.victory))
+            return () => this.createVictoryEntity(nextIdentifier, gameEvent)
+        if (allEntityTypes.includes(EntityType.defeat))
+            return () => this.createDefeatEntity(nextIdentifier, gameEvent)
+        if (allEntityTypes.includes(EntityType.robot))
+            return () => this.createRobotEntity(nextIdentifier, gameEvent)
+        if (allEntityTypes.includes(EntityType.player))
+            return () => this.createPlayerEntity(gameEvent)
+        if (allEntityTypes.includes(EntityType.grid) && allEntityTypes.includes(EntityType.cell))
+            return () => this.createCellEntity(nextIdentifier, gameEvent)
+        if (allEntityTypes.includes(EntityType.grid))
+            return () => this.createGridEntity(nextIdentifier, gameEvent)
+        if (allEntityTypes.includes(EntityType.match))
+            return () => this.createMatchEntity(nextIdentifier, gameEvent.entityByEntityType(EntityType.simpleMatchLobby))
+        if (allEntityTypes.includes(EntityType.simpleMatchLobby))
+            return () => this.createSimpleMatchLobbyEntity(nextIdentifier, gameEvent.entityByEntityType(EntityType.game))
+        if (allEntityTypes.includes(EntityType.game))
+            return () => this.createGameEntity(nextIdentifier)
+        return undefined
     }
 
     private createDefeatEntity (defeatEntityId: string, gameEvent: GameEvent): Promise<void> {
@@ -179,7 +185,7 @@ export class ServerLifeCycleSystem extends GenericServerLifeCycleSystem {
         return Promise.reject(new Error('Missing player join simple match lobby button on player buttons or on main menu buttons.'))
     }
 
-    private createPointerEntity (pointerId:string, gameEvent: GameEvent): Promise<void> {
+    private createPointerEntity (pointerId: string, gameEvent: GameEvent): Promise<void> {
         this.createEntity(
             new Entity(pointerId),
             [
@@ -330,5 +336,9 @@ export class ServerLifeCycleSystem extends GenericServerLifeCycleSystem {
             ]
         )
         return this.sendNextEvents([registerTowerEvent(towerEntityId, playerId)])
+    }
+
+    protected getSystemName (): string {
+        return ServerLifeCycleSystem.name
     }
 }

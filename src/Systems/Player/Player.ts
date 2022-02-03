@@ -1,14 +1,14 @@
 import { EntityReference } from '../../Components/EntityReference'
 import { EntityType } from '../../Event/EntityType'
-import { errorMessageOnUnknownEventAction, GameEvent } from '../../Event/GameEvent'
+import { GameEvent } from '../../Event/GameEvent'
 import { createMainMenuEvent, createPlayerPointerEvent, createPlayerSimpleMatchLobbyButtonEvent } from '../../Events/create/create'
 import { GenericServerSystem } from '../Generic/GenericServerSystem'
 
 export class PlayerSystem extends GenericServerSystem {
     onGameEvent (gameEvent: GameEvent): Promise<void> {
-        return gameEvent.hasEntitiesByEntityType(EntityType.game) && gameEvent.hasEntitiesByEntityType(EntityType.player)
-            ? this.registerPlayerOnGame(gameEvent)
-            : Promise.reject(new Error(errorMessageOnUnknownEventAction(PlayerSystem.name, gameEvent)))
+        if (gameEvent.hasEntitiesByEntityType(EntityType.game) && gameEvent.hasEntitiesByEntityType(EntityType.player))
+            return this.registerPlayerOnGame(gameEvent)
+        return this.sendErrorMessageOnUnknownEventAction(gameEvent)
     }
 
     private registerPlayerOnGame (gameEvent: GameEvent): Promise<void> {
@@ -21,5 +21,9 @@ export class PlayerSystem extends GenericServerSystem {
             createMainMenuEvent(gameId, playerId),
             createPlayerSimpleMatchLobbyButtonEvent(gameEntityReferences.retrieveReference(EntityType.simpleMatchLobby), playerId)
         ])
+    }
+
+    protected getSystemName ():string {
+        return PlayerSystem.name
     }
 }

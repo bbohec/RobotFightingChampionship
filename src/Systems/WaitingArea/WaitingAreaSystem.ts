@@ -1,7 +1,7 @@
 import { maxPlayerPerMatch } from '../../Components/port/maxPlayerPerMatch'
 import { createMatchEvent, createPlayerSimpleMatchLobbyMenu } from '../../Events/create/create'
 import { playerJoinMatchEvent } from '../../Events/join/join'
-import { errorMessageOnUnknownEventAction, GameEvent } from '../../Event/GameEvent'
+import { GameEvent } from '../../Event/GameEvent'
 import { GenericServerSystem } from '../Generic/GenericServerSystem'
 import { EntityType } from '../../Event/EntityType'
 import { Action } from '../../Event/Action'
@@ -13,7 +13,7 @@ export class WaitingAreaSystem extends GenericServerSystem {
     onGameEvent (gameEvent: GameEvent): Promise<void> {
         return gameEvent.hasEntitiesByEntityType(EntityType.simpleMatchLobby)
             ? this.onSimpleMatchLobbyEvent(gameEvent)
-            : Promise.reject(new Error(errorMessageOnUnknownEventAction(WaitingAreaSystem.name, gameEvent)))
+            : this.sendErrorMessageOnUnknownEventAction(gameEvent)
     }
 
     private onSimpleMatchLobbyEvent (gameEvent:GameEvent):Promise<void> {
@@ -25,7 +25,7 @@ export class WaitingAreaSystem extends GenericServerSystem {
             ? this.onMatchWaitingForPlayersEvent(gameEvent.entityByEntityType(EntityType.match), players)
             : gameEvent.action === Action.join
                 ? this.onPlayerJoinGameEvent(gameEvent.entityByEntityType(EntityType.player), players, simpleMatchLobbyEntityId)
-                : Promise.reject(new Error(errorMessageOnUnknownEventAction(WaitingAreaSystem.name, gameEvent)))
+                : this.sendErrorMessageOnUnknownEventAction(gameEvent)
     }
 
     private onMatchWaitingForPlayersEvent (matchId: string, playerIds: string[]):Promise<void> {
@@ -74,5 +74,9 @@ export class WaitingAreaSystem extends GenericServerSystem {
         return (isEnoughWaitingPlayers(playerIds))
             ? createMatchEvent(simpleMatchLobbyEntityId)
             : undefined
+    }
+
+    protected getSystemName (): string {
+        return WaitingAreaSystem.name
     }
 }

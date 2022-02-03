@@ -1,5 +1,5 @@
 import { GenericServerSystem } from '../Generic/GenericServerSystem'
-import { errorMessageOnUnknownEventAction, GameEvent } from '../../Event/GameEvent'
+import { GameEvent } from '../../Event/GameEvent'
 import { maxPlayerPerMatch } from '../../Components/port/maxPlayerPerMatch'
 import { Action } from '../../Event/Action'
 import { EntityType } from '../../Event/EntityType'
@@ -21,7 +21,7 @@ export class ServerMatchSystem extends GenericServerSystem {
                 ? this.onJoin(gameEvent, this.interactWithEntities.retrieveEntityComponentByEntityId(gameEvent.entityByEntityType(EntityType.match), EntityReference))
                 : gameEvent.action === Action.quit
                     ? this.onQuit(gameEvent, this.interactWithEntities.retrieveEntityComponentByEntityId(gameEvent.entityByEntityType(EntityType.match), EntityReference))
-                    : Promise.reject(new Error(errorMessageOnUnknownEventAction(ServerMatchSystem.name, gameEvent)))
+                    : this.sendErrorMessageOnUnknownEventAction(gameEvent)
     }
 
     private onRegister (gameEvent:GameEvent):Promise<void> {
@@ -33,7 +33,7 @@ export class ServerMatchSystem extends GenericServerSystem {
                     ? this.onRegisterEntityOnPlayer(gameEvent, this.entityReferencesByEntityId(gameEvent.entityByEntityType(EntityType.player)), EntityType.tower)
                     : gameEvent.hasEntitiesByEntityType(EntityType.nextTurnButton)
                         ? this.onRegisterEntityOnPlayer(gameEvent, this.entityReferencesByEntityId(gameEvent.entityByEntityType(EntityType.player)), EntityType.nextTurnButton)
-                        : Promise.reject(new Error(errorMessageOnUnknownEventAction(ServerMatchSystem.name, gameEvent)))
+                        : this.sendErrorMessageOnUnknownEventAction(gameEvent)
     }
 
     private onRegisterSimpleMatchLobbyOnGame (gameEvent: GameEvent): Promise<void> {
@@ -104,7 +104,7 @@ export class ServerMatchSystem extends GenericServerSystem {
             : Promise.resolve()
     }
 
-    private isPlayerReadyForMatch (entityReferenceComponent:EntityReference):Boolean {
+    private isPlayerReadyForMatch (entityReferenceComponent:EntityReference): boolean {
         return (
             entityReferenceComponent.hasReferences(EntityType.robot) &&
             entityReferenceComponent.hasReferences(EntityType.tower) &&
@@ -142,5 +142,9 @@ export class ServerMatchSystem extends GenericServerSystem {
 
     private isMatchHasAllPlayers (players: string[]): boolean {
         return players.length === maxPlayerPerMatch
+    }
+
+    protected getSystemName (): string {
+        return ServerMatchSystem.name
     }
 }

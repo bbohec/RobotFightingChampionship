@@ -1,4 +1,4 @@
-import { GameEvent } from '../../Event/GameEvent'
+import { GameEvent, errorMessageOnUnknownEventAction } from '../../Event/GameEvent'
 import { System } from './port/System'
 import { EntityInteractor } from '../../Entities/ports/EntityInteractor'
 import { GenericGameEventDispatcherSystem } from '../GameEventDispatcher/GenericGameEventDispatcherSystem'
@@ -21,6 +21,14 @@ export abstract class GenericServerSystem implements System {
 
     protected entityReferencesByEntityId (playerId: string) {
         return this.interactWithEntities.retrieveEntityComponentByEntityId(playerId, EntityReference)
+    }
+
+    protected sendErrorMessageOnUnknownEventAction (gameEvent: GameEvent) : Promise<void> {
+        return Promise.reject(new Error(errorMessageOnUnknownEventAction(this.getSystemName(), gameEvent)))
+    }
+
+    protected getSystemName (): string {
+        return GenericServerSystem.name
     }
 
     abstract onGameEvent(gameEvent: GameEvent): Promise<void>;

@@ -7,7 +7,7 @@ import { PhaseType } from '../../Components/port/Phase'
 import { missingEntityId } from '../../Entities/infra/InMemoryEntityRepository'
 import { Action } from '../../Event/Action'
 import { EntityType } from '../../Event/EntityType'
-import { errorMessageOnUnknownEventAction, GameEvent } from '../../Event/GameEvent'
+import { GameEvent } from '../../Event/GameEvent'
 import { attackEvent } from '../../Events/attack/attack'
 import { collisionGameEvent } from '../../Events/collision/collision'
 import { joinSimpleMatchLobby } from '../../Events/join/join'
@@ -19,11 +19,12 @@ import { GenericServerSystem } from '../Generic/GenericServerSystem'
 
 export class CollisionSystem extends GenericServerSystem {
     onGameEvent (gameEvent: GameEvent): Promise<void> {
-        return gameEvent.action === Action.checkCollision
-            ? this.onCheckCollision()
-            : gameEvent.action === Action.collision
-                ? this.onCollision(gameEvent)
-                : Promise.reject(new Error(errorMessageOnUnknownEventAction(CollisionSystem.name, gameEvent)))
+        if (gameEvent.action === Action.checkCollision)
+            return this.onCheckCollision()
+        if (gameEvent.action === Action.collision)
+            return this.onCollision(gameEvent)
+
+        return this.sendErrorMessageOnUnknownEventAction(gameEvent)
     }
 
     private entityReferencesWithEntityType (entityReferenceComponents: EntityReference[], entityType:EntityType):EntityReference[] {
@@ -139,8 +140,8 @@ export class CollisionSystem extends GenericServerSystem {
             if (this.isPlayerOnMatch(matchId, playerId)) {
                 const matchPhasingComponent = this.retrieveMatchPhasingComponent(matchId)
                 if (matchPhasingComponent.currentPhase.phaseType !== PhaseType.Victory) {
-                    const currentUnitToMove = matchPhasingComponent.getCurrentUnitId()
-                    generatedPointerAndCellColisionEvents.push(moveEvent(playerId, supportedMovingEntityType(currentUnitToMove), currentUnitToMove, cellEntityReference.entityId))
+                    const currentUnitToMoveId = matchPhasingComponent.getCurrentUnitId()
+                    generatedPointerAndCellColisionEvents.push(moveEvent(playerId, supportedMovingEntityType(currentUnitToMoveId), currentUnitToMoveId, cellEntityReference.entityId))
                 }
             }
         })
@@ -149,7 +150,7 @@ export class CollisionSystem extends GenericServerSystem {
 
     private pointerAndButtonCollisionEvents (playerId:string, buttonEntityReferences: EntityReference[]):GameEvent[] {
         const generatedPointerAndButtonCollision:GameEvent[] = []
-        const isSamePlayerButtonAndPointer = (buttonEntityReference:EntityReference, playerId:string):boolean => buttonEntityReference.retrieveReference(EntityType.player) === playerId
+        const isSamePlayerButtonAndPointer = (buttonEntityReference:EntityReference, playerId: string):boolean => buttonEntityReference.retrieveReference(EntityType.player) === playerId
         buttonEntityReferences.forEach(buttonEntityReferences => {
             if (isSamePlayerButtonAndPointer(buttonEntityReferences, playerId))
                 if (buttonEntityReferences.hasReferences(EntityType.simpleMatchLobby))
@@ -175,13 +176,13 @@ export class CollisionSystem extends GenericServerSystem {
 
     private groupByPositions (physicalComponents: Physical[]):Map<Position, Physical[]> {
         const uniquePositions = (physicalComponents: Physical[]):Position[] => {
-            const isMissingPosition = (physicalComponent: Physical):boolean => !uniquePositions.some(position => physicalComponent.isPositionIdentical(position))
+            const isMissingPosition = (physicalComponent: Physical):boolean => !uniquePositions.some(position => physicalComponent.isLocatedAt(position))
             const uniquePositions :Position[] = []
             for (const physicalComponent of physicalComponents) if (isMissingPosition(physicalComponent)) uniquePositions.push(physicalComponent.position)
             return uniquePositions
         }
-        const groupByPosition = (physicalComponentsGroupedByPosition:Map<Position, Physical[]>, uniquePosition: Position, physicalComponent:Physical): void => {
-            if (physicalComponent.isPositionIdentical(uniquePosition)) {
+        const groupByPosition = (physicalComponentsGroupedByPosition: Map<Position, Physical[]>, uniquePosition: Position, physicalComponent:Physical): void => {
+            if (physicalComponent.isLocatedAt(uniquePosition)) {
                 const physicalComponentsOfUniquePosition = physicalComponentsGroupedByPosition.get(uniquePosition);
                 (physicalComponentsOfUniquePosition)
                     ? physicalComponentsOfUniquePosition.push(physicalComponent)
@@ -202,7 +203,9 @@ export class CollisionSystem extends GenericServerSystem {
     private isPlayerOnMatch (matchId: string, playerId: string): boolean {
         return this.entityReferencesByEntityId(matchId).retrieveReferences(EntityType.player).some(entityId => entityId === playerId)
     }
+
+    protected getSystemName (): string {
+        return CollisionSystem.name
+    }
 }
 const unsupportedMovingEntity = `Current unit is not '${EntityType.robot}' or '${EntityType.robot}' entity type.`
-
-// const missingEntityReference = (entityType:EntityType, entityReferences:EntityReference[]): string => `Missing '${entityType}' entity reference. List of entity references: ${stringifyWithDetailledSetAndMap(entityReferences)}`

@@ -18,15 +18,6 @@ export class AttackingSystem extends ArtithmeticSystem {
         const attackingUnitPhaseCheckStep = (nextStep: ()=>Promise<void>) => genericStepFunction(this.isAttackingUnitPhase(phasingComponent, attackerId), wrongUnitPhaseNotificationMessage(phasingComponent.currentPhase), nextStep)
         const playerPhaseCheckStep = (nextStep: ()=>Promise<void>) => genericStepFunction(this.isPlayerPhase(phasingComponent, playerId), wrongPlayerPhaseNotificationMessage(playerId), nextStep)
 
-        /*
-        const curry = (genericStepFunction:(check:boolean, notificationMessage:string, nextStep:()=>Promise<void>)=>Promise<void>) => {
-            return function curried (...args:((nextStep: () => Promise<void>) => Promise<void>)[]):Promise<void> {
-
-            }
-        }
-        return curry(genericStepFunction)(enoughActionPointCheckStep, targetOnAttackerRangeCheckStep, attackerPhaseCheckStep, playerPhaseCheckStep)
-        */
-
         return playerPhaseCheckStep(
             () => attackingUnitPhaseCheckStep(
                 () => targetOnAttackerRangeCheckStep(

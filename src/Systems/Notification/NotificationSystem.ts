@@ -20,10 +20,10 @@ export class NotificationSystem extends GenericClientSystem {
             .find(entityReferenceComponent => entityReferenceComponent.entityType.includes(EntityType.player))
         const message = gameEvent.entityByEntityType(EntityType.message)
         const eventPlayerId = gameEvent.entityByEntityType(EntityType.player)
-        return this.notificationPort.notify(playerEntityReference && playerEntityReference.entityId === eventPlayerId
-            ? message
-            : wrongPlayerNotificationMessage(eventPlayerId, message)
-        )
+
+        if (playerEntityReference && playerEntityReference.entityId === eventPlayerId)
+            return this.notificationPort.notify(message)
+        return this.notificationPort.notify(wrongPlayerNotificationMessage(eventPlayerId, message))
     }
 
     notificationPort: NotificationPort
