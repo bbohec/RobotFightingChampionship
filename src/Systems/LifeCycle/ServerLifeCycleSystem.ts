@@ -1,4 +1,4 @@
-import { errorMessageOnUnknownEventAction, GameEvent } from '../../Event/GameEvent'
+import { GameEvent } from '../../Event/GameEvent'
 import { GenericServerLifeCycleSystem } from './GenericServerLifeCycleSystem'
 import { createCellEvent, createDefeatEvent, createSimpleMatchLobbyEvent, createVictoryEvent } from '../../Events/create/create'
 import { Dimensional } from '../../Components/Dimensional'
@@ -31,13 +31,13 @@ export class ServerLifeCycleSystem extends GenericServerLifeCycleSystem {
             return this.onCreateEvent(gameEvent)
         case undefined:
         default :
-            return Promise.reject(new Error(errorMessageOnUnknownEventAction(ServerLifeCycleSystem.name, gameEvent)))
+            return this.sendErrorMessageOnUnknownEventAction(gameEvent)
         }
     }
 
     private onCreateEvent (gameEvent: GameEvent): Promise<void> {
         const strategy = this.retrieveCreateStrategy(gameEvent)
-        return strategy ? strategy() : Promise.reject(new Error(errorMessageOnUnknownEventAction(ServerLifeCycleSystem.name, gameEvent)))
+        return strategy ? strategy() : this.sendErrorMessageOnUnknownEventAction(gameEvent)
     }
 
     private onDestroyEvent (gameEvent: GameEvent): Promise<void> {
@@ -336,5 +336,9 @@ export class ServerLifeCycleSystem extends GenericServerLifeCycleSystem {
             ]
         )
         return this.sendNextEvents([registerTowerEvent(towerEntityId, playerId)])
+    }
+
+    protected getSystemName (): string {
+        return ServerLifeCycleSystem.name
     }
 }

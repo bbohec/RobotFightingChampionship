@@ -2,7 +2,7 @@ import { fightPhase, Phasing, placementPhase, preparingGamePhase, victoryPhase }
 import { Phase, PhaseType } from '../../Components/port/Phase'
 import { nextTurnEvent } from '../../Events/nextTurn/nextTurn'
 import { Action } from '../../Event/Action'
-import { errorMessageOnUnknownEventAction, GameEvent } from '../../Event/GameEvent'
+import { GameEvent } from '../../Event/GameEvent'
 import { GenericServerSystem } from '../Generic/GenericServerSystem'
 import { EntityType } from '../../Event/EntityType'
 import { Physical, playerARobotFirstPosition, playerATowerFirstPosition, playerBRobotFirstPosition, playerBTowerFirstPosition, Position } from '../../Components/Physical'
@@ -27,7 +27,11 @@ export class PhasingSystem extends GenericServerSystem {
                 ? this.onNextTurn(gameEvent)
                 : gameEvent.action === Action.victory
                     ? this.onVictory(gameEvent)
-                    : Promise.reject(new Error(errorMessageOnUnknownEventAction(PhasingSystem.name, gameEvent)))
+                    : this.sendErrorMessageOnUnknownEventAction(gameEvent)
+    }
+
+    protected getSystemName ():string {
+        return PhasingSystem.name
     }
 
     private onVictory (gameEvent: GameEvent): Promise<void> {

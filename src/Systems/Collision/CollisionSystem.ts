@@ -7,7 +7,7 @@ import { PhaseType } from '../../Components/port/Phase'
 import { missingEntityId } from '../../Entities/infra/InMemoryEntityRepository'
 import { Action } from '../../Event/Action'
 import { EntityType } from '../../Event/EntityType'
-import { errorMessageOnUnknownEventAction, GameEvent } from '../../Event/GameEvent'
+import { GameEvent } from '../../Event/GameEvent'
 import { attackEvent } from '../../Events/attack/attack'
 import { collisionGameEvent } from '../../Events/collision/collision'
 import { joinSimpleMatchLobby } from '../../Events/join/join'
@@ -19,11 +19,12 @@ import { GenericServerSystem } from '../Generic/GenericServerSystem'
 
 export class CollisionSystem extends GenericServerSystem {
     onGameEvent (gameEvent: GameEvent): Promise<void> {
-        return gameEvent.action === Action.checkCollision
-            ? this.onCheckCollision()
-            : gameEvent.action === Action.collision
-                ? this.onCollision(gameEvent)
-                : Promise.reject(new Error(errorMessageOnUnknownEventAction(CollisionSystem.name, gameEvent)))
+        if (gameEvent.action === Action.checkCollision)
+            return this.onCheckCollision()
+        if (gameEvent.action === Action.collision)
+            return this.onCollision(gameEvent)
+
+        return this.sendErrorMessageOnUnknownEventAction(gameEvent)
     }
 
     private entityReferencesWithEntityType (entityReferenceComponents: EntityReference[], entityType:EntityType):EntityReference[] {
@@ -201,6 +202,10 @@ export class CollisionSystem extends GenericServerSystem {
 
     private isPlayerOnMatch (matchId: string, playerId: string): boolean {
         return this.entityReferencesByEntityId(matchId).retrieveReferences(EntityType.player).some(entityId => entityId === playerId)
+    }
+
+    protected getSystemName (): string {
+        return CollisionSystem.name
     }
 }
 const unsupportedMovingEntity = `Current unit is not '${EntityType.robot}' or '${EntityType.robot}' entity type.`
