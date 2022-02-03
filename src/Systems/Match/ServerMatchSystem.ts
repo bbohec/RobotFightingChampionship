@@ -104,7 +104,7 @@ export class ServerMatchSystem extends GenericServerSystem {
             : Promise.resolve()
     }
 
-    private isPlayerReadyForMatch (entityReferenceComponent:EntityReference):Boolean {
+    private isPlayerReadyForMatch (entityReferenceComponent:EntityReference): boolean {
         return (
             entityReferenceComponent.hasReferences(EntityType.robot) &&
             entityReferenceComponent.hasReferences(EntityType.tower) &&

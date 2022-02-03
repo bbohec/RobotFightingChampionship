@@ -70,7 +70,7 @@ export class MovingSystem extends ArtithmeticSystem {
             ...this.entityByEntityTypeFromPlayers(players, EntityType.robot)
         ]
             .map(entityId => this.interactWithEntities.retrieveEntityComponentByEntityId(entityId, Physical))
-            .some(physicalComponent => physicalComponent.isPositionIdentical(cellPosition))
+            .some(physicalComponent => physicalComponent.isLocatedAt(cellPosition))
     }
 
     private entityByEntityTypeFromPlayers (matchPlayers: string[], entityType:EntityType):string[] {
