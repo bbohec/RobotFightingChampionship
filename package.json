@@ -8,7 +8,7 @@
         "start": "node dist/main.js",
         "madge:server": "madge -c dist/main.js",
         "madge:client": "madge -c dist/public/scripts/game.js",
-        "build:parcel": "npm run clean:build && parcel build",
+        "build:parcel": "npm run clean:build && parcel build"
     },
     "targets": {
         "frontend-test": {
