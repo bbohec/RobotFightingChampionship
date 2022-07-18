@@ -1,7 +1,6 @@
 import { ComponentPropertyType } from '../../EventInteractor/port/ComponentPropertyType'
-import { ComponentName } from './ComponentName'
 
 export interface SerializedComponent {
-    componentName: ComponentName;
+    componentName: string;
     properties: Map<string, ComponentPropertyType>;
 }
