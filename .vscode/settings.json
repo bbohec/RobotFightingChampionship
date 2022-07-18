@@ -4,7 +4,7 @@
     "editor.codeActionsOnSave": {
         "source.fixAll.eslint": true
     },
-    "terminal.integrated.scrollback": 3000,
+    "terminal.integrated.scrollback": 10000,
     "files.autoSave": "onFocusChange",
     "eslint.validate": [
         "typescript"
