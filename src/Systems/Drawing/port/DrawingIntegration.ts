@@ -1,4 +1,4 @@
-import { Dimension } from '../../../Components/port/Dimension'
+import { Dimension } from '../../../Components/Dimensional'
 import { Physical, Position } from '../../../Components/Physical'
 
 export interface DrawingIntegration {

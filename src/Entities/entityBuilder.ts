@@ -1,20 +1,13 @@
-import { EntityReference } from '../Components/EntityReference'
-import { GenericComponent } from '../Components/GenericComponent'
-import { Phasing } from '../Components/Phasing'
-import { Position, Physical } from '../Components/Physical'
-import { Phase } from '../Components/port/Phase'
-import { Entity } from './Entity'
-import { EntityReferences } from '../Event/GameEvent'
-import { InMemoryEntityRepository } from './infra/InMemoryEntityRepository'
-import { LifeCycle } from '../Components/LifeCycle'
-import { Hittable } from '../Components/Hittable'
-import { Offensive } from '../Components/Offensive'
-import { EntityType } from '../Event/EntityType'
-import { ShapeType } from '../Components/port/ShapeType'
+import { Dimension } from '../Components/Dimensional'
+import { EntityReferences } from '../Components/EntityReference'
+import { Position } from '../Components/Physical'
+import { Component } from '../Components/port/Component'
 import { ControlStatus } from '../Components/port/ControlStatus'
-import { Controller } from '../Components/Controller'
-import { Dimensional } from '../Components/Dimensional'
-import { Dimension } from '../Components/port/Dimension'
+import { Phase } from '../Components/port/Phase'
+import { ShapeType } from '../Components/port/ShapeType'
+import { EntityType } from '../Event/EntityType'
+import { Entity } from './Entity'
+import { InMemoryEntityRepository } from './infra/InMemoryEntityRepository'
 
 export class EntityBuilder {
     constructor (entityRepository:InMemoryEntityRepository) {
@@ -22,22 +15,22 @@ export class EntityBuilder {
     }
 
     withDimension (dimensions:Dimension):this {
-        this.addComponents([new Dimensional(this.getEntityId(), dimensions)])
+        this.addComponents([{ componentType: 'Dimensional', dimensions, entityId: this.getEntityId() }])
         return this
     }
 
-    withController (controlStatus: ControlStatus):this {
-        this.addComponents([new Controller(this.getEntityId(), controlStatus)])
+    withController (primaryButton: ControlStatus):this {
+        this.addComponents([{ componentType: 'Controller', primaryButton, entityId: this.getEntityId() }])
         return this
     }
 
     withDamagePoints (damagePoints: number) {
-        this.addComponents([new Offensive(this.getEntityId(), damagePoints)])
+        this.addComponents([{ componentType: 'Offensive', damagePoints, entityId: this.getEntityId() }])
         return this
     }
 
     withHitPoints (hitPoints: number) {
-        this.addComponents([new Hittable(this.getEntityId(), hitPoints)])
+        this.addComponents([{ componentType: 'Hittable', hitPoints, entityId: this.getEntityId() }])
         return this
     }
 
@@ -48,25 +41,23 @@ export class EntityBuilder {
         return this
     }
 
-    withLifeCycle (created?:boolean) {
-        const lifeCycleComponent = new LifeCycle(this.getEntityId())
-        if (created === true) lifeCycleComponent.isCreated = true
-        this.addComponents([lifeCycleComponent])
+    withLifeCycle (isCreated:boolean = true) {
+        this.addComponents([{ componentType: 'LifeCycle', isCreated, entityId: this.getEntityId() }])
         return this
     }
 
     withEntityReferences (entityType:EntityType|EntityType[], entityReferences: EntityReferences = new Map()) {
-        this.addComponents([new EntityReference(this.getEntityId(), entityType, entityReferences)])
+        this.addComponents([{ entityReferences, componentType: 'EntityReference', entityId: this.getEntityId(), entityType: Array.isArray(entityType) ? entityType : [entityType] }])
         return this
     }
 
     withPhysicalComponent (position: Position, shapeType:ShapeType, visible:boolean) {
-        this.addComponents([new Physical(this.getEntityId(), position, shapeType, visible)])
+        this.addComponents([{ componentType: 'Physical', entityId: this.getEntityId(), position, shape: shapeType, visible }])
         return this
     }
 
     withPhase (phase: Phase) {
-        this.addComponents([new Phasing(this.getEntityId(), phase)])
+        this.addComponents([{ componentType: 'Phasing', entityId: this.getEntityId(), currentPhase: phase, readyPlayers: new Set() }])
         return this
     }
 
@@ -78,14 +69,14 @@ export class EntityBuilder {
         return this.buildEntity(robotId).withPhysicalComponent(towerPosition, ShapeType.tower, true)
     }
 
-    public buildEntity (entityId: string, components?: GenericComponent[]) {
+    public buildEntity (entityId: string, components?: Component[]) {
         if (this.entity) throw new Error('Entity already built on builder. Forget save()?')
         this.entity = new Entity(entityId)
         if (components) this.addComponents(components)
         return this
     }
 
-    private addComponents (components: GenericComponent[]) {
+    private addComponents (components: Component[]) {
         if (!this.entity) throw new Error('Missing build entity in builder.')
         this.entity.addComponents(components)
     }

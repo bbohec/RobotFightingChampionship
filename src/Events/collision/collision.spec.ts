@@ -1,6 +1,6 @@
-import { Controller } from '../../Components/Controller'
-import { EntityReference } from '../../Components/EntityReference'
-import { Phasing, playerARobotPhase, playerATowerPhase, victoryPhase } from '../../Components/Phasing'
+import { makeController } from '../../Components/Controller'
+import { makeEntityReference } from '../../Components/EntityReference'
+import { makePhasing, playerARobotPhase, playerATowerPhase, victoryPhase } from '../../Components/Phasing'
 import { position } from '../../Components/Physical'
 import { ControlStatus } from '../../Components/port/ControlStatus'
 import { ShapeType } from '../../Components/port/ShapeType'
@@ -9,7 +9,7 @@ import { missingEntityId } from '../../Entities/infra/InMemoryEntityRepository'
 import { Action } from '../../Event/Action'
 import { EntityId } from '../../Event/entityIds'
 import { EntityType } from '../../Event/EntityType'
-import { feature, featureEventDescription, serverScenario, theEntityWithIdHasTheExpectedComponent, eventsAreSent, whenEventOccured } from '../../Event/test'
+import { eventsAreSent, feature, featureEventDescription, serverScenario, theEntityWithIdHasTheExpectedComponent, whenEventOccured } from '../../Event/test'
 import { TestStep } from '../../Event/TestStep'
 import { attackEvent } from '../attack/attack'
 import { joinSimpleMatchLobby } from '../join/join'
@@ -26,13 +26,13 @@ feature(featureEventDescription(Action.collision), () => {
             .buildEntity(EntityId.playerAPointer).withEntityReferences(EntityType.pointer, new Map([[EntityType.player, [EntityId.playerA]]])).withController(ControlStatus.Active).save()
             .buildEntity(EntityId.playerAJoinSimpleMatchButton).withEntityReferences(EntityType.button, new Map([[EntityType.player, [EntityId.playerA]], [EntityType.simpleMatchLobby, [EntityId.simpleMatchLobby]]])).save()
         , [
-            (game, adapters) => theEntityWithIdHasTheExpectedComponent(TestStep.Given, adapters, EntityId.playerA, EntityReference, new EntityReference(EntityId.playerA, EntityType.player, new Map([[EntityType.button, [EntityId.playerAJoinSimpleMatchButton]], [EntityType.pointer, [EntityId.playerAPointer]], [EntityType.mainMenu, [EntityId.playerAMainMenu]]]))),
-            (game, adapters) => theEntityWithIdHasTheExpectedComponent(TestStep.And, adapters, EntityId.playerAPointer, EntityReference, new EntityReference(EntityId.playerAPointer, EntityType.pointer, new Map([[EntityType.player, [EntityId.playerA]]]))),
-            (game, adapters) => theEntityWithIdHasTheExpectedComponent(TestStep.And, adapters, EntityId.playerAPointer, Controller, new Controller(EntityId.playerAPointer, ControlStatus.Active)),
-            (game, adapters) => theEntityWithIdHasTheExpectedComponent(TestStep.And, adapters, EntityId.playerAJoinSimpleMatchButton, EntityReference, new EntityReference(EntityId.playerAJoinSimpleMatchButton, EntityType.button, new Map([[EntityType.player, [EntityId.playerA]], [EntityType.simpleMatchLobby, [EntityId.simpleMatchLobby]]]))),
+            (game, adapters) => theEntityWithIdHasTheExpectedComponent(TestStep.Given, adapters, EntityId.playerA, makeEntityReference(EntityId.playerA, EntityType.player, new Map([[EntityType.button, [EntityId.playerAJoinSimpleMatchButton]], [EntityType.pointer, [EntityId.playerAPointer]], [EntityType.mainMenu, [EntityId.playerAMainMenu]]]))),
+            (game, adapters) => theEntityWithIdHasTheExpectedComponent(TestStep.And, adapters, EntityId.playerAPointer, makeEntityReference(EntityId.playerAPointer, EntityType.pointer, new Map([[EntityType.player, [EntityId.playerA]]]))),
+            (game, adapters) => theEntityWithIdHasTheExpectedComponent(TestStep.And, adapters, EntityId.playerAPointer, makeController(EntityId.playerAPointer, ControlStatus.Active)),
+            (game, adapters) => theEntityWithIdHasTheExpectedComponent(TestStep.And, adapters, EntityId.playerAJoinSimpleMatchButton, makeEntityReference(EntityId.playerAJoinSimpleMatchButton, EntityType.button, new Map([[EntityType.player, [EntityId.playerA]], [EntityType.simpleMatchLobby, [EntityId.simpleMatchLobby]]]))),
             ...whenEventOccured(),
             (game, adapters) => eventsAreSent(TestStep.Then, adapters, 'server', [joinSimpleMatchLobby(EntityId.playerA, EntityId.playerAMainMenu, EntityId.simpleMatchLobby)]),
-            (game, adapters) => theEntityWithIdHasTheExpectedComponent(TestStep.And, adapters, EntityId.playerAPointer, Controller, new Controller(EntityId.playerAPointer, ControlStatus.Idle))
+            (game, adapters) => theEntityWithIdHasTheExpectedComponent(TestStep.And, adapters, EntityId.playerAPointer, makeController(EntityId.playerAPointer, ControlStatus.Idle))
         ])
     serverScenario(`${Action.collision} 2 - Collision with player idle pointer &  player join simple match button`, collisionGameEvent(new Map([[EntityType.unknown, [EntityId.playerAPointer, EntityId.playerAJoinSimpleMatchButton]]])),
         (game, adapters) => () => new EntityBuilder(adapters.entityInteractor)
@@ -40,12 +40,12 @@ feature(featureEventDescription(Action.collision), () => {
             .buildEntity(EntityId.playerAPointer).withEntityReferences(EntityType.pointer, new Map([[EntityType.player, [EntityId.playerA]]])).withController(ControlStatus.Idle).save()
             .buildEntity(EntityId.playerAJoinSimpleMatchButton).withEntityReferences(EntityType.button, new Map([[EntityType.player, [EntityId.playerA]], [EntityType.simpleMatchLobby, [EntityId.simpleMatchLobby]]])).save()
         , [
-            (game, adapters) => theEntityWithIdHasTheExpectedComponent(TestStep.Given, adapters, EntityId.playerA, EntityReference, new EntityReference(EntityId.playerA, EntityType.player, new Map([[EntityType.button, [EntityId.playerAJoinSimpleMatchButton]], [EntityType.pointer, [EntityId.playerAPointer]], [EntityType.mainMenu, [EntityId.playerAMainMenu]]]))),
-            (game, adapters) => theEntityWithIdHasTheExpectedComponent(TestStep.And, adapters, EntityId.playerAPointer, EntityReference, new EntityReference(EntityId.playerAPointer, EntityType.pointer, new Map([[EntityType.player, [EntityId.playerA]]]))),
-            (game, adapters) => theEntityWithIdHasTheExpectedComponent(TestStep.And, adapters, EntityId.playerAPointer, Controller, new Controller(EntityId.playerAPointer, ControlStatus.Idle)),
-            (game, adapters) => theEntityWithIdHasTheExpectedComponent(TestStep.And, adapters, EntityId.playerAJoinSimpleMatchButton, EntityReference, new EntityReference(EntityId.playerAJoinSimpleMatchButton, EntityType.button, new Map([[EntityType.player, [EntityId.playerA]], [EntityType.simpleMatchLobby, [EntityId.simpleMatchLobby]]]))),
+            (game, adapters) => theEntityWithIdHasTheExpectedComponent(TestStep.Given, adapters, EntityId.playerA, makeEntityReference(EntityId.playerA, EntityType.player, new Map([[EntityType.button, [EntityId.playerAJoinSimpleMatchButton]], [EntityType.pointer, [EntityId.playerAPointer]], [EntityType.mainMenu, [EntityId.playerAMainMenu]]]))),
+            (game, adapters) => theEntityWithIdHasTheExpectedComponent(TestStep.And, adapters, EntityId.playerAPointer, makeEntityReference(EntityId.playerAPointer, EntityType.pointer, new Map([[EntityType.player, [EntityId.playerA]]]))),
+            (game, adapters) => theEntityWithIdHasTheExpectedComponent(TestStep.And, adapters, EntityId.playerAPointer, makeController(EntityId.playerAPointer, ControlStatus.Idle)),
+            (game, adapters) => theEntityWithIdHasTheExpectedComponent(TestStep.And, adapters, EntityId.playerAJoinSimpleMatchButton, makeEntityReference(EntityId.playerAJoinSimpleMatchButton, EntityType.button, new Map([[EntityType.player, [EntityId.playerA]], [EntityType.simpleMatchLobby, [EntityId.simpleMatchLobby]]]))),
             ...whenEventOccured(),
-            (game, adapters) => theEntityWithIdHasTheExpectedComponent(TestStep.Then, adapters, EntityId.playerAPointer, Controller, new Controller(EntityId.playerAPointer, ControlStatus.Idle))
+            (game, adapters) => theEntityWithIdHasTheExpectedComponent(TestStep.Then, adapters, EntityId.playerAPointer, makeController(EntityId.playerAPointer, ControlStatus.Idle))
         ])
     serverScenario(`${Action.collision} 3 - Collision with player pointer &  player end turn button`, collisionGameEvent(new Map([[EntityType.unknown, [EntityId.playerAPointer, EntityId.playerANextTurnButton]]])),
         (game, adapters) => () => new EntityBuilder(adapters.entityInteractor)
@@ -53,8 +53,8 @@ feature(featureEventDescription(Action.collision), () => {
             .buildEntity(EntityId.playerANextTurnButton).withEntityReferences(EntityType.nextTurnButton, new Map([[EntityType.player, [EntityId.playerA]], [EntityType.match, [EntityId.match]]])).save()
             .buildEntity(EntityId.match).withPhase(playerATowerPhase()).save()
         , [
-            (game, adapters) => theEntityWithIdHasTheExpectedComponent(TestStep.And, adapters, EntityId.playerAPointer, EntityReference, new EntityReference(EntityId.playerAPointer, EntityType.pointer, new Map([[EntityType.player, [EntityId.playerA]]]))),
-            (game, adapters) => theEntityWithIdHasTheExpectedComponent(TestStep.And, adapters, EntityId.playerANextTurnButton, EntityReference, new EntityReference(EntityId.playerANextTurnButton, EntityType.nextTurnButton, new Map([[EntityType.player, [EntityId.playerA]], [EntityType.match, [EntityId.match]]]))),
+            (game, adapters) => theEntityWithIdHasTheExpectedComponent(TestStep.And, adapters, EntityId.playerAPointer, makeEntityReference(EntityId.playerAPointer, EntityType.pointer, new Map([[EntityType.player, [EntityId.playerA]]]))),
+            (game, adapters) => theEntityWithIdHasTheExpectedComponent(TestStep.And, adapters, EntityId.playerANextTurnButton, makeEntityReference(EntityId.playerANextTurnButton, EntityType.nextTurnButton, new Map([[EntityType.player, [EntityId.playerA]], [EntityType.match, [EntityId.match]]]))),
             ...whenEventOccured(),
             (game, adapters) => eventsAreSent(TestStep.Then, adapters, 'server', [nextTurnEvent(EntityId.match)])
         ])
@@ -66,12 +66,12 @@ feature(featureEventDescription(Action.collision), () => {
             .buildEntity(EntityId.playerARobot).withEntityReferences(EntityType.robot, new Map()).save()
             .buildEntity(EntityId.cellx1y1).withEntityReferences(EntityType.cell, new Map([[EntityType.grid, [EntityId.grid]]])).save()
         , [
-            (game, adapters) => theEntityWithIdHasTheExpectedComponent(TestStep.Given, adapters, EntityId.playerAPointer, EntityReference, new EntityReference(EntityId.playerAPointer, EntityType.pointer, new Map([[EntityType.player, [EntityId.playerA]]]))),
-            (game, adapters) => theEntityWithIdHasTheExpectedComponent(TestStep.And, adapters, EntityId.match, EntityReference, new EntityReference(EntityId.match, EntityType.match, new Map([[EntityType.player, [EntityId.playerA]], [EntityType.grid, [EntityId.grid]]]))),
-            (game, adapters) => theEntityWithIdHasTheExpectedComponent(TestStep.And, adapters, EntityId.match, Phasing, new Phasing(EntityId.match, playerARobotPhase())),
-            (game, adapters) => theEntityWithIdHasTheExpectedComponent(TestStep.And, adapters, EntityId.grid, EntityReference, new EntityReference(EntityId.grid, EntityType.grid, new Map([[EntityType.match, [EntityId.match]], [EntityType.cell, [EntityId.cellx1y1]]]))),
-            (game, adapters) => theEntityWithIdHasTheExpectedComponent(TestStep.And, adapters, EntityId.playerARobot, EntityReference, new EntityReference(EntityId.playerARobot, EntityType.robot, new Map())),
-            (game, adapters) => theEntityWithIdHasTheExpectedComponent(TestStep.And, adapters, EntityId.cellx1y1, EntityReference, new EntityReference(EntityId.cellx1y1, EntityType.cell, new Map([[EntityType.grid, [EntityId.grid]]]))),
+            (game, adapters) => theEntityWithIdHasTheExpectedComponent(TestStep.Given, adapters, EntityId.playerAPointer, makeEntityReference(EntityId.playerAPointer, EntityType.pointer, new Map([[EntityType.player, [EntityId.playerA]]]))),
+            (game, adapters) => theEntityWithIdHasTheExpectedComponent(TestStep.And, adapters, EntityId.match, makeEntityReference(EntityId.match, EntityType.match, new Map([[EntityType.player, [EntityId.playerA]], [EntityType.grid, [EntityId.grid]]]))),
+            (game, adapters) => theEntityWithIdHasTheExpectedComponent(TestStep.And, adapters, EntityId.match, makePhasing(EntityId.match, playerARobotPhase())),
+            (game, adapters) => theEntityWithIdHasTheExpectedComponent(TestStep.And, adapters, EntityId.grid, makeEntityReference(EntityId.grid, EntityType.grid, new Map([[EntityType.match, [EntityId.match]], [EntityType.cell, [EntityId.cellx1y1]]]))),
+            (game, adapters) => theEntityWithIdHasTheExpectedComponent(TestStep.And, adapters, EntityId.playerARobot, makeEntityReference(EntityId.playerARobot, EntityType.robot, new Map())),
+            (game, adapters) => theEntityWithIdHasTheExpectedComponent(TestStep.And, adapters, EntityId.cellx1y1, makeEntityReference(EntityId.cellx1y1, EntityType.cell, new Map([[EntityType.grid, [EntityId.grid]]]))),
             ...whenEventOccured(),
             (game, adapters) => eventsAreSent(TestStep.Then, adapters, 'server', [moveEvent(EntityId.playerA, EntityType.robot, EntityId.playerARobot, EntityId.cellx1y1)])
         ])
@@ -84,13 +84,13 @@ feature(featureEventDescription(Action.collision), () => {
             .buildEntity(EntityId.playerBTower).withEntityReferences(EntityType.tower, new Map([[EntityType.player, [EntityId.playerB]]])).save()
             .buildEntity(EntityId.cellx1y1).withEntityReferences(EntityType.cell, new Map([[EntityType.grid, [EntityId.grid]]])).save()
         , [
-            (game, adapters) => theEntityWithIdHasTheExpectedComponent(TestStep.Given, adapters, EntityId.playerAPointer, EntityReference, new EntityReference(EntityId.playerAPointer, EntityType.pointer, new Map([[EntityType.player, [EntityId.playerA]]]))),
-            (game, adapters) => theEntityWithIdHasTheExpectedComponent(TestStep.And, adapters, EntityId.match, EntityReference, new EntityReference(EntityId.match, EntityType.match, new Map([[EntityType.player, [EntityId.playerA, EntityId.playerB]], [EntityType.grid, [EntityId.grid]]]))),
-            (game, adapters) => theEntityWithIdHasTheExpectedComponent(TestStep.And, adapters, EntityId.match, Phasing, new Phasing(EntityId.match, playerARobotPhase())),
-            (game, adapters) => theEntityWithIdHasTheExpectedComponent(TestStep.And, adapters, EntityId.grid, EntityReference, new EntityReference(EntityId.grid, EntityType.grid, new Map([[EntityType.match, [EntityId.match]], [EntityType.cell, [EntityId.cellx1y1]]]))),
-            (game, adapters) => theEntityWithIdHasTheExpectedComponent(TestStep.And, adapters, EntityId.playerARobot, EntityReference, new EntityReference(EntityId.playerARobot, EntityType.robot, new Map())),
-            (game, adapters) => theEntityWithIdHasTheExpectedComponent(TestStep.And, adapters, EntityId.playerBTower, EntityReference, new EntityReference(EntityId.playerBTower, EntityType.tower, new Map([[EntityType.player, [EntityId.playerB]]]))),
-            (game, adapters) => theEntityWithIdHasTheExpectedComponent(TestStep.And, adapters, EntityId.cellx1y1, EntityReference, new EntityReference(EntityId.cellx1y1, EntityType.cell, new Map([[EntityType.grid, [EntityId.grid]]]))),
+            (game, adapters) => theEntityWithIdHasTheExpectedComponent(TestStep.Given, adapters, EntityId.playerAPointer, makeEntityReference(EntityId.playerAPointer, EntityType.pointer, new Map([[EntityType.player, [EntityId.playerA]]]))),
+            (game, adapters) => theEntityWithIdHasTheExpectedComponent(TestStep.And, adapters, EntityId.match, makeEntityReference(EntityId.match, EntityType.match, new Map([[EntityType.player, [EntityId.playerA, EntityId.playerB]], [EntityType.grid, [EntityId.grid]]]))),
+            (game, adapters) => theEntityWithIdHasTheExpectedComponent(TestStep.And, adapters, EntityId.match, makePhasing(EntityId.match, playerARobotPhase())),
+            (game, adapters) => theEntityWithIdHasTheExpectedComponent(TestStep.And, adapters, EntityId.grid, makeEntityReference(EntityId.grid, EntityType.grid, new Map([[EntityType.match, [EntityId.match]], [EntityType.cell, [EntityId.cellx1y1]]]))),
+            (game, adapters) => theEntityWithIdHasTheExpectedComponent(TestStep.And, adapters, EntityId.playerARobot, makeEntityReference(EntityId.playerARobot, EntityType.robot, new Map())),
+            (game, adapters) => theEntityWithIdHasTheExpectedComponent(TestStep.And, adapters, EntityId.playerBTower, makeEntityReference(EntityId.playerBTower, EntityType.tower, new Map([[EntityType.player, [EntityId.playerB]]]))),
+            (game, adapters) => theEntityWithIdHasTheExpectedComponent(TestStep.And, adapters, EntityId.cellx1y1, makeEntityReference(EntityId.cellx1y1, EntityType.cell, new Map([[EntityType.grid, [EntityId.grid]]]))),
             ...whenEventOccured(),
             (game, adapters) => eventsAreSent(TestStep.Then, adapters, 'server', [attackEvent(EntityId.playerA, EntityId.playerARobot, EntityId.playerBTower)])
         ])
@@ -103,13 +103,13 @@ feature(featureEventDescription(Action.collision), () => {
             .buildEntity(EntityId.playerBRobot).withEntityReferences(EntityType.robot, new Map([[EntityType.player, [EntityId.playerB]]])).save()
             .buildEntity(EntityId.cellx1y1).withEntityReferences(EntityType.cell, new Map([[EntityType.grid, [EntityId.grid]]])).save()
         , [
-            (game, adapters) => theEntityWithIdHasTheExpectedComponent(TestStep.Given, adapters, EntityId.playerAPointer, EntityReference, new EntityReference(EntityId.playerAPointer, EntityType.pointer, new Map([[EntityType.player, [EntityId.playerA]]]))),
-            (game, adapters) => theEntityWithIdHasTheExpectedComponent(TestStep.And, adapters, EntityId.match, EntityReference, new EntityReference(EntityId.match, EntityType.match, new Map([[EntityType.player, [EntityId.playerA, EntityId.playerB]], [EntityType.grid, [EntityId.grid]]]))),
-            (game, adapters) => theEntityWithIdHasTheExpectedComponent(TestStep.And, adapters, EntityId.match, Phasing, new Phasing(EntityId.match, playerARobotPhase())),
-            (game, adapters) => theEntityWithIdHasTheExpectedComponent(TestStep.And, adapters, EntityId.grid, EntityReference, new EntityReference(EntityId.grid, EntityType.grid, new Map([[EntityType.match, [EntityId.match]], [EntityType.cell, [EntityId.cellx1y1]]]))),
-            (game, adapters) => theEntityWithIdHasTheExpectedComponent(TestStep.And, adapters, EntityId.playerARobot, EntityReference, new EntityReference(EntityId.playerARobot, EntityType.robot, new Map())),
-            (game, adapters) => theEntityWithIdHasTheExpectedComponent(TestStep.And, adapters, EntityId.playerBRobot, EntityReference, new EntityReference(EntityId.playerBRobot, EntityType.robot, new Map([[EntityType.player, [EntityId.playerB]]]))),
-            (game, adapters) => theEntityWithIdHasTheExpectedComponent(TestStep.And, adapters, EntityId.cellx1y1, EntityReference, new EntityReference(EntityId.cellx1y1, EntityType.cell, new Map([[EntityType.grid, [EntityId.grid]]]))),
+            (game, adapters) => theEntityWithIdHasTheExpectedComponent(TestStep.Given, adapters, EntityId.playerAPointer, makeEntityReference(EntityId.playerAPointer, EntityType.pointer, new Map([[EntityType.player, [EntityId.playerA]]]))),
+            (game, adapters) => theEntityWithIdHasTheExpectedComponent(TestStep.And, adapters, EntityId.match, makeEntityReference(EntityId.match, EntityType.match, new Map([[EntityType.player, [EntityId.playerA, EntityId.playerB]], [EntityType.grid, [EntityId.grid]]]))),
+            (game, adapters) => theEntityWithIdHasTheExpectedComponent(TestStep.And, adapters, EntityId.match, makePhasing(EntityId.match, playerARobotPhase())),
+            (game, adapters) => theEntityWithIdHasTheExpectedComponent(TestStep.And, adapters, EntityId.grid, makeEntityReference(EntityId.grid, EntityType.grid, new Map([[EntityType.match, [EntityId.match]], [EntityType.cell, [EntityId.cellx1y1]]]))),
+            (game, adapters) => theEntityWithIdHasTheExpectedComponent(TestStep.And, adapters, EntityId.playerARobot, makeEntityReference(EntityId.playerARobot, EntityType.robot, new Map())),
+            (game, adapters) => theEntityWithIdHasTheExpectedComponent(TestStep.And, adapters, EntityId.playerBRobot, makeEntityReference(EntityId.playerBRobot, EntityType.robot, new Map([[EntityType.player, [EntityId.playerB]]]))),
+            (game, adapters) => theEntityWithIdHasTheExpectedComponent(TestStep.And, adapters, EntityId.cellx1y1, makeEntityReference(EntityId.cellx1y1, EntityType.cell, new Map([[EntityType.grid, [EntityId.grid]]]))),
             ...whenEventOccured(),
             (game, adapters) => eventsAreSent(TestStep.Then, adapters, 'server', [attackEvent(EntityId.playerA, EntityId.playerARobot, EntityId.playerBRobot)])
         ])
@@ -122,18 +122,18 @@ feature(featureEventDescription(Action.collision), () => {
             .buildEntity(EntityId.playerAJoinSimpleMatchButton).withEntityReferences(EntityType.button, new Map([[EntityType.player, [EntityId.playerA]], [EntityType.simpleMatchLobby, [EntityId.simpleMatchLobby]]])).save()
             .buildEntity(EntityId.playerBJoinSimpleMatchButton).withEntityReferences(EntityType.button, new Map([[EntityType.player, [EntityId.playerB]], [EntityType.simpleMatchLobby, [EntityId.simpleMatchLobby]]])).save()
         , [
-            (game, adapters) => theEntityWithIdHasTheExpectedComponent(TestStep.Given, adapters, EntityId.playerA, EntityReference, new EntityReference(EntityId.playerA, EntityType.player, new Map([[EntityType.button, [EntityId.playerAJoinSimpleMatchButton]], [EntityType.pointer, [EntityId.playerAPointer]], [EntityType.mainMenu, [EntityId.playerAMainMenu]]]))),
-            (game, adapters) => theEntityWithIdHasTheExpectedComponent(TestStep.And, adapters, EntityId.playerAPointer, EntityReference, new EntityReference(EntityId.playerAPointer, EntityType.pointer, new Map([[EntityType.player, [EntityId.playerA]]]))),
-            (game, adapters) => theEntityWithIdHasTheExpectedComponent(TestStep.And, adapters, EntityId.playerAPointer, Controller, new Controller(EntityId.playerAPointer, ControlStatus.Active)),
-            (game, adapters) => theEntityWithIdHasTheExpectedComponent(TestStep.And, adapters, EntityId.playerBPointer, Controller, new Controller(EntityId.playerBPointer, ControlStatus.Active)),
-            (game, adapters) => theEntityWithIdHasTheExpectedComponent(TestStep.And, adapters, EntityId.playerAJoinSimpleMatchButton, EntityReference, new EntityReference(EntityId.playerAJoinSimpleMatchButton, EntityType.button, new Map([[EntityType.player, [EntityId.playerA]], [EntityType.simpleMatchLobby, [EntityId.simpleMatchLobby]]]))),
+            (game, adapters) => theEntityWithIdHasTheExpectedComponent(TestStep.Given, adapters, EntityId.playerA, makeEntityReference(EntityId.playerA, EntityType.player, new Map([[EntityType.button, [EntityId.playerAJoinSimpleMatchButton]], [EntityType.pointer, [EntityId.playerAPointer]], [EntityType.mainMenu, [EntityId.playerAMainMenu]]]))),
+            (game, adapters) => theEntityWithIdHasTheExpectedComponent(TestStep.And, adapters, EntityId.playerAPointer, makeEntityReference(EntityId.playerAPointer, EntityType.pointer, new Map([[EntityType.player, [EntityId.playerA]]]))),
+            (game, adapters) => theEntityWithIdHasTheExpectedComponent(TestStep.And, adapters, EntityId.playerAPointer, makeController(EntityId.playerAPointer, ControlStatus.Active)),
+            (game, adapters) => theEntityWithIdHasTheExpectedComponent(TestStep.And, adapters, EntityId.playerBPointer, makeController(EntityId.playerBPointer, ControlStatus.Active)),
+            (game, adapters) => theEntityWithIdHasTheExpectedComponent(TestStep.And, adapters, EntityId.playerAJoinSimpleMatchButton, makeEntityReference(EntityId.playerAJoinSimpleMatchButton, EntityType.button, new Map([[EntityType.player, [EntityId.playerA]], [EntityType.simpleMatchLobby, [EntityId.simpleMatchLobby]]]))),
             ...whenEventOccured(),
             (game, adapters) => eventsAreSent(TestStep.Then, adapters, 'server', [
                 joinSimpleMatchLobby(EntityId.playerA, EntityId.playerAMainMenu, EntityId.simpleMatchLobby),
                 joinSimpleMatchLobby(EntityId.playerB, EntityId.playerBMainMenu, EntityId.simpleMatchLobby)
             ]),
-            (game, adapters) => theEntityWithIdHasTheExpectedComponent(TestStep.And, adapters, EntityId.playerAPointer, Controller, new Controller(EntityId.playerAPointer, ControlStatus.Idle)),
-            (game, adapters) => theEntityWithIdHasTheExpectedComponent(TestStep.And, adapters, EntityId.playerBPointer, Controller, new Controller(EntityId.playerBPointer, ControlStatus.Idle))
+            (game, adapters) => theEntityWithIdHasTheExpectedComponent(TestStep.And, adapters, EntityId.playerAPointer, makeController(EntityId.playerAPointer, ControlStatus.Idle)),
+            (game, adapters) => theEntityWithIdHasTheExpectedComponent(TestStep.And, adapters, EntityId.playerBPointer, makeController(EntityId.playerBPointer, ControlStatus.Idle))
         ])
     serverScenario(`${Action.collision} 8 - Collision with player activated pointer and visible defeat`, collisionGameEvent(new Map([[EntityType.unknown, [EntityId.playerAPointer, EntityId.defeat]]])),
         (game, adapters) => () => new EntityBuilder(adapters.entityInteractor)
@@ -184,13 +184,13 @@ feature(featureEventDescription(Action.collision), () => {
             .buildEntity(EntityId.playerBRobot).withEntityReferences(EntityType.robot, new Map([])).save()
             .buildEntity(EntityId.cellx1y1).withEntityReferences(EntityType.cell, new Map([[EntityType.grid, [EntityId.grid]]])).save()
         , [
-            (game, adapters) => theEntityWithIdHasTheExpectedComponent(TestStep.Given, adapters, EntityId.playerAPointer, EntityReference, new EntityReference(EntityId.playerAPointer, EntityType.pointer, new Map([[EntityType.player, [EntityId.playerA]]]))),
-            (game, adapters) => theEntityWithIdHasTheExpectedComponent(TestStep.And, adapters, EntityId.match, EntityReference, new EntityReference(EntityId.match, EntityType.match, new Map([[EntityType.player, [EntityId.playerA]], [EntityType.grid, [EntityId.grid]]]))),
-            (game, adapters) => theEntityWithIdHasTheExpectedComponent(TestStep.And, adapters, EntityId.match, Phasing, new Phasing(EntityId.match, victoryPhase(EntityId.playerA))),
-            (game, adapters) => theEntityWithIdHasTheExpectedComponent(TestStep.And, adapters, EntityId.grid, EntityReference, new EntityReference(EntityId.grid, EntityType.grid, new Map([[EntityType.match, [EntityId.match]], [EntityType.cell, [EntityId.cellx1y1]]]))),
-            (game, adapters) => theEntityWithIdHasTheExpectedComponent(TestStep.And, adapters, EntityId.playerARobot, EntityReference, new EntityReference(EntityId.playerARobot, EntityType.robot, new Map())),
-            (game, adapters) => theEntityWithIdHasTheExpectedComponent(TestStep.And, adapters, EntityId.playerBRobot, EntityReference, new EntityReference(EntityId.playerBRobot, EntityType.robot, new Map())),
-            (game, adapters) => theEntityWithIdHasTheExpectedComponent(TestStep.And, adapters, EntityId.cellx1y1, EntityReference, new EntityReference(EntityId.cellx1y1, EntityType.cell, new Map([[EntityType.grid, [EntityId.grid]]]))),
+            (game, adapters) => theEntityWithIdHasTheExpectedComponent(TestStep.Given, adapters, EntityId.playerAPointer, makeEntityReference(EntityId.playerAPointer, EntityType.pointer, new Map([[EntityType.player, [EntityId.playerA]]]))),
+            (game, adapters) => theEntityWithIdHasTheExpectedComponent(TestStep.And, adapters, EntityId.match, makeEntityReference(EntityId.match, EntityType.match, new Map([[EntityType.player, [EntityId.playerA]], [EntityType.grid, [EntityId.grid]]]))),
+            (game, adapters) => theEntityWithIdHasTheExpectedComponent(TestStep.And, adapters, EntityId.match, makePhasing(EntityId.match, victoryPhase(EntityId.playerA))),
+            (game, adapters) => theEntityWithIdHasTheExpectedComponent(TestStep.And, adapters, EntityId.grid, makeEntityReference(EntityId.grid, EntityType.grid, new Map([[EntityType.match, [EntityId.match]], [EntityType.cell, [EntityId.cellx1y1]]]))),
+            (game, adapters) => theEntityWithIdHasTheExpectedComponent(TestStep.And, adapters, EntityId.playerARobot, makeEntityReference(EntityId.playerARobot, EntityType.robot, new Map())),
+            (game, adapters) => theEntityWithIdHasTheExpectedComponent(TestStep.And, adapters, EntityId.playerBRobot, makeEntityReference(EntityId.playerBRobot, EntityType.robot, new Map())),
+            (game, adapters) => theEntityWithIdHasTheExpectedComponent(TestStep.And, adapters, EntityId.cellx1y1, makeEntityReference(EntityId.cellx1y1, EntityType.cell, new Map([[EntityType.grid, [EntityId.grid]]]))),
             ...whenEventOccured(),
             (game, adapters) => eventsAreSent(TestStep.Then, adapters, 'server', [])
         ])
@@ -203,13 +203,13 @@ feature(featureEventDescription(Action.collision), () => {
             .buildEntity(EntityId.playerBTower).withEntityReferences(EntityType.tower, new Map([])).save()
             .buildEntity(EntityId.cellx1y1).withEntityReferences(EntityType.cell, new Map([[EntityType.grid, [EntityId.grid]]])).save()
         , [
-            (game, adapters) => theEntityWithIdHasTheExpectedComponent(TestStep.Given, adapters, EntityId.playerAPointer, EntityReference, new EntityReference(EntityId.playerAPointer, EntityType.pointer, new Map([[EntityType.player, [EntityId.playerA]]]))),
-            (game, adapters) => theEntityWithIdHasTheExpectedComponent(TestStep.And, adapters, EntityId.match, EntityReference, new EntityReference(EntityId.match, EntityType.match, new Map([[EntityType.player, [EntityId.playerA]], [EntityType.grid, [EntityId.grid]]]))),
-            (game, adapters) => theEntityWithIdHasTheExpectedComponent(TestStep.And, adapters, EntityId.match, Phasing, new Phasing(EntityId.match, victoryPhase(EntityId.playerA))),
-            (game, adapters) => theEntityWithIdHasTheExpectedComponent(TestStep.And, adapters, EntityId.grid, EntityReference, new EntityReference(EntityId.grid, EntityType.grid, new Map([[EntityType.match, [EntityId.match]], [EntityType.cell, [EntityId.cellx1y1]]]))),
-            (game, adapters) => theEntityWithIdHasTheExpectedComponent(TestStep.And, adapters, EntityId.playerARobot, EntityReference, new EntityReference(EntityId.playerARobot, EntityType.robot, new Map())),
-            (game, adapters) => theEntityWithIdHasTheExpectedComponent(TestStep.And, adapters, EntityId.playerBTower, EntityReference, new EntityReference(EntityId.playerBTower, EntityType.tower, new Map())),
-            (game, adapters) => theEntityWithIdHasTheExpectedComponent(TestStep.And, adapters, EntityId.cellx1y1, EntityReference, new EntityReference(EntityId.cellx1y1, EntityType.cell, new Map([[EntityType.grid, [EntityId.grid]]]))),
+            (game, adapters) => theEntityWithIdHasTheExpectedComponent(TestStep.Given, adapters, EntityId.playerAPointer, makeEntityReference(EntityId.playerAPointer, EntityType.pointer, new Map([[EntityType.player, [EntityId.playerA]]]))),
+            (game, adapters) => theEntityWithIdHasTheExpectedComponent(TestStep.And, adapters, EntityId.match, makeEntityReference(EntityId.match, EntityType.match, new Map([[EntityType.player, [EntityId.playerA]], [EntityType.grid, [EntityId.grid]]]))),
+            (game, adapters) => theEntityWithIdHasTheExpectedComponent(TestStep.And, adapters, EntityId.match, makePhasing(EntityId.match, victoryPhase(EntityId.playerA))),
+            (game, adapters) => theEntityWithIdHasTheExpectedComponent(TestStep.And, adapters, EntityId.grid, makeEntityReference(EntityId.grid, EntityType.grid, new Map([[EntityType.match, [EntityId.match]], [EntityType.cell, [EntityId.cellx1y1]]]))),
+            (game, adapters) => theEntityWithIdHasTheExpectedComponent(TestStep.And, adapters, EntityId.playerARobot, makeEntityReference(EntityId.playerARobot, EntityType.robot, new Map())),
+            (game, adapters) => theEntityWithIdHasTheExpectedComponent(TestStep.And, adapters, EntityId.playerBTower, makeEntityReference(EntityId.playerBTower, EntityType.tower, new Map())),
+            (game, adapters) => theEntityWithIdHasTheExpectedComponent(TestStep.And, adapters, EntityId.cellx1y1, makeEntityReference(EntityId.cellx1y1, EntityType.cell, new Map([[EntityType.grid, [EntityId.grid]]]))),
             ...whenEventOccured(),
             (game, adapters) => eventsAreSent(TestStep.Then, adapters, 'server', [])
         ])
@@ -219,9 +219,9 @@ feature(featureEventDescription(Action.collision), () => {
             .buildEntity(EntityId.playerANextTurnButton).withEntityReferences(EntityType.nextTurnButton, new Map([[EntityType.player, [EntityId.playerA]], [EntityType.match, [EntityId.match]]])).save()
             .buildEntity(EntityId.match).withPhase(victoryPhase(EntityId.playerA)).save()
         , [
-            (game, adapters) => theEntityWithIdHasTheExpectedComponent(TestStep.And, adapters, EntityId.match, Phasing, new Phasing(EntityId.match, victoryPhase(EntityId.playerA))),
-            (game, adapters) => theEntityWithIdHasTheExpectedComponent(TestStep.And, adapters, EntityId.playerAPointer, EntityReference, new EntityReference(EntityId.playerAPointer, EntityType.pointer, new Map([[EntityType.player, [EntityId.playerA]]]))),
-            (game, adapters) => theEntityWithIdHasTheExpectedComponent(TestStep.And, adapters, EntityId.playerANextTurnButton, EntityReference, new EntityReference(EntityId.playerANextTurnButton, EntityType.nextTurnButton, new Map([[EntityType.player, [EntityId.playerA]], [EntityType.match, [EntityId.match]]]))),
+            (game, adapters) => theEntityWithIdHasTheExpectedComponent(TestStep.And, adapters, EntityId.match, makePhasing(EntityId.match, victoryPhase(EntityId.playerA))),
+            (game, adapters) => theEntityWithIdHasTheExpectedComponent(TestStep.And, adapters, EntityId.playerAPointer, makeEntityReference(EntityId.playerAPointer, EntityType.pointer, new Map([[EntityType.player, [EntityId.playerA]]]))),
+            (game, adapters) => theEntityWithIdHasTheExpectedComponent(TestStep.And, adapters, EntityId.playerANextTurnButton, makeEntityReference(EntityId.playerANextTurnButton, EntityType.nextTurnButton, new Map([[EntityType.player, [EntityId.playerA]], [EntityType.match, [EntityId.match]]]))),
             ...whenEventOccured(),
             (game, adapters) => eventsAreSent(TestStep.Then, adapters, 'server', [])
         ])
@@ -233,12 +233,12 @@ feature(featureEventDescription(Action.collision), () => {
             .buildEntity(EntityId.playerARobot).withEntityReferences(EntityType.robot, new Map()).save()
             .buildEntity(EntityId.cellx1y1).withEntityReferences(EntityType.cell, new Map([[EntityType.grid, [EntityId.grid]]])).save()
         , [
-            (game, adapters) => theEntityWithIdHasTheExpectedComponent(TestStep.Given, adapters, EntityId.playerAPointer, EntityReference, new EntityReference(EntityId.playerAPointer, EntityType.pointer, new Map([[EntityType.player, [EntityId.playerA]]]))),
-            (game, adapters) => theEntityWithIdHasTheExpectedComponent(TestStep.And, adapters, EntityId.match, EntityReference, new EntityReference(EntityId.match, EntityType.match, new Map([[EntityType.player, [EntityId.playerA]], [EntityType.grid, [EntityId.grid]]]))),
-            (game, adapters) => theEntityWithIdHasTheExpectedComponent(TestStep.And, adapters, EntityId.match, Phasing, new Phasing(EntityId.match, victoryPhase(EntityId.playerA))),
-            (game, adapters) => theEntityWithIdHasTheExpectedComponent(TestStep.And, adapters, EntityId.grid, EntityReference, new EntityReference(EntityId.grid, EntityType.grid, new Map([[EntityType.match, [EntityId.match]], [EntityType.cell, [EntityId.cellx1y1]]]))),
-            (game, adapters) => theEntityWithIdHasTheExpectedComponent(TestStep.And, adapters, EntityId.playerARobot, EntityReference, new EntityReference(EntityId.playerARobot, EntityType.robot, new Map())),
-            (game, adapters) => theEntityWithIdHasTheExpectedComponent(TestStep.And, adapters, EntityId.cellx1y1, EntityReference, new EntityReference(EntityId.cellx1y1, EntityType.cell, new Map([[EntityType.grid, [EntityId.grid]]]))),
+            (game, adapters) => theEntityWithIdHasTheExpectedComponent(TestStep.Given, adapters, EntityId.playerAPointer, makeEntityReference(EntityId.playerAPointer, EntityType.pointer, new Map([[EntityType.player, [EntityId.playerA]]]))),
+            (game, adapters) => theEntityWithIdHasTheExpectedComponent(TestStep.And, adapters, EntityId.match, makeEntityReference(EntityId.match, EntityType.match, new Map([[EntityType.player, [EntityId.playerA]], [EntityType.grid, [EntityId.grid]]]))),
+            (game, adapters) => theEntityWithIdHasTheExpectedComponent(TestStep.And, adapters, EntityId.match, makePhasing(EntityId.match, victoryPhase(EntityId.playerA))),
+            (game, adapters) => theEntityWithIdHasTheExpectedComponent(TestStep.And, adapters, EntityId.grid, makeEntityReference(EntityId.grid, EntityType.grid, new Map([[EntityType.match, [EntityId.match]], [EntityType.cell, [EntityId.cellx1y1]]]))),
+            (game, adapters) => theEntityWithIdHasTheExpectedComponent(TestStep.And, adapters, EntityId.playerARobot, makeEntityReference(EntityId.playerARobot, EntityType.robot, new Map())),
+            (game, adapters) => theEntityWithIdHasTheExpectedComponent(TestStep.And, adapters, EntityId.cellx1y1, makeEntityReference(EntityId.cellx1y1, EntityType.cell, new Map([[EntityType.grid, [EntityId.grid]]]))),
             ...whenEventOccured(),
             (game, adapters) => eventsAreSent(TestStep.Then, adapters, 'server', [])
         ])
@@ -279,13 +279,13 @@ feature(featureEventDescription(Action.collision), () => {
             .buildEntity(EntityId.playerCTower).withEntityReferences(EntityType.tower, new Map([[EntityType.player, [EntityId.playerC]]])).save()
             .buildEntity(EntityId.cellx1y1).withEntityReferences(EntityType.cell, new Map([[EntityType.grid, [EntityId.grid]]])).save()
         , [
-            (game, adapters) => theEntityWithIdHasTheExpectedComponent(TestStep.Given, adapters, EntityId.playerAPointer, EntityReference, new EntityReference(EntityId.playerAPointer, EntityType.pointer, new Map([[EntityType.player, [EntityId.playerA]]]))),
-            (game, adapters) => theEntityWithIdHasTheExpectedComponent(TestStep.And, adapters, EntityId.match, EntityReference, new EntityReference(EntityId.match, EntityType.match, new Map([[EntityType.player, [EntityId.playerA, EntityId.playerB]], [EntityType.grid, [EntityId.grid]]]))),
-            (game, adapters) => theEntityWithIdHasTheExpectedComponent(TestStep.And, adapters, EntityId.match, Phasing, new Phasing(EntityId.match, playerARobotPhase())),
-            (game, adapters) => theEntityWithIdHasTheExpectedComponent(TestStep.And, adapters, EntityId.grid, EntityReference, new EntityReference(EntityId.grid, EntityType.grid, new Map([[EntityType.match, [EntityId.match]], [EntityType.cell, [EntityId.cellx1y1]]]))),
-            (game, adapters) => theEntityWithIdHasTheExpectedComponent(TestStep.And, adapters, EntityId.playerARobot, EntityReference, new EntityReference(EntityId.playerARobot, EntityType.robot, new Map())),
-            (game, adapters) => theEntityWithIdHasTheExpectedComponent(TestStep.And, adapters, EntityId.playerBTower, EntityReference, new EntityReference(EntityId.playerBTower, EntityType.tower, new Map([[EntityType.player, [EntityId.playerB]]]))),
-            (game, adapters) => theEntityWithIdHasTheExpectedComponent(TestStep.And, adapters, EntityId.cellx1y1, EntityReference, new EntityReference(EntityId.cellx1y1, EntityType.cell, new Map([[EntityType.grid, [EntityId.grid]]]))),
+            (game, adapters) => theEntityWithIdHasTheExpectedComponent(TestStep.Given, adapters, EntityId.playerAPointer, makeEntityReference(EntityId.playerAPointer, EntityType.pointer, new Map([[EntityType.player, [EntityId.playerA]]]))),
+            (game, adapters) => theEntityWithIdHasTheExpectedComponent(TestStep.And, adapters, EntityId.match, makeEntityReference(EntityId.match, EntityType.match, new Map([[EntityType.player, [EntityId.playerA, EntityId.playerB]], [EntityType.grid, [EntityId.grid]]]))),
+            (game, adapters) => theEntityWithIdHasTheExpectedComponent(TestStep.And, adapters, EntityId.match, makePhasing(EntityId.match, playerARobotPhase())),
+            (game, adapters) => theEntityWithIdHasTheExpectedComponent(TestStep.And, adapters, EntityId.grid, makeEntityReference(EntityId.grid, EntityType.grid, new Map([[EntityType.match, [EntityId.match]], [EntityType.cell, [EntityId.cellx1y1]]]))),
+            (game, adapters) => theEntityWithIdHasTheExpectedComponent(TestStep.And, adapters, EntityId.playerARobot, makeEntityReference(EntityId.playerARobot, EntityType.robot, new Map())),
+            (game, adapters) => theEntityWithIdHasTheExpectedComponent(TestStep.And, adapters, EntityId.playerBTower, makeEntityReference(EntityId.playerBTower, EntityType.tower, new Map([[EntityType.player, [EntityId.playerB]]]))),
+            (game, adapters) => theEntityWithIdHasTheExpectedComponent(TestStep.And, adapters, EntityId.cellx1y1, makeEntityReference(EntityId.cellx1y1, EntityType.cell, new Map([[EntityType.grid, [EntityId.grid]]]))),
             ...whenEventOccured(),
             (game, adapters) => eventsAreSent(TestStep.Then, adapters, 'server', [attackEvent(EntityId.playerA, EntityId.playerARobot, EntityId.playerBTower)])
         ])

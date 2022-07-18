@@ -1,6 +1,6 @@
 
-import { EntityReference } from '../../Components/EntityReference'
-import { LifeCycle } from '../../Components/LifeCycle'
+import { makeEntityReference } from '../../Components/EntityReference'
+import { makeLifeCycle } from '../../Components/LifeCycle'
 import { EntityBuilder } from '../../Entities/entityBuilder'
 import { Action } from '../../Event/Action'
 import { EntityId } from '../../Event/entityIds'
@@ -15,7 +15,7 @@ feature(featureEventDescription(Action.destroy), () => {
             .buildEntity(EntityId.match).withLifeCycle().withEntityReferences(EntityType.match, new Map([[EntityType.grid, [EntityId.grid]], [EntityType.victory, [EntityId.victory]], [EntityType.defeat, [EntityId.defeat]], [EntityType.nextTurnButton, [EntityId.playerANextTurnButton, EntityId.playerBNextTurnButton]]])).save()
             .buildEntity(EntityId.grid).withEntityReferences(EntityType.grid, new Map([[EntityType.match, [EntityId.match]]])).save()
         , [
-            (game, adapters) => theEntityWithIdHasTheExpectedComponent(TestStep.Given, adapters, EntityId.match, LifeCycle, new LifeCycle(EntityId.match)),
+            (game, adapters) => theEntityWithIdHasTheExpectedComponent(TestStep.Given, adapters, EntityId.match, makeLifeCycle(EntityId.match)),
             ...whenEventOccured(),
             (game, adapters) => theEntityIsNotOnRepository(TestStep.Then, adapters, EntityId.match),
             (game, adapters) => eventsAreSent(TestStep.And, adapters, 'server', [
@@ -31,20 +31,20 @@ feature(featureEventDescription(Action.destroy), () => {
             .buildEntity(EntityId.playerARobot).withLifeCycle().withEntityReferences(EntityType.robot, new Map([[EntityType.player, [EntityId.playerA]]])).save()
             .buildEntity(EntityId.playerA).withEntityReferences(EntityType.player, new Map([[EntityType.robot, [EntityId.playerARobot]]])).save()
         , [
-            (game, adapters) => theEntityWithIdHasTheExpectedComponent(TestStep.Given, adapters, EntityId.playerARobot, LifeCycle, new LifeCycle(EntityId.playerARobot)),
+            (game, adapters) => theEntityWithIdHasTheExpectedComponent(TestStep.Given, adapters, EntityId.playerARobot, makeLifeCycle(EntityId.playerARobot)),
             ...whenEventOccured(),
             (game, adapters) => theEntityIsNotOnRepository(TestStep.Then, adapters, EntityId.playerARobot),
-            (game, adapters) => theEntityWithIdHasTheExpectedComponent(TestStep.And, adapters, EntityId.playerA, EntityReference, new EntityReference(EntityId.playerA, EntityType.player, new Map([[EntityType.robot, []]])))
+            (game, adapters) => theEntityWithIdHasTheExpectedComponent(TestStep.And, adapters, EntityId.playerA, makeEntityReference(EntityId.playerA, EntityType.player, new Map([[EntityType.robot, []]])))
         ])
     serverScenario(`${Action.destroy} 3`, destroyTowerEvent(EntityId.playerATower),
         (game, adapters) => () => new EntityBuilder(adapters.entityInteractor)
             .buildEntity(EntityId.playerATower).withLifeCycle().withEntityReferences(EntityType.tower, new Map([[EntityType.player, [EntityId.playerA]]])).save()
             .buildEntity(EntityId.playerA).withEntityReferences(EntityType.player, new Map([[EntityType.tower, [EntityId.playerATower]]])).save()
         , [
-            (game, adapters) => theEntityWithIdHasTheExpectedComponent(TestStep.Given, adapters, EntityId.playerATower, LifeCycle, new LifeCycle(EntityId.playerATower)),
+            (game, adapters) => theEntityWithIdHasTheExpectedComponent(TestStep.Given, adapters, EntityId.playerATower, makeLifeCycle(EntityId.playerATower)),
             ...whenEventOccured(),
             (game, adapters) => theEntityIsNotOnRepository(TestStep.Then, adapters, EntityId.playerATower),
-            (game, adapters) => theEntityWithIdHasTheExpectedComponent(TestStep.And, adapters, EntityId.playerA, EntityReference, new EntityReference(EntityId.playerA, EntityType.player, new Map([[EntityType.tower, []]])))
+            (game, adapters) => theEntityWithIdHasTheExpectedComponent(TestStep.And, adapters, EntityId.playerA, makeEntityReference(EntityId.playerA, EntityType.player, new Map([[EntityType.tower, []]])))
         ])
     serverScenario(`${Action.destroy} 4`, destroyGridEvent(EntityId.grid),
         (game, adapters) => () => new EntityBuilder(adapters.entityInteractor)
@@ -88,10 +88,10 @@ feature(featureEventDescription(Action.destroy), () => {
             .buildEntity(EntityId.playerA).withEntityReferences(EntityType.player, new Map([[EntityType.nextTurnButton, [EntityId.playerANextTurnButton]]])).save()
         , [
             (game, adapters) => theEntityIsOnRepository(TestStep.Given, adapters, EntityId.playerANextTurnButton),
-            (game, adapters) => theEntityWithIdHasTheExpectedComponent(TestStep.And, adapters, EntityId.playerA, EntityReference, new EntityReference(EntityId.playerA, EntityType.player, new Map([[EntityType.nextTurnButton, [EntityId.playerANextTurnButton]]]))),
+            (game, adapters) => theEntityWithIdHasTheExpectedComponent(TestStep.And, adapters, EntityId.playerA, makeEntityReference(EntityId.playerA, EntityType.player, new Map([[EntityType.nextTurnButton, [EntityId.playerANextTurnButton]]]))),
             ...whenEventOccured(),
             (game, adapters) => theEntityIsNotOnRepository(TestStep.Then, adapters, EntityId.playerANextTurnButton),
-            (game, adapters) => theEntityWithIdHasTheExpectedComponent(TestStep.And, adapters, EntityId.playerA, EntityReference, new EntityReference(EntityId.playerA, EntityType.player, new Map([[EntityType.nextTurnButton, []]])))
+            (game, adapters) => theEntityWithIdHasTheExpectedComponent(TestStep.And, adapters, EntityId.playerA, makeEntityReference(EntityId.playerA, EntityType.player, new Map([[EntityType.nextTurnButton, []]])))
         ])
     serverScenario(`${Action.destroy} 9`, destroySimpleMatchLobbyMenuEvent(EntityId.playerASimpleMatchLobbyMenu),
         (game, adapters) => () => new EntityBuilder(adapters.entityInteractor)
@@ -99,10 +99,10 @@ feature(featureEventDescription(Action.destroy), () => {
             .buildEntity(EntityId.playerA).withEntityReferences(EntityType.player, new Map([[EntityType.simpleMatchLobbyMenu, [EntityId.playerASimpleMatchLobbyMenu]]])).save()
         , [
             (game, adapters) => theEntityIsOnRepository(TestStep.Given, adapters, EntityId.playerASimpleMatchLobbyMenu),
-            (game, adapters) => theEntityWithIdHasTheExpectedComponent(TestStep.And, adapters, EntityId.playerASimpleMatchLobbyMenu, EntityReference, new EntityReference(EntityId.playerASimpleMatchLobbyMenu, EntityType.simpleMatchLobbyMenu, new Map([[EntityType.player, [EntityId.playerA]]]))),
-            (game, adapters) => theEntityWithIdHasTheExpectedComponent(TestStep.And, adapters, EntityId.playerA, EntityReference, new EntityReference(EntityId.playerA, EntityType.player, new Map([[EntityType.simpleMatchLobbyMenu, [EntityId.playerASimpleMatchLobbyMenu]]]))),
+            (game, adapters) => theEntityWithIdHasTheExpectedComponent(TestStep.And, adapters, EntityId.playerASimpleMatchLobbyMenu, makeEntityReference(EntityId.playerASimpleMatchLobbyMenu, EntityType.simpleMatchLobbyMenu, new Map([[EntityType.player, [EntityId.playerA]]]))),
+            (game, adapters) => theEntityWithIdHasTheExpectedComponent(TestStep.And, adapters, EntityId.playerA, makeEntityReference(EntityId.playerA, EntityType.player, new Map([[EntityType.simpleMatchLobbyMenu, [EntityId.playerASimpleMatchLobbyMenu]]]))),
             ...whenEventOccured(),
             (game, adapters) => theEntityIsNotOnRepository(TestStep.Then, adapters, EntityId.playerASimpleMatchLobbyMenu),
-            (game, adapters) => theEntityWithIdHasTheExpectedComponent(TestStep.And, adapters, EntityId.playerA, EntityReference, new EntityReference(EntityId.playerA, EntityType.player, new Map([[EntityType.simpleMatchLobbyMenu, []]])))
+            (game, adapters) => theEntityWithIdHasTheExpectedComponent(TestStep.And, adapters, EntityId.playerA, makeEntityReference(EntityId.playerA, EntityType.player, new Map([[EntityType.simpleMatchLobbyMenu, []]])))
         ])
 })

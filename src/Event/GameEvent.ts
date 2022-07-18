@@ -1,14 +1,13 @@
-import { GenericComponent } from '../Components/GenericComponent'
-import { Component } from '../Components/port/Component'
-import { PotentialClass } from '../Entities/ports/PotentialClass'
+import { EntityReferences } from '../Components/EntityReference'
+import { Component, isComponent } from '../Components/port/Component'
 import { Action } from './Action'
-import { EntityType } from './EntityType'
 import { stringifyWithDetailledSetAndMap } from './detailledStringify'
-export type EntityReferences = Map<EntityType, Array<string>>
+import { EntityType } from './EntityType'
+
 interface GameEventContract {
     action:Action
     entityRefences:EntityReferences
-    components:GenericComponent[]
+    components:Component[]
     message?:string
 }
 export class GameEvent implements GameEventContract {
@@ -46,13 +45,13 @@ export class GameEvent implements GameEventContract {
         return union(...this.entityRefences.values())
     }
 
-    retrieveComponent <Class extends Component> (entityId:string, potentialComponent: PotentialClass<Class>):Class {
-        for (const component of this.components.values()) if (component instanceof potentialComponent && component.entityId === entityId) return component as Class
-        throw new Error(componentMissingOnGameEvent<Class>(potentialComponent, entityId, this.components))
+    retrieveComponent <Class extends Component> (entityId:string):Class {
+        for (const component of this.components.values()) if (isComponent<Class>(component) && component.entityId === entityId) return component as Class
+        throw new Error(componentMissingOnGameEvent<Class>(entityId, this.components))
     }
 
     readonly message?: string | undefined;
-    readonly components: GenericComponent[]
+    readonly components: Component[]
     readonly action: Action
     readonly entityRefences: EntityReferences
 }
@@ -63,10 +62,10 @@ export const errorMessageOnUnknownEventAction = (systemName:string, gameEvent: G
 - entity references : '${stringifyWithDetailledSetAndMap(gameEvent.entityRefences)}'
 - component : '${stringifyWithDetailledSetAndMap(gameEvent.components)}'`
 
-export const newGameEvent = (action:Action, entityRefences:EntityReferences, components:GenericComponent[] = [], message?:string):GameEvent => new GameEvent({ action, entityRefences, components, message })
+export const newGameEvent = (action:Action, entityRefences:EntityReferences, components:Component[] = [], message?:string):GameEvent => new GameEvent({ action, entityRefences, components, message })
 const noEntitiesReferenced = (entityType: EntityType, action: Action, entityReferences: EntityReferences): string => `No entities referenced with type '${entityType}' on event with action '${action}'.\n Actual references: ${stringifyWithDetailledSetAndMap(entityReferences)}`
 const noEntityReferenced = (entityType: EntityType): string => `No '${entityType}' entities is not supported.`
 const multipleEntityReferenced = (entityType: EntityType): string => `Multiple '${entityType}' entities referenced.`
-const componentMissingOnGameEvent = <Class extends Component> (potentialComponent: PotentialClass<Class>, id: any, components: GenericComponent[]): string =>
-    `The component '${potentialComponent.name}' of the entity '${id}' is missing on Game Event components:
+const componentMissingOnGameEvent = <Class extends Component> (id: any, components: Component[]): string =>
+    `The component '${({} as Class).componentType}' of the entity '${id}' is missing on Game Event components:
     ${components}`

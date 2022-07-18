@@ -16,8 +16,8 @@ export class DrawingSystem extends GenericClientSystem {
 
     onGameEvent (gameEvent: GameEvent): Promise<void> {
         const playerEntityReferenceComponent = this.interactWithEntities
-            .retrieveEntitiesThatHaveComponent(EntityReference)
-            .map(entity => this.interactWithEntities.retrieveEntityComponentByEntityId(entity.id, EntityReference))
+            .retrieveEntitiesThatHaveComponent<EntityReference>()
+            .map(entity => this.interactWithEntities.retrieveyComponentByEntityId<EntityReference>(entity.id))
             .find(entityReference => entityReference.entityType.includes(EntityType.player))
         const eventPlayerReference = gameEvent.entityByEntityType(EntityType.player)
         if (playerEntityReferenceComponent && eventPlayerReference === playerEntityReferenceComponent.entityId) return this.onPlayerEvent(gameEvent)
@@ -38,11 +38,11 @@ export class DrawingSystem extends GenericClientSystem {
     }
 
     drawEntity (entityId: string, gameEvent: GameEvent): Promise<void> {
-        return this.drawingPort.refreshEntity(gameEvent.retrieveComponent(entityId, Physical))
+        return this.drawingPort.refreshEntity(gameEvent.retrieveComponent<Physical>(entityId))
     }
 
     hideEntities (gameEvent: GameEvent):Promise<void> {
-        return Promise.all(Array.from(gameEvent.allEntities()).map(entityId => this.drawingPort.refreshEntity(gameEvent.retrieveComponent(entityId, Physical))))
+        return Promise.all(Array.from(gameEvent.allEntities()).map(entityId => this.drawingPort.refreshEntity(gameEvent.retrieveComponent<Physical>(entityId))))
             .then(() => Promise.resolve())
             .catch(error => Promise.reject(error))
     }

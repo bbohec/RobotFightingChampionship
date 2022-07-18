@@ -31,13 +31,13 @@ export class PhasingSystem extends GenericServerSystem {
     }
 
     private onVictory (gameEvent: GameEvent): Promise<void> {
-        const matchEntityReferenceComponent = this.interactWithEntities.retrieveEntityComponentByEntityId(gameEvent.entityByEntityType(EntityType.match), EntityReference)
+        const matchEntityReferenceComponent = this.interactWithEntities.retrieveyComponentByEntityId(gameEvent.entityByEntityType(EntityType.match), EntityReference)
         const victoryPlayerId = gameEvent.entityByEntityType(EntityType.player)
         const matchId = gameEvent.entityByEntityType(EntityType.match)
         this.applyVictoryPhaseOnPhasingComponent(
             matchEntityReferenceComponent,
             victoryPlayerId,
-            this.interactWithEntities.retrieveEntityComponentByEntityId(matchId, Phasing)
+            this.interactWithEntities.retrieveyComponentByEntityId(matchId, Phasing)
         )
         const victoryId = matchEntityReferenceComponent.retrieveReference(EntityType.victory)
         const defeatId = matchEntityReferenceComponent.retrieveReference(EntityType.defeat)
@@ -47,8 +47,8 @@ export class PhasingSystem extends GenericServerSystem {
         return this.sendVictoryAndDefeatShowEvents(
             victoryPlayerId,
             defeatPlayerId,
-            this.interactWithEntities.retrieveEntityComponentByEntityId(victoryId, Physical),
-            this.interactWithEntities.retrieveEntityComponentByEntityId(defeatId, Physical)
+            this.interactWithEntities.retrieveyComponentByEntityId(victoryId, Physical),
+            this.interactWithEntities.retrieveyComponentByEntityId(defeatId, Physical)
         )
     }
 
@@ -76,8 +76,8 @@ export class PhasingSystem extends GenericServerSystem {
     }
 
     private onNextTurn (gameEvent: GameEvent): Promise<void> {
-        const matchPhasingComponent = this.interactWithEntities.retrieveEntityComponentByEntityId(gameEvent.entityByEntityType(EntityType.match), Phasing)
-        const matchEntityReferenceComponent = this.interactWithEntities.retrieveEntityComponentByEntityId(gameEvent.entityByEntityType(EntityType.match), EntityReference)
+        const matchPhasingComponent = this.interactWithEntities.retrieveyComponentByEntityId(gameEvent.entityByEntityType(EntityType.match), Phasing)
+        const matchEntityReferenceComponent = this.interactWithEntities.retrieveyComponentByEntityId(gameEvent.entityByEntityType(EntityType.match), EntityReference)
         const phaseSequence = this.phasing(this.playerIdFromEntityReferenceComponentPlayerIndex(0, matchEntityReferenceComponent), this.playerIdFromEntityReferenceComponentPlayerIndex(1, matchEntityReferenceComponent)).find(phaseSequence => (
             phaseSequence.currentPhase.phaseType === matchPhasingComponent.currentPhase.phaseType &&
             phaseSequence.currentPhase.currentPlayerId === matchPhasingComponent.currentPhase.currentPlayerId &&
@@ -106,8 +106,8 @@ export class PhasingSystem extends GenericServerSystem {
         const gameEvents:GameEvent[] = []
         if (matchPhasingComponent.currentPhase.phaseType === PhaseType.Fight)
             matchEntityReferenceComponent.retrieveReferences(EntityType.player).forEach(player => {
-                const nextTurnButtonId = this.interactWithEntities.retrieveEntityComponentByEntityId(player, EntityReference).retrieveReference(EntityType.nextTurnButton)
-                const nextTurnButtonPhysicalComponent = this.interactWithEntities.retrieveEntityComponentByEntityId(nextTurnButtonId, Physical)
+                const nextTurnButtonId = this.interactWithEntities.retrieveyComponentByEntityId(player, EntityReference).retrieveReference(EntityType.nextTurnButton)
+                const nextTurnButtonPhysicalComponent = this.interactWithEntities.retrieveyComponentByEntityId(nextTurnButtonId, Physical)
                 nextTurnButtonPhysicalComponent.visible = player === matchPhasingComponent.currentPhase.currentPlayerId
                 gameEvents.push(drawEvent(player, nextTurnButtonPhysicalComponent))
             })
@@ -145,9 +145,9 @@ export class PhasingSystem extends GenericServerSystem {
         const matchId = gameEvent.entityByEntityType(EntityType.match)
         const matchEntityReference = this.entityReferencesByEntityId(matchId)
         const entityType = this.entityTypeFromPlayerUnits(currentPlayerId, currentUnitId)
-        const matchEntityReferenceComponent = this.interactWithEntities.retrieveEntityComponentByEntityId(matchId, EntityReference)
+        const matchEntityReferenceComponent = this.interactWithEntities.retrieveyComponentByEntityId(matchId, EntityReference)
         const gridId = matchEntityReference.retrieveReference(EntityType.grid)
-        const gridDimensionalComponent = this.interactWithEntities.retrieveEntityComponentByEntityId(gridId, Dimensional)
+        const gridDimensionalComponent = this.interactWithEntities.retrieveyComponentByEntityId(gridId, Dimensional)
         return moveEvent(
             currentPlayerId,
             entityType,
@@ -160,8 +160,8 @@ export class PhasingSystem extends GenericServerSystem {
     }
 
     private retrieveGridFirstCellPosition (gridId: string): Position {
-        const cellIds = this.interactWithEntities.retrieveEntityComponentByEntityId(gridId, EntityReference).retrieveReferences(EntityType.cell)
-        const cellpositions = cellIds.map(cellId => this.interactWithEntities.retrieveEntityComponentByEntityId(cellId, Physical).position)
+        const cellIds = this.interactWithEntities.retrieveyComponentByEntityId(gridId, EntityReference).retrieveReferences(EntityType.cell)
+        const cellpositions = cellIds.map(cellId => this.interactWithEntities.retrieveyComponentByEntityId(cellId, Physical).position)
         let gridFirstCellPosition = cellpositions[0]
         for (let index = 1; index < cellpositions.length; index++)
             if (cellpositions[index].x <= gridFirstCellPosition.x && cellpositions[index].y <= gridFirstCellPosition.y)
@@ -185,7 +185,7 @@ export class PhasingSystem extends GenericServerSystem {
     private retrieveCellIdWithPosition (position:Position, gridId:string): string {
         const cellPhysicalComponent = this.entityReferencesByEntityId(gridId)
             .retrieveReferences(EntityType.cell)
-            .map(cellId => this.interactWithEntities.retrieveEntityComponentByEntityId(cellId, Physical))
+            .map(cellId => this.interactWithEntities.retrieveyComponentByEntityId(cellId, Physical))
             .find(cellPhysicalComponent => cellPhysicalComponent.position.x === position.x && cellPhysicalComponent.position.y === position.y)
         if (cellPhysicalComponent) return cellPhysicalComponent.entityId
         throw new Error(cellMissingOnGrid(position, gridId))
@@ -193,7 +193,7 @@ export class PhasingSystem extends GenericServerSystem {
 
     private onReady (gameEvent: GameEvent): Promise<void> {
         const matchId = gameEvent.entityByEntityType(EntityType.match)
-        const matchPhasingComponent = this.interactWithEntities.retrieveEntityComponentByEntityId(matchId, Phasing)
+        const matchPhasingComponent = this.interactWithEntities.retrieveyComponentByEntityId(matchId, Phasing)
         const playerId = gameEvent.entityByEntityType(EntityType.player)
         matchPhasingComponent.readyPlayers.add(playerId)
         const events:GameEvent[] = [
@@ -204,8 +204,8 @@ export class PhasingSystem extends GenericServerSystem {
     }
 
     private hideAndDestroySimpleMatchLobbyMenuEvents (playerId: string): GameEvent[] {
-        const playerSimpleMatchLobbyMenu = this.interactWithEntities.retrieveEntityComponentByEntityId(playerId, EntityReference).retrieveReference(EntityType.simpleMatchLobbyMenu)
-        const physicalComponent = this.interactWithEntities.retrieveEntityComponentByEntityId(playerSimpleMatchLobbyMenu, Physical)
+        const playerSimpleMatchLobbyMenu = this.interactWithEntities.retrieveyComponentByEntityId(playerId, EntityReference).retrieveReference(EntityType.simpleMatchLobbyMenu)
+        const physicalComponent = this.interactWithEntities.retrieveyComponentByEntityId(playerSimpleMatchLobbyMenu, Physical)
         physicalComponent.visible = false
         return [
             drawEvent(playerId, physicalComponent),

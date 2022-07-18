@@ -1,10 +1,11 @@
 import { GenericComponent } from './GenericComponent'
 
-export class Hittable extends GenericComponent {
-    constructor (entityId: string, hitPoints: number) {
-        super(entityId)
-        this.hitPoints = hitPoints
-    }
-
+export type Hittable = GenericComponent<'Hittable', {
     hitPoints: number;
-}
+}>
+
+export const makeHittable = (entityId:string, hitPoints:number): Hittable => ({
+    componentType: 'Hittable',
+    entityId,
+    hitPoints
+})

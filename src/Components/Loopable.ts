@@ -1,5 +1,4 @@
 import { GenericComponent } from './GenericComponent'
 
-export class Loopable extends GenericComponent {
-
-}
+export type Loopable = GenericComponent<'Loopable', {
+}>

@@ -1,5 +1,6 @@
+import { Dimension, gameScreenDimension } from '../../../Components/Dimensional'
 import { Position, position } from '../../../Components/Physical'
-import { Dimension, gameScreenDimension } from '../../../Components/port/Dimension'
+
 import { ScaleRatio } from './PixijsControllerAdapter'
 
 export abstract class PixiApplicationCommon {

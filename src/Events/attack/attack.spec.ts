@@ -1,10 +1,10 @@
 import { Action } from '../../Event/Action'
 import { eventsAreSent, theEntityWithIdHasTheExpectedComponent, featureEventDescription, serverScenario, feature, whenEventOccured } from '../../Event/test'
 import { TestStep } from '../../Event/TestStep'
-import { defaultActionPoints, Phasing, playerARobotPhase, playerATowerPhase, playerBRobotPhase, playerBTowerPhase, weaponAttackActionPoints } from '../../Components/Phasing'
+import { defaultActionPoints, makePhasing, playerARobotPhase, playerATowerPhase, playerBRobotPhase, playerBTowerPhase, weaponAttackActionPoints } from '../../Components/Phasing'
 import { attackEvent } from './attack'
 import { hitEvent } from '../hit/hit'
-import { Physical, position } from '../../Components/Physical'
+import { makePhysical, position } from '../../Components/Physical'
 import { wrongUnitPhaseNotificationMessage, wrongPlayerPhaseNotificationMessage, notEnoughActionPointNotificationMessage, notifyPlayerEvent, outOfRangeNotificationMessage } from '../notifyPlayer/notifyPlayer'
 import { EntityType } from '../../Event/EntityType'
 import { EntityBuilder } from '../../Entities/entityBuilder'
@@ -25,9 +25,9 @@ feature(featureEventDescription(Action.attack), () => {
             .buildEntity(EntityId.playerBTower).withPhysicalComponent(position(3, 2), ShapeType.tower, true).save()
             .buildEntity(EntityId.playerA).withEntityReferences(EntityType.player, new Map([[EntityType.match, [EntityId.match]], [EntityType.tower, [EntityId.playerATower]], [EntityType.robot, [EntityId.playerARobot]]])).save()
         , [
-            (game, adapters) => theEntityWithIdHasTheExpectedComponent(TestStep.Given, adapters, EntityId.match, Phasing, new Phasing(EntityId.match, playerATowerPhase())),
-            (game, adapters) => theEntityWithIdHasTheExpectedComponent(TestStep.And, adapters, EntityId.playerATower, Physical, new Physical(EntityId.playerATower, position(2, 2), ShapeType.tower, true)),
-            (game, adapters) => theEntityWithIdHasTheExpectedComponent(TestStep.And, adapters, EntityId.playerBTower, Physical, new Physical(EntityId.playerBTower, position(3, 2), ShapeType.tower, true)),
+            (game, adapters) => theEntityWithIdHasTheExpectedComponent(TestStep.Given, adapters, EntityId.match, { componentType: 'Phasing', entityId: EntityId.match, currentPhase: playerATowerPhase(), readyPlayers: new Set() }),
+            (game, adapters) => theEntityWithIdHasTheExpectedComponent(TestStep.And, adapters, EntityId.playerATower, makePhysical(EntityId.playerATower, position(2, 2), ShapeType.tower, true)),
+            (game, adapters) => theEntityWithIdHasTheExpectedComponent(TestStep.And, adapters, EntityId.playerBTower, makePhysical(EntityId.playerBTower, position(3, 2), ShapeType.tower, true)),
             ...whenEventOccured(),
             (game, adapters) => eventsAreSent(TestStep.And, adapters, 'server', [hitEvent(EntityId.playerATower, EntityId.playerBTower)])
         ])
@@ -39,9 +39,9 @@ feature(featureEventDescription(Action.attack), () => {
             .buildEntity(EntityId.playerBRobot).withPhysicalComponent(position(4, 2), ShapeType.robot, true).save()
             .buildEntity(EntityId.playerB).withEntityReferences(EntityType.player, new Map([[EntityType.match, [EntityId.match]], [EntityType.tower, [EntityId.playerBTower]], [EntityType.robot, [EntityId.playerBRobot]]])).save()
         , [
-            (game, adapters) => theEntityWithIdHasTheExpectedComponent(TestStep.Given, adapters, EntityId.match, Phasing, new Phasing(EntityId.match, playerBTowerPhase())),
-            (game, adapters) => theEntityWithIdHasTheExpectedComponent(TestStep.And, adapters, EntityId.playerATower, Physical, new Physical(EntityId.playerATower, position(2, 2), ShapeType.tower, true)),
-            (game, adapters) => theEntityWithIdHasTheExpectedComponent(TestStep.And, adapters, EntityId.playerBTower, Physical, new Physical(EntityId.playerBTower, position(3, 2), ShapeType.tower, true)),
+            (game, adapters) => theEntityWithIdHasTheExpectedComponent(TestStep.Given, adapters, EntityId.match, makePhasing(EntityId.match, playerBTowerPhase())),
+            (game, adapters) => theEntityWithIdHasTheExpectedComponent(TestStep.And, adapters, EntityId.playerATower, makePhysical(EntityId.playerATower, position(2, 2), ShapeType.tower, true)),
+            (game, adapters) => theEntityWithIdHasTheExpectedComponent(TestStep.And, adapters, EntityId.playerBTower, makePhysical(EntityId.playerBTower, position(3, 2), ShapeType.tower, true)),
             ...whenEventOccured(),
             (game, adapters) => eventsAreSent(TestStep.And, adapters, 'server', [hitEvent(EntityId.playerBTower, EntityId.playerATower)])
         ])
@@ -52,9 +52,9 @@ feature(featureEventDescription(Action.attack), () => {
             .buildEntity(EntityId.playerBRobot).withPhysicalComponent(position(3, 2), ShapeType.robot, true).save()
             .buildEntity(EntityId.playerA).withEntityReferences(EntityType.player, new Map([[EntityType.match, [EntityId.match]], [EntityType.tower, [EntityId.playerATower]], [EntityType.robot, [EntityId.playerARobot]]])).save()
         , [
-            (game, adapters) => theEntityWithIdHasTheExpectedComponent(TestStep.Given, adapters, EntityId.match, Phasing, new Phasing(EntityId.match, playerARobotPhase())),
-            (game, adapters) => theEntityWithIdHasTheExpectedComponent(TestStep.And, adapters, EntityId.playerARobot, Physical, new Physical(EntityId.playerARobot, position(2, 2), ShapeType.robot, true)),
-            (game, adapters) => theEntityWithIdHasTheExpectedComponent(TestStep.And, adapters, EntityId.playerBRobot, Physical, new Physical(EntityId.playerBRobot, position(3, 2), ShapeType.robot, true)),
+            (game, adapters) => theEntityWithIdHasTheExpectedComponent(TestStep.Given, adapters, EntityId.match, makePhasing(EntityId.match, playerARobotPhase())),
+            (game, adapters) => theEntityWithIdHasTheExpectedComponent(TestStep.And, adapters, EntityId.playerARobot, makePhysical(EntityId.playerARobot, position(2, 2), ShapeType.robot, true)),
+            (game, adapters) => theEntityWithIdHasTheExpectedComponent(TestStep.And, adapters, EntityId.playerBRobot, makePhysical(EntityId.playerBRobot, position(3, 2), ShapeType.robot, true)),
             ...whenEventOccured(),
             (game, adapters) => eventsAreSent(TestStep.And, adapters, 'server', [hitEvent(EntityId.playerARobot, EntityId.playerBRobot)])
         ])
@@ -65,9 +65,9 @@ feature(featureEventDescription(Action.attack), () => {
             .buildEntity(EntityId.playerBRobot).withPhysicalComponent(position(3, 2), ShapeType.robot, true).save()
             .buildEntity(EntityId.playerB).withEntityReferences(EntityType.player, new Map([[EntityType.match, [EntityId.match]], [EntityType.tower, [EntityId.playerBTower]], [EntityType.robot, [EntityId.playerBRobot]]])).save()
         , [
-            (game, adapters) => theEntityWithIdHasTheExpectedComponent(TestStep.Given, adapters, EntityId.match, Phasing, new Phasing(EntityId.match, playerBRobotPhase())),
-            (game, adapters) => theEntityWithIdHasTheExpectedComponent(TestStep.And, adapters, EntityId.playerARobot, Physical, new Physical(EntityId.playerARobot, position(2, 2), ShapeType.robot, true)),
-            (game, adapters) => theEntityWithIdHasTheExpectedComponent(TestStep.And, adapters, EntityId.playerBRobot, Physical, new Physical(EntityId.playerBRobot, position(3, 2), ShapeType.robot, true)),
+            (game, adapters) => theEntityWithIdHasTheExpectedComponent(TestStep.Given, adapters, EntityId.match, makePhasing(EntityId.match, playerBRobotPhase())),
+            (game, adapters) => theEntityWithIdHasTheExpectedComponent(TestStep.And, adapters, EntityId.playerARobot, makePhysical(EntityId.playerARobot, position(2, 2), ShapeType.robot, true)),
+            (game, adapters) => theEntityWithIdHasTheExpectedComponent(TestStep.And, adapters, EntityId.playerBRobot, makePhysical(EntityId.playerBRobot, position(3, 2), ShapeType.robot, true)),
             ...whenEventOccured(),
             (game, adapters) => eventsAreSent(TestStep.And, adapters, 'server', [hitEvent(EntityId.playerBRobot, EntityId.playerARobot)])
         ])
@@ -78,9 +78,9 @@ feature(featureEventDescription(Action.attack), () => {
             .buildEntity(EntityId.playerBTower).withPhysicalComponent(position(3, 2), ShapeType.tower, true).save()
             .buildEntity(EntityId.playerA).withEntityReferences(EntityType.player, new Map([[EntityType.match, [EntityId.match]], [EntityType.tower, [EntityId.playerATower]], [EntityType.robot, [EntityId.playerARobot]]])).save()
         , [
-            (game, adapters) => theEntityWithIdHasTheExpectedComponent(TestStep.Given, adapters, EntityId.match, Phasing, new Phasing(EntityId.match, playerARobotPhase())),
-            (game, adapters) => theEntityWithIdHasTheExpectedComponent(TestStep.And, adapters, EntityId.playerATower, Physical, new Physical(EntityId.playerATower, position(2, 2), ShapeType.tower, true)),
-            (game, adapters) => theEntityWithIdHasTheExpectedComponent(TestStep.And, adapters, EntityId.playerBTower, Physical, new Physical(EntityId.playerBTower, position(3, 2), ShapeType.tower, true)),
+            (game, adapters) => theEntityWithIdHasTheExpectedComponent(TestStep.Given, adapters, EntityId.match, makePhasing(EntityId.match, playerARobotPhase())),
+            (game, adapters) => theEntityWithIdHasTheExpectedComponent(TestStep.And, adapters, EntityId.playerATower, makePhysical(EntityId.playerATower, position(2, 2), ShapeType.tower, true)),
+            (game, adapters) => theEntityWithIdHasTheExpectedComponent(TestStep.And, adapters, EntityId.playerBTower, makePhysical(EntityId.playerBTower, position(3, 2), ShapeType.tower, true)),
             ...whenEventOccured(),
             (game, adapters) => eventsAreSent(TestStep.And, adapters, 'server', [notifyPlayerEvent(EntityId.playerA, wrongUnitPhaseNotificationMessage(playerARobotPhase()))])
         ])
@@ -91,9 +91,9 @@ feature(featureEventDescription(Action.attack), () => {
             .buildEntity(EntityId.playerBTower).withPhysicalComponent(position(3, 2), ShapeType.tower, true).save()
             .buildEntity(EntityId.playerB).withEntityReferences(EntityType.player, new Map([[EntityType.match, [EntityId.match]], [EntityType.tower, [EntityId.playerBTower]], [EntityType.robot, [EntityId.playerBRobot]]])).save()
         , [
-            (game, adapters) => theEntityWithIdHasTheExpectedComponent(TestStep.Given, adapters, EntityId.match, Phasing, new Phasing(EntityId.match, playerATowerPhase())),
-            (game, adapters) => theEntityWithIdHasTheExpectedComponent(TestStep.And, adapters, EntityId.playerATower, Physical, new Physical(EntityId.playerATower, position(2, 2), ShapeType.tower, true)),
-            (game, adapters) => theEntityWithIdHasTheExpectedComponent(TestStep.And, adapters, EntityId.playerBTower, Physical, new Physical(EntityId.playerBTower, position(3, 2), ShapeType.tower, true)),
+            (game, adapters) => theEntityWithIdHasTheExpectedComponent(TestStep.Given, adapters, EntityId.match, makePhasing(EntityId.match, playerATowerPhase())),
+            (game, adapters) => theEntityWithIdHasTheExpectedComponent(TestStep.And, adapters, EntityId.playerATower, makePhysical(EntityId.playerATower, position(2, 2), ShapeType.tower, true)),
+            (game, adapters) => theEntityWithIdHasTheExpectedComponent(TestStep.And, adapters, EntityId.playerBTower, makePhysical(EntityId.playerBTower, position(3, 2), ShapeType.tower, true)),
             ...whenEventOccured(),
             (game, adapters) => eventsAreSent(TestStep.And, adapters, 'server', [notifyPlayerEvent(EntityId.playerB, wrongPlayerPhaseNotificationMessage(EntityId.playerB))])
         ])
@@ -104,9 +104,9 @@ feature(featureEventDescription(Action.attack), () => {
             .buildEntity(EntityId.playerBTower).withPhysicalComponent(position(24, 2), ShapeType.tower, true).save()
             .buildEntity(EntityId.playerA).withEntityReferences(EntityType.player, new Map([[EntityType.match, [EntityId.match]], [EntityType.tower, [EntityId.playerATower]], [EntityType.robot, [EntityId.playerARobot]]])).save()
         , [
-            (game, adapters) => theEntityWithIdHasTheExpectedComponent(TestStep.Given, adapters, EntityId.match, Phasing, new Phasing(EntityId.match, playerATowerPhase())),
-            (game, adapters) => theEntityWithIdHasTheExpectedComponent(TestStep.And, adapters, EntityId.playerATower, Physical, new Physical(EntityId.playerATower, position(2, 2), ShapeType.tower, true)),
-            (game, adapters) => theEntityWithIdHasTheExpectedComponent(TestStep.And, adapters, EntityId.playerBTower, Physical, new Physical(EntityId.playerBTower, position(24, 2), ShapeType.tower, true)),
+            (game, adapters) => theEntityWithIdHasTheExpectedComponent(TestStep.Given, adapters, EntityId.match, makePhasing(EntityId.match, playerATowerPhase())),
+            (game, adapters) => theEntityWithIdHasTheExpectedComponent(TestStep.And, adapters, EntityId.playerATower, makePhysical(EntityId.playerATower, position(2, 2), ShapeType.tower, true)),
+            (game, adapters) => theEntityWithIdHasTheExpectedComponent(TestStep.And, adapters, EntityId.playerBTower, makePhysical(EntityId.playerBTower, position(24, 2), ShapeType.tower, true)),
             ...whenEventOccured(),
             (game, adapters) => eventsAreSent(TestStep.And, adapters, 'server', [notifyPlayerEvent(EntityId.playerA, outOfRangeNotificationMessage)])
         ])
@@ -117,9 +117,9 @@ feature(featureEventDescription(Action.attack), () => {
             .buildEntity(EntityId.playerBTower).withPhysicalComponent(position(1, 1), ShapeType.tower, true).save()
             .buildEntity(EntityId.playerA).withEntityReferences(EntityType.player, new Map([[EntityType.match, [EntityId.match]], [EntityType.tower, [EntityId.playerATower]], [EntityType.robot, [EntityId.playerARobot]]])).save()
         , [
-            (game, adapters) => theEntityWithIdHasTheExpectedComponent(TestStep.Given, adapters, EntityId.match, Phasing, new Phasing(EntityId.match, playerATowerPhase())),
-            (game, adapters) => theEntityWithIdHasTheExpectedComponent(TestStep.And, adapters, EntityId.playerATower, Physical, new Physical(EntityId.playerATower, position(24, 1), ShapeType.tower, true)),
-            (game, adapters) => theEntityWithIdHasTheExpectedComponent(TestStep.And, adapters, EntityId.playerBTower, Physical, new Physical(EntityId.playerBTower, position(1, 1), ShapeType.tower, true)),
+            (game, adapters) => theEntityWithIdHasTheExpectedComponent(TestStep.Given, adapters, EntityId.match, makePhasing(EntityId.match, playerATowerPhase())),
+            (game, adapters) => theEntityWithIdHasTheExpectedComponent(TestStep.And, adapters, EntityId.playerATower, makePhysical(EntityId.playerATower, position(24, 1), ShapeType.tower, true)),
+            (game, adapters) => theEntityWithIdHasTheExpectedComponent(TestStep.And, adapters, EntityId.playerBTower, makePhysical(EntityId.playerBTower, position(1, 1), ShapeType.tower, true)),
             ...whenEventOccured(),
             (game, adapters) => eventsAreSent(TestStep.And, adapters, 'server', [notifyPlayerEvent(EntityId.playerA, outOfRangeNotificationMessage)])
         ])
@@ -130,9 +130,9 @@ feature(featureEventDescription(Action.attack), () => {
             .buildEntity(EntityId.playerBTower).withPhysicalComponent(position(1, 1), ShapeType.tower, true).save()
             .buildEntity(EntityId.playerA).withEntityReferences(EntityType.player, new Map([[EntityType.match, [EntityId.match]], [EntityType.tower, [EntityId.playerATower]], [EntityType.robot, [EntityId.playerARobot]]])).save()
         , [
-            (game, adapters) => theEntityWithIdHasTheExpectedComponent(TestStep.Given, adapters, EntityId.match, Phasing, new Phasing(EntityId.match, playerATowerPhase())),
-            (game, adapters) => theEntityWithIdHasTheExpectedComponent(TestStep.And, adapters, EntityId.playerATower, Physical, new Physical(EntityId.playerATower, position(11, 1), ShapeType.tower, true)),
-            (game, adapters) => theEntityWithIdHasTheExpectedComponent(TestStep.And, adapters, EntityId.playerBTower, Physical, new Physical(EntityId.playerBTower, position(1, 1), ShapeType.tower, true)),
+            (game, adapters) => theEntityWithIdHasTheExpectedComponent(TestStep.Given, adapters, EntityId.match, makePhasing(EntityId.match, playerATowerPhase())),
+            (game, adapters) => theEntityWithIdHasTheExpectedComponent(TestStep.And, adapters, EntityId.playerATower, makePhysical(EntityId.playerATower, position(11, 1), ShapeType.tower, true)),
+            (game, adapters) => theEntityWithIdHasTheExpectedComponent(TestStep.And, adapters, EntityId.playerBTower, makePhysical(EntityId.playerBTower, position(1, 1), ShapeType.tower, true)),
             ...whenEventOccured(),
             (game, adapters) => eventsAreSent(TestStep.And, adapters, 'server', [hitEvent(EntityId.playerATower, EntityId.playerBTower)])
         ])
@@ -143,9 +143,9 @@ feature(featureEventDescription(Action.attack), () => {
             .buildEntity(EntityId.playerBTower).withPhysicalComponent(position(1, 24), ShapeType.tower, true).save()
             .buildEntity(EntityId.playerA).withEntityReferences(EntityType.player, new Map([[EntityType.match, [EntityId.match]], [EntityType.tower, [EntityId.playerATower]], [EntityType.robot, [EntityId.playerARobot]]])).save()
         , [
-            (game, adapters) => theEntityWithIdHasTheExpectedComponent(TestStep.Given, adapters, EntityId.match, Phasing, new Phasing(EntityId.match, playerATowerPhase())),
-            (game, adapters) => theEntityWithIdHasTheExpectedComponent(TestStep.And, adapters, EntityId.playerATower, Physical, new Physical(EntityId.playerATower, position(1, 1), ShapeType.tower, true)),
-            (game, adapters) => theEntityWithIdHasTheExpectedComponent(TestStep.And, adapters, EntityId.playerBTower, Physical, new Physical(EntityId.playerBTower, position(1, 24), ShapeType.tower, true)),
+            (game, adapters) => theEntityWithIdHasTheExpectedComponent(TestStep.Given, adapters, EntityId.match, makePhasing(EntityId.match, playerATowerPhase())),
+            (game, adapters) => theEntityWithIdHasTheExpectedComponent(TestStep.And, adapters, EntityId.playerATower, makePhysical(EntityId.playerATower, position(1, 1), ShapeType.tower, true)),
+            (game, adapters) => theEntityWithIdHasTheExpectedComponent(TestStep.And, adapters, EntityId.playerBTower, makePhysical(EntityId.playerBTower, position(1, 24), ShapeType.tower, true)),
             ...whenEventOccured(),
             (game, adapters) => eventsAreSent(TestStep.And, adapters, 'server', [notifyPlayerEvent(EntityId.playerA, outOfRangeNotificationMessage)])
         ])
@@ -156,9 +156,9 @@ feature(featureEventDescription(Action.attack), () => {
             .buildTower(EntityId.playerBTower, position(24, 3)).save()
             .buildEntity(EntityId.playerA).withEntityReferences(EntityType.player, new Map([[EntityType.match, [EntityId.match]], [EntityType.tower, [EntityId.playerATower]], [EntityType.robot, [EntityId.playerARobot]]])).save()
         , [
-            (game, adapters) => theEntityWithIdHasTheExpectedComponent(TestStep.Given, adapters, EntityId.match, Phasing, new Phasing(EntityId.match, playerATowerPhase())),
-            (game, adapters) => theEntityWithIdHasTheExpectedComponent(TestStep.And, adapters, EntityId.playerATower, Physical, new Physical(EntityId.playerATower, position(1, 3), ShapeType.tower, true)),
-            (game, adapters) => theEntityWithIdHasTheExpectedComponent(TestStep.And, adapters, EntityId.playerBTower, Physical, new Physical(EntityId.playerBTower, position(24, 3), ShapeType.tower, true)),
+            (game, adapters) => theEntityWithIdHasTheExpectedComponent(TestStep.Given, adapters, EntityId.match, makePhasing(EntityId.match, playerATowerPhase())),
+            (game, adapters) => theEntityWithIdHasTheExpectedComponent(TestStep.And, adapters, EntityId.playerATower, makePhysical(EntityId.playerATower, position(1, 3), ShapeType.tower, true)),
+            (game, adapters) => theEntityWithIdHasTheExpectedComponent(TestStep.And, adapters, EntityId.playerBTower, makePhysical(EntityId.playerBTower, position(24, 3), ShapeType.tower, true)),
             ...whenEventOccured(),
             (game, adapters) => eventsAreSent(TestStep.And, adapters, 'server', [notifyPlayerEvent(EntityId.playerA, outOfRangeNotificationMessage)])
         ])
@@ -169,9 +169,9 @@ feature(featureEventDescription(Action.attack), () => {
             .buildTower(EntityId.playerBTower, position(1, 11)).save()
             .buildEntity(EntityId.playerA).withEntityReferences(EntityType.player, new Map([[EntityType.match, [EntityId.match]], [EntityType.tower, [EntityId.playerATower]], [EntityType.robot, [EntityId.playerARobot]]])).save()
         , [
-            (game, adapters) => theEntityWithIdHasTheExpectedComponent(TestStep.Given, adapters, EntityId.match, Phasing, new Phasing(EntityId.match, playerATowerPhase())),
-            (game, adapters) => theEntityWithIdHasTheExpectedComponent(TestStep.And, adapters, EntityId.playerATower, Physical, new Physical(EntityId.playerATower, position(1, 1), ShapeType.tower, true)),
-            (game, adapters) => theEntityWithIdHasTheExpectedComponent(TestStep.And, adapters, EntityId.playerBTower, Physical, new Physical(EntityId.playerBTower, position(1, 11), ShapeType.tower, true)),
+            (game, adapters) => theEntityWithIdHasTheExpectedComponent(TestStep.Given, adapters, EntityId.match, makePhasing(EntityId.match, playerATowerPhase())),
+            (game, adapters) => theEntityWithIdHasTheExpectedComponent(TestStep.And, adapters, EntityId.playerATower, makePhysical(EntityId.playerATower, position(1, 1), ShapeType.tower, true)),
+            (game, adapters) => theEntityWithIdHasTheExpectedComponent(TestStep.And, adapters, EntityId.playerBTower, makePhysical(EntityId.playerBTower, position(1, 11), ShapeType.tower, true)),
             ...whenEventOccured(),
             (game, adapters) => eventsAreSent(TestStep.And, adapters, 'server', [hitEvent(EntityId.playerATower, EntityId.playerBTower)])
         ])
@@ -182,9 +182,9 @@ feature(featureEventDescription(Action.attack), () => {
             .buildTower(EntityId.playerBTower, position(24, 24)).save()
             .buildEntity(EntityId.playerA).withEntityReferences(EntityType.player, new Map([[EntityType.match, [EntityId.match]], [EntityType.tower, [EntityId.playerATower]], [EntityType.robot, [EntityId.playerARobot]]])).save()
         , [
-            (game, adapters) => theEntityWithIdHasTheExpectedComponent(TestStep.Given, adapters, EntityId.match, Phasing, new Phasing(EntityId.match, playerATowerPhase())),
-            (game, adapters) => theEntityWithIdHasTheExpectedComponent(TestStep.And, adapters, EntityId.playerATower, Physical, new Physical(EntityId.playerATower, position(2, 2), ShapeType.tower, true)),
-            (game, adapters) => theEntityWithIdHasTheExpectedComponent(TestStep.And, adapters, EntityId.playerBTower, Physical, new Physical(EntityId.playerBTower, position(24, 24), ShapeType.tower, true)),
+            (game, adapters) => theEntityWithIdHasTheExpectedComponent(TestStep.Given, adapters, EntityId.match, makePhasing(EntityId.match, playerATowerPhase())),
+            (game, adapters) => theEntityWithIdHasTheExpectedComponent(TestStep.And, adapters, EntityId.playerATower, makePhysical(EntityId.playerATower, position(2, 2), ShapeType.tower, true)),
+            (game, adapters) => theEntityWithIdHasTheExpectedComponent(TestStep.And, adapters, EntityId.playerBTower, makePhysical(EntityId.playerBTower, position(24, 24), ShapeType.tower, true)),
             ...whenEventOccured(),
             (game, adapters) => eventsAreSent(TestStep.And, adapters, 'server', [notifyPlayerEvent(EntityId.playerA, outOfRangeNotificationMessage)])
         ])
@@ -195,9 +195,9 @@ feature(featureEventDescription(Action.attack), () => {
             .buildTower(EntityId.playerBTower, position(11, 4)).save()
             .buildEntity(EntityId.playerA).withEntityReferences(EntityType.player, new Map([[EntityType.match, [EntityId.match]], [EntityType.tower, [EntityId.playerATower]], [EntityType.robot, [EntityId.playerARobot]]])).save()
         , [
-            (game, adapters) => theEntityWithIdHasTheExpectedComponent(TestStep.Given, adapters, EntityId.match, Phasing, new Phasing(EntityId.match, playerATowerPhase())),
-            (game, adapters) => theEntityWithIdHasTheExpectedComponent(TestStep.And, adapters, EntityId.playerATower, Physical, new Physical(EntityId.playerATower, position(2, 1), ShapeType.tower, true)),
-            (game, adapters) => theEntityWithIdHasTheExpectedComponent(TestStep.And, adapters, EntityId.playerBTower, Physical, new Physical(EntityId.playerBTower, position(11, 4), ShapeType.tower, true)),
+            (game, adapters) => theEntityWithIdHasTheExpectedComponent(TestStep.Given, adapters, EntityId.match, makePhasing(EntityId.match, playerATowerPhase())),
+            (game, adapters) => theEntityWithIdHasTheExpectedComponent(TestStep.And, adapters, EntityId.playerATower, makePhysical(EntityId.playerATower, position(2, 1), ShapeType.tower, true)),
+            (game, adapters) => theEntityWithIdHasTheExpectedComponent(TestStep.And, adapters, EntityId.playerBTower, makePhysical(EntityId.playerBTower, position(11, 4), ShapeType.tower, true)),
             ...whenEventOccured(),
             (game, adapters) => eventsAreSent(TestStep.And, adapters, 'server', [hitEvent(EntityId.playerATower, EntityId.playerBTower)])
         ])
@@ -208,12 +208,12 @@ feature(featureEventDescription(Action.attack), () => {
             .buildTower(EntityId.playerBTower, position(11, 4)).save()
             .buildEntity(EntityId.playerA).withEntityReferences(EntityType.player, new Map([[EntityType.match, [EntityId.match]], [EntityType.tower, [EntityId.playerATower]], [EntityType.robot, [EntityId.playerARobot]]])).save()
         , [
-            (game, adapters) => theEntityWithIdHasTheExpectedComponent(TestStep.Given, adapters, EntityId.match, Phasing, new Phasing(EntityId.match, playerATowerPhase())),
-            (game, adapters) => theEntityWithIdHasTheExpectedComponent(TestStep.And, adapters, EntityId.playerATower, Physical, new Physical(EntityId.playerATower, position(2, 1), ShapeType.tower, true)),
-            (game, adapters) => theEntityWithIdHasTheExpectedComponent(TestStep.And, adapters, EntityId.playerBTower, Physical, new Physical(EntityId.playerBTower, position(11, 4), ShapeType.tower, true)),
+            (game, adapters) => theEntityWithIdHasTheExpectedComponent(TestStep.Given, adapters, EntityId.match, makePhasing(EntityId.match, playerATowerPhase())),
+            (game, adapters) => theEntityWithIdHasTheExpectedComponent(TestStep.And, adapters, EntityId.playerATower, makePhysical(EntityId.playerATower, position(2, 1), ShapeType.tower, true)),
+            (game, adapters) => theEntityWithIdHasTheExpectedComponent(TestStep.And, adapters, EntityId.playerBTower, makePhysical(EntityId.playerBTower, position(11, 4), ShapeType.tower, true)),
             ...whenEventOccured(),
             (game, adapters) => eventsAreSent(TestStep.And, adapters, 'server', [hitEvent(EntityId.playerATower, EntityId.playerBTower)]),
-            (game, adapters) => theEntityWithIdHasTheExpectedComponent(TestStep.Given, adapters, EntityId.match, Phasing, new Phasing(EntityId.match, playerATowerPhase(defaultActionPoints - weaponAttackActionPoints)))
+            (game, adapters) => theEntityWithIdHasTheExpectedComponent(TestStep.Given, adapters, EntityId.match, makePhasing(EntityId.match, playerATowerPhase(defaultActionPoints - weaponAttackActionPoints)))
         ])
     serverScenario(`${Action.attack} 14 - Can't Attack : Not enough action point`, attackEvent(EntityId.playerA, EntityId.playerATower, EntityId.playerBTower),
         (game, adapters) => () => new EntityBuilder(adapters.entityInteractor)
@@ -222,11 +222,11 @@ feature(featureEventDescription(Action.attack), () => {
             .buildTower(EntityId.playerBTower, position(11, 4)).save()
             .buildEntity(EntityId.playerA).withEntityReferences(EntityType.player, new Map([[EntityType.match, [EntityId.match]], [EntityType.tower, [EntityId.playerATower]], [EntityType.robot, [EntityId.playerARobot]]])).save()
         , [
-            (game, adapters) => theEntityWithIdHasTheExpectedComponent(TestStep.Given, adapters, EntityId.match, Phasing, new Phasing(EntityId.match, playerATowerPhase(weaponAttackActionPoints - 1))),
-            (game, adapters) => theEntityWithIdHasTheExpectedComponent(TestStep.And, adapters, EntityId.playerATower, Physical, new Physical(EntityId.playerATower, position(2, 1), ShapeType.tower, true)),
-            (game, adapters) => theEntityWithIdHasTheExpectedComponent(TestStep.And, adapters, EntityId.playerBTower, Physical, new Physical(EntityId.playerBTower, position(11, 4), ShapeType.tower, true)),
+            (game, adapters) => theEntityWithIdHasTheExpectedComponent(TestStep.Given, adapters, EntityId.match, makePhasing(EntityId.match, playerATowerPhase(weaponAttackActionPoints - 1))),
+            (game, adapters) => theEntityWithIdHasTheExpectedComponent(TestStep.And, adapters, EntityId.playerATower, makePhysical(EntityId.playerATower, position(2, 1), ShapeType.tower, true)),
+            (game, adapters) => theEntityWithIdHasTheExpectedComponent(TestStep.And, adapters, EntityId.playerBTower, makePhysical(EntityId.playerBTower, position(11, 4), ShapeType.tower, true)),
             ...whenEventOccured(),
-            (game, adapters) => theEntityWithIdHasTheExpectedComponent(TestStep.Given, adapters, EntityId.match, Phasing, new Phasing(EntityId.match, playerATowerPhase(weaponAttackActionPoints - 1))),
+            (game, adapters) => theEntityWithIdHasTheExpectedComponent(TestStep.Given, adapters, EntityId.match, makePhasing(EntityId.match, playerATowerPhase(weaponAttackActionPoints - 1))),
             (game, adapters) => eventsAreSent(TestStep.And, adapters, 'server', [notifyPlayerEvent(EntityId.playerA, notEnoughActionPointNotificationMessage)])
         ])
 })

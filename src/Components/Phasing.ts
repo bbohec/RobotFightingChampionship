@@ -21,20 +21,22 @@ export const playerBRobotPhase = (actionPoints = defaultActionPoints):Phase => f
 export const playerATowerPhase = (actionPoints = defaultActionPoints):Phase => fightPhase(EntityId.playerA, EntityId.playerATower, actionPoints)
 export const playerBTowerPhase = (actionPoints = defaultActionPoints):Phase => fightPhase(EntityId.playerB, EntityId.playerBTower, actionPoints)
 export const victoryPhase = (currentPlayerId:string):Phase => ({ phaseType: PhaseType.Victory, currentPlayerId, currentUnitId: null, actionPoints: noActionPoint, auto: true })
-export class Phasing extends GenericComponent {
-    constructor (entityId:string, phase:Phase, readyPlayers:Set<string> = new Set([])) {
-        super(entityId)
-        this.currentPhase = phase
-        this.readyPlayers = readyPlayers
-    }
 
-    public getCurrentUnitId ():string {
-        if (this.currentPhase.currentUnitId) return this.currentPhase.currentUnitId
-        throw new Error(missingCurrentUnitIdOnPhase(this.currentPhase))
-    }
-
+export type Phasing = GenericComponent<'Phasing', {
     currentPhase: Phase
     readyPlayers:Set<string>
+}>
+
+export const makePhasing = (entityId:EntityId, currentPhase:Phase, readyPlayers:Set<string> = new Set()):Phasing => ({
+    componentType: 'Phasing',
+    entityId,
+    currentPhase,
+    readyPlayers
+})
+
+export const getCurrentUnitId = (phasing:Phasing):string => {
+    if (phasing.currentPhase.currentUnitId) return phasing.currentPhase.currentUnitId
+    throw new Error(missingCurrentUnitIdOnPhase(phasing.currentPhase))
 }
 
 function missingCurrentUnitIdOnPhase (currentPhase: Phase): string | undefined {

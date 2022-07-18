@@ -1,7 +1,8 @@
 import { Component } from '../../Components/port/Component'
-import { PotentialClass } from './PotentialClass'
+
 export interface ComponentManagement {
-    hasComponent(potentialComponent: PotentialClass<Component>): boolean;
+    // eslint-disable-next-line no-unused-vars
+    hasComponent<T extends Component>(): boolean;
     deleteAllComponents():void
     addComponent(component: Component): void;
 }

@@ -1,4 +1,4 @@
-import { PotentialClass } from '../../../Entities/ports/PotentialClass'
+
 import { systemAlreadyInRepository, SystemInteractor, systemNotFoundOnRepository } from '../port/SystemInteractor'
 import { System } from '../port/System'
 
@@ -8,9 +8,9 @@ export class InMemorySystemRepository implements SystemInteractor {
         this.systems.set(system.constructor.name, system)
     }
 
-    retrieveSystemByClass<Class extends System> (potentialSystem: PotentialClass<Class>): Class {
-        const system = this.systems.get(potentialSystem.name)
-        if (!system) throw new Error(systemNotFoundOnRepository<Class>(potentialSystem))
+    retrieveSystemByClass<Class extends System> (): Class {
+        const system = this.systems.get(({} as Class).constructor.name)
+        if (!system) throw new Error(systemNotFoundOnRepository<Class>())
         return system as Class
     }
 

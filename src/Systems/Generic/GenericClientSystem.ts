@@ -20,7 +20,7 @@ export abstract class GenericClientSystem implements System {
     }
 
     protected entityReferencesByEntityId (playerId: string) {
-        return this.interactWithEntities.retrieveEntityComponentByEntityId(playerId, EntityReference)
+        return this.interactWithEntities.retrieveyComponentByEntityId<EntityReference>(playerId)
     }
 
     abstract onGameEvent(gameEvent: GameEvent): Promise<void>;

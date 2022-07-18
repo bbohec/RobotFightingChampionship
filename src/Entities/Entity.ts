@@ -1,11 +1,14 @@
-import { GenericComponent } from '../Components/GenericComponent'
-import { Component } from '../Components/port/Component'
+import { Component, ComponentName, isComponent } from '../Components/port/Component'
 import { stringifyWithDetailledSetAndMap } from '../Event/detailledStringify'
 import { ComponentManagement } from './ports/ComponentManagement'
 import { EntityContract } from './ports/Entity'
-import { PotentialClass } from './ports/PotentialClass'
+
+export type EntityId = string
+
+type EntityComponents = Map<ComponentName, Component>
+
 export class Entity implements EntityContract, ComponentManagement {
-    constructor (id:string) {
+    constructor (id:EntityId) {
         this.id = id
     }
 
@@ -18,31 +21,32 @@ export class Entity implements EntityContract, ComponentManagement {
         return false
     }
 
-    hasComponent (potentialComponent: PotentialClass<Component>): boolean {
-        for (const component of this.components.values()) if (component instanceof potentialComponent) return true
+    hasComponent <T extends Component> (): boolean {
+        for (const component of this.components.values()) if (isComponent<T>(component)) return true
         return false
     }
 
     addComponent (component: Component):void {
-        this.components.add(component)
+        this.components.set(component.componentType, component)
     }
 
     addComponents (components: Component[]):void {
         for (const component of components) this.addComponent(component)
     }
 
-    retrieveComponent <Class extends GenericComponent> (potentialComponent: PotentialClass<Class>):Class {
-        for (const component of this.components.values()) if (component instanceof potentialComponent) return component as Class
-        throw new Error(componentMissingOnEntity<Class>(potentialComponent, this.id, this.components))
+    retrieveComponent <T extends Component> ():T {
+        const component = this.components.get(({} as T).componentType)
+        if (component && isComponent<T>(component)) return component as T
+        throw new Error(componentMissingOnEntity<T>(this.id, this.components))
     }
 
-    deleteComponent <Class extends Component> (potentialComponent: PotentialClass<Class>):void {
-        const isDeleted = this.components.delete(this.retrieveComponent(potentialComponent))
-        if (!isDeleted) throw new Error(componentNotDeleted<Class>(potentialComponent))
+    deleteComponent <T extends Component> ():void {
+        const isDeleted = this.components.delete(this.retrieveComponent<T>().componentType)
+        if (!isDeleted) throw new Error(componentNotDeleted<T>())
     }
 
     readonly id: string
-    private components:Set<Component> = new Set<Component>()
+    private components:EntityComponents = new Map()
 }
-const componentMissingOnEntity = <Class extends Component> (potentialComponent: PotentialClass<Class>, id: string, components: Set<Component>): string => `Component '${potentialComponent.name}' missing on entity id '${id}'.\nAvailable components: ${stringifyWithDetailledSetAndMap(components)}`
-const componentNotDeleted = <Class extends Component> (potentialComponent: PotentialClass<Class>): string => `Component '${potentialComponent.name}' is not deleted.`
+const componentMissingOnEntity = <T extends Component> (id: string, components: EntityComponents): string => `Component '${({}as T).componentType}' missing on entity id '${id}'.\nAvailable components: ${stringifyWithDetailledSetAndMap(components)}`
+const componentNotDeleted = <T extends Component> (): string => `Component '${({}as T).componentType}' is not deleted.`

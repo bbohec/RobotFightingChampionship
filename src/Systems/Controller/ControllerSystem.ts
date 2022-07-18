@@ -29,9 +29,9 @@ export class ControllerSystem extends GenericClientSystem {
 
     private onUpdatePlayerPointerPosition (gameEvent: GameEvent): Promise<void> {
         const pointerEntityId = gameEvent.entityByEntityType(EntityType.pointer)
-        const pointerPhysicalComponent = this.interactWithEntities.retrieveEntityComponentByEntityId(pointerEntityId, Physical)
-        pointerPhysicalComponent.position = gameEvent.retrieveComponent(pointerEntityId, Physical).position
-        return this.sendEvent(updatePointerState(pointerEntityId, pointerPhysicalComponent.position, ControlStatus.Active))
+        const pointerPhysicalComponent = this.interactWithEntities.retrieveyComponentByEntityId<Physical>(pointerEntityId)
+        const updatedpointerPhysicalComponent = { ...pointerPhysicalComponent, position: gameEvent.retrieveComponent<Physical>(pointerEntityId).position }
+        return this.sendEvent(updatePointerState(pointerEntityId, updatedpointerPhysicalComponent.position, ControlStatus.Active))
     }
 
     private interactWithControllerAdapter: ControllerPort

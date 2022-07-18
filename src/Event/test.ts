@@ -1,21 +1,20 @@
-import { describe, before, Func, it, Test, Suite } from 'mocha'
 import chai from 'chai'
+import { before, describe, Func, it, Suite, Test } from 'mocha'
 import { GameEvent } from './GameEvent'
-import { PotentialClass } from '../Entities/ports/PotentialClass'
+
 import { LifeCycle } from '../Components/LifeCycle'
-import { TestStep } from './TestStep'
+import { Physical } from '../Components/Physical'
+import { Component } from '../Components/port/Component'
+import { ClientGameSystem } from '../Systems/Game/ClientGame'
 import { GenericGameSystem } from '../Systems/Game/GenericGame'
 import { FakeClientAdapters } from '../Systems/Game/infra/FakeClientAdapters'
-import { GenericAdapter } from '../Systems/Game/port/genericAdapters'
 import { FakeServerAdapters } from '../Systems/Game/infra/FakeServerAdapters'
-import { ClientGameSystem } from '../Systems/Game/ClientGame'
+import { GenericAdapter } from '../Systems/Game/port/genericAdapters'
 import { ServerGameSystem } from '../Systems/Game/ServerGame'
-import { GenericComponent } from '../Components/GenericComponent'
-import { Component } from '../Components/port/Component'
 import { Action } from './Action'
-import { Physical } from '../Components/Physical'
-import { InMemoryEventBus } from './infra/InMemoryEventBus'
 import { stringifyWithDetailledSetAndMap } from './detailledStringify'
+import { InMemoryEventBus } from './infra/InMemoryEventBus'
+import { TestStep } from './TestStep'
 
 const { expect } = chai
 
@@ -109,7 +108,7 @@ export const theEntityIsCreated = (
 ) => it(entityIdCreated(testStep, potentialEntityId),
     () => expect(adapters
         .entityInteractor
-        .retrieveEntityComponentByEntityId(potentialEntityId, LifeCycle)
+        .retrieveyComponentByEntityId<LifeCycle>(potentialEntityId)
         .isCreated)
         .to.be.true)
 
@@ -165,19 +164,18 @@ export const theEventIsNotSent = (
     })
 */
 
-export const theEntityWithIdHasTheExpectedComponent = <PotentialComponent extends Component> (
+export const theEntityWithIdHasTheExpectedComponent = (
     testStep:TestStep,
     adapters: GenericAdapter,
     entityId: string,
-    potentialComponent:PotentialClass<PotentialComponent>,
-    expectedComponent: GenericComponent
-) => it(entityHasComponent<PotentialComponent>(testStep, entityId, potentialComponent, expectedComponent),
-        () => {
-            const component = adapters
-                .entityInteractor
-                .retrieveEntityComponentByEntityId(entityId, potentialComponent)
-            expect(component).deep.equal(expectedComponent, componentDetailedComparisonMessage<PotentialComponent>(component, expectedComponent))
-        })
+    expectedComponent: Component
+) => it(entityHasComponent(testStep, entityId, expectedComponent),
+    () => {
+        const component = adapters
+            .entityInteractor
+            .retrieveyComponentByEntityId<typeof expectedComponent>(entityId)
+        expect(component).deep.equal(expectedComponent, componentDetailedComparisonMessage<typeof expectedComponent>(component, expectedComponent))
+    })
 export const theEntityWithIdDoNotHaveAnyComponent = (
     testStep:TestStep,
     adapters: FakeServerAdapters,
@@ -226,9 +224,9 @@ export const theControllerAdapterIsNotInteractive = (
 
 export const detailedComparisonMessage = (thing:unknown, expectedThing:unknown):string => `DETAILS\nexpected >>>>>>>> ${stringifyWithDetailledSetAndMap(thing)} \nto deeply equal > ${stringifyWithDetailledSetAndMap(expectedThing)} \n`
 const eventDetailedComparisonMessage = (gameEvents: GameEvent[], expectedGameEvents: GameEvent[]): string => `DETAILS\nexpected >>>>>>>> ${stringifyWithDetailledSetAndMap(gameEvents)} \nto deeply equal > ${stringifyWithDetailledSetAndMap(expectedGameEvents)} \n`
-const componentDetailedComparisonMessage = <PotentialComponent extends Component> (component: PotentialComponent, expectedComponent: GenericComponent): string => `DETAILS\nexpected >>>>>>>> ${stringifyWithDetailledSetAndMap(component)} \nto deeply equal > ${stringifyWithDetailledSetAndMap(expectedComponent)} \n`
+const componentDetailedComparisonMessage = <T extends Component> (component: T, expectedComponent: T): string => `DETAILS\nexpected >>>>>>>> ${stringifyWithDetailledSetAndMap(component)} \nto deeply equal > ${stringifyWithDetailledSetAndMap(expectedComponent)} \n`
 const entityDontHaveComponent = (testStep: TestStep, entityId: string): string => `${testStep} the entity with id '${entityId}' don't have any component.`
-const entityHasComponent = <PotentialComponent extends Component> (testStep: TestStep, entityId: string, potentialComponent: PotentialClass<PotentialComponent>, expectedComponent: GenericComponent): string => `${testStep} the entity with id '${entityId}' has the expected '${potentialComponent.name}' component : 
+const entityHasComponent = (testStep: TestStep, entityId: string, expectedComponent: Component): string => `${testStep} the entity with id '${entityId}' has the expected '${expectedComponent.componentType}' component : 
     ${stringifyWithDetailledSetAndMap(expectedComponent)}`
 const entityIdOnRepository = (testStep: TestStep, potentialEntityOrEntityId: string): string => `${testStep} there is an entity with id '${potentialEntityOrEntityId}' on entities repository.`
 const entityIdIsNotOnRepository = (testStep: TestStep, potentialEntityOrEntityId: string): string => `${testStep} there is no entity with id '${potentialEntityOrEntityId}' on entities repository.`

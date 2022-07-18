@@ -1,8 +1,9 @@
+import { EntityId } from '../Entities/Entity'
+import { gameScreenDimension, Dimension } from './Dimensional'
 import { GenericComponent } from './GenericComponent'
-import { Dimension, gameScreenDimension } from './port/Dimension'
 import { ShapeType } from './port/ShapeType'
 
-export interface Position {
+export type Position = {
     x:number
     y:number
 }
@@ -19,19 +20,21 @@ export const simpleMatchLobbyPosition = position(10, 10)
 export const mainMenuPosition = position(10, 10)
 export const victoryPosition = position(gameScreenDimension.x / 2, gameScreenDimension.y / 3)
 export const defeatPosition = position(gameScreenDimension.x / 2, gameScreenDimension.y / 3)
-export class Physical extends GenericComponent {
-    constructor (entityId: string, position: Position, shape:ShapeType, visible:boolean) {
-        super(entityId)
-        this.position = position
-        this.shape = shape
-        this.visible = visible
-    }
 
-    public isPositionIdentical (position:Position) {
-        return Math.floor(position.x) === Math.floor(this.position.x) && Math.floor(position.y) === Math.floor(this.position.y)
-    }
+export const isPositionIdentical = (position1:Position, position2:Position) => {
+    return Math.floor(position1.x) === Math.floor(position2.x) && Math.floor(position1.y) === Math.floor(position2.y)
+}
 
+export type Physical = GenericComponent< 'Physical', {
     position: Position
     visible:boolean
     shape:ShapeType
-}
+}>
+
+export const makePhysical = (entityId:EntityId, position:Position, shape:ShapeType, visible:boolean):Physical => ({
+    componentType: 'Physical',
+    entityId,
+    position,
+    shape,
+    visible
+})

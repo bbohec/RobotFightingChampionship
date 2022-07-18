@@ -1,9 +1,6 @@
-import { Component } from './port/Component'
+import { ComponentName } from './port/Component'
 
-export abstract class GenericComponent implements Component {
-    constructor (entityId: string) {
-        this.entityId = entityId
-    }
+export type ComponentTypeProperty <C extends ComponentName> = {componentType: C}
+export type EntityIdProperty = {entityId: string}
 
-    entityId: string;
-}
+export type GenericComponent <C extends ComponentName, T extends Record<string, any>> = Readonly<EntityIdProperty & ComponentTypeProperty<C> & T >

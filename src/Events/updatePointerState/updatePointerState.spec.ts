@@ -1,11 +1,11 @@
-import { Controller } from '../../Components/Controller'
-import { Physical, position } from '../../Components/Physical'
+import { makeController } from '../../Components/Controller'
+import { makePhysical, position } from '../../Components/Physical'
 import { ControlStatus } from '../../Components/port/ControlStatus'
 import { ShapeType } from '../../Components/port/ShapeType'
 import { EntityBuilder } from '../../Entities/entityBuilder'
 import { Action } from '../../Event/Action'
 import { EntityId } from '../../Event/entityIds'
-import { feature, featureEventDescription, clientScenario, eventsAreSent, serverScenario, theEntityWithIdHasTheExpectedComponent, whenEventOccured } from '../../Event/test'
+import { clientScenario, eventsAreSent, feature, featureEventDescription, serverScenario, theEntityWithIdHasTheExpectedComponent, whenEventOccured } from '../../Event/test'
 import { TestStep } from '../../Event/TestStep'
 import { updatePointerState } from './updatePointerState'
 feature(featureEventDescription(Action.updatePlayerPointerState), () => {
@@ -19,10 +19,10 @@ feature(featureEventDescription(Action.updatePlayerPointerState), () => {
         (game, adapters) => () => new EntityBuilder(adapters.entityInteractor)
             .buildEntity(EntityId.playerAPointer).withPhysicalComponent(position(0, 0), ShapeType.pointer, true).withController(ControlStatus.Idle).save()
         , [
-            (game, adapters) => theEntityWithIdHasTheExpectedComponent(TestStep.Given, adapters, EntityId.playerAPointer, Physical, new Physical(EntityId.playerAPointer, position(0, 0), ShapeType.pointer, true)),
-            (game, adapters) => theEntityWithIdHasTheExpectedComponent(TestStep.And, adapters, EntityId.playerAPointer, Controller, new Controller(EntityId.playerAPointer, ControlStatus.Idle)),
+            (game, adapters) => theEntityWithIdHasTheExpectedComponent(TestStep.Given, adapters, EntityId.playerAPointer, makePhysical(EntityId.playerAPointer, position(0, 0), ShapeType.pointer, true)),
+            (game, adapters) => theEntityWithIdHasTheExpectedComponent(TestStep.And, adapters, EntityId.playerAPointer, makeController(EntityId.playerAPointer, ControlStatus.Idle)),
             ...whenEventOccured(),
-            (game, adapters) => theEntityWithIdHasTheExpectedComponent(TestStep.Then, adapters, EntityId.playerAPointer, Physical, new Physical(EntityId.playerAPointer, position(1, 1), ShapeType.pointer, true)),
-            (game, adapters) => theEntityWithIdHasTheExpectedComponent(TestStep.And, adapters, EntityId.playerAPointer, Controller, new Controller(EntityId.playerAPointer, ControlStatus.Active))
+            (game, adapters) => theEntityWithIdHasTheExpectedComponent(TestStep.Then, adapters, EntityId.playerAPointer, makePhysical(EntityId.playerAPointer, position(1, 1), ShapeType.pointer, true)),
+            (game, adapters) => theEntityWithIdHasTheExpectedComponent(TestStep.And, adapters, EntityId.playerAPointer, makeController(EntityId.playerAPointer, ControlStatus.Active))
         ])
 })

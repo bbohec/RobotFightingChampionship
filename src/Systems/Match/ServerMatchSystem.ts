@@ -18,9 +18,9 @@ export class ServerMatchSystem extends GenericServerSystem {
         return gameEvent.action === Action.register
             ? this.onRegister(gameEvent)
             : gameEvent.action === Action.join
-                ? this.onJoin(gameEvent, this.interactWithEntities.retrieveEntityComponentByEntityId(gameEvent.entityByEntityType(EntityType.match), EntityReference))
+                ? this.onJoin(gameEvent, this.interactWithEntities.retrieveyComponentByEntityId(gameEvent.entityByEntityType(EntityType.match), EntityReference))
                 : gameEvent.action === Action.quit
-                    ? this.onQuit(gameEvent, this.interactWithEntities.retrieveEntityComponentByEntityId(gameEvent.entityByEntityType(EntityType.match), EntityReference))
+                    ? this.onQuit(gameEvent, this.interactWithEntities.retrieveyComponentByEntityId(gameEvent.entityByEntityType(EntityType.match), EntityReference))
                     : Promise.reject(new Error(errorMessageOnUnknownEventAction(ServerMatchSystem.name, gameEvent)))
     }
 
@@ -37,7 +37,7 @@ export class ServerMatchSystem extends GenericServerSystem {
     }
 
     private onRegisterSimpleMatchLobbyOnGame (gameEvent: GameEvent): Promise<void> {
-        this.interactWithEntities.retrieveEntityComponentByEntityId(gameEvent.entityByEntityType(EntityType.game), EntityReference)
+        this.interactWithEntities.retrieveyComponentByEntityId(gameEvent.entityByEntityType(EntityType.game), EntityReference)
             .entityReferences.set(EntityType.simpleMatchLobby, [gameEvent.entityByEntityType(EntityType.simpleMatchLobby)])
         return Promise.resolve()
     }
@@ -49,15 +49,15 @@ export class ServerMatchSystem extends GenericServerSystem {
     }
 
     private onPlayerRemoved (matchEntityReferenceComponent: EntityReference, quittingPlayerId:string): Promise<void> {
-        const quittingPlayerEntityReference = this.interactWithEntities.retrieveEntityComponentByEntityId(quittingPlayerId, EntityReference)
-        const remainingPlayers = this.interactWithEntities.retrieveEntityComponentByEntityId(quittingPlayerEntityReference.retrieveReference(EntityType.match), EntityReference).retrieveReferences(EntityType.player)
+        const quittingPlayerEntityReference = this.interactWithEntities.retrieveyComponentByEntityId(quittingPlayerId, EntityReference)
+        const remainingPlayers = this.interactWithEntities.retrieveyComponentByEntityId(quittingPlayerEntityReference.retrieveReference(EntityType.match), EntityReference).retrieveReferences(EntityType.player)
         const matchPlayers = [quittingPlayerId, ...remainingPlayers]
-        const remainingPlayerEntityReferences = remainingPlayers.map(remainingPlayer => this.interactWithEntities.retrieveEntityComponentByEntityId(remainingPlayer, EntityReference))
+        const remainingPlayerEntityReferences = remainingPlayers.map(remainingPlayer => this.interactWithEntities.retrieveyComponentByEntityId(remainingPlayer, EntityReference))
         const quittingPlayerRobotPhysical = this.updateEntityPhysicalComponent(quittingPlayerEntityReference.retrieveReference(EntityType.robot), false)
         const quittingPlayerTowerPhysical = this.updateEntityPhysicalComponent(quittingPlayerEntityReference.retrieveReference(EntityType.tower), false)
         const quittingPlayerRobotPhysicals = remainingPlayerEntityReferences.map(entityReferences => this.updateEntityPhysicalComponent(entityReferences.retrieveReference(EntityType.robot), false))
         const quittingPlayerTowerPhysicals = remainingPlayerEntityReferences.map(entityReferences => this.updateEntityPhysicalComponent(entityReferences.retrieveReference(EntityType.tower), false))
-        const gridEntityReference = this.interactWithEntities.retrieveEntityComponentByEntityId(matchEntityReferenceComponent.retrieveReference(EntityType.grid), EntityReference)
+        const gridEntityReference = this.interactWithEntities.retrieveyComponentByEntityId(matchEntityReferenceComponent.retrieveReference(EntityType.grid), EntityReference)
         const cellPhysicals = gridEntityReference.retrieveReferences(EntityType.cell).map(cellId => this.updateEntityPhysicalComponent(cellId, false))
         const events:GameEvent[] = [
             ...matchPlayers.map(playerId => drawEvent(playerId, quittingPlayerRobotPhysical)),
@@ -77,13 +77,13 @@ export class ServerMatchSystem extends GenericServerSystem {
     }
 
     drawVictoryOrDefeatEvent (quittingPlayerId: string, matchEntityReference:EntityReference): GameEvent {
-        return quittingPlayerId === this.interactWithEntities.retrieveEntityComponentByEntityId(matchEntityReference.entityId, Phasing).currentPhase.currentPlayerId
+        return quittingPlayerId === this.interactWithEntities.retrieveyComponentByEntityId(matchEntityReference.entityId, Phasing).currentPhase.currentPlayerId
             ? drawEvent(quittingPlayerId, this.updateEntityPhysicalComponent(matchEntityReference.retrieveReference(EntityType.victory), false))
             : drawEvent(quittingPlayerId, this.updateEntityPhysicalComponent(matchEntityReference.retrieveReference(EntityType.defeat), false))
     }
 
     private updateEntityPhysicalComponent (entityId:string, visible:boolean):Physical {
-        const entityPhysicalComponent = this.interactWithEntities.retrieveEntityComponentByEntityId(entityId, Physical)
+        const entityPhysicalComponent = this.interactWithEntities.retrieveyComponentByEntityId(entityId, Physical)
         entityPhysicalComponent.visible = visible
         return entityPhysicalComponent
     }

@@ -1,4 +1,3 @@
-import { Dimension } from '../../../Components/port/Dimension'
 import { Physical, Position } from '../../../Components/Physical'
 import { DrawingAdapter } from '../port/DrawingAdapter'
 import { PixiJSEntity } from '../port/PixiJSEntity'
@@ -7,6 +6,7 @@ import { Logger } from '../../../Log/port/logger'
 import { PixiApplicationCommon } from '../../Controller/infra/PixiApplicationCommon'
 import { Application } from '@pixi/app'
 import { Sprite } from 'pixi.js'
+import { Dimension } from '../../../Components/Dimensional'
 
 const drawEntityOnPositionMessage = (physicalComponent:Physical) => `Draw entity ${physicalComponent.entityId} on position ${JSON.stringify(physicalComponent.position)}`
 const eraseEntityMessage = (id: string) => `Erase entity ${id}`

@@ -1,13 +1,13 @@
 import { EntityReference } from '../../Components/EntityReference'
 import { Component } from '../../Components/port/Component'
 import { Entity } from '../Entity'
-import { PotentialClass } from './PotentialClass'
 export interface EntityInteractor {
     unlinkEntities(originEntityReference: EntityReference, targetEntityReference: EntityReference):void
     linkEntityToEntities(entityId: string, entityIds: string[]):void
     deleteEntityById(entityId: string):void
-    retrieveEntitiesThatHaveComponent<PotentialComponent extends Component> (potentialComponent:PotentialClass<PotentialComponent>): Entity[];
+    // eslint-disable-next-line no-unused-vars
+    retrieveEntitiesThatHaveComponent<Type extends Component> (): Entity[];
     isEntityExist(entityId:string):boolean
-    retrieveEntityComponentByEntityId <Class extends Component> (entityId:string, potentialComponent: PotentialClass<Class>):Class;
+    retrieveyComponentByEntityId <Type extends Component> (entityId:string):Type;
     saveEntity(entity: Entity): void;
 }

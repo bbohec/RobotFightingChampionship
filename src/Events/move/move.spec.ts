@@ -1,19 +1,19 @@
 
-import { Phasing, playerARobotAutoPlacementPhase, playerARobotPhase, playerATowerAutoPlacementPhase, playerATowerPhase, playerBRobotAutoPlacementPhase, playerBRobotPhase, playerBTowerAutoPlacementPhase, playerBTowerPhase } from '../../Components/Phasing'
-import { Physical, playerARobotFirstPosition, playerATowerFirstPosition, playerBRobotFirstPosition, playerBTowerFirstPosition, position } from '../../Components/Physical'
+import { gameScreenDimension } from '../../Components/Dimensional'
+import { makePhasing, playerARobotAutoPlacementPhase, playerARobotPhase, playerATowerAutoPlacementPhase, playerATowerPhase, playerBRobotAutoPlacementPhase, playerBRobotPhase, playerBTowerAutoPlacementPhase, playerBTowerPhase } from '../../Components/Phasing'
+import { makePhysical, playerARobotFirstPosition, playerATowerFirstPosition, playerBRobotFirstPosition, playerBTowerFirstPosition, position } from '../../Components/Physical'
+import { ShapeType } from '../../Components/port/ShapeType'
+import { EntityBuilder } from '../../Entities/entityBuilder'
 import { Action } from '../../Event/Action'
+import { EntityId } from '../../Event/entityIds'
 import { EntityType } from '../../Event/EntityType'
 import { eventsAreSent, feature, featureEventDescription, serverScenario, theEntityWithIdHasTheExpectedComponent, whenEventOccured } from '../../Event/test'
 import { TestStep } from '../../Event/TestStep'
-import { wrongPlayerPhaseNotificationMessage, notEnoughActionPointNotificationMessage, notifyPlayerEvent, positionAlreadyOccupiedNotificationMessage, wrongUnitPhaseNotificationMessage } from '../notifyPlayer/notifyPlayer'
-import { EntityBuilder } from '../../Entities/entityBuilder'
-import { moveEvent } from './move'
-import { EntityId } from '../../Event/entityIds'
-import { ShapeType } from '../../Components/port/ShapeType'
-import { nextTurnEvent } from '../nextTurn/nextTurn'
-import { gameScreenDimension } from '../../Components/port/Dimension'
-import { drawEvent } from '../draw/draw'
 import { movingEntityNotSupported } from '../../Systems/Moving/MovingSystem'
+import { drawEvent } from '../draw/draw'
+import { nextTurnEvent } from '../nextTurn/nextTurn'
+import { notEnoughActionPointNotificationMessage, notifyPlayerEvent, positionAlreadyOccupiedNotificationMessage, wrongPlayerPhaseNotificationMessage, wrongUnitPhaseNotificationMessage } from '../notifyPlayer/notifyPlayer'
+import { moveEvent } from './move'
 
 const gridFirstCellPosition = position(0, 0)
 feature(featureEventDescription(Action.move), () => {
@@ -25,14 +25,14 @@ feature(featureEventDescription(Action.move), () => {
             .buildEntity(EntityId.playerARobot).withPhysicalComponent(playerARobotFirstPosition(gridFirstCellPosition), ShapeType.robot, true).withEntityReferences(EntityType.robot).save()
             .buildEntity(EntityId.cellx1y2).withPhysicalComponent(position(1, 2), ShapeType.cell, true).save()
         , [
-            (game, adapters) => theEntityWithIdHasTheExpectedComponent(TestStep.Given, adapters, EntityId.match, Phasing, new Phasing(EntityId.match, playerARobotPhase())),
-            (game, adapters) => theEntityWithIdHasTheExpectedComponent(TestStep.And, adapters, EntityId.playerARobot, Physical, new Physical(EntityId.playerARobot, position(2, 2), ShapeType.robot, true)),
-            (game, adapters) => theEntityWithIdHasTheExpectedComponent(TestStep.And, adapters, EntityId.cellx1y2, Physical, new Physical(EntityId.cellx1y2, position(1, 2), ShapeType.cell, true)),
+            (game, adapters) => theEntityWithIdHasTheExpectedComponent(TestStep.Given, adapters, EntityId.match, makePhasing(EntityId.match, playerARobotPhase())),
+            (game, adapters) => theEntityWithIdHasTheExpectedComponent(TestStep.And, adapters, EntityId.playerARobot, makePhysical(EntityId.playerARobot, position(2, 2), ShapeType.robot, true)),
+            (game, adapters) => theEntityWithIdHasTheExpectedComponent(TestStep.And, adapters, EntityId.cellx1y2, makePhysical(EntityId.cellx1y2, position(1, 2), ShapeType.cell, true)),
             ...whenEventOccured(),
-            (game, adapters) => theEntityWithIdHasTheExpectedComponent(TestStep.Then, adapters, EntityId.playerARobot, Physical, new Physical(EntityId.playerARobot, position(1, 2), ShapeType.robot, true)),
-            (game, adapters) => theEntityWithIdHasTheExpectedComponent(TestStep.And, adapters, EntityId.match, Phasing, new Phasing(EntityId.match, playerARobotPhase(11))),
+            (game, adapters) => theEntityWithIdHasTheExpectedComponent(TestStep.Then, adapters, EntityId.playerARobot, makePhysical(EntityId.playerARobot, position(1, 2), ShapeType.robot, true)),
+            (game, adapters) => theEntityWithIdHasTheExpectedComponent(TestStep.And, adapters, EntityId.match, makePhasing(EntityId.match, playerARobotPhase(11))),
             (game, adapters) => eventsAreSent(TestStep.And, adapters, 'server', [
-                drawEvent(EntityId.playerA, new Physical(EntityId.playerARobot, position(1, 2), ShapeType.robot, true))
+                drawEvent(EntityId.playerA, makePhysical(EntityId.playerARobot, position(1, 2), ShapeType.robot, true))
             ])
         ])
     serverScenario(`${Action.move} 2 - Robot Move Vertically`, moveEvent(EntityId.playerA, EntityType.robot, EntityId.playerARobot, EntityId.cellx2y1),
@@ -43,14 +43,14 @@ feature(featureEventDescription(Action.move), () => {
             .buildEntity(EntityId.playerARobot).withPhysicalComponent(playerARobotFirstPosition(gridFirstCellPosition), ShapeType.robot, true).withEntityReferences(EntityType.robot).save()
             .buildEntity(EntityId.playerA).withEntityReferences(EntityType.player, new Map([[EntityType.tower, [EntityId.playerATower]], [EntityType.robot, [EntityId.playerARobot]], [EntityType.match, [EntityId.match]]])).save()
         , [
-            (game, adapters) => theEntityWithIdHasTheExpectedComponent(TestStep.Given, adapters, EntityId.match, Phasing, new Phasing(EntityId.match, playerARobotPhase())),
-            (game, adapters) => theEntityWithIdHasTheExpectedComponent(TestStep.And, adapters, EntityId.playerARobot, Physical, new Physical(EntityId.playerARobot, position(2, 2), ShapeType.robot, true)),
-            (game, adapters) => theEntityWithIdHasTheExpectedComponent(TestStep.And, adapters, EntityId.cellx2y1, Physical, new Physical(EntityId.cellx2y1, position(2, 1), ShapeType.cell, true)),
+            (game, adapters) => theEntityWithIdHasTheExpectedComponent(TestStep.Given, adapters, EntityId.match, makePhasing(EntityId.match, playerARobotPhase())),
+            (game, adapters) => theEntityWithIdHasTheExpectedComponent(TestStep.And, adapters, EntityId.playerARobot, makePhysical(EntityId.playerARobot, position(2, 2), ShapeType.robot, true)),
+            (game, adapters) => theEntityWithIdHasTheExpectedComponent(TestStep.And, adapters, EntityId.cellx2y1, makePhysical(EntityId.cellx2y1, position(2, 1), ShapeType.cell, true)),
             ...whenEventOccured(),
-            (game, adapters) => theEntityWithIdHasTheExpectedComponent(TestStep.Then, adapters, EntityId.playerARobot, Physical, new Physical(EntityId.playerARobot, position(2, 1), ShapeType.robot, true)),
-            (game, adapters) => theEntityWithIdHasTheExpectedComponent(TestStep.And, adapters, EntityId.match, Phasing, new Phasing(EntityId.match, playerARobotPhase(11))),
+            (game, adapters) => theEntityWithIdHasTheExpectedComponent(TestStep.Then, adapters, EntityId.playerARobot, makePhysical(EntityId.playerARobot, position(2, 1), ShapeType.robot, true)),
+            (game, adapters) => theEntityWithIdHasTheExpectedComponent(TestStep.And, adapters, EntityId.match, makePhasing(EntityId.match, playerARobotPhase(11))),
             (game, adapters) => eventsAreSent(TestStep.And, adapters, 'server', [
-                drawEvent(EntityId.playerA, new Physical(EntityId.playerARobot, position(2, 1), ShapeType.robot, true))
+                drawEvent(EntityId.playerA, makePhysical(EntityId.playerARobot, position(2, 1), ShapeType.robot, true))
             ])
         ])
     serverScenario(`${Action.move} 3 - Robot Move Diagonally`, moveEvent(EntityId.playerA, EntityType.robot, EntityId.playerARobot, EntityId.cellx1y1),
@@ -61,14 +61,14 @@ feature(featureEventDescription(Action.move), () => {
             .buildEntity(EntityId.playerARobot).withPhysicalComponent(playerARobotFirstPosition(gridFirstCellPosition), ShapeType.robot, true).withEntityReferences(EntityType.robot).save()
             .buildEntity(EntityId.playerA).withEntityReferences(EntityType.player, new Map([[EntityType.tower, [EntityId.playerATower]], [EntityType.robot, [EntityId.playerARobot]], [EntityType.match, [EntityId.match]]])).save()
         , [
-            (game, adapters) => theEntityWithIdHasTheExpectedComponent(TestStep.Given, adapters, EntityId.match, Phasing, new Phasing(EntityId.match, playerARobotPhase())),
-            (game, adapters) => theEntityWithIdHasTheExpectedComponent(TestStep.And, adapters, EntityId.playerARobot, Physical, new Physical(EntityId.playerARobot, playerARobotFirstPosition(gridFirstCellPosition), ShapeType.robot, true)),
-            (game, adapters) => theEntityWithIdHasTheExpectedComponent(TestStep.And, adapters, EntityId.cellx1y1, Physical, new Physical(EntityId.cellx1y1, position(1, 1), ShapeType.cell, true)),
+            (game, adapters) => theEntityWithIdHasTheExpectedComponent(TestStep.Given, adapters, EntityId.match, makePhasing(EntityId.match, playerARobotPhase())),
+            (game, adapters) => theEntityWithIdHasTheExpectedComponent(TestStep.And, adapters, EntityId.playerARobot, makePhysical(EntityId.playerARobot, playerARobotFirstPosition(gridFirstCellPosition), ShapeType.robot, true)),
+            (game, adapters) => theEntityWithIdHasTheExpectedComponent(TestStep.And, adapters, EntityId.cellx1y1, makePhysical(EntityId.cellx1y1, position(1, 1), ShapeType.cell, true)),
             ...whenEventOccured(),
-            (game, adapters) => theEntityWithIdHasTheExpectedComponent(TestStep.Then, adapters, EntityId.playerARobot, Physical, new Physical(EntityId.playerARobot, position(1, 1), ShapeType.robot, true)),
-            (game, adapters) => theEntityWithIdHasTheExpectedComponent(TestStep.And, adapters, EntityId.match, Phasing, new Phasing(EntityId.match, playerARobotPhase(11))),
+            (game, adapters) => theEntityWithIdHasTheExpectedComponent(TestStep.Then, adapters, EntityId.playerARobot, makePhysical(EntityId.playerARobot, position(1, 1), ShapeType.robot, true)),
+            (game, adapters) => theEntityWithIdHasTheExpectedComponent(TestStep.And, adapters, EntityId.match, makePhasing(EntityId.match, playerARobotPhase(11))),
             (game, adapters) => eventsAreSent(TestStep.And, adapters, 'server', [
-                drawEvent(EntityId.playerA, new Physical(EntityId.playerARobot, position(1, 1), ShapeType.robot, true))
+                drawEvent(EntityId.playerA, makePhysical(EntityId.playerARobot, position(1, 1), ShapeType.robot, true))
             ])
         ])
     serverScenario(`${Action.move} 4 - Can't Move Game Event - Tower of other player already on destination cell`, moveEvent(EntityId.playerA, EntityType.robot, EntityId.playerARobot, EntityId.cellx2y2),
@@ -81,13 +81,13 @@ feature(featureEventDescription(Action.move), () => {
             .buildEntity(EntityId.playerA).withEntityReferences(EntityType.player, new Map([[EntityType.tower, [EntityId.playerATower]], [EntityType.robot, [EntityId.playerARobot]], [EntityType.match, [EntityId.match]]])).save()
             .buildEntity(EntityId.playerB).withEntityReferences(EntityType.player, new Map([[EntityType.tower, [EntityId.playerBTower]], [EntityType.match, [EntityId.match]]])).save()
         , [
-            (game, adapters) => theEntityWithIdHasTheExpectedComponent(TestStep.Given, adapters, EntityId.match, Phasing, new Phasing(EntityId.match, playerARobotPhase())),
-            (game, adapters) => theEntityWithIdHasTheExpectedComponent(TestStep.And, adapters, EntityId.playerARobot, Physical, new Physical(EntityId.playerARobot, playerARobotFirstPosition(gridFirstCellPosition), ShapeType.robot, true)),
-            (game, adapters) => theEntityWithIdHasTheExpectedComponent(TestStep.And, adapters, EntityId.cellx2y2, Physical, new Physical(EntityId.cellx2y2, position(2, 2), ShapeType.cell, true)),
-            (game, adapters) => theEntityWithIdHasTheExpectedComponent(TestStep.And, adapters, EntityId.playerBTower, Physical, new Physical(EntityId.playerBTower, position(2, 2), ShapeType.tower, true)),
+            (game, adapters) => theEntityWithIdHasTheExpectedComponent(TestStep.Given, adapters, EntityId.match, makePhasing(EntityId.match, playerARobotPhase())),
+            (game, adapters) => theEntityWithIdHasTheExpectedComponent(TestStep.And, adapters, EntityId.playerARobot, makePhysical(EntityId.playerARobot, playerARobotFirstPosition(gridFirstCellPosition), ShapeType.robot, true)),
+            (game, adapters) => theEntityWithIdHasTheExpectedComponent(TestStep.And, adapters, EntityId.cellx2y2, makePhysical(EntityId.cellx2y2, position(2, 2), ShapeType.cell, true)),
+            (game, adapters) => theEntityWithIdHasTheExpectedComponent(TestStep.And, adapters, EntityId.playerBTower, makePhysical(EntityId.playerBTower, position(2, 2), ShapeType.tower, true)),
             ...whenEventOccured(),
-            (game, adapters) => theEntityWithIdHasTheExpectedComponent(TestStep.Then, adapters, EntityId.playerARobot, Physical, new Physical(EntityId.playerARobot, playerARobotFirstPosition(gridFirstCellPosition), ShapeType.robot, true)),
-            (game, adapters) => theEntityWithIdHasTheExpectedComponent(TestStep.And, adapters, EntityId.match, Phasing, new Phasing(EntityId.match, playerARobotPhase())),
+            (game, adapters) => theEntityWithIdHasTheExpectedComponent(TestStep.Then, adapters, EntityId.playerARobot, makePhysical(EntityId.playerARobot, playerARobotFirstPosition(gridFirstCellPosition), ShapeType.robot, true)),
+            (game, adapters) => theEntityWithIdHasTheExpectedComponent(TestStep.And, adapters, EntityId.match, makePhasing(EntityId.match, playerARobotPhase())),
             (game, adapters) => eventsAreSent(TestStep.And, adapters, 'server', [notifyPlayerEvent(EntityId.playerA, positionAlreadyOccupiedNotificationMessage)])
         ])
     serverScenario(`${Action.move} 5 - Can't Move Game Event - Tower of same player already on destination cell`, moveEvent(EntityId.playerB, EntityType.robot, EntityId.playerBRobot, EntityId.cellx2y2),
@@ -100,13 +100,13 @@ feature(featureEventDescription(Action.move), () => {
             .buildEntity(EntityId.playerA).withEntityReferences(EntityType.player, new Map([[EntityType.tower, [EntityId.playerATower]], [EntityType.match, [EntityId.match]]])).save()
             .buildEntity(EntityId.playerB).withEntityReferences(EntityType.player, new Map([[EntityType.tower, [EntityId.playerBTower]], [EntityType.robot, [EntityId.playerBRobot]], [EntityType.match, [EntityId.match]]])).save()
         , [
-            (game, adapters) => theEntityWithIdHasTheExpectedComponent(TestStep.Given, adapters, EntityId.match, Phasing, new Phasing(EntityId.match, playerBRobotPhase())),
-            (game, adapters) => theEntityWithIdHasTheExpectedComponent(TestStep.And, adapters, EntityId.playerBRobot, Physical, new Physical(EntityId.playerBRobot, position(1, 1), ShapeType.robot, true)),
-            (game, adapters) => theEntityWithIdHasTheExpectedComponent(TestStep.And, adapters, EntityId.cellx2y2, Physical, new Physical(EntityId.cellx2y2, position(2, 2), ShapeType.cell, true)),
-            (game, adapters) => theEntityWithIdHasTheExpectedComponent(TestStep.And, adapters, EntityId.playerBTower, Physical, new Physical(EntityId.playerBTower, position(2, 2), ShapeType.tower, true)),
+            (game, adapters) => theEntityWithIdHasTheExpectedComponent(TestStep.Given, adapters, EntityId.match, makePhasing(EntityId.match, playerBRobotPhase())),
+            (game, adapters) => theEntityWithIdHasTheExpectedComponent(TestStep.And, adapters, EntityId.playerBRobot, makePhysical(EntityId.playerBRobot, position(1, 1), ShapeType.robot, true)),
+            (game, adapters) => theEntityWithIdHasTheExpectedComponent(TestStep.And, adapters, EntityId.cellx2y2, makePhysical(EntityId.cellx2y2, position(2, 2), ShapeType.cell, true)),
+            (game, adapters) => theEntityWithIdHasTheExpectedComponent(TestStep.And, adapters, EntityId.playerBTower, makePhysical(EntityId.playerBTower, position(2, 2), ShapeType.tower, true)),
             ...whenEventOccured(),
-            (game, adapters) => theEntityWithIdHasTheExpectedComponent(TestStep.Then, adapters, EntityId.playerBRobot, Physical, new Physical(EntityId.playerBRobot, position(1, 1), ShapeType.robot, true)),
-            (game, adapters) => theEntityWithIdHasTheExpectedComponent(TestStep.And, adapters, EntityId.match, Phasing, new Phasing(EntityId.match, playerBRobotPhase())),
+            (game, adapters) => theEntityWithIdHasTheExpectedComponent(TestStep.Then, adapters, EntityId.playerBRobot, makePhysical(EntityId.playerBRobot, position(1, 1), ShapeType.robot, true)),
+            (game, adapters) => theEntityWithIdHasTheExpectedComponent(TestStep.And, adapters, EntityId.match, makePhasing(EntityId.match, playerBRobotPhase())),
             (game, adapters) => eventsAreSent(TestStep.And, adapters, 'server', [notifyPlayerEvent(EntityId.playerB, positionAlreadyOccupiedNotificationMessage)])
         ])
     serverScenario(`${Action.move} 6 - Can't Move Game Event - Robot of the other player already on destination cell`, moveEvent(EntityId.playerB, EntityType.robot, EntityId.playerBRobot, EntityId.cellx2y2),
@@ -120,13 +120,13 @@ feature(featureEventDescription(Action.move), () => {
             .buildEntity(EntityId.playerA).withEntityReferences(EntityType.player, new Map([[EntityType.tower, [EntityId.playerATower]], [EntityType.robot, [EntityId.playerARobot]], [EntityType.match, [EntityId.match]]])).save()
             .buildEntity(EntityId.playerB).withEntityReferences(EntityType.player, new Map([[EntityType.tower, [EntityId.playerBTower]], [EntityType.robot, [EntityId.playerBRobot]], [EntityType.match, [EntityId.match]]])).save()
         , [
-            (game, adapters) => theEntityWithIdHasTheExpectedComponent(TestStep.Given, adapters, EntityId.match, Phasing, new Phasing(EntityId.match, playerBRobotPhase())),
-            (game, adapters) => theEntityWithIdHasTheExpectedComponent(TestStep.And, adapters, EntityId.playerBRobot, Physical, new Physical(EntityId.playerBRobot, position(1, 2), ShapeType.robot, true)),
-            (game, adapters) => theEntityWithIdHasTheExpectedComponent(TestStep.And, adapters, EntityId.cellx2y2, Physical, new Physical(EntityId.cellx2y2, playerARobotFirstPosition(gridFirstCellPosition), ShapeType.cell, true)),
-            (game, adapters) => theEntityWithIdHasTheExpectedComponent(TestStep.And, adapters, EntityId.playerARobot, Physical, new Physical(EntityId.playerARobot, playerARobotFirstPosition(gridFirstCellPosition), ShapeType.robot, true)),
+            (game, adapters) => theEntityWithIdHasTheExpectedComponent(TestStep.Given, adapters, EntityId.match, makePhasing(EntityId.match, playerBRobotPhase())),
+            (game, adapters) => theEntityWithIdHasTheExpectedComponent(TestStep.And, adapters, EntityId.playerBRobot, makePhysical(EntityId.playerBRobot, position(1, 2), ShapeType.robot, true)),
+            (game, adapters) => theEntityWithIdHasTheExpectedComponent(TestStep.And, adapters, EntityId.cellx2y2, makePhysical(EntityId.cellx2y2, playerARobotFirstPosition(gridFirstCellPosition), ShapeType.cell, true)),
+            (game, adapters) => theEntityWithIdHasTheExpectedComponent(TestStep.And, adapters, EntityId.playerARobot, makePhysical(EntityId.playerARobot, playerARobotFirstPosition(gridFirstCellPosition), ShapeType.robot, true)),
             ...whenEventOccured(),
-            (game, adapters) => theEntityWithIdHasTheExpectedComponent(TestStep.Then, adapters, EntityId.playerBRobot, Physical, new Physical(EntityId.playerBRobot, position(1, 2), ShapeType.robot, true)),
-            (game, adapters) => theEntityWithIdHasTheExpectedComponent(TestStep.And, adapters, EntityId.match, Phasing, new Phasing(EntityId.match, playerBRobotPhase())),
+            (game, adapters) => theEntityWithIdHasTheExpectedComponent(TestStep.Then, adapters, EntityId.playerBRobot, makePhysical(EntityId.playerBRobot, position(1, 2), ShapeType.robot, true)),
+            (game, adapters) => theEntityWithIdHasTheExpectedComponent(TestStep.And, adapters, EntityId.match, makePhasing(EntityId.match, playerBRobotPhase())),
             (game, adapters) => eventsAreSent(TestStep.And, adapters, 'server', [notifyPlayerEvent(EntityId.playerB, positionAlreadyOccupiedNotificationMessage)])
         ])
     serverScenario(`${Action.move} 7 - Can't Move Game Event - No action points`, moveEvent(EntityId.playerA, EntityType.robot, EntityId.playerARobot, EntityId.cellx2y1),
@@ -137,12 +137,12 @@ feature(featureEventDescription(Action.move), () => {
             .buildEntity(EntityId.cellx2y1).withPhysicalComponent(position(2, 1), ShapeType.cell, true).save()
             .buildEntity(EntityId.playerA).withEntityReferences(EntityType.player, new Map([[EntityType.tower, [EntityId.playerATower]], [EntityType.robot, [EntityId.playerARobot]], [EntityType.match, [EntityId.match]]])).save()
         , [
-            (game, adapters) => theEntityWithIdHasTheExpectedComponent(TestStep.Given, adapters, EntityId.match, Phasing, new Phasing(EntityId.match, playerARobotPhase(0))),
-            (game, adapters) => theEntityWithIdHasTheExpectedComponent(TestStep.And, adapters, EntityId.playerARobot, Physical, new Physical(EntityId.playerARobot, playerARobotFirstPosition(gridFirstCellPosition), ShapeType.robot, true)),
-            (game, adapters) => theEntityWithIdHasTheExpectedComponent(TestStep.And, adapters, EntityId.cellx2y1, Physical, new Physical(EntityId.cellx2y1, position(2, 1), ShapeType.cell, true)),
+            (game, adapters) => theEntityWithIdHasTheExpectedComponent(TestStep.Given, adapters, EntityId.match, makePhasing(EntityId.match, playerARobotPhase(0))),
+            (game, adapters) => theEntityWithIdHasTheExpectedComponent(TestStep.And, adapters, EntityId.playerARobot, makePhysical(EntityId.playerARobot, playerARobotFirstPosition(gridFirstCellPosition), ShapeType.robot, true)),
+            (game, adapters) => theEntityWithIdHasTheExpectedComponent(TestStep.And, adapters, EntityId.cellx2y1, makePhysical(EntityId.cellx2y1, position(2, 1), ShapeType.cell, true)),
             ...whenEventOccured(),
-            (game, adapters) => theEntityWithIdHasTheExpectedComponent(TestStep.Then, adapters, EntityId.playerARobot, Physical, new Physical(EntityId.playerARobot, playerARobotFirstPosition(gridFirstCellPosition), ShapeType.robot, true)),
-            (game, adapters) => theEntityWithIdHasTheExpectedComponent(TestStep.And, adapters, EntityId.match, Phasing, new Phasing(EntityId.match, playerARobotPhase(0))),
+            (game, adapters) => theEntityWithIdHasTheExpectedComponent(TestStep.Then, adapters, EntityId.playerARobot, makePhysical(EntityId.playerARobot, playerARobotFirstPosition(gridFirstCellPosition), ShapeType.robot, true)),
+            (game, adapters) => theEntityWithIdHasTheExpectedComponent(TestStep.And, adapters, EntityId.match, makePhasing(EntityId.match, playerARobotPhase(0))),
             (game, adapters) => eventsAreSent(TestStep.And, adapters, 'server', [notifyPlayerEvent(EntityId.playerA, notEnoughActionPointNotificationMessage)])
         ])
     serverScenario(`${Action.move} 8 - Can't Move Game Event - Bad Player`, moveEvent(EntityId.playerB, EntityType.robot, EntityId.playerARobot, EntityId.cellx2y1),
@@ -155,12 +155,12 @@ feature(featureEventDescription(Action.move), () => {
             .buildEntity(EntityId.playerA).withEntityReferences(EntityType.player, new Map([[EntityType.robot, [EntityId.playerARobot]], [EntityType.match, [EntityId.match]]])).save()
             .buildEntity(EntityId.playerB).withEntityReferences(EntityType.player, new Map([[EntityType.tower, [EntityId.playerBTower]], [EntityType.robot, [EntityId.playerBRobot]], [EntityType.match, [EntityId.match]]])).save()
         , [
-            (game, adapters) => theEntityWithIdHasTheExpectedComponent(TestStep.Given, adapters, EntityId.match, Phasing, new Phasing(EntityId.match, playerARobotPhase())),
-            (game, adapters) => theEntityWithIdHasTheExpectedComponent(TestStep.And, adapters, EntityId.playerARobot, Physical, new Physical(EntityId.playerARobot, playerARobotFirstPosition(gridFirstCellPosition), ShapeType.robot, true)),
-            (game, adapters) => theEntityWithIdHasTheExpectedComponent(TestStep.And, adapters, EntityId.cellx2y1, Physical, new Physical(EntityId.cellx2y1, position(2, 1), ShapeType.cell, true)),
+            (game, adapters) => theEntityWithIdHasTheExpectedComponent(TestStep.Given, adapters, EntityId.match, makePhasing(EntityId.match, playerARobotPhase())),
+            (game, adapters) => theEntityWithIdHasTheExpectedComponent(TestStep.And, adapters, EntityId.playerARobot, makePhysical(EntityId.playerARobot, playerARobotFirstPosition(gridFirstCellPosition), ShapeType.robot, true)),
+            (game, adapters) => theEntityWithIdHasTheExpectedComponent(TestStep.And, adapters, EntityId.cellx2y1, makePhysical(EntityId.cellx2y1, position(2, 1), ShapeType.cell, true)),
             ...whenEventOccured(),
-            (game, adapters) => theEntityWithIdHasTheExpectedComponent(TestStep.Then, adapters, EntityId.playerARobot, Physical, new Physical(EntityId.playerARobot, playerARobotFirstPosition(gridFirstCellPosition), ShapeType.robot, true)),
-            (game, adapters) => theEntityWithIdHasTheExpectedComponent(TestStep.And, adapters, EntityId.match, Phasing, new Phasing(EntityId.match, playerARobotPhase())),
+            (game, adapters) => theEntityWithIdHasTheExpectedComponent(TestStep.Then, adapters, EntityId.playerARobot, makePhysical(EntityId.playerARobot, playerARobotFirstPosition(gridFirstCellPosition), ShapeType.robot, true)),
+            (game, adapters) => theEntityWithIdHasTheExpectedComponent(TestStep.And, adapters, EntityId.match, makePhasing(EntityId.match, playerARobotPhase())),
             (game, adapters) => eventsAreSent(TestStep.And, adapters, 'server', [notifyPlayerEvent(EntityId.playerB, wrongPlayerPhaseNotificationMessage(EntityId.playerB))])
         ])
     serverScenario(`${Action.move} 9 - Can't Move Game Event - Bad Unit`, moveEvent(EntityId.playerA, EntityType.robot, EntityId.playerARobot, EntityId.cellx2y1),
@@ -171,11 +171,11 @@ feature(featureEventDescription(Action.move), () => {
             .buildRobot(EntityId.playerARobot, position(24, 24)).save()
             .buildEntity(EntityId.cellx2y1).withPhysicalComponent(position(24, 23), ShapeType.cell, true).save()
         , [
-            (game, adapters) => theEntityWithIdHasTheExpectedComponent(TestStep.Given, adapters, EntityId.match, Phasing, new Phasing(EntityId.match, playerATowerPhase())),
-            (game, adapters) => theEntityWithIdHasTheExpectedComponent(TestStep.And, adapters, EntityId.playerARobot, Physical, new Physical(EntityId.playerARobot, position(24, 24), ShapeType.robot, true)),
+            (game, adapters) => theEntityWithIdHasTheExpectedComponent(TestStep.Given, adapters, EntityId.match, makePhasing(EntityId.match, playerATowerPhase())),
+            (game, adapters) => theEntityWithIdHasTheExpectedComponent(TestStep.And, adapters, EntityId.playerARobot, makePhysical(EntityId.playerARobot, position(24, 24), ShapeType.robot, true)),
             ...whenEventOccured(),
-            (game, adapters) => theEntityWithIdHasTheExpectedComponent(TestStep.Then, adapters, EntityId.playerARobot, Physical, new Physical(EntityId.playerARobot, position(24, 24), ShapeType.robot, true)),
-            (game, adapters) => theEntityWithIdHasTheExpectedComponent(TestStep.And, adapters, EntityId.match, Phasing, new Phasing(EntityId.match, playerATowerPhase())),
+            (game, adapters) => theEntityWithIdHasTheExpectedComponent(TestStep.Then, adapters, EntityId.playerARobot, makePhysical(EntityId.playerARobot, position(24, 24), ShapeType.robot, true)),
+            (game, adapters) => theEntityWithIdHasTheExpectedComponent(TestStep.And, adapters, EntityId.match, makePhasing(EntityId.match, playerATowerPhase())),
             (game, adapters) => eventsAreSent(TestStep.And, adapters, 'server', [notifyPlayerEvent(EntityId.playerA, wrongUnitPhaseNotificationMessage(playerATowerPhase()))])
         ])
     serverScenario(`${Action.move} 10 - Auto move on player A Tower Placement Phase`, moveEvent(EntityId.playerA, EntityType.tower, EntityId.playerATower, EntityId.cellx1y1),
@@ -187,10 +187,10 @@ feature(featureEventDescription(Action.move), () => {
             .buildEntity(EntityId.cellx1y1).withPhysicalComponent(playerATowerFirstPosition(gridFirstCellPosition), ShapeType.cell, true).save()
         , [
             ...whenEventOccured(),
-            (game, adapters) => theEntityWithIdHasTheExpectedComponent(TestStep.Then, adapters, EntityId.playerATower, Physical, new Physical(EntityId.playerATower, playerATowerFirstPosition(gridFirstCellPosition), ShapeType.tower, true)),
+            (game, adapters) => theEntityWithIdHasTheExpectedComponent(TestStep.Then, adapters, EntityId.playerATower, makePhysical(EntityId.playerATower, playerATowerFirstPosition(gridFirstCellPosition), ShapeType.tower, true)),
             (game, adapters) => eventsAreSent(TestStep.And, adapters, 'server', [
                 nextTurnEvent(EntityId.match),
-                drawEvent(EntityId.playerA, new Physical(EntityId.playerATower, playerATowerFirstPosition(gridFirstCellPosition), ShapeType.tower, true))
+                drawEvent(EntityId.playerA, makePhysical(EntityId.playerATower, playerATowerFirstPosition(gridFirstCellPosition), ShapeType.tower, true))
             ])
         ])
     serverScenario(`${Action.move} 11 - Auto move on player A Robot Placement Phase`, moveEvent(EntityId.playerA, EntityType.robot, EntityId.playerARobot, EntityId.cellx2y2),
@@ -202,10 +202,10 @@ feature(featureEventDescription(Action.move), () => {
             .buildEntity(EntityId.cellx2y2).withPhysicalComponent(playerARobotFirstPosition(gridFirstCellPosition), ShapeType.cell, true).save()
         , [
             ...whenEventOccured(),
-            (game, adapters) => theEntityWithIdHasTheExpectedComponent(TestStep.Then, adapters, EntityId.playerARobot, Physical, new Physical(EntityId.playerARobot, playerARobotFirstPosition(gridFirstCellPosition), ShapeType.robot, true)),
+            (game, adapters) => theEntityWithIdHasTheExpectedComponent(TestStep.Then, adapters, EntityId.playerARobot, makePhysical(EntityId.playerARobot, playerARobotFirstPosition(gridFirstCellPosition), ShapeType.robot, true)),
             (game, adapters) => eventsAreSent(TestStep.And, adapters, 'server', [
                 nextTurnEvent(EntityId.match),
-                drawEvent(EntityId.playerA, new Physical(EntityId.playerARobot, playerARobotFirstPosition(gridFirstCellPosition), ShapeType.robot, true))
+                drawEvent(EntityId.playerA, makePhysical(EntityId.playerARobot, playerARobotFirstPosition(gridFirstCellPosition), ShapeType.robot, true))
             ])
         ])
     serverScenario(`${Action.move} 12 - Auto move on player B Tower Placement Phase`, moveEvent(EntityId.playerB, EntityType.tower, EntityId.playerBTower, EntityId.cellx24y24),
@@ -220,11 +220,11 @@ feature(featureEventDescription(Action.move), () => {
             .buildEntity(EntityId.cellx24y24).withPhysicalComponent(playerBTowerFirstPosition(gridFirstCellPosition, gameScreenDimension), ShapeType.cell, true).save()
         , [
             ...whenEventOccured(),
-            (game, adapters) => theEntityWithIdHasTheExpectedComponent(TestStep.Then, adapters, EntityId.playerBTower, Physical, new Physical(EntityId.playerBTower, playerBTowerFirstPosition(gridFirstCellPosition, gameScreenDimension), ShapeType.tower, true)),
+            (game, adapters) => theEntityWithIdHasTheExpectedComponent(TestStep.Then, adapters, EntityId.playerBTower, makePhysical(EntityId.playerBTower, playerBTowerFirstPosition(gridFirstCellPosition, gameScreenDimension), ShapeType.tower, true)),
             (game, adapters) => eventsAreSent(TestStep.And, adapters, 'server', [
                 nextTurnEvent(EntityId.match),
-                drawEvent(EntityId.playerA, new Physical(EntityId.playerBTower, playerBTowerFirstPosition(gridFirstCellPosition, gameScreenDimension), ShapeType.tower, true)),
-                drawEvent(EntityId.playerB, new Physical(EntityId.playerBTower, playerBTowerFirstPosition(gridFirstCellPosition, gameScreenDimension), ShapeType.tower, true))
+                drawEvent(EntityId.playerA, makePhysical(EntityId.playerBTower, playerBTowerFirstPosition(gridFirstCellPosition, gameScreenDimension), ShapeType.tower, true)),
+                drawEvent(EntityId.playerB, makePhysical(EntityId.playerBTower, playerBTowerFirstPosition(gridFirstCellPosition, gameScreenDimension), ShapeType.tower, true))
             ])
         ])
     serverScenario(`${Action.move} 13 - Auto move on player B Robot Placement Phase`, moveEvent(EntityId.playerB, EntityType.robot, EntityId.playerBRobot, EntityId.cellx24y24),
@@ -239,11 +239,11 @@ feature(featureEventDescription(Action.move), () => {
             .buildEntity(EntityId.cellx24y24).withPhysicalComponent(playerBRobotFirstPosition(gridFirstCellPosition, gameScreenDimension), ShapeType.cell, true).save()
         , [
             ...whenEventOccured(),
-            (game, adapters) => theEntityWithIdHasTheExpectedComponent(TestStep.Then, adapters, EntityId.playerBRobot, Physical, new Physical(EntityId.playerBRobot, playerBRobotFirstPosition(gridFirstCellPosition, gameScreenDimension), ShapeType.robot, true)),
+            (game, adapters) => theEntityWithIdHasTheExpectedComponent(TestStep.Then, adapters, EntityId.playerBRobot, makePhysical(EntityId.playerBRobot, playerBRobotFirstPosition(gridFirstCellPosition, gameScreenDimension), ShapeType.robot, true)),
             (game, adapters) => eventsAreSent(TestStep.And, adapters, 'server', [
                 nextTurnEvent(EntityId.match),
-                drawEvent(EntityId.playerA, new Physical(EntityId.playerBRobot, playerBRobotFirstPosition(gridFirstCellPosition, gameScreenDimension), ShapeType.robot, true)),
-                drawEvent(EntityId.playerB, new Physical(EntityId.playerBRobot, playerBRobotFirstPosition(gridFirstCellPosition, gameScreenDimension), ShapeType.robot, true))
+                drawEvent(EntityId.playerA, makePhysical(EntityId.playerBRobot, playerBRobotFirstPosition(gridFirstCellPosition, gameScreenDimension), ShapeType.robot, true)),
+                drawEvent(EntityId.playerB, makePhysical(EntityId.playerBRobot, playerBRobotFirstPosition(gridFirstCellPosition, gameScreenDimension), ShapeType.robot, true))
             ])
         ])
     serverScenario(`${Action.move} 14 - Tower can't move.`, moveEvent(EntityId.playerB, EntityType.tower, EntityId.playerBTower, EntityId.cellx0y0),
@@ -254,11 +254,11 @@ feature(featureEventDescription(Action.move), () => {
             .buildTower(EntityId.playerBTower, playerBTowerFirstPosition(gridFirstCellPosition, gameScreenDimension)).withEntityReferences(EntityType.tower).save()
 
         , [
-            (game, adapters) => theEntityWithIdHasTheExpectedComponent(TestStep.Given, adapters, EntityId.playerBTower, Physical, new Physical(EntityId.playerBTower, playerBTowerFirstPosition(gridFirstCellPosition, gameScreenDimension), ShapeType.tower, true)),
-            (game, adapters) => theEntityWithIdHasTheExpectedComponent(TestStep.And, adapters, EntityId.match, Phasing, new Phasing(EntityId.match, playerBTowerPhase())),
+            (game, adapters) => theEntityWithIdHasTheExpectedComponent(TestStep.Given, adapters, EntityId.playerBTower, makePhysical(EntityId.playerBTower, playerBTowerFirstPosition(gridFirstCellPosition, gameScreenDimension), ShapeType.tower, true)),
+            (game, adapters) => theEntityWithIdHasTheExpectedComponent(TestStep.And, adapters, EntityId.match, makePhasing(EntityId.match, playerBTowerPhase())),
             ...whenEventOccured(),
-            (game, adapters) => theEntityWithIdHasTheExpectedComponent(TestStep.Then, adapters, EntityId.playerBTower, Physical, new Physical(EntityId.playerBTower, playerBTowerFirstPosition(gridFirstCellPosition, gameScreenDimension), ShapeType.tower, true)),
-            (game, adapters) => theEntityWithIdHasTheExpectedComponent(TestStep.And, adapters, EntityId.match, Phasing, new Phasing(EntityId.match, playerBTowerPhase())),
+            (game, adapters) => theEntityWithIdHasTheExpectedComponent(TestStep.Then, adapters, EntityId.playerBTower, makePhysical(EntityId.playerBTower, playerBTowerFirstPosition(gridFirstCellPosition, gameScreenDimension), ShapeType.tower, true)),
+            (game, adapters) => theEntityWithIdHasTheExpectedComponent(TestStep.And, adapters, EntityId.match, makePhasing(EntityId.match, playerBTowerPhase())),
             (game, adapters) => eventsAreSent(TestStep.And, adapters, 'server', [
                 notifyPlayerEvent(EntityId.playerB, movingEntityNotSupported)
             ])

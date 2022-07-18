@@ -1,11 +1,11 @@
 import { ControlStatus } from './port/ControlStatus'
 import { GenericComponent } from './GenericComponent'
-
-export class Controller extends GenericComponent {
-    constructor (entityId: string, primaryButton:ControlStatus) {
-        super(entityId)
-        this.primaryButton = primaryButton
-    }
-
-    primaryButton: ControlStatus;
-}
+import { EntityId } from '../Entities/Entity'
+export type Controller = GenericComponent<'Controller', {
+    primaryButton: ControlStatus
+}>
+export const makeController = (entityId:EntityId, primaryButton:ControlStatus): Controller => ({
+    componentType: 'Controller',
+    entityId,
+    primaryButton
+})

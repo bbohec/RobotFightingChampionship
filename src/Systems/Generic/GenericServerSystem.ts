@@ -19,8 +19,8 @@ export abstract class GenericServerSystem implements System {
             .catch(error => Promise.reject(error))
     }
 
-    protected entityReferencesByEntityId (playerId: string) {
-        return this.interactWithEntities.retrieveEntityComponentByEntityId(playerId, EntityReference)
+    protected entityReferencesByEntityId (entityId: string):EntityReference {
+        return this.interactWithEntities.retrieveyComponentByEntityId<EntityReference>(entityId)
     }
 
     abstract onGameEvent(gameEvent: GameEvent): Promise<void>;

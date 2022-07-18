@@ -51,21 +51,21 @@ export class ServerLifeCycleSystem extends GenericServerLifeCycleSystem {
     }
 
     unlinkEntityByLink (entityId: string, entityTypeLink:EntityType) {
-        const simpleMatchLobbyMenuEntityReference = this.interactWithEntities.retrieveEntityComponentByEntityId(entityId, EntityReference)
-        const playerEntityReference = this.interactWithEntities.retrieveEntityComponentByEntityId(simpleMatchLobbyMenuEntityReference.retrieveReference(entityTypeLink), EntityReference)
+        const simpleMatchLobbyMenuEntityReference = this.interactWithEntities.retrieveyComponentByEntityId(entityId, EntityReference)
+        const playerEntityReference = this.interactWithEntities.retrieveyComponentByEntityId(simpleMatchLobbyMenuEntityReference.retrieveReference(entityTypeLink), EntityReference)
         this.interactWithEntities.unlinkEntities(simpleMatchLobbyMenuEntityReference, playerEntityReference)
     }
 
     onGridDestroyEvents (gridId: string):GameEvent[] {
         const destroyGridEvents:GameEvent[] = []
-        const gridEntityReference = this.interactWithEntities.retrieveEntityComponentByEntityId(gridId, EntityReference)
+        const gridEntityReference = this.interactWithEntities.retrieveyComponentByEntityId(gridId, EntityReference)
         destroyGridEvents.push(...gridEntityReference.retrieveReferences(EntityType.cell).map(cellId => destroyCellEvent(cellId)))
         return destroyGridEvents
     }
 
     onMatchDestroyEvents (matchId:string):GameEvent[] {
         const destroyMatchEvent:GameEvent[] = []
-        const matchEntityReference = this.interactWithEntities.retrieveEntityComponentByEntityId(matchId, EntityReference)
+        const matchEntityReference = this.interactWithEntities.retrieveyComponentByEntityId(matchId, EntityReference)
         destroyMatchEvent.push(destroyGridEvent(matchEntityReference.retrieveReference(EntityType.grid)))
         destroyMatchEvent.push(destroyVictoryEvent(matchEntityReference.retrieveReference(EntityType.victory)))
         destroyMatchEvent.push(destroyDefeatEvent(matchEntityReference.retrieveReference(EntityType.defeat)))
@@ -145,8 +145,8 @@ export class ServerLifeCycleSystem extends GenericServerLifeCycleSystem {
         )
         const gridId = gameEvent.entityByEntityType(EntityType.grid)
         this.interactWithEntities.linkEntityToEntities(cellId, [gridId])
-        const matchId = this.interactWithEntities.retrieveEntityComponentByEntityId(gridId, EntityReference).retrieveReference(EntityType.match)
-        const players = this.interactWithEntities.retrieveEntityComponentByEntityId(matchId, EntityReference).retrieveReferences(EntityType.player)
+        const matchId = this.interactWithEntities.retrieveyComponentByEntityId(gridId, EntityReference).retrieveReference(EntityType.match)
+        const players = this.interactWithEntities.retrieveyComponentByEntityId(matchId, EntityReference).retrieveReferences(EntityType.player)
         return this.sendNextEvents(players.map(player => drawEvent(player, cellPhysicalComponentOnGameEvent)))
     }
 
@@ -160,18 +160,18 @@ export class ServerLifeCycleSystem extends GenericServerLifeCycleSystem {
         )
         const playerId = gameEvent.entityByEntityType(EntityType.player)
         this.interactWithEntities.linkEntityToEntities(playerSimpleMatchLobbyMenuId, [playerId])
-        const playerEntityReference = this.interactWithEntities.retrieveEntityComponentByEntityId(playerId, EntityReference)
+        const playerEntityReference = this.interactWithEntities.retrieveyComponentByEntityId(playerId, EntityReference)
         const playerMainMenuId = playerEntityReference.retrieveReference(EntityType.mainMenu)
         const playerButtons = playerEntityReference.retrieveReferences(EntityType.button)
-        const playerJoinSimpleMatchButtonId = this.interactWithEntities.retrieveEntityComponentByEntityId(playerMainMenuId, EntityReference).retrieveReferences(EntityType.button).find(mainMenuButton => playerButtons.some(playerButton => playerButton === mainMenuButton))
+        const playerJoinSimpleMatchButtonId = this.interactWithEntities.retrieveyComponentByEntityId(playerMainMenuId, EntityReference).retrieveReferences(EntityType.button).find(mainMenuButton => playerButtons.some(playerButton => playerButton === mainMenuButton))
 
         if (playerJoinSimpleMatchButtonId) {
-            const mainMenuPhysicalComponent = this.interactWithEntities.retrieveEntityComponentByEntityId(playerMainMenuId, Physical)
+            const mainMenuPhysicalComponent = this.interactWithEntities.retrieveyComponentByEntityId(playerMainMenuId, Physical)
             mainMenuPhysicalComponent.visible = false
-            const simpleMatchLobbyButtonPhysicalComponent = this.interactWithEntities.retrieveEntityComponentByEntityId(playerJoinSimpleMatchButtonId, Physical)
+            const simpleMatchLobbyButtonPhysicalComponent = this.interactWithEntities.retrieveyComponentByEntityId(playerJoinSimpleMatchButtonId, Physical)
             simpleMatchLobbyButtonPhysicalComponent.visible = false
             return this.sendNextEvents([
-                drawEvent(playerId, this.interactWithEntities.retrieveEntityComponentByEntityId(playerSimpleMatchLobbyMenuId, Physical)),
+                drawEvent(playerId, this.interactWithEntities.retrieveyComponentByEntityId(playerSimpleMatchLobbyMenuId, Physical)),
                 drawEvent(playerId, mainMenuPhysicalComponent),
                 drawEvent(playerId, simpleMatchLobbyButtonPhysicalComponent)
             ])
@@ -203,7 +203,7 @@ export class ServerLifeCycleSystem extends GenericServerLifeCycleSystem {
         )
         const playerId = gameEvent.entityByEntityType(EntityType.player)
         this.interactWithEntities.linkEntityToEntities(playerMainMenuEntityId, [playerId])
-        return this.sendEvent(drawEvent(playerId, this.interactWithEntities.retrieveEntityComponentByEntityId(playerMainMenuEntityId, Physical)))
+        return this.sendEvent(drawEvent(playerId, this.interactWithEntities.retrieveyComponentByEntityId(playerMainMenuEntityId, Physical)))
     }
 
     private createNextTurnPlayerMatchButton (playerNextTurnMatchButtonId: string, gameEvent: GameEvent): Promise<void> {
@@ -230,9 +230,9 @@ export class ServerLifeCycleSystem extends GenericServerLifeCycleSystem {
         this.interactWithEntities.linkEntityToEntities(joinSimpleMatchButtonId, [
             playerId,
             gameEvent.entityByEntityType(EntityType.simpleMatchLobby),
-            this.interactWithEntities.retrieveEntityComponentByEntityId(playerId, EntityReference).retrieveReference(EntityType.mainMenu)
+            this.interactWithEntities.retrieveyComponentByEntityId(playerId, EntityReference).retrieveReference(EntityType.mainMenu)
         ])
-        return this.sendEvent(drawEvent(playerId, this.interactWithEntities.retrieveEntityComponentByEntityId(joinSimpleMatchButtonId, Physical)))
+        return this.sendEvent(drawEvent(playerId, this.interactWithEntities.retrieveyComponentByEntityId(joinSimpleMatchButtonId, Physical)))
     }
 
     private createPlayerEntity (gameEvent: GameEvent): Promise<void> {

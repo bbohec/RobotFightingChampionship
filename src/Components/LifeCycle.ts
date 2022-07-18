@@ -1,4 +1,11 @@
 import { GenericComponent } from './GenericComponent'
-export class LifeCycle extends GenericComponent {
-    isCreated: boolean = false;
-}
+
+export type LifeCycle = GenericComponent<'LifeCycle', {
+    isCreated: boolean;
+}>
+
+export const makeLifeCycle = (entityId:string, isCreated:boolean = true): LifeCycle => ({
+    componentType: 'LifeCycle',
+    entityId,
+    isCreated
+})

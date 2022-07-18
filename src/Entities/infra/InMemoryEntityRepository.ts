@@ -1,8 +1,7 @@
 import { EntityInteractor } from '../ports/EntityInteractor'
 import { Entity } from '../Entity'
-import { PotentialClass } from '../ports/PotentialClass'
 import { Component } from '../../Components/port/Component'
-import { EntityReference } from '../../Components/EntityReference'
+import { EntityReference, retrieveReferences } from '../../Components/EntityReference'
 import { EntityType } from '../../Event/EntityType'
 
 export class InMemoryEntityRepository implements EntityInteractor {
@@ -23,8 +22,8 @@ export class InMemoryEntityRepository implements EntityInteractor {
     }
 
     linkEntities (originEntityId: string, targetEntityId: string): void {
-        const entityReferenceOriginEntity = this.retrieveEntityComponentByEntityId(originEntityId, EntityReference)
-        const entityReferenceTargetEntity = this.retrieveEntityComponentByEntityId(targetEntityId, EntityReference)
+        const entityReferenceOriginEntity = this.retrieveyComponentByEntityId<EntityReference>(originEntityId)
+        const entityReferenceTargetEntity = this.retrieveyComponentByEntityId<EntityReference>(targetEntityId)
         entityReferenceOriginEntity.entityType.forEach(entityType => this.addReference(entityType, originEntityId, entityReferenceTargetEntity))
         entityReferenceTargetEntity.entityType.forEach(entityType => this.addReference(entityType, targetEntityId, entityReferenceOriginEntity))
     }
@@ -38,12 +37,12 @@ export class InMemoryEntityRepository implements EntityInteractor {
     }
 
     deleteReference (entityReference: EntityReference, entityTypes: EntityType[], entityIdToRemovefromReferences: string) {
-        entityTypes.forEach(entityType => entityReference.entityReferences.set(entityType, entityReference.retrieveReferences(entityType).filter(reference => reference !== entityIdToRemovefromReferences)))
+        entityTypes.forEach(entityType => entityReference.entityReferences.set(entityType, retrieveReferences(entityReference, entityType).filter(reference => reference !== entityIdToRemovefromReferences)))
     }
 
-    retrieveEntityComponentByEntityId<Class extends Component> (entityId: string, potentialComponent: PotentialClass<Class>): Class {
-        if (this.hasEntityById(entityId)) return this.retrieveEntityById(entityId).retrieveComponent(potentialComponent)
-        throw new Error(cannotRetrieveComponentOnMissingEntity<Class>(potentialComponent, entityId))
+    retrieveyComponentByEntityId<Class extends Component> (entityId: string): Class {
+        if (this.hasEntityById(entityId)) return this.retrieveEntityById(entityId).retrieveComponent<Class>()
+        throw new Error(cannotRetrieveComponentOnMissingEntity<Class>(entityId))
     }
 
     isEntityHasComponentsByEntityId (entityId: string): boolean {
@@ -62,9 +61,9 @@ export class InMemoryEntityRepository implements EntityInteractor {
         throw new Error(missingEntityId(entityId, entityIds))
     }
 
-    retrieveEntitiesThatHaveComponent<PotentialComponent extends Component> (potentialComponent: PotentialClass<PotentialComponent>): Entity[] {
+    retrieveEntitiesThatHaveComponent<T extends Component> (): Entity[] {
         const entitiesWithComponent:Entity[] = []
-        for (const entity of this.entities.values()) if (entity.hasComponent(potentialComponent)) entitiesWithComponent.push(entity)
+        for (const entity of this.entities.values()) if (entity.hasComponent<T>()) entitiesWithComponent.push(entity)
         return entitiesWithComponent
     }
 
@@ -83,4 +82,4 @@ export class InMemoryEntityRepository implements EntityInteractor {
     entities: Map<string, Entity> = new Map([])
 }
 export const missingEntityId = (entityId: string, entityIds?: string[]): string => `Entity with id '${entityId}' missing on entity repository. ${entityIds ? `Current entities: ${entityIds}` : ''}`
-export const cannotRetrieveComponentOnMissingEntity = <Class extends Component> (potentialComponent: PotentialClass<Class>, entityId: string): string => `Cannot retrieve component '${potentialComponent.name}'. The entity '${entityId}' is missing on Entity Repository.`
+export const cannotRetrieveComponentOnMissingEntity = <T extends Component> (entityId: string): string => `Cannot retrieve component '${({} as T).componentType}'. The entity '${entityId}' is missing on Entity Repository.`
