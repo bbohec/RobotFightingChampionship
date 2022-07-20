@@ -1,5 +1,5 @@
 
-import { systemAlreadyInRepository, SystemInteractor, systemNotFoundOnRepository } from '../port/SystemInteractor'
+import { systemAlreadyInRepository, SystemInteractor, systemNotFoundOnRepository, SystemType } from '../port/SystemInteractor'
 import { System } from '../port/System'
 
 export class InMemorySystemRepository implements SystemInteractor {
@@ -8,10 +8,10 @@ export class InMemorySystemRepository implements SystemInteractor {
         this.systems.set(system.constructor.name, system)
     }
 
-    retrieveSystemByClass<Class extends System> (): Class {
-        const system = this.systems.get(({} as Class).constructor.name)
-        if (!system) throw new Error(systemNotFoundOnRepository<Class>())
-        return system as Class
+    retrieveSystemByClass<T extends System> (potentialSystem: SystemType<T>): T {
+        const system = this.systems.get(potentialSystem.name)
+        if (!system) throw new Error(systemNotFoundOnRepository<T>())
+        return system as T
     }
 
     private systems:Map<string, System> = new Map([])

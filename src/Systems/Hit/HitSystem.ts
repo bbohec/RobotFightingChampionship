@@ -8,14 +8,14 @@ import { Offensive } from '../../Components/Offensive'
 
 export class HitSystem extends GenericServerSystem {
     onGameEvent (gameEvent: GameEvent): Promise<void> {
-        return gameEvent.hasEntitiesByEntityType(EntityType.hittable) && gameEvent.hasEntitiesByEntityType(EntityType.attacker)
-            ? this.onHit(gameEvent.entityByEntityType(EntityType.hittable), gameEvent.entityByEntityType(EntityType.attacker))
+        return this.hasEntitiesByEntityType(gameEvent,EntityType.hittable) && this.hasEntitiesByEntityType(gameEvent,EntityType.attacker)
+            ? this.onHit(this.entityByEntityType(gameEvent,EntityType.hittable), this.entityByEntityType(gameEvent,EntityType.attacker))
             : Promise.reject(new Error(errorMessageOnUnknownEventAction(HitSystem.name, gameEvent)))
     }
 
     private onHit (hittableEntityId:string, offensiveEntityId:string): Promise<void> {
-        const hittableComponent = this.interactWithEntities.retrieveyComponentByEntityId<Hittable>(hittableEntityId)
-        this.removeHitPoints(hittableComponent, this.interactWithEntities.retrieveyComponentByEntityId<Offensive>(offensiveEntityId))
+        const hittableComponent = this.interactWithEntities.retrieveComponent<Hittable>(hittableEntityId)
+        this.removeHitPoints(hittableComponent, this.interactWithEntities.retrieveComponent<Offensive>(offensiveEntityId))
         return (hittableComponent.hitPoints <= 0) ? this.onNoMoreHitPoints(offensiveEntityId) : Promise.resolve()
     }
 

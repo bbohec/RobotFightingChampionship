@@ -1,13 +1,12 @@
-import { LifeCycle } from '../../Components/LifeCycle'
+import { makeLifeCycle } from '../../Components/LifeCycle'
+import { Component } from '../../Components/port/Component'
 import { Entity } from '../../Entities/Entity'
-import { GenericComponent } from '../../Components/GenericComponent'
 import { EntityInteractor } from '../../Entities/ports/EntityInteractor'
-import { IdentifierAdapter } from './port/IdentifierAdapter'
-import { GenericGameEventDispatcherSystem } from '../GameEventDispatcher/GenericGameEventDispatcherSystem'
-import { Action } from '../../Event/Action'
 import { GameEvent } from '../../Event/GameEvent'
+import { GenericGameEventDispatcherSystem } from '../GameEventDispatcher/GenericGameEventDispatcherSystem'
 import { GenericClientSystem } from '../Generic/GenericClientSystem'
-export const action = Action.create
+import { IdentifierAdapter } from './port/IdentifierAdapter'
+
 export abstract class GenericClientLifeCycleSystem extends GenericClientSystem {
     constructor (interactWithEntities: EntityInteractor, interactWithGameEventDispatcher:GenericGameEventDispatcherSystem, interactWithIdentifiers:IdentifierAdapter) {
         super(interactWithEntities, interactWithGameEventDispatcher)
@@ -16,7 +15,7 @@ export abstract class GenericClientLifeCycleSystem extends GenericClientSystem {
 
     abstract onGameEvent (gameEvent: GameEvent): Promise<void>
 
-    protected createEntity (entity: Entity, components?: GenericComponent[]): void {
+    protected createEntity (entity: Entity, components?: Component[]): void {
         this.interactWithEntities.saveEntity(entity)
         this.addLifeCycleComponent(entity)
         this.addOptionnalComponents(components, entity)
@@ -29,8 +28,7 @@ export abstract class GenericClientLifeCycleSystem extends GenericClientSystem {
     }
 
     private addLifeCycleComponent (entity: Entity) {
-        entity.addComponent(new LifeCycle(entity.id))
-        entity.retrieveComponent(LifeCycle).isCreated = true
+        entity.saveComponent(makeLifeCycle(entity.id, true))
     }
 
     protected sendOptionnalNextEvent (nextEvent?: GameEvent | GameEvent[]): Promise<void> {
@@ -41,8 +39,8 @@ export abstract class GenericClientLifeCycleSystem extends GenericClientSystem {
                 : this.sendNextEvents(nextEvent)
     }
 
-    private addOptionnalComponents (components: GenericComponent[] | undefined, entity: Entity) {
-        if (components) for (const component of components) entity.addComponent(component)
+    private addOptionnalComponents (components: Component[] | undefined, entity: Entity) {
+        if (components) for (const component of components) entity.saveComponent(component)
     }
 
     protected readonly interactWithIdentiers:IdentifierAdapter

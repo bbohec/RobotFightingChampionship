@@ -1,29 +1,31 @@
 import { EntityInteractor } from '../ports/EntityInteractor'
 import { Entity } from '../Entity'
-import { Component } from '../../Components/port/Component'
+import { Component, ComponentType } from '../../Components/port/Component'
 import { EntityReference, retrieveReferences } from '../../Components/EntityReference'
 import { EntityType } from '../../Event/EntityType'
 
 export class InMemoryEntityRepository implements EntityInteractor {
+    retreiveAllComponents ():Component[] {
+        const entities = [...this.entities.values()]
+        return entities.map(entity => entity.retrieveComponents()).flat()
+    }
+
     unlinkEntities (originEntityReference: EntityReference, targetEntityReference: EntityReference): void {
         this.deleteReference(originEntityReference, targetEntityReference.entityType, targetEntityReference.entityId)
         this.deleteReference(targetEntityReference, originEntityReference.entityType, originEntityReference.entityId)
     }
 
-    isEntityExist (entityId: string): boolean {
+    hasEntity (entityId: string): boolean {
         return this.entities.has(entityId)
     }
 
     linkEntityToEntities (originEntityId: string, targetEntityIds: string[]): void {
-        // [[EntityType.match, [gameEvent.entityByEntityType(EntityType.match)]], [EntityType.player, [gameEvent.entityByEntityType(EntityType.player)]]]
-        // this.interactWithEntities.retrieveEntityComponentByEntityId(gameEvent.entityByEntityType(EntityType.match), EntityReference).entityReferences.set(EntityType.button, [playerMatchButtonId])
-        // this.interactWithEntities.retrieveEntityComponentByEntityId(gameEvent.entityByEntityType(EntityType.player), EntityReference).entityReferences.set(EntityType.button, [playerMatchButtonId])
         targetEntityIds.forEach(targetEntityId => this.linkEntities(originEntityId, targetEntityId))
     }
 
     linkEntities (originEntityId: string, targetEntityId: string): void {
-        const entityReferenceOriginEntity = this.retrieveyComponentByEntityId<EntityReference>(originEntityId)
-        const entityReferenceTargetEntity = this.retrieveyComponentByEntityId<EntityReference>(targetEntityId)
+        const entityReferenceOriginEntity = this.retrieveComponent<EntityReference>(originEntityId)
+        const entityReferenceTargetEntity = this.retrieveComponent<EntityReference>(targetEntityId)
         entityReferenceOriginEntity.entityType.forEach(entityType => this.addReference(entityType, originEntityId, entityReferenceTargetEntity))
         entityReferenceTargetEntity.entityType.forEach(entityType => this.addReference(entityType, targetEntityId, entityReferenceOriginEntity))
     }
@@ -40,7 +42,7 @@ export class InMemoryEntityRepository implements EntityInteractor {
         entityTypes.forEach(entityType => entityReference.entityReferences.set(entityType, retrieveReferences(entityReference, entityType).filter(reference => reference !== entityIdToRemovefromReferences)))
     }
 
-    retrieveyComponentByEntityId<Class extends Component> (entityId: string): Class {
+    retrieveComponent<Class extends Component> (entityId: string): Class {
         if (this.hasEntityById(entityId)) return this.retrieveEntityById(entityId).retrieveComponent<Class>()
         throw new Error(cannotRetrieveComponentOnMissingEntity<Class>(entityId))
     }
@@ -49,7 +51,7 @@ export class InMemoryEntityRepository implements EntityInteractor {
         return this.retrieveEntityById(entityId).hasComponents()
     }
 
-    deleteEntityById (entityId: string) {
+    deleteEntity (entityId: string) {
         this.entities.delete(entityId)
     }
 
@@ -61,9 +63,9 @@ export class InMemoryEntityRepository implements EntityInteractor {
         throw new Error(missingEntityId(entityId, entityIds))
     }
 
-    retrieveEntitiesThatHaveComponent<T extends Component> (): Entity[] {
+    retrieveEntitiesThatHaveComponent (componentType:ComponentType): Entity[] {
         const entitiesWithComponent:Entity[] = []
-        for (const entity of this.entities.values()) if (entity.hasComponent<T>()) entitiesWithComponent.push(entity)
+        for (const entity of this.entities.values()) if (entity.hasComponent(componentType)) entitiesWithComponent.push(entity)
         return entitiesWithComponent
     }
 

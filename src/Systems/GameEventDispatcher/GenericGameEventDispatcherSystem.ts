@@ -1,13 +1,14 @@
 import { GameEvent } from '../../Event/GameEvent'
+import { GameEventHandler } from '../../Event/GameEventHandler'
 import { EventInteractor } from '../../EventInteractor/port/EventInteractor'
 import { System } from '../Generic/port/System'
 import { SystemInteractor } from '../Generic/port/SystemInteractor'
 
-export abstract class GenericGameEventDispatcherSystem implements System {
-    constructor (systemInteractor:SystemInteractor, eventInteractor:EventInteractor) {
-        this.interactWithSystems = systemInteractor
-        this.interactWithEvents = eventInteractor
-    }
+export abstract class GenericGameEventDispatcherSystem extends GameEventHandler implements System {
+    constructor (
+        protected interactWithSystems: SystemInteractor,
+        private interactWithEvents:EventInteractor
+    ) { super() }
 
     public sendEventToServer (gameEvent: GameEvent): Promise<void> {
         return this.interactWithEvents.sendEventToServer(gameEvent)
@@ -18,7 +19,4 @@ export abstract class GenericGameEventDispatcherSystem implements System {
     }
 
     abstract onGameEvent (gameEvent:GameEvent):Promise<void>
-
-    protected interactWithSystems: SystemInteractor
-    private interactWithEvents:EventInteractor
 }

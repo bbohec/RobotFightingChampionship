@@ -18,7 +18,7 @@ export class ServerGameEventDispatcherSystem extends GenericGameEventDispatcherS
             ? this.sendEventToClient(gameEvent)
             : gameEvent.action === Action.create || gameEvent.action === Action.destroy
                 ? this.interactWithSystems.retrieveSystemByClass(ServerLifeCycleSystem).onGameEvent(gameEvent)
-                : (gameEvent.action === Action.join && gameEvent.hasEntitiesByEntityType(EntityType.simpleMatchLobby)) || gameEvent.action === Action.waitingForPlayers
+                : (gameEvent.action === Action.join && this.hasEntitiesByEntityType(gameEvent, EntityType.simpleMatchLobby)) || gameEvent.action === Action.waitingForPlayers
                     ? this.interactWithSystems.retrieveSystemByClass(WaitingAreaSystem).onGameEvent(gameEvent)
                     : gameEvent.action === Action.join || gameEvent.action === Action.quit
                         ? this.interactWithSystems.retrieveSystemByClass(ServerMatchSystem).onGameEvent(gameEvent)
@@ -42,7 +42,7 @@ export class ServerGameEventDispatcherSystem extends GenericGameEventDispatcherS
     }
 
     onRegister (gameEvent: GameEvent): Promise<void> {
-        const isGameEventHasEntityType = (gameEvent:GameEvent, entityType:EntityType) => gameEvent.allEntityTypes().some(gameEventEntityType => gameEventEntityType === entityType)
+        const isGameEventHasEntityType = (gameEvent:GameEvent, entityType:EntityType) => this.allEntityTypes(gameEvent).some(gameEventEntityType => gameEventEntityType === entityType)
         const includesGrid = isGameEventHasEntityType(gameEvent, EntityType.grid)
         const includesRobot = isGameEventHasEntityType(gameEvent, EntityType.robot)
         const includesTower = isGameEventHasEntityType(gameEvent, EntityType.tower)

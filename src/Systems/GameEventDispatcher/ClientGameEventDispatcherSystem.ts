@@ -26,7 +26,7 @@ export class ClientGameEventDispatcherSystem extends GenericGameEventDispatcherS
     }
 
     private onRegister (gameEvent: GameEvent): Promise<void> {
-        return gameEvent.hasEntitiesByEntityType(EntityType.player) && gameEvent.hasEntitiesByEntityType(EntityType.pointer)
+        return this.hasEntitiesByEntityType(gameEvent, EntityType.player) && this.hasEntitiesByEntityType(gameEvent, EntityType.pointer)
             ? this.interactWithSystems.retrieveSystemByClass(ClientLifeCycleSystem).onGameEvent(gameEvent)
             : this.sendEventToServer(gameEvent)
     }

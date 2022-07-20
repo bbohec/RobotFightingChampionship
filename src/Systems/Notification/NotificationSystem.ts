@@ -15,11 +15,11 @@ export class NotificationSystem extends GenericClientSystem {
 
     onGameEvent (gameEvent: GameEvent): Promise<void> {
         const playerEntityReference = this.interactWithEntities
-            .retrieveEntitiesThatHaveComponent(EntityReference)
-            .map(entity => entity.retrieveComponent(EntityReference))
+            .retrieveEntitiesThatHaveComponent('EntityReference')
+            .map(entity => entity.retrieveComponent<EntityReference>())
             .find(entityReferenceComponent => entityReferenceComponent.entityType.includes(EntityType.player))
-        const message = gameEvent.entityByEntityType(EntityType.message)
-        const eventPlayerId = gameEvent.entityByEntityType(EntityType.player)
+        const message = this.entityByEntityType(gameEvent, EntityType.message)
+        const eventPlayerId = this.entityByEntityType(gameEvent, EntityType.player)
         return this.notificationPort.notify(playerEntityReference && playerEntityReference.entityId === eventPlayerId
             ? message
             : wrongPlayerNotificationMessage(eventPlayerId, message)

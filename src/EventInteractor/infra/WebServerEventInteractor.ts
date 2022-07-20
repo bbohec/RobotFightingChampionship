@@ -1,17 +1,15 @@
-import { v1 as uuid } from 'uuid'
 import { json, urlencoded } from 'body-parser'
 import { IncomingMessage, OutgoingHttpHeaders, ServerResponse } from 'http'
-import { ComponentBuilder } from '../../Components/port/ComponentBuilder'
-import { GameEvent } from '../../Event/GameEvent'
-import { SerializedGameEvent } from '../../Event/SerializedGameEvent'
+import { v1 as uuid } from 'uuid'
 import { EntityType } from '../../Event/EntityType'
-import { ComponentSerializer } from '../../Components/port/ComponentSerializer'
-import { SSEMessageType } from './SSE/SSEMessageType'
-import { SSEMessage } from './SSE/SSEMessage'
-import { ServerEventInteractor } from '../port/EventInteractor'
-import { ExpressWebServerInstance } from './ExpressWebServerInstance'
+import { GameEvent } from '../../Event/GameEvent'
 import { EventBus } from '../../Event/port/EventBus'
 import { Logger } from '../../Log/port/logger'
+import { ServerEventInteractor } from '../port/EventInteractor'
+import { ExpressWebServerInstance } from './ExpressWebServerInstance'
+import { SSEMessage } from './SSE/SSEMessage'
+import { SSEMessageType } from './SSE/SSEMessageType'
+
 export const serverBodyRequest = (stringifiedBody:string): string => `SERVER POST REQUEST : ${stringifiedBody}`
 export const clientGameEventUrlPath = '/clientGameEvent'
 export const productionSSERetryInterval = 5000
@@ -19,6 +17,7 @@ export const defaultHTTPWebServerPort = 80
 const sseClientClosedCheckInterval = 100
 const sseSendingMessageIntervalCheck = 50
 const serverGameEventUrlPath = '/serverGameEvents'
+
 export class WebServerEventInteractor implements ServerEventInteractor {
     constructor (webServer: ExpressWebServerInstance, eventBus: EventBus, sseRetryIntervalMilliseconds: number, logger:Logger) {
         this.webServer = webServer
@@ -70,7 +69,7 @@ export class WebServerEventInteractor implements ServerEventInteractor {
             : Promise.reject(new Error(sseClientMissingMessage(playerId)))
     }
 
-    private serializeEvent (gameEvent: GameEvent): SerializedGameEvent {
+    /* private serializeEvent (gameEvent: GameEvent): SerializedGameEvent {
         const serializedEvent = {
             action: gameEvent.action,
             entityRefences: gameEvent.entityRefences,
@@ -78,13 +77,15 @@ export class WebServerEventInteractor implements ServerEventInteractor {
         }
         return serializedEvent
     }
+    */
 
     private gameEventFromBody (body:string):GameEvent {
-        const parsedBody:SerializedGameEvent = JSON.parse(body, (key, value) => typeof value === 'object' && value !== null
+        const parsedBody:GameEvent = JSON.parse(body, (key, value) => typeof value === 'object' && value !== null
             ? value.dataType === 'Map' ? new Map(value.value) : value
             : value
         )
-        return new GameEvent({
+        return parsedBody
+        /* return new GameEvent({
             action: parsedBody.action,
             components: parsedBody.components.map(serializedComponent => {
                 const component = this.componentBuilder.buildComponent(serializedComponent)
@@ -93,6 +94,7 @@ export class WebServerEventInteractor implements ServerEventInteractor {
             }),
             entityRefences: parsedBody.entityRefences
         })
+        */
     }
 
     private registerSSEClient (clientId: string, request:IncomingMessage, response: ServerResponse) {
@@ -128,8 +130,8 @@ export class WebServerEventInteractor implements ServerEventInteractor {
         return sseMessage(uuid(), sseEventType, this.sseRetryIntervalMilliseconds)
     }
 
-    private makeSSEGameEventMessage (sseEventType: SSEMessageType, gameEvent: GameEvent | SerializedGameEvent): SSEMessage {
-        if (gameEvent instanceof GameEvent) gameEvent = this.serializeEvent(gameEvent)
+    private makeSSEGameEventMessage (sseEventType: SSEMessageType, gameEvent: GameEvent): SSEMessage {
+        // if (gameEvent instanceof GameEvent) gameEvent = this.serializeEvent(gameEvent)
         const data = JSON.stringify(gameEvent, (key: string, value: unknown) => value instanceof Map
             ? { dataType: 'Map', value: Array.from(value.entries()) }
             : value
@@ -179,11 +181,9 @@ export class WebServerEventInteractor implements ServerEventInteractor {
 
     readonly eventBus: EventBus;
     private sseSendingMessage: boolean = false
-    private componentBuilder = new ComponentBuilder();
     private webServer:ExpressWebServerInstance
     private registeredSSEClientResponses = new Map<string, ServerResponse>();
     private sseRetryIntervalMilliseconds: number;
-    private componentSerializer = new ComponentSerializer();
     private logger:Logger
 }
 

@@ -1,30 +1,30 @@
 import { EntityBuilder } from '../../Entities/entityBuilder'
 import { Action } from '../../Event/Action'
-import { EntityId } from '../../Event/entityIds'
+import { EntityIds } from '../../Event/entityIds'
 import { EntityType } from '../../Event/EntityType'
 import { clientScenario, feature, featureEventDescription, serverScenario, theEntityIsOnRepository, eventsAreSent, thereIsANotification, whenEventOccured } from '../../Event/test'
 import { TestStep } from '../../Event/TestStep'
 import { notEnoughActionPointNotificationMessage, notifyPlayerEvent, wrongPlayerNotificationMessage } from './notifyPlayer'
 
 feature(featureEventDescription(Action.notifyPlayer), () => {
-    serverScenario(`${Action.notifyPlayer} 1 - Server Side`, notifyPlayerEvent(EntityId.playerA, notEnoughActionPointNotificationMessage), undefined
+    serverScenario(`${Action.notifyPlayer} 1 - Server Side`, notifyPlayerEvent(EntityIds.playerA, notEnoughActionPointNotificationMessage), undefined
         , [
             ...whenEventOccured(),
-            (game, adapters) => eventsAreSent(TestStep.Then, adapters, 'client', [notifyPlayerEvent(EntityId.playerA, notEnoughActionPointNotificationMessage)])
+            (game, adapters) => eventsAreSent(TestStep.Then, adapters, 'client', [notifyPlayerEvent(EntityIds.playerA, notEnoughActionPointNotificationMessage)])
         ])
-    clientScenario(`${Action.notifyPlayer} 2 - Client Side`, notifyPlayerEvent(EntityId.playerA, notEnoughActionPointNotificationMessage), EntityId.playerA,
+    clientScenario(`${Action.notifyPlayer} 2 - Client Side`, notifyPlayerEvent(EntityIds.playerA, notEnoughActionPointNotificationMessage), EntityIds.playerA,
         (game, adapters) => () => new EntityBuilder(adapters.entityInteractor)
-            .buildEntity(EntityId.playerA).withEntityReferences(EntityType.player).save()
+            .buildEntity(EntityIds.playerA).withEntityReferences(EntityType.player).save()
         , [
             ...whenEventOccured(),
             (game, adapters) => thereIsANotification(TestStep.Then, adapters, notEnoughActionPointNotificationMessage)
         ], undefined)
-    clientScenario(`${Action.notifyPlayer} 3 - Client Side bad player`, notifyPlayerEvent(EntityId.playerB, notEnoughActionPointNotificationMessage), EntityId.playerA,
+    clientScenario(`${Action.notifyPlayer} 3 - Client Side bad player`, notifyPlayerEvent(EntityIds.playerB, notEnoughActionPointNotificationMessage), EntityIds.playerA,
         (game, adapters) => () => new EntityBuilder(adapters.entityInteractor)
-            .buildEntity(EntityId.playerA).withEntityReferences(EntityType.player).save()
+            .buildEntity(EntityIds.playerA).withEntityReferences(EntityType.player).save()
         , [
-            (game, adapters) => theEntityIsOnRepository(TestStep.Given, adapters, EntityId.playerA),
+            (game, adapters) => theEntityIsOnRepository(TestStep.Given, adapters, EntityIds.playerA),
             ...whenEventOccured(),
-            (game, adapters) => thereIsANotification(TestStep.Then, adapters, wrongPlayerNotificationMessage(EntityId.playerB, notEnoughActionPointNotificationMessage))
+            (game, adapters) => thereIsANotification(TestStep.Then, adapters, wrongPlayerNotificationMessage(EntityIds.playerB, notEnoughActionPointNotificationMessage))
         ], undefined)
 })

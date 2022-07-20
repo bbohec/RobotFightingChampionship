@@ -1,17 +1,17 @@
 import { Func } from 'mocha'
-import { position, Position, Physical } from '../../Components/Physical'
+import { makePhysical, position, Position } from '../../Components/Physical'
 import { ShapeType } from '../../Components/port/ShapeType'
 import { Action } from '../../Event/Action'
-import { EntityId } from '../../Event/entityIds'
+import { EntityIds } from '../../Event/entityIds'
 import { EntityType } from '../../Event/EntityType'
 import { GameEvent, newGameEvent } from '../../Event/GameEvent'
 import { InMemoryEventBus } from '../../Event/infra/InMemoryEventBus'
-import { WebClientEventInteractor } from '../infra/WebClientEventInteractor'
+import { ConsoleLogger } from '../../Log/infra/consoleLogger'
 import { InMemoryClientEventInteractor } from '../infra/InMemoryClientEventInteractor'
 import { InMemoryServerEventInteractor } from '../infra/InMemoryServerEventInteractor'
-import { ClientEventInteractor, ServerEventInteractor } from './EventInteractor'
+import { WebClientEventInteractor } from '../infra/WebClientEventInteractor'
 import { defaultHTTPWebServerPort } from '../infra/WebServerEventInteractor'
-import { ConsoleLogger } from '../../Log/infra/consoleLogger'
+import { ClientEventInteractor, ServerEventInteractor } from './EventInteractor'
 
 export interface ClientEventIntegrationTestSuite {
     clientEventInteractor:ClientEventInteractor
@@ -57,9 +57,9 @@ const configureInMemoryClientsOnServer = (serverEventInteractor: InMemoryServerE
 
 export const makeInMemoryClientEventIntegrationTestSuite = (playerId:string, position:Position): ClientEventIntegrationTestSuite => ({
     clientEventInteractor: new InMemoryClientEventInteractor(playerId, new InMemoryEventBus()),
-    clientEvents: [newGameEvent(Action.attack, new Map([[EntityType.player, [playerId]]]), [new Physical(EntityId.playerAPointer, position, ShapeType.pointer, true)])]
+    clientEvents: [newGameEvent(Action.attack, new Map([[EntityType.player, [playerId]]]), [makePhysical(EntityIds.playerAPointer, position, ShapeType.pointer, true)])]
 })
 export const makeRestClientEventIntegrationTestSuite = (playerId:string, position:Position): ClientEventIntegrationTestSuite => ({
     clientEventInteractor: new WebClientEventInteractor(serverFullyQualifiedDomainName, defaultHTTPWebServerPort, playerId, new InMemoryEventBus(), new ConsoleLogger('eventInteractor')),
-    clientEvents: [newGameEvent(Action.attack, new Map([[EntityType.player, [playerId]]]), [new Physical(EntityId.playerAPointer, position, ShapeType.pointer, true)])]
+    clientEvents: [newGameEvent(Action.attack, new Map([[EntityType.player, [playerId]]]), [makePhysical(EntityIds.playerAPointer, position, ShapeType.pointer, true)])]
 })

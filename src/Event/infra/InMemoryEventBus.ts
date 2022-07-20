@@ -1,9 +1,10 @@
-import { GameEvent } from '../GameEvent.js'
+import { GameEvent } from '../GameEvent'
 import { stringifyWithDetailledSetAndMap } from '../detailledStringify'
 import { gameEventNotFoundOnEventInteractor } from '../../EventInteractor/port/EventInteractor'
-import { EventBus } from '../port/EventBus.js'
+import { EventBus } from '../port/EventBus'
+import { GameEventHandler } from '../GameEventHandler'
 
-export class InMemoryEventBus implements EventBus {
+export class InMemoryEventBus extends GameEventHandler implements EventBus {
     public send (gameEvent: GameEvent): Promise<void> {
         this.events.push(gameEvent)
         return Promise.resolve()

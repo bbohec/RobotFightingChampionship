@@ -6,8 +6,8 @@ import { Action } from '../../Event/Action'
 import { EntityReference } from '../../Components/EntityReference'
 import { EntityType } from '../../Event/EntityType'
 import { badPlayerEventNotificationMessage } from '../../Events/notifyPlayer/notifyPlayer'
-import { Physical } from '../../Components/Physical'
 import { GenericClientSystem } from '../Generic/GenericClientSystem'
+import { Physical } from '../../Components/Physical'
 export class DrawingSystem extends GenericClientSystem {
     constructor (interactWithEntities: EntityInteractor, gameEventDispatcher: GenericGameEventDispatcherSystem, drawingPort:DrawingPort) {
         super(interactWithEntities, gameEventDispatcher)
@@ -16,10 +16,10 @@ export class DrawingSystem extends GenericClientSystem {
 
     onGameEvent (gameEvent: GameEvent): Promise<void> {
         const playerEntityReferenceComponent = this.interactWithEntities
-            .retrieveEntitiesThatHaveComponent<EntityReference>()
-            .map(entity => this.interactWithEntities.retrieveyComponentByEntityId<EntityReference>(entity.id))
+            .retrieveEntitiesThatHaveComponent('EntityReference')
+            .map(entity => this.interactWithEntities.retrieveComponent<EntityReference>(entity.id))
             .find(entityReference => entityReference.entityType.includes(EntityType.player))
-        const eventPlayerReference = gameEvent.entityByEntityType(EntityType.player)
+        const eventPlayerReference = this.entityByEntityType(gameEvent, EntityType.player)
         if (playerEntityReferenceComponent && eventPlayerReference === playerEntityReferenceComponent.entityId) return this.onPlayerEvent(gameEvent)
         throw new Error(badPlayerEventNotificationMessage(eventPlayerReference))
     }
@@ -32,17 +32,18 @@ export class DrawingSystem extends GenericClientSystem {
     }
 
     drawEntities (gameEvent: GameEvent): Promise<void> {
-        return Promise.all(Array.from(gameEvent.allEntities()).map(entityId => this.drawEntity(entityId, gameEvent)))
+        return Promise.all(Array.from(this.allEntities(gameEvent)).map(entityId => this.drawEntity(entityId, gameEvent)))
             .then(() => Promise.resolve())
             .catch(error => Promise.reject(error))
     }
 
     drawEntity (entityId: string, gameEvent: GameEvent): Promise<void> {
-        return this.drawingPort.refreshEntity(gameEvent.retrieveComponent<Physical>(entityId))
+        const component = this.retrieveComponent<Physical>(gameEvent, entityId)
+        return this.drawingPort.refreshEntity(component)
     }
 
     hideEntities (gameEvent: GameEvent):Promise<void> {
-        return Promise.all(Array.from(gameEvent.allEntities()).map(entityId => this.drawingPort.refreshEntity(gameEvent.retrieveComponent<Physical>(entityId))))
+        return Promise.all(Array.from(this.allEntities(gameEvent)).map(entityId => this.drawingPort.refreshEntity(this.retrieveComponent<Physical>(gameEvent, entityId))))
             .then(() => Promise.resolve())
             .catch(error => Promise.reject(error))
     }

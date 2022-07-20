@@ -1,4 +1,5 @@
 import { v1 as uuid } from 'uuid'
+import { EntityId } from '../../../Entities/Entity'
 import { IdentifierAdapter } from '../port/IdentifierAdapter'
 
 export class FakeIdentifierAdapter implements IdentifierAdapter {
@@ -6,7 +7,7 @@ export class FakeIdentifierAdapter implements IdentifierAdapter {
         this.nextIdentifiers = (nextIdentifiers) || []
     }
 
-    nextIdentifier (): string {
+    nextIdentifier (): EntityId {
         const nextIdentifier = this.nextIdentifiers.shift()
         return (nextIdentifier) || uuid()
     }

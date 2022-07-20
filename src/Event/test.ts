@@ -108,7 +108,7 @@ export const theEntityIsCreated = (
 ) => it(entityIdCreated(testStep, potentialEntityId),
     () => expect(adapters
         .entityInteractor
-        .retrieveyComponentByEntityId<LifeCycle>(potentialEntityId)
+        .retrieveComponent<LifeCycle>(potentialEntityId)
         .isCreated)
         .to.be.true)
 
@@ -164,17 +164,26 @@ export const theEventIsNotSent = (
     })
 */
 
-export const theEntityWithIdHasTheExpectedComponent = (
+export const thereIsServerComponents = (
     testStep:TestStep,
-    adapters: GenericAdapter,
-    entityId: string,
-    expectedComponent: Component
-) => it(entityHasComponent(testStep, entityId, expectedComponent),
+    expectedComponents: Component[]
+) => (game:ServerGameSystem, adapters:FakeServerAdapters) => it(hasComponents(testStep, expectedComponents),
     () => {
-        const component = adapters
-            .entityInteractor
-            .retrieveyComponentByEntityId<typeof expectedComponent>(entityId)
-        expect(component).deep.equal(expectedComponent, componentDetailedComparisonMessage<typeof expectedComponent>(component, expectedComponent))
+        console.log(typeof expectedComponents)
+        const components = adapters
+            .entityInteractor.retreiveAllComponents()
+        expect(components).deep.equal(expectedComponents, componentDetailedComparisonMessage(components, expectedComponents))
+    })
+
+export const thereIsClientComponents = (
+    testStep:TestStep,
+    expectedComponents: Component[]
+) => (game:ClientGameSystem, adapters:FakeClientAdapters) => it(hasComponents(testStep, expectedComponents),
+    () => {
+        console.log(typeof expectedComponents)
+        const components = adapters
+            .entityInteractor.retreiveAllComponents()
+        expect(components).deep.equal(expectedComponents, componentDetailedComparisonMessage(components, expectedComponents))
     })
 export const theEntityWithIdDoNotHaveAnyComponent = (
     testStep:TestStep,
@@ -224,10 +233,12 @@ export const theControllerAdapterIsNotInteractive = (
 
 export const detailedComparisonMessage = (thing:unknown, expectedThing:unknown):string => `DETAILS\nexpected >>>>>>>> ${stringifyWithDetailledSetAndMap(thing)} \nto deeply equal > ${stringifyWithDetailledSetAndMap(expectedThing)} \n`
 const eventDetailedComparisonMessage = (gameEvents: GameEvent[], expectedGameEvents: GameEvent[]): string => `DETAILS\nexpected >>>>>>>> ${stringifyWithDetailledSetAndMap(gameEvents)} \nto deeply equal > ${stringifyWithDetailledSetAndMap(expectedGameEvents)} \n`
-const componentDetailedComparisonMessage = <T extends Component> (component: T, expectedComponent: T): string => `DETAILS\nexpected >>>>>>>> ${stringifyWithDetailledSetAndMap(component)} \nto deeply equal > ${stringifyWithDetailledSetAndMap(expectedComponent)} \n`
+const componentDetailedComparisonMessage = (components: Component[], expectedComponents: Component[]): string => `DETAILS\nexpected >>>>>>>> ${stringifyWithDetailledSetAndMap(components)} \nto deeply equal > ${stringifyWithDetailledSetAndMap(expectedComponents)} \n`
 const entityDontHaveComponent = (testStep: TestStep, entityId: string): string => `${testStep} the entity with id '${entityId}' don't have any component.`
-const entityHasComponent = (testStep: TestStep, entityId: string, expectedComponent: Component): string => `${testStep} the entity with id '${entityId}' has the expected '${expectedComponent.componentType}' component : 
-    ${stringifyWithDetailledSetAndMap(expectedComponent)}`
+
+const hasComponents = (testStep: TestStep, expectedComponents: Component[]): string => `${testStep} there is components :
+    ${stringifyWithDetailledSetAndMap(expectedComponents)}`
+
 const entityIdOnRepository = (testStep: TestStep, potentialEntityOrEntityId: string): string => `${testStep} there is an entity with id '${potentialEntityOrEntityId}' on entities repository.`
 const entityIdIsNotOnRepository = (testStep: TestStep, potentialEntityOrEntityId: string): string => `${testStep} there is no entity with id '${potentialEntityOrEntityId}' on entities repository.`
 const entityIdCreated = (testStep: TestStep, potentialEntityClassOrId: string): string => `${testStep} the entity with id '${potentialEntityClassOrId}' is created.`

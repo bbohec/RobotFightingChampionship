@@ -1,5 +1,5 @@
 import { Application } from 'pixi.js'
-import { EntityId } from '../../Event/entityIds'
+import { EntityIds } from '../../Event/entityIds'
 import { InMemoryEventBus } from '../../Event/infra/InMemoryEventBus'
 import { ConsoleLogger } from '../../Log/infra/consoleLogger'
 import { PixijsControllerAdapter } from '../../Systems/Controller/infra/PixijsControllerAdapter'
@@ -27,14 +27,14 @@ Promise.all([
     drawWalls(pixijsDrawingAdapter)
 ])
     .then(() => {
-        drawingAdapterLogger.info(pixijsDrawingAdapter.absolutePositionByEntityId(EntityId.playerBRobot))
+        drawingAdapterLogger.info(pixijsDrawingAdapter.absolutePositionByEntityId(EntityIds.playerBRobot))
         drawingAdapterLogger.info(pixijsDrawingAdapter.retrieveResolution())
-        drawingAdapterLogger.info(pixijsDrawingAdapter.retrieveDrawnEntities().get(EntityId.playerBRobot))
+        drawingAdapterLogger.info(pixijsDrawingAdapter.retrieveDrawnEntities().get(EntityIds.playerBRobot))
         // return setTimeout(() => pixijsAdapter.eraseAll(), waitingTimeSeconds * 1000)
     })
     .catch(error => { throw error })
 
 const interval:NodeJS.Timeout = setTimeout(() => runInterval(pixijsDrawingAdapter, interval, drawMovingEntityPhysicals(10, 80), waitingIntervalSeconds), waitingTimeSeconds * 1000)
 
-setTimeout(() => pixijsControllerAdapter.activate(EntityId.playerAPointer), waitingTimeSeconds * 1000)
+setTimeout(() => pixijsControllerAdapter.activate(EntityIds.playerAPointer), waitingTimeSeconds * 1000)
 setTimeout(() => eventBusLogger.info(inMemoryEventBus.events), waitingTimeSeconds * 1000 * 3)

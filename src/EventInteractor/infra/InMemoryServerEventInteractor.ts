@@ -1,39 +1,28 @@
-import { GameEvent } from '../../Event/GameEvent'
-import { SerializedGameEvent } from '../../Event/SerializedGameEvent'
-import { ClientEventInteractor, ServerEventInteractor } from '../port/EventInteractor'
-import { EventBus } from '../../Event/port/EventBus'
-import { InMemoryClientEventInteractor } from './InMemoryClientEventInteractor'
-import { ComponentBuilder } from '../../Components/port/ComponentBuilder'
-import { ComponentSerializer } from '../../Components/port/ComponentSerializer'
 import { EntityType } from '../../Event/EntityType'
-import { playerARobotManualPlacementPhase } from '../../Components/Phasing'
+import { GameEvent } from '../../Event/GameEvent'
+import { GameEventHandler } from '../../Event/GameEventHandler'
+import { EventBus } from '../../Event/port/EventBus'
+import { ClientEventInteractor, ServerEventInteractor } from '../port/EventInteractor'
+import { InMemoryClientEventInteractor } from './InMemoryClientEventInteractor'
 
-export class InMemoryServerEventInteractor implements ServerEventInteractor {
-    private clientEventInteractors: InMemoryClientEventInteractor[] | undefined;
+export class InMemoryServerEventInteractor extends GameEventHandler implements ServerEventInteractor {
+    constructor (
+        public eventBus: EventBus,
+        private clientEventInteractors: InMemoryClientEventInteractor[] | undefined
+    ) { super() }
 
     setClientEventInteractors (clientEventInteractors: InMemoryClientEventInteractor[]) {
         this.clientEventInteractors = clientEventInteractors
     }
 
-    constructor (eventBus: EventBus) {
-        this.eventBus = eventBus
-    }
-
-    sendEventToClient (gameEvent: GameEvent | SerializedGameEvent): Promise<void> {
-        if (this.clientEventInteractors && gameEvent instanceof GameEvent)
-            return this.clientEventInteractorByGameEventPlayerId(gameEvent).eventBus.send(gameEvent);
-        (gameEvent instanceof GameEvent)
-            ? this.eventBus.send(gameEvent)
-            : this.eventBus.send(new GameEvent({
-                action: gameEvent.action,
-                components: gameEvent.components.map(component => this.componentBuilder.buildComponent(component)),
-                entityRefences: gameEvent.entityRefences
-            }))
-        return Promise.resolve()
+    sendEventToClient (gameEvent: GameEvent): Promise<void> {
+        return (this.clientEventInteractors)
+            ? this.clientEventInteractorByGameEventPlayerId(gameEvent).eventBus.send(gameEvent)
+            : Promise.resolve()
     }
 
     clientEventInteractorByGameEventPlayerId (gameEvent: GameEvent): ClientEventInteractor {
-        const playerId = gameEvent.entityByEntityType(EntityType.player)
+        const playerId = this.entityByEntityType(gameEvent, EntityType.player)
         const clientEventInteractor = this.clientEventInteractors?.find(clientEventInteractor => clientEventInteractor.clientId === playerId)
         if (clientEventInteractor) return clientEventInteractor
         throw new Error(`Client event interactor with client id '${playerId}' missing.`)
@@ -43,15 +32,11 @@ export class InMemoryServerEventInteractor implements ServerEventInteractor {
         return this.eventBus.send(gameEvent)
     }
 
-    eventBus: EventBus;
     start (): Promise<void> {
         return Promise.resolve()
     }
 
-    stop ():  Promise<void>  {
+    stop (): Promise<void> {
         return Promise.resolve()
     }
-
-    private componentBuilder = new ComponentBuilder();
-    private componentSerializer = new ComponentSerializer();
 }

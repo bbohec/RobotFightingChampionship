@@ -1,6 +1,7 @@
 import { ControlStatus } from './port/ControlStatus'
-import { GenericComponent } from './GenericComponent'
 import { EntityId } from '../Entities/Entity'
+import { GenericComponent } from './port/Component'
+
 export type Controller = GenericComponent<'Controller', {
     primaryButton: ControlStatus
 }>

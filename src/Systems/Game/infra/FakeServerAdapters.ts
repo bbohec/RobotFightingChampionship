@@ -12,7 +12,7 @@ export class FakeServerAdapters implements serverAdapters {
     }
 
     identifierInteractor: IdentifierAdapter;
-    eventInteractor = new InMemoryServerEventInteractor(new InMemoryEventBus())
+    eventInteractor = new InMemoryServerEventInteractor(new InMemoryEventBus(), undefined)
     systemInteractor = new InMemorySystemRepository();
     entityInteractor = new InMemoryEntityRepository();
 }

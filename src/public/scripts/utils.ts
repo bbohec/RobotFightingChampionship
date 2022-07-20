@@ -1,7 +1,7 @@
 import { Physical, position } from '../../Components/Physical'
 import { v1 as uuid } from 'uuid'
 import { ShapeType } from '../../Components/port/ShapeType'
-import { EntityId } from '../../Event/entityIds'
+import { EntityIds } from '../../Event/entityIds'
 import { PixijsDrawingAdapter } from '../../Systems/Drawing/infra/PixijsDrawingAdapter'
 
 export function makeHorizontalWall (startingX: number, endingX: number, positionY:number) {
@@ -18,8 +18,8 @@ export function makeVerticalWall (startingY: number, endingY: number, positionX:
 
 export const drawFixedEntities = (pixijsAdapter:PixijsDrawingAdapter):Promise<void> => {
     return Promise.all([
-        new Physical(EntityId.playerBRobot, position(115, 15), ShapeType.robot, true),
-        new Physical(EntityId.playerBTower, position(5, 5), ShapeType.tower, true)
+        new Physical(EntityIds.playerBRobot, position(115, 15), ShapeType.robot, true),
+        new Physical(EntityIds.playerBTower, position(5, 5), ShapeType.tower, true)
     ].map(physical => pixijsAdapter.refreshEntity(physical)))
         .then(() => Promise.resolve())
         .catch(error => Promise.reject(error))
@@ -27,7 +27,7 @@ export const drawFixedEntities = (pixijsAdapter:PixijsDrawingAdapter):Promise<vo
 
 export const drawMovingEntityPhysicals = (staringX:number, targetX:number) => {
     const physicals:Physical[] = []
-    for (let x = staringX; x < targetX; x++) physicals.push(new Physical(EntityId.playerATower, position(x, 20), ShapeType.tower, true))
+    for (let x = staringX; x < targetX; x++) physicals.push(new Physical(EntityIds.playerATower, position(x, 20), ShapeType.tower, true))
     return physicals
 }
 

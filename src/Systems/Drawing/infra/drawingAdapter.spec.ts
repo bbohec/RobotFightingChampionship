@@ -1,7 +1,7 @@
 import { describe, before, it, Func } from 'mocha'
 import { expect } from 'chai'
 import { makePhysical, Physical, Position, position } from '../../../Components/Physical'
-import { EntityId } from '../../../Event/entityIds'
+import { EntityIds } from '../../../Event/entityIds'
 import { ShapeType } from '../../../Components/port/ShapeType'
 import { DrawingAdapter } from '../port/DrawingAdapter'
 // import { PixijsDrawingAdapter } from './PixijsDrawingAdapter'
@@ -23,35 +23,35 @@ const adapters:DrawingAdapter[] = [
 
 const testSuites:DrawingAdapterTestSuite[] = [
     {
-        entityPhysicalComponent: makePhysical(EntityId.playerATower, position(10, 10), ShapeType.tower, true),
+        entityPhysicalComponent: makePhysical(EntityIds.playerATower, position(10, 10), ShapeType.tower, true),
         defaultResolution: { x: 1000, y: 1200 },
         resizeResolution: { x: 2000, y: 2400 },
         expectedInitialAbsolutePosition: position(105, 105),
         expectedAbsolutePositionAfterResize: position(210, 210)
     },
     {
-        entityPhysicalComponent: makePhysical(EntityId.playerARobot, position(20, 20), ShapeType.robot, true),
+        entityPhysicalComponent: makePhysical(EntityIds.playerARobot, position(20, 20), ShapeType.robot, true),
         defaultResolution: { x: 1000, y: 1200 },
         resizeResolution: { x: 3000, y: 3600 },
         expectedInitialAbsolutePosition: position(205, 205),
         expectedAbsolutePositionAfterResize: position(615, 615)
     },
     {
-        entityPhysicalComponent: makePhysical(EntityId.cellx1y1, position(40, 62), ShapeType.cell, true),
+        entityPhysicalComponent: makePhysical(EntityIds.cellx1y1, position(40, 62), ShapeType.cell, true),
         defaultResolution: { x: 1000, y: 1200 },
         resizeResolution: { x: 500, y: 600 },
         expectedInitialAbsolutePosition: position(405, 625),
         expectedAbsolutePositionAfterResize: position(202, 312)
     },
     {
-        entityPhysicalComponent: makePhysical(EntityId.playerAMainMenu, position(40, 62), ShapeType.mainMenu, true),
+        entityPhysicalComponent: makePhysical(EntityIds.playerAMainMenu, position(40, 62), ShapeType.mainMenu, true),
         defaultResolution: { x: 2000, y: 2400 },
         resizeResolution: { x: 1000, y: 1200 },
         expectedInitialAbsolutePosition: position(810, 1250),
         expectedAbsolutePositionAfterResize: position(405, 625)
     },
     {
-        entityPhysicalComponent: makePhysical(EntityId.playerAPointer, position(40, 62), ShapeType.pointer, true),
+        entityPhysicalComponent: makePhysical(EntityIds.playerAPointer, position(40, 62), ShapeType.pointer, true),
         defaultResolution: { x: 2001, y: 2401 },
         resizeResolution: { x: 1001, y: 1201 },
         expectedInitialAbsolutePosition: position(810, 1250),

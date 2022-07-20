@@ -4,49 +4,57 @@ import { makePhysical, position } from '../../Components/Physical'
 import { ShapeType } from '../../Components/port/ShapeType'
 import { EntityBuilder } from '../../Entities/entityBuilder'
 import { Action } from '../../Event/Action'
-import { EntityId } from '../../Event/entityIds'
+import { EntityIds } from '../../Event/entityIds'
 import { EntityType } from '../../Event/EntityType'
-import { eventsAreSent, feature, featureEventDescription, serverScenario, theEntityIsOnRepository, theEntityWithIdHasTheExpectedComponent, whenEventOccured, whenEventOccurs } from '../../Event/test'
+import { eventsAreSent, feature, featureEventDescription, serverScenario, theEntityIsOnRepository, thereIsServerComponents, whenEventOccured, whenEventOccurs } from '../../Event/test'
 import { TestStep } from '../../Event/TestStep'
 import { destroySimpleMatchLobbyMenuEvent } from '../destroy/destroy'
 import { drawEvent } from '../draw/draw'
 import { nextTurnEvent } from '../nextTurn/nextTurn'
 import { playerReadyForMatch } from './ready'
 feature(featureEventDescription(Action.ready), () => {
-    serverScenario(`${Action.ready} 1`, playerReadyForMatch(EntityId.match, EntityId.playerA),
+    serverScenario(`${Action.ready} 1`, playerReadyForMatch(EntityIds.match, EntityIds.playerA),
         (game, adapters) => () => new EntityBuilder(adapters.entityInteractor)
-            .buildEntity(EntityId.match).withPhase(preparingGamePhase).withEntityReferences(EntityType.match, new Map([[EntityType.player, [EntityId.playerA]]])).save()
-            .buildEntity(EntityId.playerA).withEntityReferences(EntityType.player, new Map([[EntityType.simpleMatchLobbyMenu, [EntityId.playerASimpleMatchLobbyMenu]]])).save()
-            .buildEntity(EntityId.playerASimpleMatchLobbyMenu).withPhysicalComponent(position(0, 0), ShapeType.simpleMatchLobbyMenu, true).save()
+            .buildEntity(EntityIds.match).withPhase(preparingGamePhase).withEntityReferences(EntityType.match, new Map([[EntityType.player, [EntityIds.playerA]]])).save()
+            .buildEntity(EntityIds.playerA).withEntityReferences(EntityType.player, new Map([[EntityType.simpleMatchLobbyMenu, [EntityIds.playerASimpleMatchLobbyMenu]]])).save()
+            .buildEntity(EntityIds.playerASimpleMatchLobbyMenu).withPhysicalComponent(position(0, 0), ShapeType.simpleMatchLobbyMenu, true).save()
         , [
-            (game, adapters) => theEntityIsOnRepository(TestStep.Given, adapters, EntityId.match),
-            (game, adapters) => theEntityWithIdHasTheExpectedComponent(TestStep.And, adapters, EntityId.match, makePhasing(EntityId.match, preparingGamePhase)),
+            (game, adapters) => theEntityIsOnRepository(TestStep.Given, adapters, EntityIds.match),
+            thereIsServerComponents(TestStep.And, [
+                makePhasing(EntityIds.match, preparingGamePhase)
+            ]),
             ...whenEventOccured(),
-            (game, adapters) => theEntityWithIdHasTheExpectedComponent(TestStep.And, adapters, EntityId.match, makePhasing(EntityId.match, preparingGamePhase, new Set([EntityId.playerA]))),
+            thereIsServerComponents(TestStep.And, [
+                makePhasing(EntityIds.match, preparingGamePhase, new Set([EntityIds.playerA]))
+            ]),
             (game, adapters) => eventsAreSent(TestStep.And, adapters, 'server', [
-                drawEvent(EntityId.playerA, makePhysical(EntityId.playerASimpleMatchLobbyMenu, position(0, 0), ShapeType.simpleMatchLobbyMenu, false)),
-                destroySimpleMatchLobbyMenuEvent(EntityId.playerASimpleMatchLobbyMenu)
+                drawEvent(EntityIds.playerA, makePhysical(EntityIds.playerASimpleMatchLobbyMenu, position(0, 0), ShapeType.simpleMatchLobbyMenu, false)),
+                destroySimpleMatchLobbyMenuEvent(EntityIds.playerASimpleMatchLobbyMenu)
             ])
         ])
-    serverScenario(`${Action.ready} 2`, [playerReadyForMatch(EntityId.match, EntityId.playerA), playerReadyForMatch(EntityId.match, EntityId.playerB)],
+    serverScenario(`${Action.ready} 2`, [playerReadyForMatch(EntityIds.match, EntityIds.playerA), playerReadyForMatch(EntityIds.match, EntityIds.playerB)],
         (game, adapters) => () => new EntityBuilder(adapters.entityInteractor)
-            .buildEntity(EntityId.match).withPhase(preparingGamePhase).withEntityReferences(EntityType.match, new Map([[EntityType.player, [EntityId.playerA, EntityId.playerB]]])).save()
-            .buildEntity(EntityId.playerA).withEntityReferences(EntityType.player, new Map([[EntityType.simpleMatchLobbyMenu, [EntityId.playerASimpleMatchLobbyMenu]]])).save()
-            .buildEntity(EntityId.playerB).withEntityReferences(EntityType.player, new Map([[EntityType.simpleMatchLobbyMenu, [EntityId.playerBSimpleMatchLobbyMenu]]])).save()
-            .buildEntity(EntityId.playerASimpleMatchLobbyMenu).withPhysicalComponent(position(0, 0), ShapeType.simpleMatchLobbyMenu, true).save()
-            .buildEntity(EntityId.playerBSimpleMatchLobbyMenu).withPhysicalComponent(position(0, 0), ShapeType.simpleMatchLobbyMenu, true).save()
+            .buildEntity(EntityIds.match).withPhase(preparingGamePhase).withEntityReferences(EntityType.match, new Map([[EntityType.player, [EntityIds.playerA, EntityIds.playerB]]])).save()
+            .buildEntity(EntityIds.playerA).withEntityReferences(EntityType.player, new Map([[EntityType.simpleMatchLobbyMenu, [EntityIds.playerASimpleMatchLobbyMenu]]])).save()
+            .buildEntity(EntityIds.playerB).withEntityReferences(EntityType.player, new Map([[EntityType.simpleMatchLobbyMenu, [EntityIds.playerBSimpleMatchLobbyMenu]]])).save()
+            .buildEntity(EntityIds.playerASimpleMatchLobbyMenu).withPhysicalComponent(position(0, 0), ShapeType.simpleMatchLobbyMenu, true).save()
+            .buildEntity(EntityIds.playerBSimpleMatchLobbyMenu).withPhysicalComponent(position(0, 0), ShapeType.simpleMatchLobbyMenu, true).save()
         , [
-            (game, adapters) => theEntityIsOnRepository(TestStep.Given, adapters, EntityId.match),
-            (game, adapters) => theEntityWithIdHasTheExpectedComponent(TestStep.And, adapters, EntityId.match, makePhasing(EntityId.match, preparingGamePhase)),
-            (game, adapters) => whenEventOccurs(game, adapters, playerReadyForMatch(EntityId.match, EntityId.playerA)),
-            (game, adapters) => whenEventOccurs(game, adapters, playerReadyForMatch(EntityId.match, EntityId.playerB)),
-            (game, adapters) => theEntityWithIdHasTheExpectedComponent(TestStep.And, adapters, EntityId.match, makePhasing(EntityId.match, preparingGamePhase, new Set([EntityId.playerA, EntityId.playerB]))),
+            (game, adapters) => theEntityIsOnRepository(TestStep.Given, adapters, EntityIds.match),
+            thereIsServerComponents(TestStep.And, [
+                makePhasing(EntityIds.match, preparingGamePhase)
+            ]),
+            (game, adapters) => whenEventOccurs(game, adapters, playerReadyForMatch(EntityIds.match, EntityIds.playerA)),
+            (game, adapters) => whenEventOccurs(game, adapters, playerReadyForMatch(EntityIds.match, EntityIds.playerB)),
+            thereIsServerComponents(TestStep.Then, [
+                makePhasing(EntityIds.match, preparingGamePhase, new Set([EntityIds.playerA, EntityIds.playerB]))
+            ]),
             (game, adapters) => eventsAreSent(TestStep.And, adapters, 'server', [
-                drawEvent(EntityId.playerA, makePhysical(EntityId.playerASimpleMatchLobbyMenu, position(0, 0), ShapeType.simpleMatchLobbyMenu, false)),
-                destroySimpleMatchLobbyMenuEvent(EntityId.playerASimpleMatchLobbyMenu),
-                drawEvent(EntityId.playerB, makePhysical(EntityId.playerBSimpleMatchLobbyMenu, position(0, 0), ShapeType.simpleMatchLobbyMenu, false)),
-                destroySimpleMatchLobbyMenuEvent(EntityId.playerBSimpleMatchLobbyMenu),
-                nextTurnEvent(EntityId.match)
+                drawEvent(EntityIds.playerA, makePhysical(EntityIds.playerASimpleMatchLobbyMenu, position(0, 0), ShapeType.simpleMatchLobbyMenu, false)),
+                destroySimpleMatchLobbyMenuEvent(EntityIds.playerASimpleMatchLobbyMenu),
+                drawEvent(EntityIds.playerB, makePhysical(EntityIds.playerBSimpleMatchLobbyMenu, position(0, 0), ShapeType.simpleMatchLobbyMenu, false)),
+                destroySimpleMatchLobbyMenuEvent(EntityIds.playerBSimpleMatchLobbyMenu),
+                nextTurnEvent(EntityIds.match)
             ])
         ])
 })

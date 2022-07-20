@@ -14,7 +14,7 @@ describe('Integration Test Suite - Event Interactor', () => {
     const testSuites:EventIntegrationTestSuite[] = [
         {
             adapterType: 'InMemory',
-            serverEventInteractor: new InMemoryServerEventInteractor(new InMemoryEventBus()),
+            serverEventInteractor: new InMemoryServerEventInteractor(new InMemoryEventBus(), undefined),
             clientsEventIntegrationTestSuite: makeInMemoryClientsEventIntegrationTestSuite(clientQty)
         },
         {
@@ -69,7 +69,7 @@ describe('Integration Test Suite - Event Interactor', () => {
                     if (clientEventBus instanceof InMemoryEventBus)
                         it(`${(index === 0) ? 'Then' : 'And'} the Client Event Interactor with id '${clientEventIntegrationTestSuite.clientEventInteractor.clientId}' has event on client game events`, () => {
                             const clientEvents = clientEventBus.events
-                            const expectedClientEvents = clientsEvents.filter(event => event.entitiesByEntityType(EntityType.player).some(playerId => playerId === clientEventIntegrationTestSuite.clientEventInteractor.clientId))
+                            const expectedClientEvents = clientsEvents.filter(event => clientEventBus.entitiesByEntityType(event, EntityType.player).some(playerId => playerId === clientEventIntegrationTestSuite.clientEventInteractor.clientId))
                             expect(clientEvents).deep.equal(expectedClientEvents, detailedComparisonMessage(clientEvents, expectedClientEvents))
                         })
                     else throw new Error(`Unsupported event bus ${clientEventBus.constructor.name}`)

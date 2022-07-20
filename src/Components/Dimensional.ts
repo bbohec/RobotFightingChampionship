@@ -1,4 +1,4 @@
-import { GenericComponent } from './GenericComponent'
+import { GenericComponent } from './port/Component'
 
 export type Dimension = {
     x: number;

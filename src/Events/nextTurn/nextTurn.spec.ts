@@ -5,10 +5,10 @@ import { makePhysical, playerARobotFirstPosition, playerATowerFirstPosition, pla
 import { ShapeType } from '../../Components/port/ShapeType'
 import { EntityBuilder } from '../../Entities/entityBuilder'
 import { Action } from '../../Event/Action'
-import { EntityId } from '../../Event/entityIds'
+import { EntityIds } from '../../Event/entityIds'
 import { EntityType } from '../../Event/EntityType'
 import { GameEvent } from '../../Event/GameEvent'
-import { eventsAreSent, feature, featureEventDescription, serverScenario, theEntityWithIdHasTheExpectedComponent, whenEventOccured } from '../../Event/test'
+import { eventsAreSent, feature, featureEventDescription, serverScenario, thereIsClientComponents, whenEventOccured } from '../../Event/test'
 import { TestStep } from '../../Event/TestStep'
 import { FakeServerAdapters } from '../../Systems/Game/infra/FakeServerAdapters'
 import { ServerGameSystem } from '../../Systems/Game/ServerGame'
@@ -31,9 +31,9 @@ feature(featureEventDescription(Action.nextTurn), () => {
                 nextPhase: playerATowerAutoPlacementPhase()
             },
             additionnalTests: [
-                (game, adapters) => eventsAreSent(TestStep.And, adapters, 'server', [moveEvent(EntityId.playerA, EntityType.tower, EntityId.playerATower, EntityId.cellx1y1)]),
-                (game, adapters) => theEntityWithIdHasTheExpectedComponent(TestStep.And, adapters, EntityId.playerANextTurnButton, makePhysical(EntityId.playerANextTurnButton, playerNextTurnButtonPosition, ShapeType.nextTurnButton, false)),
-                (game, adapters) => theEntityWithIdHasTheExpectedComponent(TestStep.And, adapters, EntityId.playerBNextTurnButton, makePhysical(EntityId.playerBNextTurnButton, playerNextTurnButtonPosition, ShapeType.nextTurnButton, false))
+                (game, adapters) => eventsAreSent(TestStep.And, adapters, 'server', [moveEvent(EntityIds.playerA, EntityType.tower, EntityIds.playerATower, EntityIds.cellx1y1)]),
+                thereIsClientComponents(TestStep.And,  EntityIds.playerANextTurnButton, makePhysical(EntityIds.playerANextTurnButton, playerNextTurnButtonPosition, ShapeType.nextTurnButton, false)),
+                thereIsClientComponents(TestStep.And,  EntityIds.playerBNextTurnButton, makePhysical(EntityIds.playerBNextTurnButton, playerNextTurnButtonPosition, ShapeType.nextTurnButton, false))
             ]
         },
         {
@@ -42,9 +42,9 @@ feature(featureEventDescription(Action.nextTurn), () => {
                 nextPhase: playerARobotAutoPlacementPhase()
             },
             additionnalTests: [
-                (game, adapters) => eventsAreSent(TestStep.And, adapters, 'server', [moveEvent(EntityId.playerA, EntityType.robot, EntityId.playerARobot, EntityId.cellx2y2)]),
-                (game, adapters) => theEntityWithIdHasTheExpectedComponent(TestStep.And, adapters, EntityId.playerANextTurnButton, makePhysical(EntityId.playerANextTurnButton, playerNextTurnButtonPosition, ShapeType.nextTurnButton, false)),
-                (game, adapters) => theEntityWithIdHasTheExpectedComponent(TestStep.And, adapters, EntityId.playerBNextTurnButton, makePhysical(EntityId.playerBNextTurnButton, playerNextTurnButtonPosition, ShapeType.nextTurnButton, false))
+                (game, adapters) => eventsAreSent(TestStep.And, adapters, 'server', [moveEvent(EntityIds.playerA, EntityType.robot, EntityIds.playerARobot, EntityIds.cellx2y2)]),
+                thereIsClientComponents(TestStep.And,  EntityIds.playerANextTurnButton, makePhysical(EntityIds.playerANextTurnButton, playerNextTurnButtonPosition, ShapeType.nextTurnButton, false)),
+                thereIsClientComponents(TestStep.And,  EntityIds.playerBNextTurnButton, makePhysical(EntityIds.playerBNextTurnButton, playerNextTurnButtonPosition, ShapeType.nextTurnButton, false))
             ]
         },
         {
@@ -53,9 +53,9 @@ feature(featureEventDescription(Action.nextTurn), () => {
                 nextPhase: playerBTowerAutoPlacementPhase()
             },
             additionnalTests: [
-                (game, adapters) => eventsAreSent(TestStep.And, adapters, 'server', [moveEvent(EntityId.playerB, EntityType.tower, EntityId.playerBTower, EntityId.cellx10y10)]),
-                (game, adapters) => theEntityWithIdHasTheExpectedComponent(TestStep.And, adapters, EntityId.playerANextTurnButton, makePhysical(EntityId.playerANextTurnButton, playerNextTurnButtonPosition, ShapeType.nextTurnButton, false)),
-                (game, adapters) => theEntityWithIdHasTheExpectedComponent(TestStep.And, adapters, EntityId.playerBNextTurnButton, makePhysical(EntityId.playerBNextTurnButton, playerNextTurnButtonPosition, ShapeType.nextTurnButton, false))
+                (game, adapters) => eventsAreSent(TestStep.And, adapters, 'server', [moveEvent(EntityIds.playerB, EntityType.tower, EntityIds.playerBTower, EntityIds.cellx10y10)]),
+                thereIsClientComponents(TestStep.And,  EntityIds.playerANextTurnButton, makePhysical(EntityIds.playerANextTurnButton, playerNextTurnButtonPosition, ShapeType.nextTurnButton, false)),
+                thereIsClientComponents(TestStep.And,  EntityIds.playerBNextTurnButton, makePhysical(EntityIds.playerBNextTurnButton, playerNextTurnButtonPosition, ShapeType.nextTurnButton, false))
             ]
         },
         {
@@ -64,9 +64,9 @@ feature(featureEventDescription(Action.nextTurn), () => {
                 nextPhase: playerBRobotAutoPlacementPhase()
             },
             additionnalTests: [
-                (game, adapters) => eventsAreSent(TestStep.And, adapters, 'server', [moveEvent(EntityId.playerB, EntityType.robot, EntityId.playerBRobot, EntityId.cellx9y9)]),
-                (game, adapters) => theEntityWithIdHasTheExpectedComponent(TestStep.And, adapters, EntityId.playerANextTurnButton, makePhysical(EntityId.playerANextTurnButton, playerNextTurnButtonPosition, ShapeType.nextTurnButton, false)),
-                (game, adapters) => theEntityWithIdHasTheExpectedComponent(TestStep.And, adapters, EntityId.playerBNextTurnButton, makePhysical(EntityId.playerBNextTurnButton, playerNextTurnButtonPosition, ShapeType.nextTurnButton, false))
+                (game, adapters) => eventsAreSent(TestStep.And, adapters, 'server', [moveEvent(EntityIds.playerB, EntityType.robot, EntityIds.playerBRobot, EntityIds.cellx9y9)]),
+                thereIsClientComponents(TestStep.And,  EntityIds.playerANextTurnButton, makePhysical(EntityIds.playerANextTurnButton, playerNextTurnButtonPosition, ShapeType.nextTurnButton, false)),
+                thereIsClientComponents(TestStep.And,  EntityIds.playerBNextTurnButton, makePhysical(EntityIds.playerBNextTurnButton, playerNextTurnButtonPosition, ShapeType.nextTurnButton, false))
             ]
         },
         {
@@ -76,11 +76,11 @@ feature(featureEventDescription(Action.nextTurn), () => {
             },
             additionnalTests: [
                 (game, adapters) => eventsAreSent(TestStep.And, adapters, 'server', [
-                    drawEvent(EntityId.playerA, makePhysical(EntityId.playerANextTurnButton, playerNextTurnButtonPosition, ShapeType.nextTurnButton, true)),
-                    drawEvent(EntityId.playerB, makePhysical(EntityId.playerBNextTurnButton, playerNextTurnButtonPosition, ShapeType.nextTurnButton, false))
+                    drawEvent(EntityIds.playerA, makePhysical(EntityIds.playerANextTurnButton, playerNextTurnButtonPosition, ShapeType.nextTurnButton, true)),
+                    drawEvent(EntityIds.playerB, makePhysical(EntityIds.playerBNextTurnButton, playerNextTurnButtonPosition, ShapeType.nextTurnButton, false))
                 ]),
-                (game, adapters) => theEntityWithIdHasTheExpectedComponent(TestStep.And, adapters, EntityId.playerANextTurnButton, makePhysical(EntityId.playerANextTurnButton, playerNextTurnButtonPosition, ShapeType.nextTurnButton, true)),
-                (game, adapters) => theEntityWithIdHasTheExpectedComponent(TestStep.And, adapters, EntityId.playerBNextTurnButton, makePhysical(EntityId.playerBNextTurnButton, playerNextTurnButtonPosition, ShapeType.nextTurnButton, false))
+                thereIsClientComponents(TestStep.And,  EntityIds.playerANextTurnButton, makePhysical(EntityIds.playerANextTurnButton, playerNextTurnButtonPosition, ShapeType.nextTurnButton, true)),
+                thereIsClientComponents(TestStep.And,  EntityIds.playerBNextTurnButton, makePhysical(EntityIds.playerBNextTurnButton, playerNextTurnButtonPosition, ShapeType.nextTurnButton, false))
             ]
         },
         {
@@ -90,11 +90,11 @@ feature(featureEventDescription(Action.nextTurn), () => {
             },
             additionnalTests: [
                 (game, adapters) => eventsAreSent(TestStep.And, adapters, 'server', [
-                    drawEvent(EntityId.playerA, makePhysical(EntityId.playerANextTurnButton, playerNextTurnButtonPosition, ShapeType.nextTurnButton, false)),
-                    drawEvent(EntityId.playerB, makePhysical(EntityId.playerBNextTurnButton, playerNextTurnButtonPosition, ShapeType.nextTurnButton, true))
+                    drawEvent(EntityIds.playerA, makePhysical(EntityIds.playerANextTurnButton, playerNextTurnButtonPosition, ShapeType.nextTurnButton, false)),
+                    drawEvent(EntityIds.playerB, makePhysical(EntityIds.playerBNextTurnButton, playerNextTurnButtonPosition, ShapeType.nextTurnButton, true))
                 ]),
-                (game, adapters) => theEntityWithIdHasTheExpectedComponent(TestStep.And, adapters, EntityId.playerANextTurnButton, makePhysical(EntityId.playerANextTurnButton, playerNextTurnButtonPosition, ShapeType.nextTurnButton, false)),
-                (game, adapters) => theEntityWithIdHasTheExpectedComponent(TestStep.And, adapters, EntityId.playerBNextTurnButton, makePhysical(EntityId.playerBNextTurnButton, playerNextTurnButtonPosition, ShapeType.nextTurnButton, true))
+                thereIsClientComponents(TestStep.And,  EntityIds.playerANextTurnButton, makePhysical(EntityIds.playerANextTurnButton, playerNextTurnButtonPosition, ShapeType.nextTurnButton, false)),
+                thereIsClientComponents(TestStep.And,  EntityIds.playerBNextTurnButton, makePhysical(EntityIds.playerBNextTurnButton, playerNextTurnButtonPosition, ShapeType.nextTurnButton, true))
             ]
         },
         {
@@ -104,11 +104,11 @@ feature(featureEventDescription(Action.nextTurn), () => {
             },
             additionnalTests: [
                 (game, adapters) => eventsAreSent(TestStep.And, adapters, 'server', [
-                    drawEvent(EntityId.playerA, makePhysical(EntityId.playerANextTurnButton, playerNextTurnButtonPosition, ShapeType.nextTurnButton, true)),
-                    drawEvent(EntityId.playerB, makePhysical(EntityId.playerBNextTurnButton, playerNextTurnButtonPosition, ShapeType.nextTurnButton, false))
+                    drawEvent(EntityIds.playerA, makePhysical(EntityIds.playerANextTurnButton, playerNextTurnButtonPosition, ShapeType.nextTurnButton, true)),
+                    drawEvent(EntityIds.playerB, makePhysical(EntityIds.playerBNextTurnButton, playerNextTurnButtonPosition, ShapeType.nextTurnButton, false))
                 ]),
-                (game, adapters) => theEntityWithIdHasTheExpectedComponent(TestStep.And, adapters, EntityId.playerANextTurnButton, makePhysical(EntityId.playerANextTurnButton, playerNextTurnButtonPosition, ShapeType.nextTurnButton, true)),
-                (game, adapters) => theEntityWithIdHasTheExpectedComponent(TestStep.And, adapters, EntityId.playerBNextTurnButton, makePhysical(EntityId.playerBNextTurnButton, playerNextTurnButtonPosition, ShapeType.nextTurnButton, false))
+                thereIsClientComponents(TestStep.And,  EntityIds.playerANextTurnButton, makePhysical(EntityIds.playerANextTurnButton, playerNextTurnButtonPosition, ShapeType.nextTurnButton, true)),
+                thereIsClientComponents(TestStep.And,  EntityIds.playerBNextTurnButton, makePhysical(EntityIds.playerBNextTurnButton, playerNextTurnButtonPosition, ShapeType.nextTurnButton, false))
             ]
         },
         {
@@ -118,11 +118,11 @@ feature(featureEventDescription(Action.nextTurn), () => {
             },
             additionnalTests: [
                 (game, adapters) => eventsAreSent(TestStep.And, adapters, 'server', [
-                    drawEvent(EntityId.playerA, makePhysical(EntityId.playerANextTurnButton, playerNextTurnButtonPosition, ShapeType.nextTurnButton, false)),
-                    drawEvent(EntityId.playerB, makePhysical(EntityId.playerBNextTurnButton, playerNextTurnButtonPosition, ShapeType.nextTurnButton, true))
+                    drawEvent(EntityIds.playerA, makePhysical(EntityIds.playerANextTurnButton, playerNextTurnButtonPosition, ShapeType.nextTurnButton, false)),
+                    drawEvent(EntityIds.playerB, makePhysical(EntityIds.playerBNextTurnButton, playerNextTurnButtonPosition, ShapeType.nextTurnButton, true))
                 ]),
-                (game, adapters) => theEntityWithIdHasTheExpectedComponent(TestStep.And, adapters, EntityId.playerANextTurnButton, makePhysical(EntityId.playerANextTurnButton, playerNextTurnButtonPosition, ShapeType.nextTurnButton, false)),
-                (game, adapters) => theEntityWithIdHasTheExpectedComponent(TestStep.And, adapters, EntityId.playerBNextTurnButton, makePhysical(EntityId.playerBNextTurnButton, playerNextTurnButtonPosition, ShapeType.nextTurnButton, true))
+                thereIsClientComponents(TestStep.And,  EntityIds.playerANextTurnButton, makePhysical(EntityIds.playerANextTurnButton, playerNextTurnButtonPosition, ShapeType.nextTurnButton, false)),
+                thereIsClientComponents(TestStep.And,  EntityIds.playerBNextTurnButton, makePhysical(EntityIds.playerBNextTurnButton, playerNextTurnButtonPosition, ShapeType.nextTurnButton, true))
             ]
         },
         {
@@ -132,34 +132,34 @@ feature(featureEventDescription(Action.nextTurn), () => {
             },
             additionnalTests: [
                 (game, adapters) => eventsAreSent(TestStep.And, adapters, 'server', [
-                    drawEvent(EntityId.playerA, makePhysical(EntityId.playerANextTurnButton, playerNextTurnButtonPosition, ShapeType.nextTurnButton, true)),
-                    drawEvent(EntityId.playerB, makePhysical(EntityId.playerBNextTurnButton, playerNextTurnButtonPosition, ShapeType.nextTurnButton, false))
+                    drawEvent(EntityIds.playerA, makePhysical(EntityIds.playerANextTurnButton, playerNextTurnButtonPosition, ShapeType.nextTurnButton, true)),
+                    drawEvent(EntityIds.playerB, makePhysical(EntityIds.playerBNextTurnButton, playerNextTurnButtonPosition, ShapeType.nextTurnButton, false))
                 ]),
-                (game, adapters) => theEntityWithIdHasTheExpectedComponent(TestStep.And, adapters, EntityId.playerANextTurnButton, makePhysical(EntityId.playerANextTurnButton, playerNextTurnButtonPosition, ShapeType.nextTurnButton, true)),
-                (game, adapters) => theEntityWithIdHasTheExpectedComponent(TestStep.And, adapters, EntityId.playerBNextTurnButton, makePhysical(EntityId.playerBNextTurnButton, playerNextTurnButtonPosition, ShapeType.nextTurnButton, false))
+                thereIsClientComponents(TestStep.And,  EntityIds.playerANextTurnButton, makePhysical(EntityIds.playerANextTurnButton, playerNextTurnButtonPosition, ShapeType.nextTurnButton, true)),
+                thereIsClientComponents(TestStep.And,  EntityIds.playerBNextTurnButton, makePhysical(EntityIds.playerBNextTurnButton, playerNextTurnButtonPosition, ShapeType.nextTurnButton, false))
             ]
         }
     ]
     scenarios.forEach((scenario, index) => {
         const tests: ((game:ServerGameSystem, adapters: FakeServerAdapters, gameEvents:GameEvent|GameEvent[]) => Test)[] = [
-            (game, adapters) => theEntityWithIdHasTheExpectedComponent(TestStep.Given, adapters, EntityId.match, makePhasing(EntityId.match, scenario.phaseSequence.currentPhase)),
+            thereIsClientComponents(TestStep.Given, EntityIds.match, makePhasing(EntityIds.match, scenario.phaseSequence.currentPhase)),
             ...whenEventOccured(),
-            (game, adapters) => theEntityWithIdHasTheExpectedComponent(TestStep.Then, adapters, EntityId.match, makePhasing(EntityId.match, scenario.phaseSequence.nextPhase)),
+            thereIsClientComponents(TestStep.Then, EntityIds.match, makePhasing(EntityIds.match, scenario.phaseSequence.nextPhase)),
             ...scenario.additionnalTests
         ]
-        serverScenario(`${Action.nextTurn} ${index + 1}`, nextTurnEvent(EntityId.match),
+        serverScenario(`${Action.nextTurn} ${index + 1}`, nextTurnEvent(EntityIds.match),
             (game, adapters) => () => new EntityBuilder(adapters.entityInteractor)
-                .buildEntity(EntityId.match).withPhase(scenario.phaseSequence.currentPhase).withEntityReferences(EntityType.match, new Map([[EntityType.grid, [EntityId.grid]], [EntityType.player, [EntityId.playerA, EntityId.playerB]]])).save()
-                .buildEntity(EntityId.grid).withEntityReferences(EntityType.grid, new Map([[EntityType.cell, [EntityId.cellx0y0, EntityId.cellx1y1, EntityId.cellx2y2, EntityId.cellx9y9, EntityId.cellx10y10]]])).withDimension(gridDimension).save()
-                .buildEntity(EntityId.cellx0y0).withPhysicalComponent(gridFirstCellPosition, ShapeType.cell, true).save()
-                .buildEntity(EntityId.cellx1y1).withPhysicalComponent(playerATowerFirstPosition(gridFirstCellPosition), ShapeType.cell, true).save()
-                .buildEntity(EntityId.cellx2y2).withPhysicalComponent(playerARobotFirstPosition(gridFirstCellPosition), ShapeType.cell, true).save()
-                .buildEntity(EntityId.cellx9y9).withPhysicalComponent(playerBRobotFirstPosition(gridFirstCellPosition, gridDimension), ShapeType.cell, true).save()
-                .buildEntity(EntityId.cellx10y10).withPhysicalComponent(playerBTowerFirstPosition(gridFirstCellPosition, gridDimension), ShapeType.cell, true).save()
-                .buildEntity(EntityId.playerA).withEntityReferences(EntityType.player, new Map([[EntityType.tower, [EntityId.playerATower]], [EntityType.robot, [EntityId.playerARobot]], [EntityType.nextTurnButton, [EntityId.playerANextTurnButton]]])).save()
-                .buildEntity(EntityId.playerB).withEntityReferences(EntityType.player, new Map([[EntityType.tower, [EntityId.playerBTower]], [EntityType.robot, [EntityId.playerBRobot]], [EntityType.nextTurnButton, [EntityId.playerBNextTurnButton]]])).save()
-                .buildEntity(EntityId.playerANextTurnButton).withPhysicalComponent(playerNextTurnButtonPosition, ShapeType.nextTurnButton, false).save()
-                .buildEntity(EntityId.playerBNextTurnButton).withPhysicalComponent(playerNextTurnButtonPosition, ShapeType.nextTurnButton, false).save()
+                .buildEntity(EntityIds.match).withPhase(scenario.phaseSequence.currentPhase).withEntityReferences(EntityType.match, new Map([[EntityType.grid, [EntityIds.grid]], [EntityType.player, [EntityIds.playerA, EntityIds.playerB]]])).save()
+                .buildEntity(EntityIds.grid).withEntityReferences(EntityType.grid, new Map([[EntityType.cell, [EntityIds.cellx0y0, EntityIds.cellx1y1, EntityIds.cellx2y2, EntityIds.cellx9y9, EntityIds.cellx10y10]]])).withDimension(gridDimension).save()
+                .buildEntity(EntityIds.cellx0y0).withPhysicalComponent(gridFirstCellPosition, ShapeType.cell, true).save()
+                .buildEntity(EntityIds.cellx1y1).withPhysicalComponent(playerATowerFirstPosition(gridFirstCellPosition), ShapeType.cell, true).save()
+                .buildEntity(EntityIds.cellx2y2).withPhysicalComponent(playerARobotFirstPosition(gridFirstCellPosition), ShapeType.cell, true).save()
+                .buildEntity(EntityIds.cellx9y9).withPhysicalComponent(playerBRobotFirstPosition(gridFirstCellPosition, gridDimension), ShapeType.cell, true).save()
+                .buildEntity(EntityIds.cellx10y10).withPhysicalComponent(playerBTowerFirstPosition(gridFirstCellPosition, gridDimension), ShapeType.cell, true).save()
+                .buildEntity(EntityIds.playerA).withEntityReferences(EntityType.player, new Map([[EntityType.tower, [EntityIds.playerATower]], [EntityType.robot, [EntityIds.playerARobot]], [EntityType.nextTurnButton, [EntityIds.playerANextTurnButton]]])).save()
+                .buildEntity(EntityIds.playerB).withEntityReferences(EntityType.player, new Map([[EntityType.tower, [EntityIds.playerBTower]], [EntityType.robot, [EntityIds.playerBRobot]], [EntityType.nextTurnButton, [EntityIds.playerBNextTurnButton]]])).save()
+                .buildEntity(EntityIds.playerANextTurnButton).withPhysicalComponent(playerNextTurnButtonPosition, ShapeType.nextTurnButton, false).save()
+                .buildEntity(EntityIds.playerBNextTurnButton).withPhysicalComponent(playerNextTurnButtonPosition, ShapeType.nextTurnButton, false).save()
             , tests)
     })
 })

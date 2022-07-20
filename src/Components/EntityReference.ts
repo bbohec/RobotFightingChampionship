@@ -1,6 +1,6 @@
 import { EntityId } from '../Entities/Entity'
 import { EntityType } from '../Event/EntityType'
-import { GenericComponent } from './GenericComponent'
+import { GenericComponent } from './port/Component'
 
 export type EntityReferences = Map<EntityType, Array<string>>
 
@@ -9,7 +9,7 @@ export type EntityReference = GenericComponent<'EntityReference', {
     entityType :EntityType[]
 }>
 
-export const makeEntityReference = (entityId: string, entityType:EntityType|EntityType[], entityReferences:EntityReferences): EntityReference => ({
+export const makeEntityReference = (entityId: string, entityType:EntityType|EntityType[], entityReferences:EntityReferences = new Map()): EntityReference => ({
     componentType: 'EntityReference',
     entityId,
     entityReferences,

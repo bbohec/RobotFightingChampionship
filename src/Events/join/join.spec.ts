@@ -5,68 +5,80 @@ import { defaultJoinSimpleMatchButtonPosition, mainMenuPosition, makePhysical, s
 import { ShapeType } from '../../Components/port/ShapeType'
 import { EntityBuilder } from '../../Entities/entityBuilder'
 import { Action } from '../../Event/Action'
-import { EntityId, mainMenus, players, simpleMatchButtons } from '../../Event/entityIds'
+import { EntityIds, mainMenus, players, simpleMatchButtons } from '../../Event/entityIds'
 import { EntityType } from '../../Event/EntityType'
-import { eventsAreSent, feature, featureEventDescription, serverScenario, theEntityIsCreated, theEntityIsOnRepository, theEntityWithIdHasTheExpectedComponent, whenEventOccured, whenEventOccurs } from '../../Event/test'
+import { eventsAreSent, feature, featureEventDescription, serverScenario, theEntityIsCreated, theEntityIsOnRepository, thereIsServerComponents, whenEventOccured, whenEventOccurs } from '../../Event/test'
 import { TestStep } from '../../Event/TestStep'
 import { createGridEvent, createMatchEvent, createPlayerNextTurnMatchButtonEvent, createPlayerSimpleMatchLobbyMenu, createRobotEvent, createTowerEvent } from '../create/create'
 import { drawEvent } from '../draw/draw'
 import { playerJoinMatchEvent, playerWantJoinSimpleMatchLobby } from './join'
 
 feature(featureEventDescription(Action.join), () => {
-    serverScenario(`${Action.join} 1`, playerJoinMatchEvent(EntityId.playerA, EntityId.match),
+    serverScenario(`${Action.join} 1`, playerJoinMatchEvent(EntityIds.playerA, EntityIds.match),
         (game, adapters) => () => new EntityBuilder(adapters.entityInteractor)
-            .buildEntity(EntityId.match).withEntityReferences(EntityType.match).save()
-            .buildEntity(EntityId.playerA).withEntityReferences(EntityType.player).save()
+            .buildEntity(EntityIds.match).withEntityReferences(EntityType.match).save()
+            .buildEntity(EntityIds.playerA).withEntityReferences(EntityType.player).save()
         , [
-            (game, adapters) => theEntityIsOnRepository(TestStep.Given, adapters, EntityId.match),
-            (game, adapters) => theEntityWithIdHasTheExpectedComponent(TestStep.And, adapters, EntityId.match, makeEntityReference(EntityId.match, EntityType.match, new Map())),
+            (game, adapters) => theEntityIsOnRepository(TestStep.Given, adapters, EntityIds.match),
+            thereIsServerComponents(TestStep.And, [
+                makeEntityReference(EntityIds.match, EntityType.match, new Map())
+            ]),
             ...whenEventOccured(),
-            (game, adapters) => theEntityWithIdHasTheExpectedComponent(TestStep.Then, adapters, EntityId.match, makeEntityReference(EntityId.match, EntityType.match, new Map([[EntityType.player, [EntityId.playerA]]]))),
-            (game, adapters) => theEntityWithIdHasTheExpectedComponent(TestStep.And, adapters, EntityId.playerA, makeEntityReference(EntityId.playerA, EntityType.player, new Map([[EntityType.match, [EntityId.match]]]))),
+            thereIsServerComponents(TestStep.Then, [
+                makeEntityReference(EntityIds.match, EntityType.match, new Map([[EntityType.player, [EntityIds.playerA]]])),
+                makeEntityReference(EntityIds.playerA, EntityType.player, new Map([[EntityType.match, [EntityIds.match]]]))
+            ]),
             (game, adapters) => eventsAreSent(TestStep.And, adapters, 'server', [])
         ])
-    serverScenario(`${Action.join} 2`, playerJoinMatchEvent(EntityId.playerB, EntityId.match),
+    serverScenario(`${Action.join} 2`, playerJoinMatchEvent(EntityIds.playerB, EntityIds.match),
         (game, adapters) => () => new EntityBuilder(adapters.entityInteractor)
-            .buildEntity(EntityId.match).withEntityReferences(EntityType.match, new Map([[EntityType.player, [EntityId.playerA]]])).save()
-            .buildEntity(EntityId.playerA).withEntityReferences(EntityType.player, new Map([])).save()
-            .buildEntity(EntityId.playerB).withEntityReferences(EntityType.player, new Map([])).save()
+            .buildEntity(EntityIds.match).withEntityReferences(EntityType.match, new Map([[EntityType.player, [EntityIds.playerA]]])).save()
+            .buildEntity(EntityIds.playerA).withEntityReferences(EntityType.player, new Map([])).save()
+            .buildEntity(EntityIds.playerB).withEntityReferences(EntityType.player, new Map([])).save()
         , [
-            (game, adapters) => theEntityIsOnRepository(TestStep.Given, adapters, EntityId.match),
-            (game, adapters) => theEntityWithIdHasTheExpectedComponent(TestStep.And, adapters, EntityId.match, makeEntityReference(EntityId.match, EntityType.match, new Map([[EntityType.player, [EntityId.playerA]]]))),
+            (game, adapters) => theEntityIsOnRepository(TestStep.Given, adapters, EntityIds.match),
+            thereIsServerComponents(TestStep.And, [
+                makeEntityReference(EntityIds.match, EntityType.match, new Map([[EntityType.player, [EntityIds.playerA]]]))
+            ]),
             ...whenEventOccured(),
-            (game, adapters) => theEntityWithIdHasTheExpectedComponent(TestStep.Then, adapters, EntityId.match, makeEntityReference(EntityId.match, EntityType.match, new Map([[EntityType.player, [EntityId.playerA, EntityId.playerB]]]))),
+            thereIsServerComponents(TestStep.Then, [
+                makeEntityReference(EntityIds.match, EntityType.match, new Map([[EntityType.player, [EntityIds.playerA, EntityIds.playerB]]]))
+            ]),
             (game, adapters) => eventsAreSent(TestStep.And, adapters, 'server', [
-                createGridEvent(EntityId.match, matchGridDimension),
-                createTowerEvent(EntityId.playerA),
-                createTowerEvent(EntityId.playerB),
-                createRobotEvent(EntityId.playerA),
-                createRobotEvent(EntityId.playerB),
-                createPlayerNextTurnMatchButtonEvent(EntityId.match, EntityId.playerA),
-                createPlayerNextTurnMatchButtonEvent(EntityId.match, EntityId.playerB)
+                createGridEvent(EntityIds.match, matchGridDimension),
+                createTowerEvent(EntityIds.playerA),
+                createTowerEvent(EntityIds.playerB),
+                createRobotEvent(EntityIds.playerA),
+                createRobotEvent(EntityIds.playerB),
+                createPlayerNextTurnMatchButtonEvent(EntityIds.match, EntityIds.playerA),
+                createPlayerNextTurnMatchButtonEvent(EntityIds.match, EntityIds.playerB)
             ])
         ])
-    serverScenario(`${Action.join} 3`, playerWantJoinSimpleMatchLobby(EntityId.playerA, EntityId.simpleMatchLobby),
+    serverScenario(`${Action.join} 3`, playerWantJoinSimpleMatchLobby(EntityIds.playerA, EntityIds.simpleMatchLobby),
         (game, adapters) => () => new EntityBuilder(adapters.entityInteractor)
-            .buildEntity(EntityId.simpleMatchLobby).withLifeCycle(true).withEntityReferences(EntityType.simpleMatchLobby, new Map([[EntityType.button, [EntityId.playerAJoinSimpleMatchButton]]])).withPhysicalComponent(simpleMatchLobbyPosition, ShapeType.simpleMatchLobbyButton, true).save()
-            .buildEntity(EntityId.playerAMainMenu).withPhysicalComponent(mainMenuPosition, ShapeType.mainMenu, true).save()
-            .buildEntity(EntityId.playerAJoinSimpleMatchButton).withPhysicalComponent(defaultJoinSimpleMatchButtonPosition, ShapeType.simpleMatchLobbyButton, true).save()
-            .buildEntity(EntityId.playerA).withEntityReferences(EntityType.player, new Map([[EntityType.button, [EntityId.playerAJoinSimpleMatchButton]], [EntityType.mainMenu, [EntityId.playerAMainMenu]]])).save()
+            .buildEntity(EntityIds.simpleMatchLobby).withLifeCycle(true).withEntityReferences(EntityType.simpleMatchLobby, new Map([[EntityType.button, [EntityIds.playerAJoinSimpleMatchButton]]])).withPhysicalComponent(simpleMatchLobbyPosition, ShapeType.simpleMatchLobbyButton, true).save()
+            .buildEntity(EntityIds.playerAMainMenu).withPhysicalComponent(mainMenuPosition, ShapeType.mainMenu, true).save()
+            .buildEntity(EntityIds.playerAJoinSimpleMatchButton).withPhysicalComponent(defaultJoinSimpleMatchButtonPosition, ShapeType.simpleMatchLobbyButton, true).save()
+            .buildEntity(EntityIds.playerA).withEntityReferences(EntityType.player, new Map([[EntityType.button, [EntityIds.playerAJoinSimpleMatchButton]], [EntityType.mainMenu, [EntityIds.playerAMainMenu]]])).save()
         , [
-            (game, adapters) => theEntityIsCreated(TestStep.Given, adapters, EntityId.simpleMatchLobby),
-            (game, adapters) => theEntityWithIdHasTheExpectedComponent(TestStep.And, adapters, EntityId.simpleMatchLobby, makePhysical(EntityId.simpleMatchLobby, simpleMatchLobbyPosition, ShapeType.simpleMatchLobbyButton, true)),
-            (game, adapters) => theEntityWithIdHasTheExpectedComponent(TestStep.And, adapters, EntityId.simpleMatchLobby, makeEntityReference(EntityId.simpleMatchLobby, EntityType.simpleMatchLobby, new Map([[EntityType.button, [EntityId.playerAJoinSimpleMatchButton]]]))),
+            (game, adapters) => theEntityIsCreated(TestStep.Given, adapters, EntityIds.simpleMatchLobby),
+            thereIsServerComponents(TestStep.And, [
+                makePhysical(EntityIds.simpleMatchLobby, simpleMatchLobbyPosition, ShapeType.simpleMatchLobbyButton, true),
+                makeEntityReference(EntityIds.simpleMatchLobby, EntityType.simpleMatchLobby, new Map([[EntityType.button, [EntityIds.playerAJoinSimpleMatchButton]]]))
+            ]),
             ...whenEventOccured(),
-            (game, adapters) => theEntityWithIdHasTheExpectedComponent(TestStep.Then, adapters, EntityId.simpleMatchLobby, makeEntityReference(EntityId.simpleMatchLobby, EntityType.simpleMatchLobby, new Map([[EntityType.player, [EntityId.playerA]], [EntityType.button, [EntityId.playerAJoinSimpleMatchButton]]]))),
+            thereIsServerComponents(TestStep.Then, [
+                makeEntityReference(EntityIds.simpleMatchLobby, EntityType.simpleMatchLobby, new Map([[EntityType.player, [EntityIds.playerA]], [EntityType.button, [EntityIds.playerAJoinSimpleMatchButton]]]))
+            ]),
             (game, adapters) => eventsAreSent(TestStep.And, adapters, 'server', [
-                drawEvent(EntityId.playerA, makePhysical(EntityId.playerAMainMenu, mainMenuPosition, ShapeType.mainMenu, false)),
-                drawEvent(EntityId.playerA, makePhysical(EntityId.playerAJoinSimpleMatchButton, defaultJoinSimpleMatchButtonPosition, ShapeType.simpleMatchLobbyButton, false)),
+                drawEvent(EntityIds.playerA, makePhysical(EntityIds.playerAMainMenu, mainMenuPosition, ShapeType.mainMenu, false)),
+                drawEvent(EntityIds.playerA, makePhysical(EntityIds.playerAJoinSimpleMatchButton, defaultJoinSimpleMatchButtonPosition, ShapeType.simpleMatchLobbyButton, false)),
                 createPlayerSimpleMatchLobbyMenu(players[0])
             ])
         ])
-    serverScenario(`${Action.join} 4`, players.map(player => playerWantJoinSimpleMatchLobby(player, EntityId.simpleMatchLobby)),
+    serverScenario(`${Action.join} 4`, players.map(player => playerWantJoinSimpleMatchLobby(player, EntityIds.simpleMatchLobby)),
         (game, adapters) => () => new EntityBuilder(adapters.entityInteractor)
-            .buildEntity(EntityId.simpleMatchLobby).withLifeCycle(true).withEntityReferences(EntityType.simpleMatchLobby, new Map([[EntityType.button, simpleMatchButtons]])).withPhysicalComponent(simpleMatchLobbyPosition, ShapeType.simpleMatchLobbyButton, true).save()
+            .buildEntity(EntityIds.simpleMatchLobby).withLifeCycle(true).withEntityReferences(EntityType.simpleMatchLobby, new Map([[EntityType.button, simpleMatchButtons]])).withPhysicalComponent(simpleMatchLobbyPosition, ShapeType.simpleMatchLobbyButton, true).save()
             .buildEntity(mainMenus[0]).withPhysicalComponent(mainMenuPosition, ShapeType.mainMenu, true).save()
             .buildEntity(mainMenus[1]).withPhysicalComponent(mainMenuPosition, ShapeType.mainMenu, true).save()
             .buildEntity(mainMenus[2]).withPhysicalComponent(mainMenuPosition, ShapeType.mainMenu, true).save()
@@ -93,17 +105,21 @@ feature(featureEventDescription(Action.join), () => {
             .buildEntity(players[7]).withEntityReferences(EntityType.player, new Map([[EntityType.button, [simpleMatchButtons[7]]], [EntityType.mainMenu, [mainMenus[7]]]])).save()
 
         , [
-            (game, adapters) => theEntityIsCreated(TestStep.Given, adapters, EntityId.simpleMatchLobby),
-            (game, adapters) => theEntityWithIdHasTheExpectedComponent(TestStep.And, adapters, EntityId.simpleMatchLobby, makeEntityReference(EntityId.simpleMatchLobby, EntityType.simpleMatchLobby, new Map([[EntityType.button, simpleMatchButtons]]))),
-            (game, adapters) => whenEventOccurs(game, adapters, playerWantJoinSimpleMatchLobby(players[0], EntityId.simpleMatchLobby)),
-            (game, adapters) => whenEventOccurs(game, adapters, playerWantJoinSimpleMatchLobby(players[1], EntityId.simpleMatchLobby)),
-            (game, adapters) => whenEventOccurs(game, adapters, playerWantJoinSimpleMatchLobby(players[2], EntityId.simpleMatchLobby)),
-            (game, adapters) => whenEventOccurs(game, adapters, playerWantJoinSimpleMatchLobby(players[3], EntityId.simpleMatchLobby)),
-            (game, adapters) => whenEventOccurs(game, adapters, playerWantJoinSimpleMatchLobby(players[4], EntityId.simpleMatchLobby)),
-            (game, adapters) => whenEventOccurs(game, adapters, playerWantJoinSimpleMatchLobby(players[5], EntityId.simpleMatchLobby)),
-            (game, adapters) => whenEventOccurs(game, adapters, playerWantJoinSimpleMatchLobby(players[6], EntityId.simpleMatchLobby)),
-            (game, adapters) => whenEventOccurs(game, adapters, playerWantJoinSimpleMatchLobby(players[7], EntityId.simpleMatchLobby)),
-            (game, adapters) => theEntityWithIdHasTheExpectedComponent(TestStep.Then, adapters, EntityId.simpleMatchLobby, makeEntityReference(EntityId.simpleMatchLobby, EntityType.simpleMatchLobby, new Map([[EntityType.player, players], [EntityType.button, simpleMatchButtons]]))),
+            (game, adapters) => theEntityIsCreated(TestStep.Given, adapters, EntityIds.simpleMatchLobby),
+            thereIsServerComponents(TestStep.And, [
+                makeEntityReference(EntityIds.simpleMatchLobby, EntityType.simpleMatchLobby, new Map([[EntityType.button, simpleMatchButtons]]))
+            ]),
+            (game, adapters) => whenEventOccurs(game, adapters, playerWantJoinSimpleMatchLobby(players[0], EntityIds.simpleMatchLobby)),
+            (game, adapters) => whenEventOccurs(game, adapters, playerWantJoinSimpleMatchLobby(players[1], EntityIds.simpleMatchLobby)),
+            (game, adapters) => whenEventOccurs(game, adapters, playerWantJoinSimpleMatchLobby(players[2], EntityIds.simpleMatchLobby)),
+            (game, adapters) => whenEventOccurs(game, adapters, playerWantJoinSimpleMatchLobby(players[3], EntityIds.simpleMatchLobby)),
+            (game, adapters) => whenEventOccurs(game, adapters, playerWantJoinSimpleMatchLobby(players[4], EntityIds.simpleMatchLobby)),
+            (game, adapters) => whenEventOccurs(game, adapters, playerWantJoinSimpleMatchLobby(players[5], EntityIds.simpleMatchLobby)),
+            (game, adapters) => whenEventOccurs(game, adapters, playerWantJoinSimpleMatchLobby(players[6], EntityIds.simpleMatchLobby)),
+            (game, adapters) => whenEventOccurs(game, adapters, playerWantJoinSimpleMatchLobby(players[7], EntityIds.simpleMatchLobby)),
+            thereIsServerComponents(TestStep.Then, [
+                makeEntityReference(EntityIds.simpleMatchLobby, EntityType.simpleMatchLobby, new Map([[EntityType.player, players], [EntityType.button, simpleMatchButtons]]))
+            ]),
             (game, adapters) => eventsAreSent(TestStep.And, adapters, 'server', [
                 drawEvent(players[0], makePhysical(mainMenus[0], mainMenuPosition, ShapeType.mainMenu, false)),
                 drawEvent(players[0], makePhysical(simpleMatchButtons[0], defaultJoinSimpleMatchButtonPosition, ShapeType.simpleMatchLobbyButton, false)),
@@ -111,28 +127,28 @@ feature(featureEventDescription(Action.join), () => {
                 drawEvent(players[1], makePhysical(mainMenus[1], mainMenuPosition, ShapeType.mainMenu, false)),
                 drawEvent(players[1], makePhysical(simpleMatchButtons[1], defaultJoinSimpleMatchButtonPosition, ShapeType.simpleMatchLobbyButton, false)),
                 createPlayerSimpleMatchLobbyMenu(players[1]),
-                createMatchEvent(EntityId.simpleMatchLobby),
+                createMatchEvent(EntityIds.simpleMatchLobby),
                 drawEvent(players[2], makePhysical(mainMenus[2], mainMenuPosition, ShapeType.mainMenu, false)),
                 drawEvent(players[2], makePhysical(simpleMatchButtons[2], defaultJoinSimpleMatchButtonPosition, ShapeType.simpleMatchLobbyButton, false)),
                 createPlayerSimpleMatchLobbyMenu(players[2]),
                 drawEvent(players[3], makePhysical(mainMenus[3], mainMenuPosition, ShapeType.mainMenu, false)),
                 drawEvent(players[3], makePhysical(simpleMatchButtons[3], defaultJoinSimpleMatchButtonPosition, ShapeType.simpleMatchLobbyButton, false)),
                 createPlayerSimpleMatchLobbyMenu(players[3]),
-                createMatchEvent(EntityId.simpleMatchLobby),
+                createMatchEvent(EntityIds.simpleMatchLobby),
                 drawEvent(players[4], makePhysical(mainMenus[4], mainMenuPosition, ShapeType.mainMenu, false)),
                 drawEvent(players[4], makePhysical(simpleMatchButtons[4], defaultJoinSimpleMatchButtonPosition, ShapeType.simpleMatchLobbyButton, false)),
                 createPlayerSimpleMatchLobbyMenu(players[4]),
                 drawEvent(players[5], makePhysical(mainMenus[5], mainMenuPosition, ShapeType.mainMenu, false)),
                 drawEvent(players[5], makePhysical(simpleMatchButtons[5], defaultJoinSimpleMatchButtonPosition, ShapeType.simpleMatchLobbyButton, false)),
                 createPlayerSimpleMatchLobbyMenu(players[5]),
-                createMatchEvent(EntityId.simpleMatchLobby),
+                createMatchEvent(EntityIds.simpleMatchLobby),
                 drawEvent(players[6], makePhysical(mainMenus[6], mainMenuPosition, ShapeType.mainMenu, false)),
                 drawEvent(players[6], makePhysical(simpleMatchButtons[6], defaultJoinSimpleMatchButtonPosition, ShapeType.simpleMatchLobbyButton, false)),
                 createPlayerSimpleMatchLobbyMenu(players[6]),
                 drawEvent(players[7], makePhysical(mainMenus[7], mainMenuPosition, ShapeType.mainMenu, false)),
                 drawEvent(players[7], makePhysical(simpleMatchButtons[7], defaultJoinSimpleMatchButtonPosition, ShapeType.simpleMatchLobbyButton, false)),
                 createPlayerSimpleMatchLobbyMenu(players[7]),
-                createMatchEvent(EntityId.simpleMatchLobby)
+                createMatchEvent(EntityIds.simpleMatchLobby)
             ])
         ])
 })

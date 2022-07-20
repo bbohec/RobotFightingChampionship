@@ -78,7 +78,7 @@ export class EntityBuilder {
 
     private addComponents (components: Component[]) {
         if (!this.entity) throw new Error('Missing build entity in builder.')
-        this.entity.addComponents(components)
+        this.entity.saveComponents(components)
     }
 
     private getEntityId (): string {

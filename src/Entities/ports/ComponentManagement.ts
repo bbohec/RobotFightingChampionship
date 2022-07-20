@@ -1,8 +1,8 @@
-import { Component } from '../../Components/port/Component'
+import { Component, ComponentType } from '../../Components/port/Component'
 
 export interface ComponentManagement {
     // eslint-disable-next-line no-unused-vars
-    hasComponent<T extends Component>(): boolean;
+    hasComponent(componentType:ComponentType): boolean;
     deleteAllComponents():void
-    addComponent(component: Component): void;
+    saveComponent(component: Component): void;
 }
