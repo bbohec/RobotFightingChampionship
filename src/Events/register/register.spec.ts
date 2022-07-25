@@ -1,5 +1,6 @@
 
 import { makeEntityReference } from '../../Components/EntityReference'
+import { makeLifeCycle } from '../../Components/LifeCycle'
 import { makePhysical, position } from '../../Components/Physical'
 import { ShapeType } from '../../Components/port/ShapeType'
 import { EntityBuilder } from '../../Entities/entityBuilder'
@@ -14,7 +15,7 @@ import { playerReadyForMatch } from '../ready/ready'
 import { registerNextTurnButtonEvent, registerPlayerEvent, registerPlayerOnGameEvent, registerPlayerPointerEvent, registerRobotEvent, registerSimpleMatchLobbyOnGame, registerTowerEvent } from './register'
 feature(featureEventDescription(Action.register), () => {
     serverScenario(`${Action.register} 1`, registerTowerEvent(EntityIds.playerBTower, EntityIds.playerA),
-        (game, adapters) => () => new EntityBuilder(adapters.entityInteractor)
+        [], (game, adapters) => () => new EntityBuilder(adapters.entityInteractor)
             .buildEntity(EntityIds.playerA).withEntityReferences(EntityType.player, new Map()).save()
             .buildEntity(EntityIds.playerBTower).withEntityReferences(EntityType.tower, new Map()).save()
         , [
@@ -27,7 +28,7 @@ feature(featureEventDescription(Action.register), () => {
             (game, adapters) => eventsAreSent(TestStep.And, adapters, 'server', [])
         ])
     serverScenario(`${Action.register} 2`, registerRobotEvent(EntityIds.playerARobot, EntityIds.playerA),
-        (game, adapters) => () => new EntityBuilder(adapters.entityInteractor)
+        [], (game, adapters) => () => new EntityBuilder(adapters.entityInteractor)
             .buildEntity(EntityIds.playerA).withEntityReferences(EntityType.player, new Map()).save()
             .buildEntity(EntityIds.playerARobot).withEntityReferences(EntityType.robot, new Map()).save()
         , [
@@ -40,7 +41,7 @@ feature(featureEventDescription(Action.register), () => {
             (game, adapters) => eventsAreSent(TestStep.And, adapters, 'server', [])
         ])
     serverScenario(`${Action.register} 3`, registerNextTurnButtonEvent(EntityIds.playerA, EntityIds.match, EntityIds.playerANextTurnButton),
-        (game, adapters) => () => new EntityBuilder(adapters.entityInteractor)
+        [], (game, adapters) => () => new EntityBuilder(adapters.entityInteractor)
             .buildEntity(EntityIds.playerA).withEntityReferences(EntityType.player, new Map()).save()
             .buildEntity(EntityIds.playerANextTurnButton).withEntityReferences(EntityType.nextTurnButton, new Map()).save()
             .buildEntity(EntityIds.match).withEntityReferences(EntityType.match, new Map()).save()
@@ -55,7 +56,7 @@ feature(featureEventDescription(Action.register), () => {
             (game, adapters) => eventsAreSent(TestStep.And, adapters, 'server', [])
         ])
     serverScenario(`${Action.register} 4`, [registerRobotEvent(EntityIds.playerARobot, EntityIds.playerA), registerTowerEvent(EntityIds.playerBTower, EntityIds.playerA)],
-        (game, adapters) => () => new EntityBuilder(adapters.entityInteractor)
+        [], (game, adapters) => () => new EntityBuilder(adapters.entityInteractor)
             .buildEntity(EntityIds.match).withEntityReferences(EntityType.match, new Map([[EntityType.player, [EntityIds.playerA]]])).save()
             .buildEntity(EntityIds.playerA).withEntityReferences(EntityType.player, new Map([[EntityType.match, [EntityIds.match]]])).save()
             .buildEntity(EntityIds.playerARobot).withEntityReferences(EntityType.robot).save()
@@ -69,7 +70,7 @@ feature(featureEventDescription(Action.register), () => {
             (game, adapters) => eventsAreSent(TestStep.Then, adapters, 'server', [playerReadyForMatch(EntityIds.match, EntityIds.playerA)])
         ])
     serverScenario(`${Action.register} 5`, [registerRobotEvent(EntityIds.playerARobot, EntityIds.playerA), registerTowerEvent(EntityIds.playerBTower, EntityIds.playerA)],
-        (game, adapters) => () => new EntityBuilder(adapters.entityInteractor)
+        [], (game, adapters) => () => new EntityBuilder(adapters.entityInteractor)
             .buildEntity(EntityIds.match).withEntityReferences(EntityType.match, new Map([[EntityType.player, [EntityIds.playerA]]])).save()
             .buildEntity(EntityIds.playerA).withEntityReferences(EntityType.player, new Map([[EntityType.match, [EntityIds.match]], [EntityType.robot, []]])).save()
             .buildEntity(EntityIds.playerARobot).withEntityReferences(EntityType.robot).save()
@@ -88,30 +89,31 @@ feature(featureEventDescription(Action.register), () => {
             (game, adapters) => eventsAreSent(TestStep.Then, adapters, 'server', [registerPlayerEvent(EntityIds.playerA)])
         ])
     serverScenario(`${Action.register} 7`, registerPlayerEvent(EntityIds.playerA),
-        (game, adapters) => () => new EntityBuilder(adapters.entityInteractor)
+        [], (game, adapters) => () => new EntityBuilder(adapters.entityInteractor)
             .buildEntity(EntityIds.game).withEntityReferences(EntityType.game).save()
         , [
             (game, adapters) => theEntityIsNotOnRepository(TestStep.Given, adapters, EntityIds.playerA),
             ...whenEventOccured(),
             thereIsServerComponents(TestStep.Then, [
+                makeEntityReference(EntityIds.game, EntityType.game, new Map()),
+                makeLifeCycle(EntityIds.playerA),
                 makeEntityReference(EntityIds.playerA, EntityType.player, new Map())
             ]),
             (game, adapters) => eventsAreSent(TestStep.Then, adapters, 'server', [registerPlayerOnGameEvent(EntityIds.playerA, EntityIds.game)])
         ])
     serverScenario(`${Action.register} 8`, registerPlayerOnGameEvent(EntityIds.playerA, EntityIds.game),
-        (game, adapters) => () => new EntityBuilder(adapters.entityInteractor)
+        [], (game, adapters) => () => new EntityBuilder(adapters.entityInteractor)
             .buildEntity(EntityIds.game).withEntityReferences(EntityType.game, new Map([[EntityType.simpleMatchLobby, [EntityIds.simpleMatchLobby]]])).save()
             .buildEntity(EntityIds.playerA).withEntityReferences(EntityType.player).save()
         , [
             thereIsServerComponents(TestStep.Given, [
-                makeEntityReference(EntityIds.playerA, EntityType.player, new Map()),
-                makeEntityReference(EntityIds.game, EntityType.game, new Map([[EntityType.simpleMatchLobby, [EntityIds.simpleMatchLobby]]]))
+                makeEntityReference(EntityIds.game, EntityType.game, new Map([[EntityType.simpleMatchLobby, [EntityIds.simpleMatchLobby]]])),
+                makeEntityReference(EntityIds.playerA, EntityType.player, new Map())
             ]),
             ...whenEventOccured(),
             thereIsServerComponents(TestStep.Then, [
-                makeEntityReference(EntityIds.playerA, EntityType.player, new Map([[EntityType.game, [EntityIds.game]]])),
-                makeEntityReference(EntityIds.game, EntityType.game, new Map([[EntityType.player, [EntityIds.playerA]], [EntityType.simpleMatchLobby, [EntityIds.simpleMatchLobby]]]))
-
+                makeEntityReference(EntityIds.game, EntityType.game, new Map([[EntityType.player, [EntityIds.playerA]], [EntityType.simpleMatchLobby, [EntityIds.simpleMatchLobby]]])),
+                makeEntityReference(EntityIds.playerA, EntityType.player, new Map([[EntityType.game, [EntityIds.game]]]))
             ]),
             (game, adapters) => eventsAreSent(TestStep.And, adapters, 'server', [
                 createPlayerPointerEvent(EntityIds.playerA),
@@ -120,27 +122,29 @@ feature(featureEventDescription(Action.register), () => {
             ])
         ])
     serverScenario(`${Action.register} 9 - Forward register pointer to client`, registerPlayerPointerEvent(EntityIds.playerAPointer, EntityIds.playerA),
-        (game, adapters) => () => new EntityBuilder(adapters.entityInteractor)
+        [EntityIds.playerA], (game, adapters) => () => new EntityBuilder(adapters.entityInteractor)
         , [
             ...whenEventOccured(),
-            (game, adapters) => eventsAreSent(TestStep.And, adapters, 'client', [registerPlayerPointerEvent(EntityIds.playerAPointer, EntityIds.playerA)])
+            (game, adapters) => eventsAreSent(TestStep.And, adapters, EntityIds.playerA, [registerPlayerPointerEvent(EntityIds.playerAPointer, EntityIds.playerA)])
         ])
     clientScenario(`${Action.register} 10 - Register pointer to client`, registerPlayerPointerEvent(EntityIds.playerAPointer, EntityIds.playerA), EntityIds.playerA,
         (game, adapters) => () => new EntityBuilder(adapters.entityInteractor)
             .buildEntity(EntityIds.playerA).withEntityReferences(EntityType.player).save()
         , [
-            (game, adapters) => theEntityIsNotOnRepository(TestStep.Given, adapters, EntityIds.playerAPointer),
+            thereIsClientComponents(TestStep.Then, [
+                makeEntityReference(EntityIds.playerA, EntityType.player, new Map())
+            ]),
             ...whenEventOccured(),
             thereIsClientComponents(TestStep.Then, [
                 makeEntityReference(EntityIds.playerA, EntityType.player, new Map([[EntityType.pointer, [EntityIds.playerAPointer]]])),
+                makeLifeCycle(EntityIds.playerAPointer),
                 makeEntityReference(EntityIds.playerAPointer, EntityType.pointer, new Map([[EntityType.player, [EntityIds.playerA]]])),
                 makePhysical(EntityIds.playerAPointer, position(0, 0), ShapeType.pointer, true)
-
             ]),
             (game, adapters) => eventsAreSent(TestStep.And, adapters, 'client', [activatePointerEvent(EntityIds.playerAPointer)])
         ])
     serverScenario(`${Action.register} 11`, registerSimpleMatchLobbyOnGame(EntityIds.game, EntityIds.simpleMatchLobby),
-        (game, adapters) => () => new EntityBuilder(adapters.entityInteractor)
+        [], (game, adapters) => () => new EntityBuilder(adapters.entityInteractor)
             .buildEntity(EntityIds.game).withEntityReferences(EntityType.game).save()
         , [
             thereIsServerComponents(TestStep.Given, [

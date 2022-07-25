@@ -1,21 +1,27 @@
 import { retrieveReference } from '../../Components/EntityReference'
 import { Phasing, weaponAttackActionPoints } from '../../Components/Phasing'
-import { defaultWeaponMaxRange, Physical, Position } from '../../Components/Physical'
+import { defaultWeaponMaxRange, Position } from '../../Components/Physical'
 import { EntityType } from '../../Event/EntityType'
 import { GameEvent } from '../../Event/GameEvent'
 import { hitEvent } from '../../Events/hit/hit'
-import { wrongUnitPhaseNotificationMessage, wrongPlayerPhaseNotificationMessage, notEnoughActionPointNotificationMessage, notifyPlayerEvent, outOfRangeNotificationMessage } from '../../Events/notifyPlayer/notifyPlayer'
+import { notEnoughActionPointNotificationMessage, notifyPlayerEvent, outOfRangeNotificationMessage, wrongPlayerPhaseNotificationMessage, wrongUnitPhaseNotificationMessage } from '../../Events/notifyPlayer/notifyPlayer'
 import { ArtithmeticSystem } from '../Generic/ArithmeticSystem'
 export class AttackingSystem extends ArtithmeticSystem {
     onGameEvent (gameEvent: GameEvent): Promise<void> {
-        const playerId = this.entityByEntityType(gameEvent,EntityType.player)
+        const playerId = this.entityByEntityType(gameEvent, EntityType.player)
         const playerEntityReference = this.entityReferencesByEntityId(playerId)
-        const phasingComponent = this.interactWithEntities.retrieveComponent<Phasing>(retrieveReference(playerEntityReference, EntityType.match))
-        const attackerId = this.entityByEntityType(gameEvent,EntityType.attacker)
-        const targetId = this.entityByEntityType(gameEvent,EntityType.target)
-        const genericStepFunction = (check:boolean, notificationMessage:string, nextStep:()=>Promise<void>):Promise<void> => check ? nextStep() : this.sendEvent(notifyPlayerEvent(this.entityByEntityType(gameEvent,EntityType.player), notificationMessage))
+        if (!playerEntityReference) throw new Error('Player entity reference not found for entity ' + playerId)
+        const phasingComponent = this.interactWithEntities.retreivePhasing(retrieveReference(playerEntityReference, EntityType.match))
+        if (!phasingComponent) throw new Error('Phasing component not found for entity ' + playerEntityReference.entityId)
+        const attackerId = this.entityByEntityType(gameEvent, EntityType.attacker)
+        const targetId = this.entityByEntityType(gameEvent, EntityType.target)
+        const attackerPhysical = this.interactWithEntities.retrievePhysical(attackerId)
+        const targetPhysical = this.interactWithEntities.retrievePhysical(targetId)
+        if (!attackerPhysical) throw new Error('Physical component not found for entity ' + attackerId)
+        if (!targetPhysical) throw new Error('Physical component not found for entity ' + targetId)
+        const genericStepFunction = (check:boolean, notificationMessage:string, nextStep:()=>Promise<void>):Promise<void> => check ? nextStep() : this.sendEvent(notifyPlayerEvent(this.entityByEntityType(gameEvent, EntityType.player), notificationMessage))
         const enoughActionPointCheckStep = (nextStep: ()=>Promise<void>): Promise<void> => genericStepFunction(this.isPhaseEnoughActionPoint(phasingComponent), notEnoughActionPointNotificationMessage, nextStep)
-        const targetOnAttackerRangeCheckStep = (nextStep: ()=>Promise<void>): Promise<void> => genericStepFunction(this.isTargetOnAttackerRange(this.interactWithEntities.retrieveComponent<Physical>(attackerId).position, this.interactWithEntities.retrieveComponent<Physical>(targetId).position), outOfRangeNotificationMessage, nextStep)
+        const targetOnAttackerRangeCheckStep = (nextStep: ()=>Promise<void>): Promise<void> => genericStepFunction(this.isTargetOnAttackerRange(attackerPhysical.position, targetPhysical.position), outOfRangeNotificationMessage, nextStep)
         const attackingUnitPhaseCheckStep = (nextStep: ()=>Promise<void>) => genericStepFunction(this.isAttackingUnitPhase(phasingComponent, attackerId), wrongUnitPhaseNotificationMessage(phasingComponent.currentPhase), nextStep)
         const playerPhaseCheckStep = (nextStep: ()=>Promise<void>) => genericStepFunction(this.isPlayerPhase(phasingComponent, playerId), wrongPlayerPhaseNotificationMessage(playerId), nextStep)
 

@@ -2,19 +2,20 @@ import chai from 'chai'
 import { before, describe, Func, it, Suite, Test } from 'mocha'
 import { GameEvent } from './GameEvent'
 
-import { LifeCycle } from '../Components/LifeCycle'
 import { Physical } from '../Components/Physical'
 import { Component } from '../Components/port/Component'
 import { ClientGameSystem } from '../Systems/Game/ClientGame'
 import { GenericGameSystem } from '../Systems/Game/GenericGame'
 import { FakeClientAdapters } from '../Systems/Game/infra/FakeClientAdapters'
 import { FakeServerAdapters } from '../Systems/Game/infra/FakeServerAdapters'
-import { GenericAdapter } from '../Systems/Game/port/genericAdapters'
 import { ServerGameSystem } from '../Systems/Game/ServerGame'
 import { Action } from './Action'
 import { stringifyWithDetailledSetAndMap } from './detailledStringify'
 import { InMemoryEventBus } from './infra/InMemoryEventBus'
 import { TestStep } from './TestStep'
+import { InMemoryClientEventInteractor } from '../EventInteractor/infra/client/InMemoryClientEventInteractor'
+import { EventBus } from './port/EventBus'
+import { InMemoryServerEventInteractor } from '../EventInteractor/infra/server/InMemoryServerEventInteractor'
 
 const { expect } = chai
 
@@ -24,13 +25,14 @@ type UnitTestWithContext = (game: GenericGameSystem, adapters: FakeServerAdapter
 export const serverScenario = (
     title:string,
     gameEvent:GameEvent|GameEvent[],
+    clientIds:string[],
     beforeMochaFunc:((game:ServerGameSystem, adapters:FakeServerAdapters)=>Func)|undefined,
     tests:((game:ServerGameSystem, adapters:FakeServerAdapters, gameEvent:GameEvent|GameEvent[])=>Test)[],
     nextIdentifiers?:string[],
     skip?:boolean
 ) => {
     const serverTestSuite = () => {
-        const adapters = new FakeServerAdapters(nextIdentifiers)
+        const adapters = new FakeServerAdapters(clientIds, nextIdentifiers)
         const game = new ServerGameSystem(adapters)
         // eslint-disable-next-line no-unused-expressions
         if (beforeMochaFunc)before(beforeMochaFunc(game, adapters))
@@ -101,25 +103,29 @@ export const theEntityIsNotOnRepository = (
         .hasEntityById(entityId))
         .to.be.false)
 
-export const theEntityIsCreated = (
-    testStep:TestStep,
-    adapters: GenericAdapter,
-    potentialEntityId: string
-) => it(entityIdCreated(testStep, potentialEntityId),
-    () => expect(adapters
-        .entityInteractor
-        .retrieveComponent<LifeCycle>(potentialEntityId)
-        .isCreated)
-        .to.be.true)
-
 export const eventsAreSent = (
     testStep:TestStep,
     adapters: FakeClientAdapters | FakeServerAdapters,
-    to:'server'|'client',
+    to:'server'|string,
     expectedGameEvents: GameEvent[],
     skip?:boolean
 ) => {
-    const eventBus = adapters.eventInteractor.eventBus
+    const getEventBus = (eventInteractor: InMemoryServerEventInteractor | InMemoryClientEventInteractor):EventBus => {
+        if (eventInteractor instanceof InMemoryClientEventInteractor) {
+            if (to !== 'server') return eventInteractor.eventBus
+            const serverEventInteractor = eventInteractor.serverEventInteractor
+            if (!serverEventInteractor) throw new Error('serverEventInteractor not found')
+            return serverEventInteractor.eventBus
+        } else {
+            if (to === 'server') return eventInteractor.eventBus
+            const clientEventInteractors = eventInteractor.clientEventInteractors
+            if (!clientEventInteractors) throw new Error('clientEventInteractor not found')
+            const clientEventInteractor = clientEventInteractors.find(client => client.clientId === to)
+            if (clientEventInteractor) return clientEventInteractor.eventBus
+            throw new Error(`clientEventInteractor with clientId ${to} not found`)
+        }
+    }
+    const eventBus = getEventBus(adapters.eventInteractor)
     if (eventBus instanceof InMemoryEventBus) {
         const identicalEventsTest = (events:GameEvent[]) => expect(events).deep.equal(expectedGameEvents, eventDetailedComparisonMessage(events, expectedGameEvents))
         return (skip)
@@ -169,7 +175,6 @@ export const thereIsServerComponents = (
     expectedComponents: Component[]
 ) => (game:ServerGameSystem, adapters:FakeServerAdapters) => it(hasComponents(testStep, expectedComponents),
     () => {
-        console.log(typeof expectedComponents)
         const components = adapters
             .entityInteractor.retreiveAllComponents()
         expect(components).deep.equal(expectedComponents, componentDetailedComparisonMessage(components, expectedComponents))
@@ -180,20 +185,10 @@ export const thereIsClientComponents = (
     expectedComponents: Component[]
 ) => (game:ClientGameSystem, adapters:FakeClientAdapters) => it(hasComponents(testStep, expectedComponents),
     () => {
-        console.log(typeof expectedComponents)
         const components = adapters
             .entityInteractor.retreiveAllComponents()
         expect(components).deep.equal(expectedComponents, componentDetailedComparisonMessage(components, expectedComponents))
     })
-export const theEntityWithIdDoNotHaveAnyComponent = (
-    testStep:TestStep,
-    adapters: FakeServerAdapters,
-    entityId: string
-) => it(entityDontHaveComponent(testStep, entityId),
-    () => expect(adapters
-        .entityInteractor
-        .isEntityHasComponentsByEntityId(entityId)
-    ).to.be.false)
 
 export const thereIsANotification = (
     testStep:TestStep,
@@ -232,22 +227,28 @@ export const theControllerAdapterIsNotInteractive = (
         .to.be.false)
 
 export const detailedComparisonMessage = (thing:unknown, expectedThing:unknown):string => `DETAILS\nexpected >>>>>>>> ${stringifyWithDetailledSetAndMap(thing)} \nto deeply equal > ${stringifyWithDetailledSetAndMap(expectedThing)} \n`
-const eventDetailedComparisonMessage = (gameEvents: GameEvent[], expectedGameEvents: GameEvent[]): string => `DETAILS\nexpected >>>>>>>> ${stringifyWithDetailledSetAndMap(gameEvents)} \nto deeply equal > ${stringifyWithDetailledSetAndMap(expectedGameEvents)} \n`
-const componentDetailedComparisonMessage = (components: Component[], expectedComponents: Component[]): string => `DETAILS\nexpected >>>>>>>> ${stringifyWithDetailledSetAndMap(components)} \nto deeply equal > ${stringifyWithDetailledSetAndMap(expectedComponents)} \n`
-const entityDontHaveComponent = (testStep: TestStep, entityId: string): string => `${testStep} the entity with id '${entityId}' don't have any component.`
+const eventDetailedComparisonMessage = (gameEvents: GameEvent[], expectedGameEvents: GameEvent[]): string => `DETAILS
+    expected >>> ${stringifyWithDetailledSetAndMap(expectedGameEvents)}
+    actual >>>>> ${stringifyWithDetailledSetAndMap(gameEvents)} \n`
+const componentDetailedComparisonMessage = (components: Component[], expectedComponents: Component[]): string => `DETAILS
+expected >>>>>>>>>>>
+    ${expectedComponents.map(component => stringifyWithDetailledSetAndMap(component)).join('\n    ')}}
+actual >>>>
+    ${components.map(component => stringifyWithDetailledSetAndMap(component)).join('\n    ')}\n`
+// const entityDontHaveComponent = (testStep: TestStep, entityId: string): string => `${testStep} the entity with id '${entityId}' don't have any component.`
 
 const hasComponents = (testStep: TestStep, expectedComponents: Component[]): string => `${testStep} there is components :
     ${stringifyWithDetailledSetAndMap(expectedComponents)}`
 
 const entityIdOnRepository = (testStep: TestStep, potentialEntityOrEntityId: string): string => `${testStep} there is an entity with id '${potentialEntityOrEntityId}' on entities repository.`
 const entityIdIsNotOnRepository = (testStep: TestStep, potentialEntityOrEntityId: string): string => `${testStep} there is no entity with id '${potentialEntityOrEntityId}' on entities repository.`
-const entityIdCreated = (testStep: TestStep, potentialEntityClassOrId: string): string => `${testStep} the entity with id '${potentialEntityClassOrId}' is created.`
+// const entityIdCreated = (testStep: TestStep, potentialEntityClassOrId: string): string => `${testStep} the entity with id '${potentialEntityClassOrId}' is created.`
 
 const eventMessage = (event:GameEvent): string => `When the event action '${event.action}' occurs with entity references '${stringifyWithDetailledSetAndMap(event.entityRefences)}'.`
 // const eventNotSentMessage = (testStep: TestStep, gameEvent: GameEvent, to:'client'|'server'): string => `${testStep} the event with action '${gameEvent.action}' is not sent to '${to}' with the following entity references:'${stringifyWithDetailledSetAndMap(gameEvent.entityRefences)}.`
 // const eventSentMessage = (testStep: TestStep, gameEvent: GameEvent, to:'client'|'server', eventSentQty: number | undefined): string => `${testStep} the event with action '${gameEvent.action}' is sent to '${to}' with the following entity references:'${stringifyWithDetailledSetAndMap(gameEvent.entityRefences)}'${(eventSentQty) ? ` ${eventSentQty} times.` : '.'}`
 
-const eventsAreSentMessage = (testStep: TestStep, gameEvents: GameEvent[], to:'client'|'server'): string =>
+const eventsAreSentMessage = (testStep: TestStep, gameEvents: GameEvent[], to:'server'|string): string =>
     (gameEvents.length === 0)
         ? `${testStep} no events are sent to '${to}.`
         : `${testStep} following events are sent to '${to}' :\n${gameEvents.map(gameEvent => stringifyWithDetailledSetAndMap(gameEvent)).join('\n')}'`

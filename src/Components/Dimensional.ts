@@ -1,4 +1,4 @@
-import { GenericComponent } from './port/Component'
+import { Component, GenericComponent } from './port/Component'
 
 export type Dimension = {
     x: number;
@@ -8,6 +8,15 @@ export type Dimension = {
 export type Dimensional = GenericComponent<'Dimensional', {
     dimensions: Dimension;
 }>
+
+export const isDimensional = (component:Component): component is Dimensional => {
+    return component.componentType === 'Dimensional'
+}
+
+export const toDimensional = (component:Component): Dimensional => {
+    if (isDimensional(component)) return component as Dimensional
+    throw new Error(`${component} is not Dimensional`)
+}
 
 export const makeDimensional = (entityId:string, dimensions:Dimension): Dimensional => ({
     componentType: 'Dimensional',

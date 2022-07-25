@@ -1,6 +1,6 @@
 import { Express } from 'express'
 import { Server } from 'http'
-import { Logger } from '../../Log/port/logger'
+import { Logger } from '../../../Log/port/logger'
 import { serverListeningMessage } from './WebServerEventInteractor'
 
 export class ExpressWebServerInstance {

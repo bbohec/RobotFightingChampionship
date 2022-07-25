@@ -1,9 +1,8 @@
-import { GameEvent } from '../../Event/GameEvent'
-import { System } from './port/System'
 import { EntityInteractor } from '../../Entities/ports/EntityInteractor'
-import { GenericGameEventDispatcherSystem } from '../GameEventDispatcher/GenericGameEventDispatcherSystem'
-import { EntityReference } from '../../Components/EntityReference'
+import { GameEvent } from '../../Event/GameEvent'
 import { GameEventHandler } from '../../Event/GameEventHandler'
+import { GenericGameEventDispatcherSystem } from '../GameEventDispatcher/GenericGameEventDispatcherSystem'
+import { System } from './port/System'
 export abstract class GenericClientSystem extends GameEventHandler implements System {
     constructor (
         protected readonly interactWithEntities: EntityInteractor,
@@ -21,7 +20,7 @@ export abstract class GenericClientSystem extends GameEventHandler implements Sy
     }
 
     protected entityReferencesByEntityId (entityId: string) {
-        return this.interactWithEntities.retrieveComponent<EntityReference>(entityId)
+        return this.interactWithEntities.retreiveEntityReference(entityId)
     }
 
     abstract onGameEvent(gameEvent: GameEvent): Promise<void>;

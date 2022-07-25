@@ -1,4 +1,3 @@
-import { Physical } from '../../Components/Physical'
 import { ControlStatus } from '../../Components/port/ControlStatus'
 import { EntityInteractor } from '../../Entities/ports/EntityInteractor'
 import { Action } from '../../Event/Action'
@@ -29,9 +28,11 @@ export class ControllerSystem extends GenericClientSystem {
 
     private onUpdatePlayerPointerPosition (gameEvent: GameEvent): Promise<void> {
         const pointerEntityId = this.entityByEntityType(gameEvent, EntityType.pointer)
-        const pointerPhysicalComponent = this.interactWithEntities.retrieveComponent<Physical>(pointerEntityId)
-        const updatedpointerPhysicalComponent = { ...pointerPhysicalComponent, position: this.retrieveComponent<Physical>(gameEvent, pointerEntityId).position }
-        return this.sendEvent(updatePointerState(pointerEntityId, updatedpointerPhysicalComponent.position, ControlStatus.Active))
+        const pointerPhysicalComponent = this.interactWithEntities.retrievePhysical(pointerEntityId)
+        const updatedpointerPhysicalComponent = { ...pointerPhysicalComponent, position: this.retrievePhysical(gameEvent, pointerEntityId).position }
+        this.interactWithEntities.saveComponent(updatedpointerPhysicalComponent)
+        const event = updatePointerState(pointerEntityId, updatedpointerPhysicalComponent.position, ControlStatus.Active)
+        return this.sendEvent(event)
     }
 
     private interactWithControllerAdapter: ControllerPort

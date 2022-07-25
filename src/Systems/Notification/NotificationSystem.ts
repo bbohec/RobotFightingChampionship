@@ -1,4 +1,3 @@
-import { EntityReference } from '../../Components/EntityReference'
 import { EntityInteractor } from '../../Entities/ports/EntityInteractor'
 import { EntityType } from '../../Event/EntityType'
 import { GameEvent } from '../../Event/GameEvent'
@@ -16,7 +15,11 @@ export class NotificationSystem extends GenericClientSystem {
     onGameEvent (gameEvent: GameEvent): Promise<void> {
         const playerEntityReference = this.interactWithEntities
             .retrieveEntitiesThatHaveComponent('EntityReference')
-            .map(entity => entity.retrieveComponent<EntityReference>())
+            .map(entity => {
+                const entityReference = entity.retrieveEntityReference()
+                if (!entityReference) throw new Error('EntityReference component not found for entity ' + entity.id)
+                return entityReference
+            })
             .find(entityReferenceComponent => entityReferenceComponent.entityType.includes(EntityType.player))
         const message = this.entityByEntityType(gameEvent, EntityType.message)
         const eventPlayerId = this.entityByEntityType(gameEvent, EntityType.player)

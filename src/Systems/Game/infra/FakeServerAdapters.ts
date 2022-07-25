@@ -1,18 +1,20 @@
 import { InMemoryEntityRepository } from '../../../Entities/infra/InMemoryEntityRepository'
 import { InMemoryEventBus } from '../../../Event/infra/InMemoryEventBus'
-import { InMemoryServerEventInteractor } from '../../../EventInteractor/infra/InMemoryServerEventInteractor'
+import { InMemoryClientEventInteractor } from '../../../EventInteractor/infra/client/InMemoryClientEventInteractor'
+import { InMemoryServerEventInteractor } from '../../../EventInteractor/infra/server/InMemoryServerEventInteractor'
 import { InMemorySystemRepository } from '../../Generic/infra/InMemorySystemInteractor'
 import { FakeIdentifierAdapter } from '../../LifeCycle/infra/FakeIdentifierAdapter'
 import { IdentifierAdapter } from '../../LifeCycle/port/IdentifierAdapter'
 import { serverAdapters } from '../port/serverAdapters'
 
 export class FakeServerAdapters implements serverAdapters {
-    constructor (nextIdentifiers?:string[]) {
+    constructor (clientIds:string[], nextIdentifiers?:string[]) {
         this.identifierInteractor = new FakeIdentifierAdapter(nextIdentifiers)
+        this.eventInteractor = new InMemoryServerEventInteractor(new InMemoryEventBus(), clientIds.map(clientId => new InMemoryClientEventInteractor(clientId, new InMemoryEventBus())))
     }
 
     identifierInteractor: IdentifierAdapter;
-    eventInteractor = new InMemoryServerEventInteractor(new InMemoryEventBus(), undefined)
+    eventInteractor :InMemoryServerEventInteractor
     systemInteractor = new InMemorySystemRepository();
     entityInteractor = new InMemoryEntityRepository();
 }

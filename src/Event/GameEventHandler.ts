@@ -1,11 +1,43 @@
+import { Controller, toController } from '../Components/Controller'
+import { Dimensional, toDimensional } from '../Components/Dimensional'
 import { EntityReferences } from '../Components/EntityReference'
-import { Component, isComponent, toComponent } from '../Components/port/Component'
+import { LifeCycle, toLifeCycle } from '../Components/LifeCycle'
+import { Physical, toPhysical } from '../Components/Physical'
+import { Component, ComponentType } from '../Components/port/Component'
 import { Action } from './Action'
 import { stringifyWithDetailledSetAndMap } from './detailledStringify'
 import { EntityType } from './EntityType'
 import { GameEvent } from './GameEvent'
 
 export class GameEventHandler {
+    retrievePhysical (event:GameEvent, entityId:string):Physical {
+        const physical = event.components.find(component => component.componentType === 'Physical' && component.entityId === entityId)
+        if (!physical) throw new Error('No physical component found for entityId: ' + entityId)
+        return toPhysical(physical)
+    }
+
+    retrieveController (event:GameEvent, entityId:string):Controller {
+        return this.retreiveComponent(event, entityId, 'Controller', toController)
+    }
+
+    private retreiveComponent <T> (event:GameEvent, entityId:string, componentType:ComponentType, validator: (component:Component)=> T):T {
+        const component = event.components.find(component => component.componentType === componentType && component.entityId === entityId)
+        if (!component) throw new Error(`No ${componentType} component found for entityId ${entityId}`)
+        return validator(component)
+    }
+
+    retrieveDimensional (event:GameEvent, entityId:string):Dimensional {
+        const physical = event.components.find(component => component.componentType === 'Dimensional' && component.entityId === entityId)
+        if (!physical) throw new Error('No Dimensional component found for entityId: ' + entityId)
+        return toDimensional(physical)
+    }
+
+    retrieveLifeCycle (event: GameEvent, entityId: string): LifeCycle {
+        const lifeCycle = event.components.find(component => component.componentType === 'LifeCycle' && component.entityId === entityId)
+        if (!lifeCycle) throw new Error('No physical component found for entityId: ' + entityId)
+        return toLifeCycle(lifeCycle)
+    }
+
     entitiesByEntityType (event:GameEvent, entityType:EntityType) {
         const entities = event.entityRefences.get(entityType)
         if (!entities) throw new Error(noEntitiesReferenced(entityType, event.action, event.entityRefences))
@@ -36,17 +68,13 @@ export class GameEventHandler {
         const union = (...sets:string[][]) => sets.reduce((combined, list) => [...combined, ...list], [])
         return union(...event.entityRefences.values())
     }
-
-    retrieveComponent <T extends Component> (event:GameEvent, entityId:string):T {
-        for (const component of event.components.values())
-            if (isComponent<T>(component) && component.entityId === entityId) return toComponent<T>(component)
-        throw new Error(componentMissingOnGameEvent<T>(entityId, event.components))
-    }
 }
 
 const noEntitiesReferenced = (entityType: EntityType, action: Action, entityReferences: EntityReferences): string => `No entities referenced with type '${entityType}' on event with action '${action}'.\n Actual references: ${stringifyWithDetailledSetAndMap(entityReferences)}`
 const noEntityReferenced = (entityType: EntityType): string => `No '${entityType}' entities is not supported.`
 const multipleEntityReferenced = (entityType: EntityType): string => `Multiple '${entityType}' entities referenced.`
+/*
 const componentMissingOnGameEvent = <Class extends Component> (id: any, components: Component[]): string =>
     `The component '${({} as Class).componentType}' of the entity '${id}' is missing on Game Event components:
     ${components}`
+*/

@@ -1,4 +1,4 @@
-import { mainMenuPosition, makePhysical, Physical } from '../../Components/Physical'
+import { mainMenuPosition, makePhysical } from '../../Components/Physical'
 import { ShapeType } from '../../Components/port/ShapeType'
 import { EntityBuilder } from '../../Entities/entityBuilder'
 import { Action } from '../../Event/Action'
@@ -10,10 +10,10 @@ import { drawEvent } from './draw'
 
 feature(featureEventDescription(Action.draw), () => {
     serverScenario(`${Action.draw} 1`, drawEvent(EntityIds.playerA, makePhysical(EntityIds.playerAMainMenu, mainMenuPosition, ShapeType.mainMenu, true)),
-        (game, adapters) => () => new EntityBuilder(adapters.entityInteractor)
+        [EntityIds.playerA], (game, adapters) => () => new EntityBuilder(adapters.entityInteractor)
         , [
             ...whenEventOccured(),
-            (game, adapters) => eventsAreSent(TestStep.Then, adapters, 'client', [drawEvent(EntityIds.playerA, makePhysical(EntityIds.playerAMainMenu, mainMenuPosition, ShapeType.mainMenu, true))])
+            (game, adapters) => eventsAreSent(TestStep.Then, adapters, EntityIds.playerA, [drawEvent(EntityIds.playerA, makePhysical(EntityIds.playerAMainMenu, mainMenuPosition, ShapeType.mainMenu, true))])
         ])
     clientScenario(`${Action.draw} 2`, drawEvent(EntityIds.playerA, makePhysical(EntityIds.playerAMainMenu, mainMenuPosition, ShapeType.mainMenu, true)), EntityIds.playerA,
         (game, adapters) => () => new EntityBuilder(adapters.entityInteractor)
@@ -27,8 +27,8 @@ feature(featureEventDescription(Action.draw), () => {
         (game, adapters) => () => {
             new EntityBuilder(adapters.entityInteractor)
                 .buildEntity(EntityIds.playerA).withEntityReferences(EntityType.player).save()
-                .buildEntity(EntityIds.playerAMainMenu).withPhysicalComponent(mainMenuPosition, ShapeType.mainMenu, true).save()
-            adapters.drawingInteractor.refreshEntity(adapters.entityInteractor.retrieveComponent<Physical>(EntityIds.playerAMainMenu))
+                .buildEntity(EntityIds.playerAMainMenu).withPhysical(mainMenuPosition, ShapeType.mainMenu, true).save()
+            adapters.drawingInteractor.refreshEntity(adapters.entityInteractor.retrievePhysical(EntityIds.playerAMainMenu))
         },
         [
             (game, adapters) => entityIsVisible(TestStep.Given, adapters, makePhysical(EntityIds.playerAMainMenu, mainMenuPosition, ShapeType.mainMenu, true)),
@@ -37,11 +37,12 @@ feature(featureEventDescription(Action.draw), () => {
         ]
     )
     serverScenario(`${Action.draw} 4`, drawEvent(EntityIds.playerA, makePhysical(EntityIds.playerAMainMenu, mainMenuPosition, ShapeType.mainMenu, false)),
-        (game, adapters) => () => {
+        [EntityIds.playerA], (game, adapters) => () => {
 
         },
         [
-            ...whenEventOccured()
+            ...whenEventOccured(),
+            (game, adapters) => eventsAreSent(TestStep.Then, adapters, EntityIds.playerA, [drawEvent(EntityIds.playerA, makePhysical(EntityIds.playerAMainMenu, mainMenuPosition, ShapeType.mainMenu, false))])
         ]
     )
 })

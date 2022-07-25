@@ -1,21 +1,21 @@
 import { EntityId } from '../Entities/Entity'
 import { EntityIds } from '../Event/entityIds'
-import { GenericComponent } from './port/Component'
+import { Component, GenericComponent } from './port/Component'
 import { Phase, PhaseType } from './port/Phase'
 const noActionPoint = 0
 export const defaultActionPoints = 12
 export const weaponAttackActionPoints = 4
 export const placementActionPoints = 1000
 export const preparingGamePhase:Phase = ({ phaseType: PhaseType.Prepare, currentPlayerId: null, currentUnitId: null, actionPoints: noActionPoint, auto: true })
-export const placementPhase = (currentPlayerId:string, currentUnitId:string, auto:boolean):Phase => ({ phaseType: PhaseType.Placement, currentPlayerId, currentUnitId, actionPoints: placementActionPoints, auto })
-export const playerATowerManualPlacementPhase = ():Phase => placementPhase(EntityIds.playerA, EntityIds.playerATower, false)
-export const playerATowerAutoPlacementPhase = ():Phase => placementPhase(EntityIds.playerA, EntityIds.playerATower, true)
-export const playerARobotManualPlacementPhase = () :Phase => placementPhase(EntityIds.playerA, EntityIds.playerARobot, false)
-export const playerARobotAutoPlacementPhase = () :Phase => placementPhase(EntityIds.playerA, EntityIds.playerARobot, true)
-export const playerBTowerManualPlacementPhase = () :Phase => placementPhase(EntityIds.playerB, EntityIds.playerBTower, false)
-export const playerBTowerAutoPlacementPhase = () :Phase => placementPhase(EntityIds.playerB, EntityIds.playerBTower, true)
-export const playerBRobotManualPlacementPhase = () :Phase => placementPhase(EntityIds.playerB, EntityIds.playerBRobot, false)
-export const playerBRobotAutoPlacementPhase = () :Phase => placementPhase(EntityIds.playerB, EntityIds.playerBRobot, true)
+export const placementPhase = (currentPlayerId:string, currentUnitId:string, auto:boolean, actionPoints:number):Phase => ({ phaseType: PhaseType.Placement, currentPlayerId, currentUnitId, actionPoints, auto })
+export const playerATowerManualPlacementPhase = (actionPoints:number = placementActionPoints):Phase => placementPhase(EntityIds.playerA, EntityIds.playerATower, false, actionPoints)
+export const playerATowerAutoPlacementPhase = (actionPoints:number = placementActionPoints):Phase => placementPhase(EntityIds.playerA, EntityIds.playerATower, true, actionPoints)
+export const playerARobotManualPlacementPhase = (actionPoints:number = placementActionPoints) :Phase => placementPhase(EntityIds.playerA, EntityIds.playerARobot, false, actionPoints)
+export const playerARobotAutoPlacementPhase = (actionPoints:number = placementActionPoints) :Phase => placementPhase(EntityIds.playerA, EntityIds.playerARobot, true, actionPoints)
+export const playerBTowerManualPlacementPhase = (actionPoints:number = placementActionPoints) :Phase => placementPhase(EntityIds.playerB, EntityIds.playerBTower, false, actionPoints)
+export const playerBTowerAutoPlacementPhase = (actionPoints:number = placementActionPoints) :Phase => placementPhase(EntityIds.playerB, EntityIds.playerBTower, true, actionPoints)
+export const playerBRobotManualPlacementPhase = (actionPoints:number = placementActionPoints) :Phase => placementPhase(EntityIds.playerB, EntityIds.playerBRobot, false, actionPoints)
+export const playerBRobotAutoPlacementPhase = (actionPoints:number = placementActionPoints) :Phase => placementPhase(EntityIds.playerB, EntityIds.playerBRobot, true, actionPoints)
 export const fightPhase = (currentPlayerId:string, currentUnitId:string, actionPoints = defaultActionPoints):Phase => ({ phaseType: PhaseType.Fight, currentPlayerId, currentUnitId, actionPoints, auto: false })
 export const playerARobotPhase = (actionPoints = defaultActionPoints):Phase => fightPhase(EntityIds.playerA, EntityIds.playerARobot, actionPoints)
 export const playerBRobotPhase = (actionPoints = defaultActionPoints):Phase => fightPhase(EntityIds.playerB, EntityIds.playerBRobot, actionPoints)
@@ -27,6 +27,15 @@ export type Phasing = GenericComponent<'Phasing', {
     currentPhase: Phase
     readyPlayers:Set<string>
 }>
+
+const isPhasing = (component:Component): component is Phasing => {
+    return component.componentType === 'Phasing'
+}
+
+export const toPhasing = (component:Component): Phasing => {
+    if (isPhasing(component)) return component as Phasing
+    throw new Error(`${component} is not Phasing`)
+}
 
 export const makePhasing = (entityId:EntityId, currentPhase:Phase, readyPlayers:Set<string> = new Set()):Phasing => ({
     componentType: 'Phasing',

@@ -1,6 +1,6 @@
 
 import { makeEntityReference } from '../../Components/EntityReference'
-import { victoryPhase } from '../../Components/Phasing'
+import { makePhasing, victoryPhase } from '../../Components/Phasing'
 import { defaultJoinSimpleMatchButtonPosition, mainMenuPosition, makePhysical, position } from '../../Components/Physical'
 import { ShapeType } from '../../Components/port/ShapeType'
 import { EntityBuilder } from '../../Entities/entityBuilder'
@@ -15,10 +15,10 @@ import { quitMatchEvent } from './quit'
 
 feature(featureEventDescription(Action.quit), () => {
     serverScenario(`${Action.quit} 1`, quitMatchEvent(EntityIds.match, EntityIds.playerA),
-        (game, adapters) => () => new EntityBuilder(adapters.entityInteractor)
+        [], (game, adapters) => () => new EntityBuilder(adapters.entityInteractor)
             .buildEntity(EntityIds.match).withEntityReferences(EntityType.match, new Map([[EntityType.player, [EntityIds.playerA, EntityIds.playerB]], [EntityType.grid, [EntityIds.grid]], [EntityType.victory, [EntityIds.victory]]])).withPhase(victoryPhase(EntityIds.playerA)).save()
-            .buildEntity(EntityIds.playerAMainMenu).withPhysicalComponent(mainMenuPosition, ShapeType.mainMenu, false).save()
-            .buildEntity(EntityIds.playerAJoinSimpleMatchButton).withPhysicalComponent(defaultJoinSimpleMatchButtonPosition, ShapeType.simpleMatchLobbyButton, false).save()
+            .buildEntity(EntityIds.playerAMainMenu).withPhysical(mainMenuPosition, ShapeType.mainMenu, false).save()
+            .buildEntity(EntityIds.playerAJoinSimpleMatchButton).withPhysical(defaultJoinSimpleMatchButtonPosition, ShapeType.simpleMatchLobbyButton, false).save()
             .buildEntity(EntityIds.playerA).withEntityReferences(EntityType.player, new Map([
                 [EntityType.robot, [EntityIds.playerARobot]],
                 [EntityType.tower, [EntityIds.playerATower]],
@@ -33,21 +33,71 @@ feature(featureEventDescription(Action.quit), () => {
                 [EntityType.match, [EntityIds.match]]
             ])).save()
             .buildEntity(EntityIds.grid).withEntityReferences(EntityType.grid, new Map([[EntityType.cell, [EntityIds.cellx0y0, EntityIds.cellx1y1]]])).save()
-            .buildEntity(EntityIds.cellx0y0).withPhysicalComponent(position(0, 0), ShapeType.cell, false).save()
-            .buildEntity(EntityIds.cellx1y1).withPhysicalComponent(position(0, 1), ShapeType.cell, false).save()
-            .buildEntity(EntityIds.playerANextTurnButton).withPhysicalComponent(position(24, 24), ShapeType.nextTurnButton, false).save()
-            .buildEntity(EntityIds.playerARobot).withPhysicalComponent(position(0, 0), ShapeType.robot, false).save()
-            .buildEntity(EntityIds.playerATower).withPhysicalComponent(position(0, 1), ShapeType.tower, false).save()
-            .buildEntity(EntityIds.playerBTower).withPhysicalComponent(position(10, 10), ShapeType.tower, false).save()
-            .buildEntity(EntityIds.playerBRobot).withPhysicalComponent(position(10, 11), ShapeType.robot, false).save()
-            .buildEntity(EntityIds.victory).withPhysicalComponent(position(24, 24), ShapeType.victory, true).save()
+            .buildEntity(EntityIds.cellx0y0).withPhysical(position(0, 0), ShapeType.cell, false).save()
+            .buildEntity(EntityIds.cellx1y1).withPhysical(position(0, 1), ShapeType.cell, false).save()
+            .buildEntity(EntityIds.playerANextTurnButton).withPhysical(position(24, 24), ShapeType.nextTurnButton, false).save()
+            .buildEntity(EntityIds.playerARobot).withPhysical(position(0, 0), ShapeType.robot, false).save()
+            .buildEntity(EntityIds.playerATower).withPhysical(position(0, 1), ShapeType.tower, false).save()
+            .buildEntity(EntityIds.playerBTower).withPhysical(position(10, 10), ShapeType.tower, false).save()
+            .buildEntity(EntityIds.playerBRobot).withPhysical(position(10, 11), ShapeType.robot, false).save()
+            .buildEntity(EntityIds.victory).withPhysical(position(24, 24), ShapeType.victory, true).save()
         , [
             thereIsServerComponents(TestStep.Given, [
-                makeEntityReference(EntityIds.match, EntityType.match, new Map([[EntityType.player, [EntityIds.playerA, EntityIds.playerB]], [EntityType.grid, [EntityIds.grid]], [EntityType.victory, [EntityIds.victory]]]))
+                makeEntityReference(EntityIds.match, EntityType.match, new Map([[EntityType.player, [EntityIds.playerA, EntityIds.playerB]], [EntityType.grid, [EntityIds.grid]], [EntityType.victory, [EntityIds.victory]]])),
+                makePhasing(EntityIds.match, victoryPhase(EntityIds.playerA)),
+                makePhysical(EntityIds.playerAMainMenu, mainMenuPosition, ShapeType.mainMenu, false),
+                makePhysical(EntityIds.playerAJoinSimpleMatchButton, defaultJoinSimpleMatchButtonPosition, ShapeType.simpleMatchLobbyButton, false),
+                makeEntityReference(EntityIds.playerA, EntityType.player, new Map([
+                    [EntityType.robot, [EntityIds.playerARobot]],
+                    [EntityType.tower, [EntityIds.playerATower]],
+                    [EntityType.mainMenu, [EntityIds.playerAMainMenu]],
+                    [EntityType.button, [EntityIds.playerAJoinSimpleMatchButton]],
+                    [EntityType.nextTurnButton, [EntityIds.playerANextTurnButton]],
+                    [EntityType.match, [EntityIds.match]]
+                ])),
+                makeEntityReference(EntityIds.playerB, EntityType.player, new Map([
+                    [EntityType.robot, [EntityIds.playerBRobot]],
+                    [EntityType.tower, [EntityIds.playerBTower]],
+                    [EntityType.match, [EntityIds.match]]
+                ])),
+                makeEntityReference(EntityIds.grid, EntityType.grid, new Map([[EntityType.cell, [EntityIds.cellx0y0, EntityIds.cellx1y1]]])),
+                makePhysical(EntityIds.cellx0y0, position(0, 0), ShapeType.cell, false),
+                makePhysical(EntityIds.cellx1y1, position(0, 1), ShapeType.cell, false),
+                makePhysical(EntityIds.playerANextTurnButton, position(24, 24), ShapeType.nextTurnButton, false),
+                makePhysical(EntityIds.playerARobot, position(0, 0), ShapeType.robot, false),
+                makePhysical(EntityIds.playerATower, position(0, 1), ShapeType.tower, false),
+                makePhysical(EntityIds.playerBTower, position(10, 10), ShapeType.tower, false),
+                makePhysical(EntityIds.playerBRobot, position(10, 11), ShapeType.robot, false),
+                makePhysical(EntityIds.victory, position(24, 24), ShapeType.victory, true)
             ]),
             ...whenEventOccured(),
             thereIsServerComponents(TestStep.Then, [
-                makeEntityReference(EntityIds.match, EntityType.match, new Map([[EntityType.player, [EntityIds.playerB]], [EntityType.grid, [EntityIds.grid]], [EntityType.victory, [EntityIds.victory]]]))
+                makeEntityReference(EntityIds.match, EntityType.match, new Map([[EntityType.player, [EntityIds.playerB]], [EntityType.grid, [EntityIds.grid]], [EntityType.victory, [EntityIds.victory]]])),
+                makePhasing(EntityIds.match, victoryPhase(EntityIds.playerA)),
+                makePhysical(EntityIds.playerAMainMenu, mainMenuPosition, ShapeType.mainMenu, false),
+                makePhysical(EntityIds.playerAJoinSimpleMatchButton, defaultJoinSimpleMatchButtonPosition, ShapeType.simpleMatchLobbyButton, false),
+                makeEntityReference(EntityIds.playerA, EntityType.player, new Map([
+                    [EntityType.robot, [EntityIds.playerARobot]],
+                    [EntityType.tower, [EntityIds.playerATower]],
+                    [EntityType.mainMenu, [EntityIds.playerAMainMenu]],
+                    [EntityType.button, [EntityIds.playerAJoinSimpleMatchButton]],
+                    [EntityType.nextTurnButton, [EntityIds.playerANextTurnButton]],
+                    [EntityType.match, [EntityIds.match]]
+                ])),
+                makeEntityReference(EntityIds.playerB, EntityType.player, new Map([
+                    [EntityType.robot, [EntityIds.playerBRobot]],
+                    [EntityType.tower, [EntityIds.playerBTower]],
+                    [EntityType.match, [EntityIds.match]]
+                ])),
+                makeEntityReference(EntityIds.grid, EntityType.grid, new Map([[EntityType.cell, [EntityIds.cellx0y0, EntityIds.cellx1y1]]])),
+                makePhysical(EntityIds.cellx0y0, position(0, 0), ShapeType.cell, false),
+                makePhysical(EntityIds.cellx1y1, position(0, 1), ShapeType.cell, false),
+                makePhysical(EntityIds.playerANextTurnButton, position(24, 24), ShapeType.nextTurnButton, false),
+                makePhysical(EntityIds.playerARobot, position(0, 0), ShapeType.robot, false),
+                makePhysical(EntityIds.playerATower, position(0, 1), ShapeType.tower, false),
+                makePhysical(EntityIds.playerBTower, position(10, 10), ShapeType.tower, false),
+                makePhysical(EntityIds.playerBRobot, position(10, 11), ShapeType.robot, false),
+                makePhysical(EntityIds.victory, position(24, 24), ShapeType.victory, true)
             ]),
             (game, adapters) => eventsAreSent(TestStep.And, adapters, 'server', [
                 drawEvent(EntityIds.playerA, makePhysical(EntityIds.playerARobot, position(0, 0), ShapeType.robot, false)),
@@ -67,25 +117,48 @@ feature(featureEventDescription(Action.quit), () => {
             ])
         ])
     serverScenario(`${Action.quit} 2`, quitMatchEvent(EntityIds.match, EntityIds.playerB),
-        (game, adapters) => () => new EntityBuilder(adapters.entityInteractor)
+        [], (game, adapters) => () => new EntityBuilder(adapters.entityInteractor)
             .buildEntity(EntityIds.match).withEntityReferences(EntityType.match, new Map([[EntityType.player, [EntityIds.playerB]], [EntityType.grid, [EntityIds.grid]], [EntityType.defeat, [EntityIds.defeat]]])).withPhase(victoryPhase(EntityIds.playerA)).save()
-            .buildEntity(EntityIds.playerBMainMenu).withPhysicalComponent(mainMenuPosition, ShapeType.mainMenu, false).save()
-            .buildEntity(EntityIds.playerBJoinSimpleMatchButton).withPhysicalComponent(defaultJoinSimpleMatchButtonPosition, ShapeType.simpleMatchLobbyButton, false).save()
+            .buildEntity(EntityIds.playerBMainMenu).withPhysical(mainMenuPosition, ShapeType.mainMenu, false).save()
+            .buildEntity(EntityIds.playerBJoinSimpleMatchButton).withPhysical(defaultJoinSimpleMatchButtonPosition, ShapeType.simpleMatchLobbyButton, false).save()
             .buildEntity(EntityIds.playerB).withEntityReferences(EntityType.player, new Map([[EntityType.robot, [EntityIds.playerBRobot]], [EntityType.tower, [EntityIds.playerBTower]], [EntityType.mainMenu, [EntityIds.playerBMainMenu]], [EntityType.button, [EntityIds.playerBJoinSimpleMatchButton]], [EntityType.match, [EntityIds.match]], [EntityType.nextTurnButton, [EntityIds.playerBNextTurnButton]]])).save()
-            .buildEntity(EntityIds.playerBTower).withPhysicalComponent(position(10, 10), ShapeType.tower, false).save()
-            .buildEntity(EntityIds.playerBRobot).withPhysicalComponent(position(10, 11), ShapeType.robot, false).save()
+            .buildEntity(EntityIds.playerBTower).withPhysical(position(10, 10), ShapeType.tower, false).save()
+            .buildEntity(EntityIds.playerBRobot).withPhysical(position(10, 11), ShapeType.robot, false).save()
             .buildEntity(EntityIds.grid).withEntityReferences(EntityType.grid, new Map([[EntityType.cell, [EntityIds.cellx0y0, EntityIds.cellx1y1]]])).save()
-            .buildEntity(EntityIds.cellx0y0).withPhysicalComponent(position(0, 0), ShapeType.cell, false).save()
-            .buildEntity(EntityIds.cellx1y1).withPhysicalComponent(position(0, 1), ShapeType.cell, false).save()
-            .buildEntity(EntityIds.playerBNextTurnButton).withPhysicalComponent(position(24, 24), ShapeType.nextTurnButton, false).save()
-            .buildEntity(EntityIds.defeat).withPhysicalComponent(position(24, 24), ShapeType.defeat, true).save()
+            .buildEntity(EntityIds.cellx0y0).withPhysical(position(0, 0), ShapeType.cell, false).save()
+            .buildEntity(EntityIds.cellx1y1).withPhysical(position(0, 1), ShapeType.cell, false).save()
+            .buildEntity(EntityIds.playerBNextTurnButton).withPhysical(position(24, 24), ShapeType.nextTurnButton, false).save()
+            .buildEntity(EntityIds.defeat).withPhysical(position(24, 24), ShapeType.defeat, true).save()
         , [
             thereIsServerComponents(TestStep.Given, [
-                makeEntityReference(EntityIds.match, EntityType.match, new Map([[EntityType.player, [EntityIds.playerB]], [EntityType.grid, [EntityIds.grid]], [EntityType.defeat, [EntityIds.defeat]]]))
+                makeEntityReference(EntityIds.match, EntityType.match, new Map([[EntityType.player, [EntityIds.playerB]], [EntityType.grid, [EntityIds.grid]], [EntityType.defeat, [EntityIds.defeat]]])),
+                makePhasing(EntityIds.match, victoryPhase(EntityIds.playerA)),
+                makePhysical(EntityIds.playerBMainMenu, mainMenuPosition, ShapeType.mainMenu, false),
+                makePhysical(EntityIds.playerBJoinSimpleMatchButton, defaultJoinSimpleMatchButtonPosition, ShapeType.simpleMatchLobbyButton, false),
+                makeEntityReference(EntityIds.playerB, EntityType.player, new Map([[EntityType.robot, [EntityIds.playerBRobot]], [EntityType.tower, [EntityIds.playerBTower]], [EntityType.mainMenu, [EntityIds.playerBMainMenu]], [EntityType.button, [EntityIds.playerBJoinSimpleMatchButton]], [EntityType.match, [EntityIds.match]], [EntityType.nextTurnButton, [EntityIds.playerBNextTurnButton]]])),
+                makePhysical(EntityIds.playerBTower, position(10, 10), ShapeType.tower, false),
+                makePhysical(EntityIds.playerBRobot, position(10, 11), ShapeType.robot, false),
+                makeEntityReference(EntityIds.grid, EntityType.grid, new Map([[EntityType.cell, [EntityIds.cellx0y0, EntityIds.cellx1y1]]])),
+                makePhysical(EntityIds.cellx0y0, position(0, 0), ShapeType.cell, false),
+                makePhysical(EntityIds.cellx1y1, position(0, 1), ShapeType.cell, false),
+                makePhysical(EntityIds.playerBNextTurnButton, position(24, 24), ShapeType.nextTurnButton, false),
+                makePhysical(EntityIds.defeat, position(24, 24), ShapeType.defeat, true)
+
             ]),
             ...whenEventOccured(),
             thereIsServerComponents(TestStep.Then, [
-                makeEntityReference(EntityIds.match, EntityType.match, new Map([[EntityType.player, []], [EntityType.grid, [EntityIds.grid]], [EntityType.defeat, [EntityIds.defeat]]]))
+                makeEntityReference(EntityIds.match, EntityType.match, new Map([[EntityType.player, []], [EntityType.grid, [EntityIds.grid]], [EntityType.defeat, [EntityIds.defeat]]])),
+                makePhasing(EntityIds.match, victoryPhase(EntityIds.playerA)),
+                makePhysical(EntityIds.playerBMainMenu, mainMenuPosition, ShapeType.mainMenu, false),
+                makePhysical(EntityIds.playerBJoinSimpleMatchButton, defaultJoinSimpleMatchButtonPosition, ShapeType.simpleMatchLobbyButton, false),
+                makeEntityReference(EntityIds.playerB, EntityType.player, new Map([[EntityType.robot, [EntityIds.playerBRobot]], [EntityType.tower, [EntityIds.playerBTower]], [EntityType.mainMenu, [EntityIds.playerBMainMenu]], [EntityType.button, [EntityIds.playerBJoinSimpleMatchButton]], [EntityType.match, [EntityIds.match]], [EntityType.nextTurnButton, [EntityIds.playerBNextTurnButton]]])),
+                makePhysical(EntityIds.playerBTower, position(10, 10), ShapeType.tower, false),
+                makePhysical(EntityIds.playerBRobot, position(10, 11), ShapeType.robot, false),
+                makeEntityReference(EntityIds.grid, EntityType.grid, new Map([[EntityType.cell, [EntityIds.cellx0y0, EntityIds.cellx1y1]]])),
+                makePhysical(EntityIds.cellx0y0, position(0, 0), ShapeType.cell, false),
+                makePhysical(EntityIds.cellx1y1, position(0, 1), ShapeType.cell, false),
+                makePhysical(EntityIds.playerBNextTurnButton, position(24, 24), ShapeType.nextTurnButton, false),
+                makePhysical(EntityIds.defeat, position(24, 24), ShapeType.defeat, true)
             ]),
             (game, adapters) => eventsAreSent(TestStep.Then, adapters, 'server', [
                 drawEvent(EntityIds.playerB, makePhysical(EntityIds.playerBRobot, position(10, 11), ShapeType.robot, false)),

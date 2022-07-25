@@ -51,7 +51,7 @@ export class EntityBuilder {
         return this
     }
 
-    withPhysicalComponent (position: Position, shapeType:ShapeType, visible:boolean) {
+    withPhysical (position: Position, shapeType:ShapeType, visible:boolean) {
         this.addComponents([{ componentType: 'Physical', entityId: this.getEntityId(), position, shape: shapeType, visible }])
         return this
     }
@@ -62,11 +62,11 @@ export class EntityBuilder {
     }
 
     buildRobot (robotId:string, robotPosition:Position) {
-        return this.buildEntity(robotId).withPhysicalComponent(robotPosition, ShapeType.robot, true)
+        return this.buildEntity(robotId).withPhysical(robotPosition, ShapeType.robot, true)
     }
 
     buildTower (robotId:string, towerPosition:Position) {
-        return this.buildEntity(robotId).withPhysicalComponent(towerPosition, ShapeType.tower, true)
+        return this.buildEntity(robotId).withPhysical(towerPosition, ShapeType.tower, true)
     }
 
     public buildEntity (entityId: string, components?: Component[]) {

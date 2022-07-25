@@ -18,7 +18,7 @@ export class WaitingAreaSystem extends GenericServerSystem {
 
     private onSimpleMatchLobbyEvent (gameEvent:GameEvent):Promise<void> {
         const simpleMatchLobbyEntityId = this.entityByEntityType(gameEvent, EntityType.simpleMatchLobby)
-        const simpleMatchLobbyEntityReference = this.interactWithEntities.retrieveComponent<EntityReference>(simpleMatchLobbyEntityId)
+        const simpleMatchLobbyEntityReference = this.interactWithEntities.retreiveEntityReference(simpleMatchLobbyEntityId)
         if (!hasReferences(simpleMatchLobbyEntityReference, EntityType.player)) simpleMatchLobbyEntityReference.entityReferences.set(EntityType.player, [])
         const players = retrieveReferences(simpleMatchLobbyEntityReference, EntityType.player)
         return gameEvent.action === Action.waitingForPlayers
@@ -44,14 +44,14 @@ export class WaitingAreaSystem extends GenericServerSystem {
 
     private onPlayerJoinGameEvent (playerId: string, playersIds: string[], simpleMatchLobbyEntityId:string) {
         playersIds.push(playerId)
-        const mainMenuId = retrieveReference(this.interactWithEntities.retrieveComponent<EntityReference>(playerId), EntityType.mainMenu)
+        const mainMenuId = retrieveReference(this.interactWithEntities.retreiveEntityReference(playerId), EntityType.mainMenu)
         const playerSimpleMatchLobbyButtonId = this.playerSimpleMatchLobbyButtonId(playerId, simpleMatchLobbyEntityId)
-        const mainMenuPhysicalComponent = this.interactWithEntities.retrieveComponent<Physical>(mainMenuId)
+        const mainMenuPhysicalComponent = this.interactWithEntities.retrievePhysical(mainMenuId)
         const updatedMainMenuPhysicalComponent:Physical = {
             ...mainMenuPhysicalComponent,
             visible: false
         }
-        const simpleMatchLobbyButtonPhysicalComponent = this.interactWithEntities.retrieveComponent<Physical>(playerSimpleMatchLobbyButtonId)
+        const simpleMatchLobbyButtonPhysicalComponent = this.interactWithEntities.retrievePhysical(playerSimpleMatchLobbyButtonId)
         const updatedSimpleMatchLobbyButtonPhysicalComponent:Physical = {
             ...simpleMatchLobbyButtonPhysicalComponent,
             visible: false
@@ -67,8 +67,8 @@ export class WaitingAreaSystem extends GenericServerSystem {
     }
 
     private playerSimpleMatchLobbyButtonId (playerId: string, simpleMatchLobbyEntityId: string):string {
-        const playerButtons = retrieveReferences(this.interactWithEntities.retrieveComponent<EntityReference>(playerId), EntityType.button)
-        const simpleMatchLobbyButtons = retrieveReferences(this.interactWithEntities.retrieveComponent<EntityReference>(simpleMatchLobbyEntityId), EntityType.button)
+        const playerButtons = retrieveReferences(this.interactWithEntities.retreiveEntityReference(playerId), EntityType.button)
+        const simpleMatchLobbyButtons = retrieveReferences(this.interactWithEntities.retreiveEntityReference(simpleMatchLobbyEntityId), EntityType.button)
         const playerSimpleMatchButton = playerButtons.filter(playerButtonId => simpleMatchLobbyButtons.some(simpleMatchButtonId => simpleMatchButtonId === playerButtonId))
         if (playerSimpleMatchButton.length === 1) return playerSimpleMatchButton[0]
         if (playerSimpleMatchButton.length === 0) throw new Error('No player simple match button found.')

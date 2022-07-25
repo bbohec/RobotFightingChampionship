@@ -1,9 +1,9 @@
-import { GameEvent } from '../../Event/GameEvent'
-import { ClientEventInteractor, ServerEventInteractor } from '../port/EventInteractor'
-import { EventBus } from '../../Event/port/EventBus'
+import { GameEvent } from '../../../Event/GameEvent'
+import { ClientEventInteractor, ServerEventInteractor } from '../../port/EventInteractor'
+import { EventBus } from '../../../Event/port/EventBus'
 
 export class InMemoryClientEventInteractor implements ClientEventInteractor {
-    private serverEventInteractor: ServerEventInteractor | undefined;
+    public serverEventInteractor: ServerEventInteractor | undefined;
     // eslint-disable-next-line no-useless-constructor
     constructor (
         public clientId: string,

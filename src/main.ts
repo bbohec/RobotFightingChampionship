@@ -1,6 +1,6 @@
 import express from 'express'
-import { defaultHTTPWebServerPort, productionSSERetryInterval, WebServerEventInteractor } from './EventInteractor/infra/WebServerEventInteractor'
-import { ExpressWebServerInstance } from './EventInteractor/infra/ExpressWebServerInstance'
+import { defaultHTTPWebServerPort, productionSSERetryInterval, WebServerEventInteractor } from './EventInteractor/infra/server/WebServerEventInteractor'
+import { ExpressWebServerInstance } from './EventInteractor/infra/server/ExpressWebServerInstance'
 import { ProductionServerAdapters } from './Systems/Game/infra/ProductionServerAdapters'
 import { ServerGameSystem } from './Systems/Game/ServerGame'
 import { ProductionEventBus } from './Event/infra/ProductionEventBus'

@@ -15,9 +15,9 @@ feature(featureEventDescription(Action.updatePlayerPointerState), () => {
             ...whenEventOccured(),
             (game, adapters) => eventsAreSent(TestStep.Then, adapters, 'server', [updatePointerState(EntityIds.playerAPointer, position(1, 1), ControlStatus.Idle)])
         ])
-    serverScenario(`${Action.updatePlayerPointerState} 2 - Update server pointer on client pointer update`, updatePointerState(EntityIds.playerAPointer, position(1, 1), ControlStatus.Active),
-        (game, adapters) => () => new EntityBuilder(adapters.entityInteractor)
-            .buildEntity(EntityIds.playerAPointer).withPhysicalComponent(position(0, 0), ShapeType.pointer, true).withController(ControlStatus.Idle).save()
+    serverScenario(`${Action.updatePlayerPointerState} 2 - Update server pointer on client pointer update`, updatePointerState(EntityIds.playerAPointer, position(1, 1), ControlStatus.Active)
+        , [], (game, adapters) => () => new EntityBuilder(adapters.entityInteractor)
+            .buildEntity(EntityIds.playerAPointer).withPhysical(position(0, 0), ShapeType.pointer, true).withController(ControlStatus.Idle).save()
         , [
             thereIsServerComponents(TestStep.Given, [
                 makePhysical(EntityIds.playerAPointer, position(0, 0), ShapeType.pointer, true),

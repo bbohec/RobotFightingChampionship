@@ -1,10 +1,55 @@
-import { EntityInteractor } from '../ports/EntityInteractor'
-import { Entity } from '../Entity'
-import { Component, ComponentType } from '../../Components/port/Component'
+import { Controller } from '../../Components/Controller'
+import { Dimensional } from '../../Components/Dimensional'
 import { EntityReference, retrieveReferences } from '../../Components/EntityReference'
+import { Hittable } from '../../Components/Hittable'
+import { LifeCycle } from '../../Components/LifeCycle'
+import { Offensive } from '../../Components/Offensive'
+import { Phasing } from '../../Components/Phasing'
+import { Physical } from '../../Components/Physical'
+import { Component, ComponentType } from '../../Components/port/Component'
 import { EntityType } from '../../Event/EntityType'
+import { Entity } from '../Entity'
+import { EntityInteractor } from '../ports/EntityInteractor'
 
 export class InMemoryEntityRepository implements EntityInteractor {
+    retrieveOffensive (entityId: string): Offensive {
+        return this.retrieveEntityById(entityId).retreiveOffensive()
+    }
+
+    retrieveHittable (entityId: string): Hittable {
+        return this.retrieveEntityById(entityId).retrieveHittable()
+    }
+
+    retrievePhysical (entityId: string): Physical {
+        return this.retrieveEntityById(entityId).retreivePhysical()
+    }
+
+    retrieveLifeCycle (entityId: string):LifeCycle {
+        return this.retrieveEntityById(entityId).retreiveLifeCycle()
+    }
+
+    retreivePhasing (entityId: string): Phasing {
+        return this.retrieveEntityById(entityId).retrievePhasing()
+    }
+
+    retreiveEntityReference (entityId: string): EntityReference {
+        return this.retrieveEntityById(entityId).retrieveEntityReference()
+    }
+
+    retreiveController (entityId: string): Controller {
+        return this.retrieveEntityById(entityId).retrieveController()
+    }
+
+    retreiveDimensional (entityId: string): Dimensional {
+        return this.retrieveEntityById(entityId).retrieveDimensional()
+    }
+
+    saveComponent (component: Component): void {
+        const entity = this.retrieveEntityById(component.entityId)
+        entity.saveComponent(component)
+        this.saveEntity(entity)
+    }
+
     retreiveAllComponents ():Component[] {
         const entities = [...this.entities.values()]
         return entities.map(entity => entity.retrieveComponents()).flat()
@@ -24,10 +69,16 @@ export class InMemoryEntityRepository implements EntityInteractor {
     }
 
     linkEntities (originEntityId: string, targetEntityId: string): void {
-        const entityReferenceOriginEntity = this.retrieveComponent<EntityReference>(originEntityId)
-        const entityReferenceTargetEntity = this.retrieveComponent<EntityReference>(targetEntityId)
+        const entityReferenceOriginEntity = this.retrieveEntityReference(originEntityId)
+        if (!entityReferenceOriginEntity) throw new Error(missingentityReference(originEntityId))
+        const entityReferenceTargetEntity = this.retrieveEntityReference(targetEntityId)
+        if (!entityReferenceTargetEntity) throw new Error(missingentityReference(targetEntityId))
         entityReferenceOriginEntity.entityType.forEach(entityType => this.addReference(entityType, originEntityId, entityReferenceTargetEntity))
         entityReferenceTargetEntity.entityType.forEach(entityType => this.addReference(entityType, targetEntityId, entityReferenceOriginEntity))
+    }
+
+    retrieveEntityReference (entityId: string):EntityReference | undefined {
+        return this.retrieveEntityById(entityId).retrieveEntityReference()
     }
 
     addReference (entityType: EntityType, entityId:string, entityReference: EntityReference): void {
@@ -40,15 +91,6 @@ export class InMemoryEntityRepository implements EntityInteractor {
 
     deleteReference (entityReference: EntityReference, entityTypes: EntityType[], entityIdToRemovefromReferences: string) {
         entityTypes.forEach(entityType => entityReference.entityReferences.set(entityType, retrieveReferences(entityReference, entityType).filter(reference => reference !== entityIdToRemovefromReferences)))
-    }
-
-    retrieveComponent<Class extends Component> (entityId: string): Class {
-        if (this.hasEntityById(entityId)) return this.retrieveEntityById(entityId).retrieveComponent<Class>()
-        throw new Error(cannotRetrieveComponentOnMissingEntity<Class>(entityId))
-    }
-
-    isEntityHasComponentsByEntityId (entityId: string): boolean {
-        return this.retrieveEntityById(entityId).hasComponents()
     }
 
     deleteEntity (entityId: string) {
@@ -85,3 +127,6 @@ export class InMemoryEntityRepository implements EntityInteractor {
 }
 export const missingEntityId = (entityId: string, entityIds?: string[]): string => `Entity with id '${entityId}' missing on entity repository. ${entityIds ? `Current entities: ${entityIds}` : ''}`
 export const cannotRetrieveComponentOnMissingEntity = <T extends Component> (entityId: string): string => `Cannot retrieve component '${({} as T).componentType}'. The entity '${entityId}' is missing on Entity Repository.`
+function missingentityReference (originEntityId: string): string | undefined {
+    return `Entity ${originEntityId} missing entity reference component.`
+}

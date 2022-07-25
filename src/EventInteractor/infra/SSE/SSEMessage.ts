@@ -1,4 +1,4 @@
-import { SSEMessageType } from './SSEMessageType'
+export type SSEMessageType = 'gameEvent'|'closeSSE'|'connected'
 
 export interface SSEMessage {
     id: string;

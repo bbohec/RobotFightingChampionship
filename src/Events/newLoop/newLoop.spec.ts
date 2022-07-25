@@ -9,7 +9,7 @@ import { checkCollisionGameEvent } from '../checkCollision/checkCollision'
 
 feature(featureEventDescription(Action.create), () => {
     serverScenario(`${Action.newLoop} 1`, newLoopEvent,
-        (game, adapters) => () => new EntityBuilder(adapters.entityInteractor)
+        [], (game, adapters) => () => new EntityBuilder(adapters.entityInteractor)
         , [
             ...whenEventOccured(),
             (game, adapters) => eventsAreSent(TestStep.Then, adapters, 'server', [checkCollisionGameEvent()])

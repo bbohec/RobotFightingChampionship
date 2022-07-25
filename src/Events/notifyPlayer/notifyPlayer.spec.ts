@@ -7,10 +7,11 @@ import { TestStep } from '../../Event/TestStep'
 import { notEnoughActionPointNotificationMessage, notifyPlayerEvent, wrongPlayerNotificationMessage } from './notifyPlayer'
 
 feature(featureEventDescription(Action.notifyPlayer), () => {
-    serverScenario(`${Action.notifyPlayer} 1 - Server Side`, notifyPlayerEvent(EntityIds.playerA, notEnoughActionPointNotificationMessage), undefined
+    serverScenario(`${Action.notifyPlayer} 1 - Server Side`, notifyPlayerEvent(EntityIds.playerA, notEnoughActionPointNotificationMessage),
+        [EntityIds.playerA], undefined
         , [
             ...whenEventOccured(),
-            (game, adapters) => eventsAreSent(TestStep.Then, adapters, 'client', [notifyPlayerEvent(EntityIds.playerA, notEnoughActionPointNotificationMessage)])
+            (game, adapters) => eventsAreSent(TestStep.Then, adapters, EntityIds.playerA, [notifyPlayerEvent(EntityIds.playerA, notEnoughActionPointNotificationMessage)])
         ])
     clientScenario(`${Action.notifyPlayer} 2 - Client Side`, notifyPlayerEvent(EntityIds.playerA, notEnoughActionPointNotificationMessage), EntityIds.playerA,
         (game, adapters) => () => new EntityBuilder(adapters.entityInteractor)

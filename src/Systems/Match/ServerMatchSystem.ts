@@ -1,6 +1,5 @@
 import { matchGridDimension } from '../../Components/Dimensional'
 import { EntityReference, hasReferences, retrieveReference, retrieveReferences } from '../../Components/EntityReference'
-import { Phasing } from '../../Components/Phasing'
 import { Physical } from '../../Components/Physical'
 import { maxPlayerPerMatch } from '../../Components/port/maxPlayerPerMatch'
 import { Action } from '../../Event/Action'
@@ -18,9 +17,9 @@ export class ServerMatchSystem extends GenericServerSystem {
         return gameEvent.action === Action.register
             ? this.onRegister(gameEvent)
             : gameEvent.action === Action.join
-                ? this.onJoin(gameEvent, this.interactWithEntities.retrieveComponent<EntityReference>(this.entityByEntityType(gameEvent, EntityType.match)))
+                ? this.onJoin(gameEvent, this.interactWithEntities.retreiveEntityReference(this.entityByEntityType(gameEvent, EntityType.match)))
                 : gameEvent.action === Action.quit
-                    ? this.onQuit(gameEvent, this.interactWithEntities.retrieveComponent<EntityReference>(this.entityByEntityType(gameEvent, EntityType.match)))
+                    ? this.onQuit(gameEvent, this.interactWithEntities.retreiveEntityReference(this.entityByEntityType(gameEvent, EntityType.match)))
                     : Promise.reject(new Error(errorMessageOnUnknownEventAction(ServerMatchSystem.name, gameEvent)))
     }
 
@@ -37,7 +36,7 @@ export class ServerMatchSystem extends GenericServerSystem {
     }
 
     private onRegisterSimpleMatchLobbyOnGame (gameEvent: GameEvent): Promise<void> {
-        this.interactWithEntities.retrieveComponent<EntityReference>(this.entityByEntityType(gameEvent, EntityType.game))
+        this.interactWithEntities.retreiveEntityReference(this.entityByEntityType(gameEvent, EntityType.game))
             .entityReferences.set(EntityType.simpleMatchLobby, [this.entityByEntityType(gameEvent, EntityType.simpleMatchLobby)])
         return Promise.resolve()
     }
@@ -49,15 +48,15 @@ export class ServerMatchSystem extends GenericServerSystem {
     }
 
     private onPlayerRemoved (matchEntityReferenceComponent: EntityReference, quittingPlayerId:string): Promise<void> {
-        const quittingPlayerEntityReference = this.interactWithEntities.retrieveComponent<EntityReference>(quittingPlayerId)
-        const remainingPlayers = retrieveReferences(this.interactWithEntities.retrieveComponent<EntityReference>(retrieveReference(quittingPlayerEntityReference, EntityType.match)), EntityType.player)
+        const quittingPlayerEntityReference = this.interactWithEntities.retreiveEntityReference(quittingPlayerId)
+        const remainingPlayers = retrieveReferences(this.interactWithEntities.retreiveEntityReference(retrieveReference(quittingPlayerEntityReference, EntityType.match)), EntityType.player)
         const matchPlayers = [quittingPlayerId, ...remainingPlayers]
-        const remainingPlayerEntityReferences = remainingPlayers.map(remainingPlayer => this.interactWithEntities.retrieveComponent<EntityReference>(remainingPlayer))
+        const remainingPlayerEntityReferences = remainingPlayers.map(remainingPlayer => this.interactWithEntities.retreiveEntityReference(remainingPlayer))
         const quittingPlayerRobotPhysical = this.updateEntityPhysicalComponent(retrieveReference(quittingPlayerEntityReference, EntityType.robot), false)
         const quittingPlayerTowerPhysical = this.updateEntityPhysicalComponent(retrieveReference(quittingPlayerEntityReference, EntityType.tower), false)
         const quittingPlayerRobotPhysicals = remainingPlayerEntityReferences.map(entityReferences => this.updateEntityPhysicalComponent(retrieveReference(entityReferences, EntityType.robot), false))
         const quittingPlayerTowerPhysicals = remainingPlayerEntityReferences.map(entityReferences => this.updateEntityPhysicalComponent(retrieveReference(entityReferences, EntityType.tower), false))
-        const gridEntityReference = this.interactWithEntities.retrieveComponent<EntityReference>(retrieveReference(matchEntityReferenceComponent, EntityType.grid))
+        const gridEntityReference = this.interactWithEntities.retreiveEntityReference(retrieveReference(matchEntityReferenceComponent, EntityType.grid))
         const cellPhysicals = retrieveReferences(gridEntityReference, EntityType.cell).map(cellId => this.updateEntityPhysicalComponent(cellId, false))
         const events:GameEvent[] = [
             ...matchPlayers.map(playerId => drawEvent(playerId, quittingPlayerRobotPhysical)),
@@ -77,14 +76,14 @@ export class ServerMatchSystem extends GenericServerSystem {
     }
 
     drawVictoryOrDefeatEvent (quittingPlayerId: string, matchEntityReference:EntityReference): GameEvent {
-        return quittingPlayerId === this.interactWithEntities.retrieveComponent<Phasing>(matchEntityReference.entityId).currentPhase.currentPlayerId
+        return quittingPlayerId === this.interactWithEntities.retreivePhasing(matchEntityReference.entityId).currentPhase.currentPlayerId
             ? drawEvent(quittingPlayerId, this.updateEntityPhysicalComponent(retrieveReference(matchEntityReference, EntityType.victory), false))
             : drawEvent(quittingPlayerId, this.updateEntityPhysicalComponent(retrieveReference(matchEntityReference, EntityType.defeat), false))
     }
 
     private updateEntityPhysicalComponent (entityId:string, visible:boolean):Physical {
         const entityPhysicalComponent:Physical = {
-            ...this.interactWithEntities.retrieveComponent<Physical>(entityId),
+            ...this.interactWithEntities.retrievePhysical(entityId),
             visible
         }
         return entityPhysicalComponent

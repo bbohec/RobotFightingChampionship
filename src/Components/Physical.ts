@@ -1,6 +1,6 @@
 import { EntityId } from '../Entities/Entity'
 import { gameScreenDimension, Dimension } from './Dimensional'
-import { GenericComponent } from './port/Component'
+import { Component, GenericComponent } from './port/Component'
 import { ShapeType } from './port/ShapeType'
 
 export type Position = {
@@ -30,6 +30,15 @@ export type Physical = GenericComponent< 'Physical', {
     visible:boolean
     shape:ShapeType
 }>
+
+export const isPhysical = (component:Component): component is Physical => {
+    return component.componentType === 'Physical'
+}
+
+export const toPhysical = (component:Component): Physical => {
+    if (isPhysical(component)) return component as Physical
+    throw new Error(`${component} is not Physical`)
+}
 
 export const makePhysical = (entityId:EntityId, position:Position, shape:ShapeType, visible:boolean):Physical => ({
     componentType: 'Physical',

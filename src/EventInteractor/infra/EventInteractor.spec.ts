@@ -3,18 +3,19 @@ import { expect } from 'chai'
 import { GameEvent } from '../../Event/GameEvent'
 import { EntityType } from '../../Event/EntityType'
 import { InMemoryEventBus } from '../../Event/infra/InMemoryEventBus'
-import { InMemoryServerEventInteractor } from './InMemoryServerEventInteractor'
+import { InMemoryServerEventInteractor } from './server/InMemoryServerEventInteractor'
 import { detailedComparisonMessage } from '../../Event/test'
-import { EventIntegrationTestSuite, makeInMemoryClientsEventIntegrationTestSuite, clientQty, makeRestClientsEventIntegrationTestSuite, beforeFunction, afterFunction } from '../port/testUtilities'
-import { WebServerEventInteractor, defaultHTTPWebServerPort } from './WebServerEventInteractor'
-import { ExpressWebServerInstance } from './ExpressWebServerInstance'
+import { EventIntegrationTestSuite, makeInMemoryClientsEventIntegrationTestSuite, clientQty, makeRestClientsEventIntegrationTestSuite, beforeFunction, afterFunction } from './testUtilities'
+import { WebServerEventInteractor, defaultHTTPWebServerPort } from './server/WebServerEventInteractor'
+import { ExpressWebServerInstance } from './server/ExpressWebServerInstance'
 import express from 'express'
 import { Log4jsLogger } from '../../Log/infra/log4jsLogger'
+import { InMemoryClientEventInteractor } from './client/InMemoryClientEventInteractor'
 describe('Integration Test Suite - Event Interactor', () => {
     const testSuites:EventIntegrationTestSuite[] = [
         {
             adapterType: 'InMemory',
-            serverEventInteractor: new InMemoryServerEventInteractor(new InMemoryEventBus(), undefined),
+            serverEventInteractor: new InMemoryServerEventInteractor(new InMemoryEventBus(), new Array(clientQty).map((value, index) => new InMemoryClientEventInteractor(index.toLocaleString(), new InMemoryEventBus()))),
             clientsEventIntegrationTestSuite: makeInMemoryClientsEventIntegrationTestSuite(clientQty)
         },
         {

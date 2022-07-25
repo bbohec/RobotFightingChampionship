@@ -11,7 +11,7 @@ import { updatePointerPosition } from './updatePointerPosition'
 feature(featureEventDescription(Action.updatePlayerPointerPosition), () => {
     clientScenario(`${Action.updatePlayerPointerPosition} 1 - Update client pointer on new position`, updatePointerPosition(EntityIds.playerAPointer, position(1, 1)), EntityIds.playerA,
         (game, adapters) => () => new EntityBuilder(adapters.entityInteractor)
-            .buildEntity(EntityIds.playerAPointer).withPhysicalComponent(position(0, 0), ShapeType.pointer, true).save()
+            .buildEntity(EntityIds.playerAPointer).withPhysical(position(0, 0), ShapeType.pointer, true).save()
         , [
             thereIsClientComponents(TestStep.Given, [
                 makePhysical(EntityIds.playerAPointer, position(0, 0), ShapeType.pointer, true)
@@ -24,7 +24,7 @@ feature(featureEventDescription(Action.updatePlayerPointerPosition), () => {
         ])
     clientScenario(`${Action.updatePlayerPointerPosition} 2 - Allow update client pointer on same position`, updatePointerPosition(EntityIds.playerAPointer, position(0, 0)), EntityIds.playerA,
         (game, adapters) => () => new EntityBuilder(adapters.entityInteractor)
-            .buildEntity(EntityIds.playerAPointer).withPhysicalComponent(position(0, 0), ShapeType.pointer, true).save()
+            .buildEntity(EntityIds.playerAPointer).withPhysical(position(0, 0), ShapeType.pointer, true).save()
         , [
             thereIsClientComponents(TestStep.Given, [
                 makePhysical(EntityIds.playerAPointer, position(0, 0), ShapeType.pointer, true)
@@ -33,6 +33,6 @@ feature(featureEventDescription(Action.updatePlayerPointerPosition), () => {
             thereIsClientComponents(TestStep.Given, [
                 makePhysical(EntityIds.playerAPointer, position(0, 0), ShapeType.pointer, true)
             ]),
-            (game, adapters) => eventsAreSent(TestStep.Then, adapters, 'server', [updatePointerState(EntityIds.playerAPointer, position(0, 0), ControlStatus.Active)])
+            (game, adapters) => eventsAreSent(TestStep.Then, adapters, 'client', [updatePointerState(EntityIds.playerAPointer, position(0, 0), ControlStatus.Active)])
         ])
 })

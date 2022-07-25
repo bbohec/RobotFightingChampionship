@@ -34,14 +34,20 @@ export class CollisionSystem extends GenericServerSystem {
         const entities = this.entitiesByEntityType(gameEvent, EntityType.unknown)
         const missingEntities = entities.filter(entity => !this.interactWithEntities.hasEntity(entity))
         const existingEntities = entities.filter(entity => this.interactWithEntities.hasEntity(entity))
-        const collisionnedEntityReferenceComponents = existingEntities.map(entityId => this.interactWithEntities.retrieveComponent<EntityReference>(entityId))
+        const collisionnedEntityReferenceComponents = existingEntities.map(entityId => {
+            const enteityReference = this.interactWithEntities.retreiveEntityReference(entityId)
+            if (!enteityReference) throw new Error(`Missing entity reference for entity ${entityId}`)
+            return enteityReference
+        })
         const pointerEntityReference = this.entityReferencesWithEntityType(collisionnedEntityReferenceComponents, EntityType.pointer)
         const pointerCollisionGeneratedEvents:GameEvent[] = []
-        pointerEntityReference.forEach(pointerEntityReference => pointerCollisionGeneratedEvents.push(...this.onPointerCollisionEvents(
-            retrieveReference(pointerEntityReference, EntityType.player),
-            this.interactWithEntities.retrieveComponent<Controller>(pointerEntityReference.entityId),
-            collisionnedEntityReferenceComponents
-        )))
+        pointerEntityReference.forEach(pointerEntityReference => {
+            pointerCollisionGeneratedEvents.push(...this.onPointerCollisionEvents(
+                retrieveReference(pointerEntityReference, EntityType.player),
+                this.interactWithEntities.retreiveController(pointerEntityReference.entityId),
+                collisionnedEntityReferenceComponents
+            ))
+        })
         return Promise.all([
             ...pointerCollisionGeneratedEvents.map(gameEvent => this.sendEvent(gameEvent)),
             ...missingEntities.map(missingEntity => this.sendEvent(notifyServerEvent(missingEntityId(missingEntity))))
@@ -50,10 +56,11 @@ export class CollisionSystem extends GenericServerSystem {
             .catch(error => Promise.reject(error))
     }
 
-    private onPointerCollisionEvents (playerId:string, pointerController:Controller, collisionnedEntityReferenceComponents:EntityReference[]):GameEvent[] {
+    private onPointerCollisionEvents (playerId:string, controller:Controller, collisionnedEntityReferenceComponents:EntityReference[]):GameEvent[] {
         const generatedPointerCollisionEvents:GameEvent[] = []
-        if (pointerController.primaryButton === ControlStatus.Active) {
-            pointerController = { ...pointerController, primaryButton: ControlStatus.Idle }
+        if (controller.primaryButton === ControlStatus.Active) {
+            const updatedController:Controller = { ...controller, primaryButton: ControlStatus.Idle }
+            this.interactWithEntities.saveComponent(updatedController)
             const cellEntityReferences = this.entityReferencesWithEntityType(collisionnedEntityReferenceComponents, EntityType.cell)
             const robotEntityReferences = this.entityReferencesWithEntityType(collisionnedEntityReferenceComponents, EntityType.robot)
             const towerEntityReferences = this.entityReferencesWithEntityType(collisionnedEntityReferenceComponents, EntityType.tower)
@@ -72,9 +79,11 @@ export class CollisionSystem extends GenericServerSystem {
         const generatedPointerAndDefeatCollisionEvents:GameEvent[] = []
         victoryEntityReferences.forEach(victoryEntityReference => {
             const matchId = retrieveReference(victoryEntityReference, EntityType.match)
+            const physical = this.interactWithEntities.retrievePhysical(victoryEntityReference.entityId)
+            if (!physical) throw new Error(`Missing physical for entity ${victoryEntityReference.entityId}`)
             if (
                 this.isPlayerOnMatch(matchId, playerId) &&
-                this.interactWithEntities.retrieveComponent<Physical>(victoryEntityReference.entityId).visible &&
+                physical.visible &&
                 retrieveReference(victoryEntityReference, EntityType.player) === playerId
             ) generatedPointerAndDefeatCollisionEvents.push(quitMatchEvent(matchId, playerId))
         })
@@ -85,9 +94,11 @@ export class CollisionSystem extends GenericServerSystem {
         const generatedPointerAndDefeatCollisionEvents:GameEvent[] = []
         defeatEntityReferences.forEach(defeatEntityReference => {
             const matchId = retrieveReference(defeatEntityReference, EntityType.match)
+            const physical = this.interactWithEntities.retrievePhysical(defeatEntityReference.entityId)
+            if (!physical) throw new Error(`Missing physical for entity ${defeatEntityReference.entityId}`)
             if (
                 this.isPlayerOnMatch(matchId, playerId) &&
-                this.interactWithEntities.retrieveComponent<Physical>(defeatEntityReference.entityId).visible &&
+                physical.visible &&
                 retrieveReference(defeatEntityReference, EntityType.player) === playerId
             ) generatedPointerAndDefeatCollisionEvents.push(quitMatchEvent(matchId, playerId))
         })
@@ -97,8 +108,10 @@ export class CollisionSystem extends GenericServerSystem {
     private pointerAndNextTurnButtonCollisionEvents (playerId: string, nextTurnButtonEntityReferences: EntityReference[]):GameEvent[] {
         const events:GameEvent[] = []
         nextTurnButtonEntityReferences.forEach(nextTurnButtonEntityReference => {
+            const matchPhasing = this.interactWithEntities.retreivePhasing(retrieveReference(nextTurnButtonEntityReference, EntityType.match))
+            if (!matchPhasing) throw new Error(`Missing phasing for entity ${nextTurnButtonEntityReference.entityId}`)
             if (retrieveReference(nextTurnButtonEntityReference, EntityType.player) === playerId &&
-                this.interactWithEntities.retrieveComponent<Phasing>(retrieveReference(nextTurnButtonEntityReference, EntityType.match)).currentPhase.phaseType !== PhaseType.Victory)
+                matchPhasing.currentPhase.phaseType !== PhaseType.Victory)
                 events.push(nextTurnEvent(retrieveReference(nextTurnButtonEntityReference, EntityType.match)))
         })
         return events
@@ -107,7 +120,9 @@ export class CollisionSystem extends GenericServerSystem {
     private pointerAndCellAndUnitCollisionEvents (playerId:string, cellEntityReferences: EntityReference[], unitEntityReferences: EntityReference[]): GameEvent[] {
         const generatedPointerAndButtonCollision:GameEvent[] = []
         cellEntityReferences.forEach(cellEntityReference => {
-            const matchId = retrieveReference(this.entityReferencesByEntityId(retrieveReference(cellEntityReference, EntityType.grid)), EntityType.match)
+            const girdEntityRef = this.entityReferencesByEntityId(retrieveReference(cellEntityReference, EntityType.grid))
+            if (!girdEntityRef) throw new Error(`Missing grid for entity ${cellEntityReference.entityId}`)
+            const matchId = retrieveReference(girdEntityRef, EntityType.match)
             if (this.isPlayerOnMatch(matchId, playerId)) {
                 const matchPhasingComponent = this.retrieveMatchPhasingComponent(matchId)
                 if (matchPhasingComponent.currentPhase.phaseType !== PhaseType.Victory) {
@@ -123,19 +138,21 @@ export class CollisionSystem extends GenericServerSystem {
     }
 
     private retrieveEntityReferenceComponent (entityId: string) :EntityReference {
-        return this.interactWithEntities.retrieveComponent<EntityReference>(entityId)
+        const component = this.interactWithEntities.retreiveEntityReference(entityId)
+        if (!component) throw new Error(`Missing entity reference component for entity ${entityId}`)
+        return component
     }
 
     private pointerAndCellColisionEvents (playerId:string, cellEntityReferences: EntityReference[], towerEntityReferences: EntityReference[], robotEntityReferences: EntityReference[]): GameEvent[] {
         const generatedPointerAndCellColisionEvents:GameEvent[] = []
         if (towerEntityReferences.length > 0 || robotEntityReferences.length > 0) return generatedPointerAndCellColisionEvents
         const supportedMovingEntityType = (entityToMove:string):EntityType => {
-            const robotOrTowerEntityType = this.entityReferencesByEntityId(entityToMove).entityType.find(entityType => entityType === EntityType.robot || entityType === EntityType.tower)
+            const robotOrTowerEntityType = this.retrieveEntityReferenceComponent(entityToMove).entityType.find(entityType => entityType === EntityType.robot || entityType === EntityType.tower)
             if (robotOrTowerEntityType) return robotOrTowerEntityType
             throw new Error(unsupportedMovingEntity)
         }
         cellEntityReferences.forEach(cellEntityReference => {
-            const matchId = retrieveReference(this.entityReferencesByEntityId(retrieveReference(cellEntityReference, EntityType.grid)), EntityType.match)
+            const matchId = retrieveReference(this.retrieveEntityReferenceComponent(retrieveReference(cellEntityReference, EntityType.grid)), EntityType.match)
             if (this.isPlayerOnMatch(matchId, playerId)) {
                 const matchPhasingComponent = this.retrieveMatchPhasingComponent(matchId)
                 if (matchPhasingComponent.currentPhase.phaseType !== PhaseType.Victory) {
@@ -153,13 +170,17 @@ export class CollisionSystem extends GenericServerSystem {
         buttonEntityReferences.forEach(buttonEntityReferences => {
             if (isSamePlayerButtonAndPointer(buttonEntityReferences, playerId))
                 if (hasReferences(buttonEntityReferences, EntityType.simpleMatchLobby))
-                    generatedPointerAndButtonCollision.push(joinSimpleMatchLobby(playerId, retrieveReference(this.entityReferencesByEntityId(playerId), EntityType.mainMenu), retrieveReference(buttonEntityReferences, EntityType.simpleMatchLobby)))
+                    generatedPointerAndButtonCollision.push(joinSimpleMatchLobby(playerId, retrieveReference(this.retrieveEntityReferenceComponent(playerId), EntityType.mainMenu), retrieveReference(buttonEntityReferences, EntityType.simpleMatchLobby)))
         })
         return generatedPointerAndButtonCollision
     }
 
     private onCheckCollision (): Promise<void> {
-        const entitiesPhysicalComponents = this.interactWithEntities.retrieveEntitiesThatHaveComponent('Physical').map(entity => entity.retrieveComponent<Physical>())
+        const entitiesPhysicalComponents = this.interactWithEntities.retrieveEntitiesThatHaveComponent('Physical').map(entity => {
+            const physical = entity.retreivePhysical()
+            if (!physical) throw new Error(`Missing physical component for entity ${entity.id}`)
+            return physical
+        })
         const collisionEvents:GameEvent[] = []
         const isMoreThanTwo = (physicalComponents: Physical[]) => physicalComponents.length >= 2
         for (const physicalComponents of this.groupByPositions(entitiesPhysicalComponents).values())
@@ -195,12 +216,14 @@ export class CollisionSystem extends GenericServerSystem {
         return physicalComponentsGroupedByPosition
     }
 
-    private retrieveMatchPhasingComponent (matchId: string) {
-        return this.interactWithEntities.retrieveComponent<Phasing>(matchId)
+    private retrieveMatchPhasingComponent (matchId: string):Phasing {
+        const phasing = this.interactWithEntities.retreivePhasing(matchId)
+        if (!phasing) throw new Error(`Missing phasing component for match ${matchId}`)
+        return phasing
     }
 
     private isPlayerOnMatch (matchId: string, playerId: string): boolean {
-        return retrieveReferences(this.entityReferencesByEntityId(matchId), EntityType.player).some(entityId => entityId === playerId)
+        return retrieveReferences(this.retrieveEntityReferenceComponent(matchId), EntityType.player).some(entityId => entityId === playerId)
     }
 }
 const unsupportedMovingEntity = `Current unit is not '${EntityType.robot}' or '${EntityType.robot}' entity type.`

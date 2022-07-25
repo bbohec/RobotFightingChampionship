@@ -7,11 +7,11 @@ import { EntityType } from '../../Event/EntityType'
 import { GameEvent, newGameEvent } from '../../Event/GameEvent'
 import { InMemoryEventBus } from '../../Event/infra/InMemoryEventBus'
 import { ConsoleLogger } from '../../Log/infra/consoleLogger'
-import { InMemoryClientEventInteractor } from '../infra/InMemoryClientEventInteractor'
-import { InMemoryServerEventInteractor } from '../infra/InMemoryServerEventInteractor'
-import { WebClientEventInteractor } from '../infra/WebClientEventInteractor'
-import { defaultHTTPWebServerPort } from '../infra/WebServerEventInteractor'
-import { ClientEventInteractor, ServerEventInteractor } from './EventInteractor'
+import { InMemoryClientEventInteractor } from './client/InMemoryClientEventInteractor'
+import { InMemoryServerEventInteractor } from './server/InMemoryServerEventInteractor'
+import { WebClientEventInteractor } from './client/WebClientEventInteractor'
+import { defaultHTTPWebServerPort } from './server/WebServerEventInteractor'
+import { ClientEventInteractor, ServerEventInteractor } from '../port/EventInteractor'
 
 export interface ClientEventIntegrationTestSuite {
     clientEventInteractor:ClientEventInteractor
@@ -25,8 +25,8 @@ export interface EventIntegrationTestSuite {
 export const serverFullyQualifiedDomainName = 'localhost'
 export const clientQty = 10
 
-export const makeRestClientsEventIntegrationTestSuite = (qty:number) => [...Array(qty).keys()].map(value => makeRestClientEventIntegrationTestSuite(value.toString(), position(0, 0)))
-export const makeInMemoryClientsEventIntegrationTestSuite = (qty:number) => [...Array(qty).keys()].map(value => makeInMemoryClientEventIntegrationTestSuite(value.toString(), position(0, 0)))
+export const makeRestClientsEventIntegrationTestSuite = (qty:number):ClientEventIntegrationTestSuite[] => [...Array(qty).keys()].map(value => makeRestClientEventIntegrationTestSuite(value.toString(), position(0, 0)))
+export const makeInMemoryClientsEventIntegrationTestSuite = (qty:number):ClientEventIntegrationTestSuite[] => [...Array(qty).keys()].map(value => makeInMemoryClientEventIntegrationTestSuite(value.toString(), position(0, 0)))
 export const beforeFunction = (testSuite: EventIntegrationTestSuite): Func => function (done) {
     this.timeout(5000)
     console.log(`BEFORE TEST SUITE - ${testSuite.adapterType}`)
@@ -55,11 +55,15 @@ const configureInMemoryClientsOnServer = (serverEventInteractor: InMemoryServerE
         throw new Error(`Unsupported clientEventInteractor ${clientEventIntegrationTestSuite.clientEventInteractor.constructor.name}`)
     }))
 
+const sseTestGameEvent = (playerId:string, position:Position) => newGameEvent(
+    Action.attack,
+    new Map([[EntityType.player, [playerId]]]),
+    [makePhysical(EntityIds.playerAPointer, position, ShapeType.pointer, true)])
 export const makeInMemoryClientEventIntegrationTestSuite = (playerId:string, position:Position): ClientEventIntegrationTestSuite => ({
     clientEventInteractor: new InMemoryClientEventInteractor(playerId, new InMemoryEventBus()),
-    clientEvents: [newGameEvent(Action.attack, new Map([[EntityType.player, [playerId]]]), [makePhysical(EntityIds.playerAPointer, position, ShapeType.pointer, true)])]
+    clientEvents: [sseTestGameEvent(playerId, position)]
 })
 export const makeRestClientEventIntegrationTestSuite = (playerId:string, position:Position): ClientEventIntegrationTestSuite => ({
     clientEventInteractor: new WebClientEventInteractor(serverFullyQualifiedDomainName, defaultHTTPWebServerPort, playerId, new InMemoryEventBus(), new ConsoleLogger('eventInteractor')),
-    clientEvents: [newGameEvent(Action.attack, new Map([[EntityType.player, [playerId]]]), [makePhysical(EntityIds.playerAPointer, position, ShapeType.pointer, true)])]
+    clientEvents: [sseTestGameEvent(playerId, position)]
 })

@@ -11,7 +11,7 @@ import { matchWaitingForPlayers } from './waiting'
 
 feature(featureEventDescription(Action.waitingForPlayers), () => {
     serverScenario(`${Action.waitingForPlayers} 1`, matchWaitingForPlayers(EntityIds.match, EntityIds.simpleMatchLobby),
-        (game, adapters) => () => new EntityBuilder(adapters.entityInteractor)
+        [], (game, adapters) => () => new EntityBuilder(adapters.entityInteractor)
             .buildEntity(EntityIds.simpleMatchLobby).withEntityReferences(EntityType.simpleMatchLobby, new Map([[EntityType.player, [...expectedAddedPlayers, ...expectedStillWaitingPlayers]]])).save()
         , [
             thereIsServerComponents(TestStep.Given, [

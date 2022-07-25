@@ -6,3 +6,12 @@ Le dev de Robot Fighting Championship reprend ...
 
 Catégorie
 Software and Game Development
+
+
+Gestion des bloc
+- hiqhx neutrous bloc : pas d'energie, pas d'ajout de portée, ne réduit pas les dégats du tir, ajoute des dégats au tir jusqu'à 1
+- zehde phase capacitor : pas d'énergie, ajout de portée si connecté à arme, réduit les dégats du tir, pas d'ajout de dégat, ajoute une capacité energétique, consomme 1 energie à pleine charge
+- ikreyk inverted phase:  
+- veiyhh plasma armor 
+- dooobl veiyhh ice lence  
+- huhuhh boomer generator : energie

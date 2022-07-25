@@ -5,7 +5,7 @@ import { feature, featureEventDescription, serverScenario, whenEventOccured } fr
 import { notifyServerEvent } from './notifyServer'
 
 feature(featureEventDescription(Action.notifyServer), () => {
-    serverScenario(`${Action.notifyServer}`, notifyServerEvent('test message'), undefined
+    serverScenario(`${Action.notifyServer}`, notifyServerEvent('test message'), [], undefined
         , [
             ...whenEventOccured()
         ])
