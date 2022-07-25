@@ -4,12 +4,12 @@ import { EntityBuilder } from '../../Entities/entityBuilder'
 import { Action } from '../../Event/Action'
 import { EntityIds } from '../../Event/entityIds'
 import { EntityType } from '../../Event/EntityType'
-import { eventsAreSent, feature, featureEventDescription, serverScenario, thereIsServerComponents, whenEventOccured } from '../../Event/test'
+import { eventsAreSent, feature, serverScenario, thereIsServerComponents, whenEventOccured } from '../../Event/test'
 import { TestStep } from '../../Event/TestStep'
 import { collisionGameEvent } from '../collision/collision'
 import { checkCollisionGameEvent } from './checkCollision'
-feature(featureEventDescription(Action.checkCollision), () => {
-    serverScenario(`${Action.move} 1 - Check Collision Game Event - Collision with 2 entities and 1 entity without collision`, checkCollisionGameEvent(),
+feature(Action.checkCollision, () => {
+    serverScenario(`${Action.checkCollision} 1 - Check Collision Game Event - Collision with 2 entities and 1 entity without collision`, checkCollisionGameEvent(),
         [], (game, adapters) => () => new EntityBuilder(adapters.entityInteractor)
             .buildRobot(EntityIds.playerARobot, position(0, 0)).save()
             .buildRobot(EntityIds.playerBRobot, position(0, 0)).save()
@@ -23,7 +23,7 @@ feature(featureEventDescription(Action.checkCollision), () => {
             ...whenEventOccured(),
             (game, adapters) => eventsAreSent(TestStep.Then, adapters, 'server', [collisionGameEvent(new Map([[EntityType.unknown, [EntityIds.playerARobot, EntityIds.playerBRobot]]]))])
         ])
-    serverScenario(`${Action.move} 2 - Check Collision Game Event - Collision with 2 entities on average position`, checkCollisionGameEvent(),
+    serverScenario(`${Action.checkCollision} 2 - Check Collision Game Event - Collision with 2 entities on average position`, checkCollisionGameEvent(),
         [], (game, adapters) => () => new EntityBuilder(adapters.entityInteractor)
             .buildRobot(EntityIds.playerARobot, position(0.25, 0.25)).save()
             .buildRobot(EntityIds.playerBRobot, position(0.26, 0.26)).save()

@@ -1,5 +1,6 @@
 import { EntityId } from '../Entities/Entity'
 import { EntityType } from '../Event/EntityType'
+import { componentIsNot, missingEntityReferenceByEntityType, multipleEntitiesReferencedByEntityType, multipleEntityTypeOnEntityReference, noEntityTypeOnEntityReference } from '../messages'
 import { Component, GenericComponent } from './port/Component'
 
 export type EntityReferences = Map<EntityType, Array<string>>
@@ -15,7 +16,7 @@ const isEntityReference = (component:Component): component is EntityReference =>
 
 export const toEntityReference = (component:Component): EntityReference => {
     if (isEntityReference(component)) return component as EntityReference
-    throw new Error(`${component} is not EntityReference`)
+    throw new Error(componentIsNot(component, 'EntityReference'))
 }
 
 export const makeEntityReference = (entityId: string, entityType:EntityType|EntityType[], entityReferences:EntityReferences = new Map()): EntityReference => ({
@@ -49,8 +50,3 @@ export const hasReferences = (entityReference:EntityReference, entityType:Entity
     if (!entityReferences || entityReferences.length === 0) return false
     return true
 }
-
-const missingEntityReferenceByEntityType = (entityRefType: EntityType, entityReference:EntityReference): string => `There is not entity type '${entityRefType}' on entity references component of entity '${entityReference.entityType}' with id '${entityReference.entityId}'.`
-const multipleEntitiesReferencedByEntityType = (referenceEntityType: EntityType, entityReference: EntityReference, references:string []): string => `There is multiples '${referenceEntityType}' references for entity type on entity references component of the '${entityReference.entityType}' entity '${entityReference.entityId}' : ${references}`
-const noEntityTypeOnEntityReference = (entityId: string, entityType:EntityType[]): string => `There is no entity type for the '${entityType}' entity '${entityId}'.`
-const multipleEntityTypeOnEntityReference = (entityId: string, entityTypes:EntityType[]): string => `There is multiple entity types for entity '${entityId}' : ${entityTypes}`

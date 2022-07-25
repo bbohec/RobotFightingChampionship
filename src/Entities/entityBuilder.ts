@@ -6,6 +6,7 @@ import { ControlStatus } from '../Components/port/ControlStatus'
 import { Phase } from '../Components/port/Phase'
 import { ShapeType } from '../Components/port/ShapeType'
 import { EntityType } from '../Event/EntityType'
+import { entityAlreadyBuild } from '../messages'
 import { Entity } from './Entity'
 import { InMemoryEntityRepository } from './infra/InMemoryEntityRepository'
 
@@ -70,7 +71,7 @@ export class EntityBuilder {
     }
 
     public buildEntity (entityId: string, components?: Component[]) {
-        if (this.entity) throw new Error('Entity already built on builder. Forget save()?')
+        if (this.entity) throw new Error(entityAlreadyBuild)
         this.entity = new Entity(entityId)
         if (components) this.addComponents(components)
         return this

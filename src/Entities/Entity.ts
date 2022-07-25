@@ -7,13 +7,13 @@ import { Offensive, toOffensive } from '../Components/Offensive'
 import { Phasing, toPhasing } from '../Components/Phasing'
 import { Physical, toPhysical } from '../Components/Physical'
 import { Component, ComponentType } from '../Components/port/Component'
-import { stringifyWithDetailledSetAndMap } from '../Event/detailledStringify'
+import { componentMissingOnEntity } from '../messages'
 import { ComponentManagement } from './ports/ComponentManagement'
 import { EntityContract } from './ports/Entity'
 
 export type EntityId = string
 
-type EntityComponents = Map<ComponentType, Component>
+export type EntityComponents = Map<ComponentType, Component>
 
 export class Entity implements EntityContract, ComponentManagement {
     hasComponent (componentType: ComponentType): boolean {
@@ -98,4 +98,3 @@ export class Entity implements EntityContract, ComponentManagement {
     readonly id: string
     private components:EntityComponents = new Map()
 }
-const componentMissingOnEntity = (id: string, components: EntityComponents): string => `Component missing on entity id '${id}'. Available components: \n${stringifyWithDetailledSetAndMap(components)}`

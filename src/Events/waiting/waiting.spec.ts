@@ -4,12 +4,12 @@ import { EntityBuilder } from '../../Entities/entityBuilder'
 import { Action } from '../../Event/Action'
 import { EntityIds, expectedAddedPlayers, expectedStillWaitingPlayers } from '../../Event/entityIds'
 import { EntityType } from '../../Event/EntityType'
-import { eventsAreSent, feature, featureEventDescription, serverScenario, thereIsServerComponents, whenEventOccured } from '../../Event/test'
+import { eventsAreSent, feature, serverScenario, thereIsServerComponents, whenEventOccured } from '../../Event/test'
 import { TestStep } from '../../Event/TestStep'
 import { playerJoinMatchEvent } from '../join/join'
 import { matchWaitingForPlayers } from './waiting'
 
-feature(featureEventDescription(Action.waitingForPlayers), () => {
+feature(Action.waitingForPlayers, () => {
     serverScenario(`${Action.waitingForPlayers} 1`, matchWaitingForPlayers(EntityIds.match, EntityIds.simpleMatchLobby),
         [], (game, adapters) => () => new EntityBuilder(adapters.entityInteractor)
             .buildEntity(EntityIds.simpleMatchLobby).withEntityReferences(EntityType.simpleMatchLobby, new Map([[EntityType.player, [...expectedAddedPlayers, ...expectedStillWaitingPlayers]]])).save()

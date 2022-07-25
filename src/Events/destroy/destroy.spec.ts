@@ -7,11 +7,11 @@ import { EntityBuilder } from '../../Entities/entityBuilder'
 import { Action } from '../../Event/Action'
 import { EntityIds } from '../../Event/entityIds'
 import { EntityType } from '../../Event/EntityType'
-import { eventsAreSent, feature, featureEventDescription, serverScenario, thereIsServerComponents, whenEventOccured } from '../../Event/test'
+import { eventsAreSent, feature, serverScenario, thereIsServerComponents, whenEventOccured } from '../../Event/test'
 import { TestStep } from '../../Event/TestStep'
 import { destroyCellEvent, destroyDefeatEvent, destroyGridEvent, destroyMatchEvent, destroyNextTurnButtonEvent, destroyRobotEvent, destroySimpleMatchLobbyMenuEvent, destroyTowerEvent, destroyVictoryEvent } from './destroy'
 
-feature(featureEventDescription(Action.destroy), () => {
+feature(Action.destroy, () => {
     serverScenario(`${Action.destroy} 1`, destroyMatchEvent(EntityIds.match),
         [], (game, adapters) => () => new EntityBuilder(adapters.entityInteractor)
             .buildEntity(EntityIds.match).withLifeCycle().withEntityReferences(EntityType.match, new Map([[EntityType.grid, [EntityIds.grid]], [EntityType.victory, [EntityIds.victory]], [EntityType.defeat, [EntityIds.defeat]], [EntityType.nextTurnButton, [EntityIds.playerANextTurnButton, EntityIds.playerBNextTurnButton]]])).save()

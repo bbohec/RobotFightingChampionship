@@ -6,11 +6,11 @@ import { EntityBuilder } from '../../Entities/entityBuilder'
 import { Action } from '../../Event/Action'
 import { EntityIds } from '../../Event/entityIds'
 import { EntityType } from '../../Event/EntityType'
-import { eventsAreSent, feature, featureEventDescription, serverScenario, thereIsServerComponents, whenEventOccured } from '../../Event/test'
+import { eventsAreSent, feature, serverScenario, thereIsServerComponents, whenEventOccured } from '../../Event/test'
 import { TestStep } from '../../Event/TestStep'
 import { victoryEvent } from '../victory/victory'
 import { hitEvent } from './hit'
-feature(featureEventDescription(Action.hit), () => {
+feature(Action.hit, () => {
     serverScenario(`${Action.hit} 1 - Robot Hit Tower`, hitEvent(EntityIds.playerARobot, EntityIds.playerBTower),
         [], (game, adapters) => () => new EntityBuilder(adapters.entityInteractor)
             .buildEntity(EntityIds.playerARobot).withDamagePoints(20).save()

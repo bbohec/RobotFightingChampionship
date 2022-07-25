@@ -9,7 +9,7 @@ import { Action } from '../../Event/Action'
 import { EntityIds } from '../../Event/entityIds'
 import { EntityType } from '../../Event/EntityType'
 import { GameEvent } from '../../Event/GameEvent'
-import { eventsAreSent, feature, featureEventDescription, serverScenario, thereIsServerComponents, whenEventOccured } from '../../Event/test'
+import { eventsAreSent, feature, serverScenario, thereIsServerComponents, whenEventOccured } from '../../Event/test'
 import { TestStep } from '../../Event/TestStep'
 import { FakeServerAdapters } from '../../Systems/Game/infra/FakeServerAdapters'
 import { ServerGameSystem } from '../../Systems/Game/ServerGame'
@@ -18,7 +18,7 @@ import { drawEvent } from '../draw/draw'
 import { moveEvent } from '../move/move'
 import { nextTurnEvent } from './nextTurn'
 
-feature(featureEventDescription(Action.nextTurn), () => {
+feature(Action.nextTurn, () => {
     interface Scenario {
         number:number
         phaseSequence:PhaseSequence,

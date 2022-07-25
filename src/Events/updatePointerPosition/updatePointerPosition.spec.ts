@@ -4,11 +4,11 @@ import { ShapeType } from '../../Components/port/ShapeType'
 import { EntityBuilder } from '../../Entities/entityBuilder'
 import { Action } from '../../Event/Action'
 import { EntityIds } from '../../Event/entityIds'
-import { clientScenario, eventsAreSent, feature, featureEventDescription, thereIsClientComponents, whenEventOccured } from '../../Event/test'
+import { clientScenario, eventsAreSent, feature, thereIsClientComponents, whenEventOccured } from '../../Event/test'
 import { TestStep } from '../../Event/TestStep'
 import { updatePointerState } from '../updatePointerState/updatePointerState'
 import { updatePointerPosition } from './updatePointerPosition'
-feature(featureEventDescription(Action.updatePlayerPointerPosition), () => {
+feature(Action.updatePlayerPointerPosition, () => {
     clientScenario(`${Action.updatePlayerPointerPosition} 1 - Update client pointer on new position`, updatePointerPosition(EntityIds.playerAPointer, position(1, 1)), EntityIds.playerA,
         (game, adapters) => () => new EntityBuilder(adapters.entityInteractor)
             .buildEntity(EntityIds.playerAPointer).withPhysical(position(0, 0), ShapeType.pointer, true).save()

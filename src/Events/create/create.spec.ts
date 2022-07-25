@@ -13,14 +13,14 @@ import { EntityBuilder } from '../../Entities/entityBuilder'
 import { Action } from '../../Event/Action'
 import { EntityIds } from '../../Event/entityIds'
 import { EntityType } from '../../Event/EntityType'
-import { clientScenario, eventsAreSent, feature, featureEventDescription, serverScenario, theEntityIsNotOnRepository, theEntityIsOnRepository, thereIsClientComponents, thereIsServerComponents, whenEventOccured } from '../../Event/test'
+import { clientScenario, eventsAreSent, feature, serverScenario, theEntityIsNotOnRepository, theEntityIsOnRepository, thereIsClientComponents, thereIsServerComponents, whenEventOccured } from '../../Event/test'
 import { TestStep } from '../../Event/TestStep'
 import { drawEvent } from '../draw/draw'
 import { registerNextTurnButtonEvent, registerPlayerEvent, registerPlayerPointerEvent, registerRobotEvent, registerSimpleMatchLobbyOnGame, registerTowerEvent } from '../register/register'
 import { matchWaitingForPlayers } from '../waiting/waiting'
 import { createCellEvent, createDefeatEvent, createGridEvent, createMainMenuEvent, createMatchEvent, createPlayerEvent, createPlayerNextTurnMatchButtonEvent, createPlayerPointerEvent, createPlayerSimpleMatchLobbyButtonEvent, createPlayerSimpleMatchLobbyMenu, createRobotEvent, createServerGameEvent, createSimpleMatchLobbyEvent, createTowerEvent, createVictoryEvent } from './create'
 
-feature(featureEventDescription(Action.create), () => {
+feature(Action.create, () => {
     clientScenario(`${Action.create} 1 - Create Player Client`, createPlayerEvent, EntityIds.playerA,
         (game, adapters) => () => new EntityBuilder(adapters.entityInteractor)
         , [

@@ -1,10 +1,10 @@
 import { Action } from '../../Event/Action'
 
-import { feature, featureEventDescription, serverScenario, whenEventOccured } from '../../Event/test'
+import { feature, serverScenario, whenEventOccured } from '../../Event/test'
 
 import { notifyServerEvent } from './notifyServer'
 
-feature(featureEventDescription(Action.notifyServer), () => {
+feature(Action.notifyServer, () => {
     serverScenario(`${Action.notifyServer}`, notifyServerEvent('test message'), [], undefined
         , [
             ...whenEventOccured()

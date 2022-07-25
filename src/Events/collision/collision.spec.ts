@@ -9,7 +9,7 @@ import { missingEntityId } from '../../Entities/infra/InMemoryEntityRepository'
 import { Action } from '../../Event/Action'
 import { EntityIds } from '../../Event/entityIds'
 import { EntityType } from '../../Event/EntityType'
-import { eventsAreSent, feature, featureEventDescription, serverScenario, thereIsServerComponents, whenEventOccured } from '../../Event/test'
+import { eventsAreSent, feature, serverScenario, thereIsServerComponents, whenEventOccured } from '../../Event/test'
 import { TestStep } from '../../Event/TestStep'
 import { attackEvent } from '../attack/attack'
 import { joinSimpleMatchLobby } from '../join/join'
@@ -19,7 +19,7 @@ import { notifyServerEvent } from '../notifyServer/notifyServer'
 import { quitMatchEvent } from '../quit/quit'
 import { collisionGameEvent } from './collision'
 
-feature(featureEventDescription(Action.collision), () => {
+feature(Action.collision, () => {
     serverScenario(`${Action.collision} 1 - Collision with player activated pointer &  player join simple match button`, collisionGameEvent(new Map([[EntityType.unknown, [EntityIds.playerAPointer, EntityIds.playerAJoinSimpleMatchButton]]])),
         [], (game, adapters) => () => new EntityBuilder(adapters.entityInteractor)
             .buildEntity(EntityIds.playerA).withEntityReferences(EntityType.player, new Map([[EntityType.button, [EntityIds.playerAJoinSimpleMatchButton]], [EntityType.pointer, [EntityIds.playerAPointer]], [EntityType.mainMenu, [EntityIds.playerAMainMenu]]])).save()

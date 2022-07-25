@@ -8,7 +8,7 @@ import { EntityBuilder } from '../../Entities/entityBuilder'
 import { Action } from '../../Event/Action'
 import { EntityIds } from '../../Event/entityIds'
 import { EntityType } from '../../Event/EntityType'
-import { eventsAreSent, feature, featureEventDescription, serverScenario, thereIsServerComponents, whenEventOccured } from '../../Event/test'
+import { eventsAreSent, feature, serverScenario, thereIsServerComponents, whenEventOccured } from '../../Event/test'
 import { TestStep } from '../../Event/TestStep'
 import { movingEntityNotSupported } from '../../Systems/Moving/MovingSystem'
 import { drawEvent } from '../draw/draw'
@@ -17,7 +17,7 @@ import { notEnoughActionPointNotificationMessage, notifyPlayerEvent, positionAlr
 import { moveEvent } from './move'
 
 const gridFirstCellPosition = position(0, 0)
-feature(featureEventDescription(Action.move), () => {
+feature(Action.move, () => {
     serverScenario(`${Action.move} 1 - Robot Move Horizontaly`, moveEvent(EntityIds.playerA, EntityType.robot, EntityIds.playerARobot, EntityIds.cellx1y2),
         [], (game, adapters) => () => new EntityBuilder(adapters.entityInteractor)
             .buildEntity(EntityIds.match).withPhase(playerARobotPhase()).withEntityReferences(EntityType.match, new Map([[EntityType.player, [EntityIds.playerA]]])).save()

@@ -4,11 +4,11 @@ import { EntityBuilder } from '../../Entities/entityBuilder'
 import { Action } from '../../Event/Action'
 import { EntityIds } from '../../Event/entityIds'
 import { EntityType } from '../../Event/EntityType'
-import { clientScenario, entityIsNotVisible, entityIsVisible, eventsAreSent, feature, featureEventDescription, serverScenario, whenEventOccured } from '../../Event/test'
+import { clientScenario, entityIsNotVisible, entityIsVisible, eventsAreSent, feature, serverScenario, whenEventOccured } from '../../Event/test'
 import { TestStep } from '../../Event/TestStep'
 import { drawEvent } from './draw'
 
-feature(featureEventDescription(Action.draw), () => {
+feature(Action.draw, () => {
     serverScenario(`${Action.draw} 1`, drawEvent(EntityIds.playerA, makePhysical(EntityIds.playerAMainMenu, mainMenuPosition, ShapeType.mainMenu, true)),
         [EntityIds.playerA], (game, adapters) => () => new EntityBuilder(adapters.entityInteractor)
         , [

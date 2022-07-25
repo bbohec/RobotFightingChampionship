@@ -8,13 +8,13 @@ import { EntityBuilder } from '../../Entities/entityBuilder'
 import { Action } from '../../Event/Action'
 import { EntityIds, mainMenus, players, simpleMatchButtons } from '../../Event/entityIds'
 import { EntityType } from '../../Event/EntityType'
-import { eventsAreSent, feature, featureEventDescription, serverScenario, thereIsServerComponents, whenEventOccured, whenEventOccurs } from '../../Event/test'
+import { eventsAreSent, feature, serverScenario, thereIsServerComponents, whenEventOccured, whenEventOccurs } from '../../Event/test'
 import { TestStep } from '../../Event/TestStep'
 import { createGridEvent, createMatchEvent, createPlayerNextTurnMatchButtonEvent, createPlayerSimpleMatchLobbyMenu, createRobotEvent, createTowerEvent } from '../create/create'
 import { drawEvent } from '../draw/draw'
 import { playerJoinMatchEvent, playerWantJoinSimpleMatchLobby } from './join'
 
-feature(featureEventDescription(Action.join), () => {
+feature(Action.join, () => {
     serverScenario(`${Action.join} 1`, playerJoinMatchEvent(EntityIds.playerA, EntityIds.match),
         [], (game, adapters) => () => new EntityBuilder(adapters.entityInteractor)
             .buildEntity(EntityIds.match).withEntityReferences(EntityType.match).save()

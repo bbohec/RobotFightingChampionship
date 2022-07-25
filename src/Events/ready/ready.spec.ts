@@ -7,13 +7,13 @@ import { EntityBuilder } from '../../Entities/entityBuilder'
 import { Action } from '../../Event/Action'
 import { EntityIds } from '../../Event/entityIds'
 import { EntityType } from '../../Event/EntityType'
-import { eventsAreSent, feature, featureEventDescription, serverScenario, theEntityIsOnRepository, thereIsServerComponents, whenEventOccured, whenEventOccurs } from '../../Event/test'
+import { eventsAreSent, feature, serverScenario, theEntityIsOnRepository, thereIsServerComponents, whenEventOccured, whenEventOccurs } from '../../Event/test'
 import { TestStep } from '../../Event/TestStep'
 import { destroySimpleMatchLobbyMenuEvent } from '../destroy/destroy'
 import { drawEvent } from '../draw/draw'
 import { nextTurnEvent } from '../nextTurn/nextTurn'
 import { playerReadyForMatch } from './ready'
-feature(featureEventDescription(Action.ready), () => {
+feature(Action.ready, () => {
     serverScenario(`${Action.ready} 1`, playerReadyForMatch(EntityIds.match, EntityIds.playerA),
         [], (game, adapters) => () => new EntityBuilder(adapters.entityInteractor)
             .buildEntity(EntityIds.match).withPhase(preparingGamePhase).withEntityReferences(EntityType.match, new Map([[EntityType.player, [EntityIds.playerA]]])).save()

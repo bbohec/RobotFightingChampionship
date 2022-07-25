@@ -1,11 +1,9 @@
 import { Controller, toController } from '../Components/Controller'
 import { Dimensional, toDimensional } from '../Components/Dimensional'
-import { EntityReferences } from '../Components/EntityReference'
 import { LifeCycle, toLifeCycle } from '../Components/LifeCycle'
 import { Physical, toPhysical } from '../Components/Physical'
 import { Component, ComponentType } from '../Components/port/Component'
-import { Action } from './Action'
-import { stringifyWithDetailledSetAndMap } from './detailledStringify'
+import { noEntitiesReferenced, multipleEntityReferenced, noEntityReferenced } from '../messages'
 import { EntityType } from './EntityType'
 import { GameEvent } from './GameEvent'
 
@@ -70,9 +68,6 @@ export class GameEventHandler {
     }
 }
 
-const noEntitiesReferenced = (entityType: EntityType, action: Action, entityReferences: EntityReferences): string => `No entities referenced with type '${entityType}' on event with action '${action}'.\n Actual references: ${stringifyWithDetailledSetAndMap(entityReferences)}`
-const noEntityReferenced = (entityType: EntityType): string => `No '${entityType}' entities is not supported.`
-const multipleEntityReferenced = (entityType: EntityType): string => `Multiple '${entityType}' entities referenced.`
 /*
 const componentMissingOnGameEvent = <Class extends Component> (id: any, components: Component[]): string =>
     `The component '${({} as Class).componentType}' of the entity '${id}' is missing on Game Event components:

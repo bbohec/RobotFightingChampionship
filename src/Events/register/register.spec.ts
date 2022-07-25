@@ -7,13 +7,13 @@ import { EntityBuilder } from '../../Entities/entityBuilder'
 import { Action } from '../../Event/Action'
 import { EntityIds } from '../../Event/entityIds'
 import { EntityType } from '../../Event/EntityType'
-import { clientScenario, eventsAreSent, feature, featureEventDescription, serverScenario, theEntityIsNotOnRepository, theEntityIsOnRepository, thereIsClientComponents, thereIsServerComponents, whenEventOccured, whenEventOccurs } from '../../Event/test'
+import { clientScenario, eventsAreSent, feature, serverScenario, theEntityIsNotOnRepository, theEntityIsOnRepository, thereIsClientComponents, thereIsServerComponents, whenEventOccured, whenEventOccurs } from '../../Event/test'
 import { TestStep } from '../../Event/TestStep'
 import { activatePointerEvent } from '../activate/activate'
 import { createMainMenuEvent, createPlayerPointerEvent, createPlayerSimpleMatchLobbyButtonEvent } from '../create/create'
 import { playerReadyForMatch } from '../ready/ready'
 import { registerNextTurnButtonEvent, registerPlayerEvent, registerPlayerOnGameEvent, registerPlayerPointerEvent, registerRobotEvent, registerSimpleMatchLobbyOnGame, registerTowerEvent } from './register'
-feature(featureEventDescription(Action.register), () => {
+feature(Action.register, () => {
     serverScenario(`${Action.register} 1`, registerTowerEvent(EntityIds.playerBTower, EntityIds.playerA),
         [], (game, adapters) => () => new EntityBuilder(adapters.entityInteractor)
             .buildEntity(EntityIds.playerA).withEntityReferences(EntityType.player, new Map()).save()

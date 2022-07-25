@@ -7,13 +7,13 @@ import { EntityBuilder } from '../../Entities/entityBuilder'
 import { Action } from '../../Event/Action'
 import { EntityIds } from '../../Event/entityIds'
 import { EntityType } from '../../Event/EntityType'
-import { eventsAreSent, feature, featureEventDescription, serverScenario, thereIsServerComponents, whenEventOccured } from '../../Event/test'
+import { eventsAreSent, feature, serverScenario, thereIsServerComponents, whenEventOccured } from '../../Event/test'
 import { TestStep } from '../../Event/TestStep'
 import { destroyMatchEvent, destroyRobotEvent, destroyTowerEvent } from '../destroy/destroy'
 import { drawEvent } from '../draw/draw'
 import { quitMatchEvent } from './quit'
 
-feature(featureEventDescription(Action.quit), () => {
+feature(Action.quit, () => {
     serverScenario(`${Action.quit} 1`, quitMatchEvent(EntityIds.match, EntityIds.playerA),
         [], (game, adapters) => () => new EntityBuilder(adapters.entityInteractor)
             .buildEntity(EntityIds.match).withEntityReferences(EntityType.match, new Map([[EntityType.player, [EntityIds.playerA, EntityIds.playerB]], [EntityType.grid, [EntityIds.grid]], [EntityType.victory, [EntityIds.victory]]])).withPhase(victoryPhase(EntityIds.playerA)).save()

@@ -6,7 +6,7 @@ import { EntityBuilder } from '../../Entities/entityBuilder'
 import { Action } from '../../Event/Action'
 import { EntityIds } from '../../Event/entityIds'
 import { EntityType } from '../../Event/EntityType'
-import { eventsAreSent, feature, featureEventDescription, serverScenario, thereIsServerComponents, whenEventOccured } from '../../Event/test'
+import { eventsAreSent, feature, serverScenario, thereIsServerComponents, whenEventOccured } from '../../Event/test'
 import { TestStep } from '../../Event/TestStep'
 import { hitEvent } from '../hit/hit'
 import { notEnoughActionPointNotificationMessage, notifyPlayerEvent, outOfRangeNotificationMessage, wrongPlayerPhaseNotificationMessage, wrongUnitPhaseNotificationMessage } from '../notifyPlayer/notifyPlayer'
@@ -17,7 +17,7 @@ import { attackEvent } from './attack'
     - Réduction de dommage sur la distance ?
 */
 
-feature(featureEventDescription(Action.attack), () => {
+feature(Action.attack, () => {
     serverScenario(`${Action.attack} 1 - Attack Game Event - playerA Tower`, attackEvent(EntityIds.playerA, EntityIds.playerATower, EntityIds.playerBTower),
         [], (game, adapters) => () => new EntityBuilder(adapters.entityInteractor)
             .buildEntity(EntityIds.match).withPhase(playerATowerPhase()).withEntityReferences(EntityType.match, new Map([[EntityType.player, [EntityIds.playerA]]])).save()

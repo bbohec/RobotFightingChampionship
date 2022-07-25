@@ -4,18 +4,19 @@ import { GameEvent } from './GameEvent'
 
 import { Physical } from '../Components/Physical'
 import { Component } from '../Components/port/Component'
+import { InMemoryClientEventInteractor } from '../EventInteractor/infra/client/InMemoryClientEventInteractor'
+import { InMemoryServerEventInteractor } from '../EventInteractor/infra/server/InMemoryServerEventInteractor'
 import { ClientGameSystem } from '../Systems/Game/ClientGame'
 import { GenericGameSystem } from '../Systems/Game/GenericGame'
 import { FakeClientAdapters } from '../Systems/Game/infra/FakeClientAdapters'
 import { FakeServerAdapters } from '../Systems/Game/infra/FakeServerAdapters'
 import { ServerGameSystem } from '../Systems/Game/ServerGame'
-import { Action } from './Action'
 import { stringifyWithDetailledSetAndMap } from './detailledStringify'
 import { InMemoryEventBus } from './infra/InMemoryEventBus'
-import { TestStep } from './TestStep'
-import { InMemoryClientEventInteractor } from '../EventInteractor/infra/client/InMemoryClientEventInteractor'
 import { EventBus } from './port/EventBus'
-import { InMemoryServerEventInteractor } from '../EventInteractor/infra/server/InMemoryServerEventInteractor'
+import { TestStep } from './TestStep'
+import { Action } from './Action'
+import { featureEventDescription } from '../messages'
 
 const { expect } = chai
 
@@ -63,8 +64,8 @@ export const clientScenario = (
         : describe(scenarioEventDescription(title, gameEvents, 'client', skip), clientTestSuite)
 }
 
-export const feature = (featureEventDescription:string, mochaSuite: (this: Suite) => void) => describe(featureEventDescription, mochaSuite)
-export const featureEventDescription = (action:Action): string => `Feature : ${action} events`
+export const feature = (action:Action, mochaSuite: (this: Suite) => void) => describe(featureEventDescription(action), mochaSuite)
+
 const pendingTestPrefix = '[PENDING] '
 export const scenarioEventDescription = (title:string, events: GameEvent|GameEvent[], scenarioType:ScenarioType, skip?:boolean): string =>
     ((Array.isArray(events))

@@ -1,5 +1,6 @@
 import { EntityId } from '../Entities/Entity'
 import { EntityIds } from '../Event/entityIds'
+import { componentIsNot, missingCurrentUnitIdOnPhase } from '../messages'
 import { Component, GenericComponent } from './port/Component'
 import { Phase, PhaseType } from './port/Phase'
 const noActionPoint = 0
@@ -34,7 +35,7 @@ const isPhasing = (component:Component): component is Phasing => {
 
 export const toPhasing = (component:Component): Phasing => {
     if (isPhasing(component)) return component as Phasing
-    throw new Error(`${component} is not Phasing`)
+    throw new Error(componentIsNot(component, 'Phasing'))
 }
 
 export const makePhasing = (entityId:EntityId, currentPhase:Phase, readyPlayers:Set<string> = new Set()):Phasing => ({
@@ -47,8 +48,4 @@ export const makePhasing = (entityId:EntityId, currentPhase:Phase, readyPlayers:
 export const getCurrentUnitId = (phasing:Phasing):string => {
     if (phasing.currentPhase.currentUnitId) return phasing.currentPhase.currentUnitId
     throw new Error(missingCurrentUnitIdOnPhase(phasing.currentPhase))
-}
-
-function missingCurrentUnitIdOnPhase (currentPhase: Phase): string | undefined {
-    return `Missing currentUnitId on phase ${currentPhase.phaseType}.`
 }

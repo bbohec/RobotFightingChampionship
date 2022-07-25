@@ -1,8 +1,8 @@
 import { GameEvent } from '../GameEvent'
 import { stringifyWithDetailledSetAndMap } from '../detailledStringify'
-import { gameEventNotFoundOnEventInteractor } from '../../EventInteractor/port/EventInteractor'
 import { EventBus } from '../port/EventBus'
 import { GameEventHandler } from '../GameEventHandler'
+import { gameEventNotFoundOnEventInteractor } from '../../messages'
 
 export class InMemoryEventBus extends GameEventHandler implements EventBus {
     public send (gameEvent: GameEvent): Promise<void> {
