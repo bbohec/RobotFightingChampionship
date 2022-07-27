@@ -5,7 +5,7 @@ import { Position, position } from '../../../core/components/Physical'
 
 import { EventBus } from '../../../core/port/EventBus'
 import { updatePointerPosition } from '../../../Events/updatePointerPosition/updatePointerPosition'
-import { Logger } from '../../../Log/port/logger'
+import { Logger } from '../../../core/port/Logger'
 import { PixiEvent } from '../../Drawing/port/PixiEvent'
 import { ControllerPort } from '../port/ControllerPort'
 import { PixiApplicationCommon } from './PixiApplicationCommon'

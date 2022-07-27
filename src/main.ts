@@ -5,7 +5,7 @@ import { ProductionServerAdapters } from './Systems/Game/infra/ProductionServerA
 import { ServerGameSystem } from './Systems/Game/ServerGame'
 import { ProductionEventBus } from './infra/eventBus/ProductionEventBus'
 import { createServerGameEvent } from './Events/create/create'
-import { Log4jsLogger } from './Log/infra/log4jsLogger'
+import { Log4jsLogger } from './infra/logger/log4jsLogger'
 import { newLoopEvent } from './Events/newLoop/newLoop'
 const loadProductionServer = (expressWebServerInstance:ExpressWebServerInstance, sseRetryInterval:number) => {
     const eventBus = new ProductionEventBus(new Log4jsLogger('eventBus'))

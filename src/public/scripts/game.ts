@@ -8,7 +8,7 @@ import { defaultHTTPWebServerPort } from '../../infra/eventInteractor/server/Web
 import { ProductionEventBus } from '../../infra/eventBus/ProductionEventBus'
 import { shapeAssets } from './shapeAssets'
 import { createPlayerEvent } from '../../Events/create/create'
-import { ConsoleLogger } from '../../Log/infra/consoleLogger'
+import { ConsoleLogger } from '../../infra/logger/consoleLogger'
 import { PixijsControllerAdapter } from '../../Systems/Controller/infra/PixijsControllerAdapter'
 import { Application } from '@pixi/app'
 const loadClient = (playerId:string) => {

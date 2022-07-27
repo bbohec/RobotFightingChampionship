@@ -1,4 +1,4 @@
-import { Logger } from '../port/logger'
+import { Logger } from '../../core/port/Logger'
 import * as Winston from 'winston'
 
 export class WinstonLogger implements Logger {

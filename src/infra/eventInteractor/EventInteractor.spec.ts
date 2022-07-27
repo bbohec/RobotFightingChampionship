@@ -9,7 +9,7 @@ import { EventIntegrationTestSuite, makeInMemoryClientsEventIntegrationTestSuite
 import { WebServerEventInteractor, defaultHTTPWebServerPort } from './server/WebServerEventInteractor'
 import { ExpressWebServerInstance } from './server/ExpressWebServerInstance'
 import express from 'express'
-import { Log4jsLogger } from '../../Log/infra/log4jsLogger'
+import { Log4jsLogger } from '../logger/log4jsLogger'
 import { InMemoryClientEventInteractor } from './client/InMemoryClientEventInteractor'
 import { detailedComparisonMessage } from '../../messages'
 describe('Integration Test Suite - Event Interactor', () => {

@@ -1,4 +1,4 @@
-import { Logger, LoggerName } from '../port/logger'
+import { Logger, LoggerName } from '../../core/port/Logger'
 import { configure, getLogger, Configuration, Logger as log4jsLogger } from 'log4js'
 
 const configuration:Configuration = { appenders: {}, categories: {} }

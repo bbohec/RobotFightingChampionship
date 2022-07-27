@@ -1,7 +1,7 @@
 import { GameEvent } from '../../core/type/GameEvent'
 import { EventBus } from '../../core/port/EventBus'
 import { GenericGameSystem } from '../../Systems/Game/GenericGame'
-import { Logger } from '../../Log/port/logger'
+import { Logger } from '../../core/port/Logger'
 import { stringifyWithDetailledSetAndMap } from '../../messages'
 
 export class ProductionEventBus implements EventBus {

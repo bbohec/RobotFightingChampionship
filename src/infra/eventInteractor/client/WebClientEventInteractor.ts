@@ -5,7 +5,7 @@ import { SSEClient } from '../sse/SSEClient'
 import { clientGameEventUrlPath } from '../server/WebServerEventInteractor'
 import { ClientEventInteractor } from '../../../core/port/EventInteractor'
 import { EventBus } from '../../../core/port/EventBus'
-import { Logger } from '../../../Log/port/logger'
+import { Logger } from '../../../core/port/Logger'
 import { SSEMessageType } from '../sse/SSEMessage'
 import { stringifyWithDetailledSetAndMap } from '../../../messages'
 
