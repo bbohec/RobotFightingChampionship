@@ -6,8 +6,8 @@ import { GameEvent } from './core/type/GameEvent'
 import { Phase } from './core/type/Phase'
 import { Phasing } from './core/ecs/components/Phasing'
 import { Position } from './core/ecs/components/Physical'
-import { EntityComponents } from './core/ecs/entity/Entity'
 import { TestStep } from './test/TestStep'
+import { EntityComponents } from './core/ecs/entity'
 
 export const gameEventNotFoundOnEventInteractor = (expectedEvent: GameEvent, existingEvents: GameEvent[], to:'client'|'server'): string =>
     `The following game event is not found on '${to}' event repository:\n${stringifyWithDetailledSetAndMap(expectedEvent)}
@@ -22,7 +22,9 @@ export const multipleEntitiesReferencedByEntityType = (referenceEntityType: Enti
 export const noEntityTypeOnEntityReference = (entityId: string, entityType:EntityType[]): string => `There is no entity type for the '${entityType}' entity '${entityId}'.`
 export const multipleEntityTypeOnEntityReference = (entityId: string, entityTypes:EntityType[]): string => `There is multiple entity types for entity '${entityId}' : ${entityTypes}`
 export const componentMissingOnEntity = (id: string, components: EntityComponents): string => `Component missing on entity id '${id}'. Available components: \n${stringifyWithDetailledSetAndMap(components)}`
-export const entityAlreadyBuild = 'Entity already built on builder. Forget save()?'
+export const entityAlreadyBuild = (components:Component[]) => `Entity already on builder with components:
+    ${components.map(component => stringifyWithDetailledSetAndMap(sorted(component))).join('\n    ')}
+Forget save()?`
 export const noEntitiesReferenced = (entityType: EntityType, action: Action, entityReferences: EntityReferences): string => `No entities referenced with type '${entityType}' on event with action '${action}'.\n Actual references: ${stringifyWithDetailledSetAndMap(entityReferences)}`
 export const noEntityReferenced = (entityType: EntityType): string => `No '${entityType}' entities is not supported.`
 export const multipleEntityReferenced = (entityType: EntityType): string => `Multiple '${entityType}' entities referenced.`

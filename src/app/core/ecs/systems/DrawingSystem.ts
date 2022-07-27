@@ -5,22 +5,19 @@ import { errorMessageOnUnknownEventAction, GameEvent } from '../../type/GameEven
 import { badPlayerEventNotificationMessage } from '../../events/notifyPlayer/notifyPlayer'
 import { GenericClientSystem, GenericGameEventDispatcherSystem } from '../system'
 import { Drawing } from '../../port/Drawing'
-import { EntityInteractor } from '../../port/EntityInteractor'
+import { ComponentRepository } from '../../port/ComponentRepository'
+import { EntityReference } from '../components/EntityReference'
 
 export class DrawingSystem extends GenericClientSystem {
-    constructor (interactWithEntities: EntityInteractor, gameEventDispatcher: GenericGameEventDispatcherSystem, drawingPort:Drawing) {
-        super(interactWithEntities, gameEventDispatcher)
+    constructor (componentRepository: ComponentRepository, gameEventDispatcher: GenericGameEventDispatcherSystem, drawingPort:Drawing) {
+        super(componentRepository, gameEventDispatcher)
         this.drawingPort = drawingPort
     }
 
     onGameEvent (gameEvent: GameEvent): Promise<void> {
-        const playerEntityReferenceComponent = this.interactWithEntities
-            .retrieveEntitiesThatHaveComponent('EntityReference')
-            .map(entity => {
-                const entityReference = this.interactWithEntities.retreiveEntityReference(entity.id)
-                if (!entityReference) throw new Error('EntityReference component not found for entity ' + entity.id)
-                return entityReference
-            })
+        const playerEntityReferenceComponent = this.componentRepository
+            .retrieveEntityReferences(undefined)
+            .filter((entityReference):entityReference is EntityReference => !!entityReference)
             .find(entityReference => entityReference.entityType.includes(EntityType.player))
         const eventPlayerReference = this.entityByEntityType(gameEvent, EntityType.player)
         if (playerEntityReferenceComponent && eventPlayerReference === playerEntityReferenceComponent.entityId) return this.onPlayerEvent(gameEvent)

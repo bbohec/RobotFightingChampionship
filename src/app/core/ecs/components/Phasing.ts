@@ -2,7 +2,7 @@ import { componentIsNot, missingCurrentUnitIdOnPhase } from '../../../messages'
 import { Component, GenericComponent } from '../component'
 import { Phase } from '../../type/Phase'
 import { PhaseType } from '../../type/PhaseType'
-import { EntityId } from '../entity/Entity'
+import { EntityId } from '../entity'
 import { EntityIds } from '../../../test/entityIds'
 const noActionPoint = 0
 export const maxPlayerPerMatch = 2

@@ -1,6 +1,6 @@
 import { ServerGameAdapters } from '../../../core/port/Game'
 import { Identifier } from '../../../core/port/Identifier'
-import { InMemoryEntityRepository } from '../../entity/InMemoryEntityRepository'
+import { InMemoryComponentRepository } from '../../component/InMemoryComponentRepository'
 import { InMemoryEventBus } from '../../eventBus/InMemoryEventBus'
 import { InMemoryClientEventInteractor } from '../../eventInteractor/client/InMemoryClientEventInteractor'
 import { InMemoryServerEventInteractor } from '../../eventInteractor/server/InMemoryServerEventInteractor'
@@ -16,5 +16,5 @@ export class FakeServerAdapters implements ServerGameAdapters {
     identifierInteractor: Identifier;
     eventInteractor :InMemoryServerEventInteractor
     systemInteractor = new InMemorySystemRepository();
-    entityInteractor = new InMemoryEntityRepository();
+    componentRepository = new InMemoryComponentRepository();
 }

@@ -1,4 +1,4 @@
-import { EntityId } from '../ecs/entity/Entity'
+import { EntityId } from '../ecs/entity'
 
 export interface Identifier {
     nextIdentifier(): EntityId;

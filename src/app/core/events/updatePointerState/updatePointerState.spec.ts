@@ -7,7 +7,7 @@ import { whenEventOccured, eventsAreSent } from '../../../test/unitTest/event'
 import { makeController } from '../../ecs/components/Controller'
 import { ControlStatus } from '../../type/ControlStatus'
 import { position, makePhysical } from '../../ecs/components/Physical'
-import { EntityBuilder } from '../../ecs/entity/entityBuilder'
+import { EntityBuilder } from '../../ecs/entity'
 import { Action } from '../../type/Action'
 import { ShapeType } from '../../type/ShapeType'
 import { updatePointerState } from './updatePointerState'
@@ -20,8 +20,8 @@ feature(Action.updatePlayerPointerState, () => {
             eventsAreSent(TestStep.Then, 'server', [updatePointerState(EntityIds.playerAPointer, position(1, 1), ControlStatus.Idle)])
         ])
     serverScenario(`${Action.updatePlayerPointerState} 2 - Update server pointer on client pointer update`, updatePointerState(EntityIds.playerAPointer, position(1, 1), ControlStatus.Active)
-        , [], (game, adapters) => () => new EntityBuilder(adapters.entityInteractor)
-            .buildEntity(EntityIds.playerAPointer).withPhysical(position(0, 0), ShapeType.pointer, true).withController(ControlStatus.Idle).save()
+        , [], (game, adapters) => () => new EntityBuilder(adapters.componentRepository)
+            .makeEntity(EntityIds.playerAPointer).withPhysical(position(0, 0), ShapeType.pointer, true).withController(ControlStatus.Idle).save()
         , [
             thereIsServerComponents(TestStep.Given, [
                 makePhysical(EntityIds.playerAPointer, position(0, 0), ShapeType.pointer, true),

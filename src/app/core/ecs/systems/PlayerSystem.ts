@@ -1,4 +1,4 @@
-import { retrieveReference } from '../components/EntityReference'
+import { linkEntityToEntities, retrieveReference } from '../components/EntityReference'
 import { EntityType } from '../../type/EntityType'
 import { errorMessageOnUnknownEventAction, GameEvent } from '../../type/GameEvent'
 import { createMainMenuEvent, createPlayerPointerEvent, createPlayerSimpleMatchLobbyButtonEvent } from '../../events/create/create'
@@ -13,9 +13,9 @@ export class PlayerSystem extends GenericServerSystem {
 
     private registerPlayerOnGame (gameEvent: GameEvent): Promise<void> {
         const playerId = this.entityByEntityType(gameEvent, EntityType.player)
-        this.interactWithEntities.linkEntityToEntities(playerId, [this.entityByEntityType(gameEvent, EntityType.game)])
+        linkEntityToEntities(this.componentRepository, playerId, [this.entityByEntityType(gameEvent, EntityType.game)])
         const gameId = this.entityByEntityType(gameEvent, EntityType.game)
-        const gameEntityReferences = this.interactWithEntities.retreiveEntityReference(gameId)
+        const gameEntityReferences = this.componentRepository.retrieveEntityReference(gameId)
         return this.sendEvents([
             createPlayerPointerEvent(playerId),
             createMainMenuEvent(gameId, playerId),

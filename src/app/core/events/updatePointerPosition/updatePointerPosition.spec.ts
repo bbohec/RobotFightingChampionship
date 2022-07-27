@@ -6,7 +6,7 @@ import { thereIsClientComponents } from '../../../test/unitTest/component'
 import { whenEventOccured, eventsAreSent } from '../../../test/unitTest/event'
 import { ControlStatus } from '../../type/ControlStatus'
 import { position, makePhysical } from '../../ecs/components/Physical'
-import { EntityBuilder } from '../../ecs/entity/entityBuilder'
+import { EntityBuilder } from '../../ecs/entity'
 import { Action } from '../../type/Action'
 import { ShapeType } from '../../type/ShapeType'
 import { updatePointerState } from '../updatePointerState/updatePointerState'
@@ -14,8 +14,8 @@ import { updatePointerPosition } from './updatePointerPosition'
 
 feature(Action.updatePlayerPointerPosition, () => {
     clientScenario(`${Action.updatePlayerPointerPosition} 1 - Update client pointer on new position`, updatePointerPosition(EntityIds.playerAPointer, position(1, 1)), EntityIds.playerA,
-        (game, adapters) => () => new EntityBuilder(adapters.entityInteractor)
-            .buildEntity(EntityIds.playerAPointer).withPhysical(position(0, 0), ShapeType.pointer, true).save()
+        (game, adapters) => () => new EntityBuilder(adapters.componentRepository)
+            .makeEntity(EntityIds.playerAPointer).withPhysical(position(0, 0), ShapeType.pointer, true).save()
         , [
             thereIsClientComponents(TestStep.Given, [
                 makePhysical(EntityIds.playerAPointer, position(0, 0), ShapeType.pointer, true)
@@ -27,8 +27,8 @@ feature(Action.updatePlayerPointerPosition, () => {
             eventsAreSent(TestStep.Then, 'client', [updatePointerState(EntityIds.playerAPointer, position(1, 1), ControlStatus.Active)])
         ])
     clientScenario(`${Action.updatePlayerPointerPosition} 2 - Allow update client pointer on same position`, updatePointerPosition(EntityIds.playerAPointer, position(0, 0)), EntityIds.playerA,
-        (game, adapters) => () => new EntityBuilder(adapters.entityInteractor)
-            .buildEntity(EntityIds.playerAPointer).withPhysical(position(0, 0), ShapeType.pointer, true).save()
+        (game, adapters) => () => new EntityBuilder(adapters.componentRepository)
+            .makeEntity(EntityIds.playerAPointer).withPhysical(position(0, 0), ShapeType.pointer, true).save()
         , [
             thereIsClientComponents(TestStep.Given, [
                 makePhysical(EntityIds.playerAPointer, position(0, 0), ShapeType.pointer, true)

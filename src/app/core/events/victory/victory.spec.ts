@@ -7,7 +7,7 @@ import { whenEventOccured, eventsAreSent } from '../../../test/unitTest/event'
 import { makeEntityReference } from '../../ecs/components/EntityReference'
 import { playerARobotPhase, makePhasing, victoryPhase } from '../../ecs/components/Phasing'
 import { victoryPosition, defeatPosition, makePhysical } from '../../ecs/components/Physical'
-import { EntityBuilder } from '../../ecs/entity/entityBuilder'
+import { EntityBuilder } from '../../ecs/entity'
 import { Action } from '../../type/Action'
 import { EntityType } from '../../type/EntityType'
 import { ShapeType } from '../../type/ShapeType'
@@ -16,12 +16,12 @@ import { victoryEvent } from './victory'
 
 feature(Action.victory, () => {
     serverScenario(`${Action.victory} 1`, victoryEvent(EntityIds.match, EntityIds.playerA),
-        [], (game, adapters) => () => new EntityBuilder(adapters.entityInteractor)
-            .buildEntity(EntityIds.match).withEntityReferences(EntityType.match, new Map([[EntityType.player, [EntityIds.playerA, EntityIds.playerB]], [EntityType.victory, [EntityIds.victory]], [EntityType.defeat, [EntityIds.defeat]]])).withPhase(playerARobotPhase()).save()
-            .buildEntity(EntityIds.victory).withEntityReferences(EntityType.victory).withPhysical(victoryPosition, ShapeType.victory, false).save()
-            .buildEntity(EntityIds.defeat).withEntityReferences(EntityType.defeat).withPhysical(defeatPosition, ShapeType.defeat, false).save()
-            .buildEntity(EntityIds.playerA).withEntityReferences(EntityType.player).save()
-            .buildEntity(EntityIds.playerB).withEntityReferences(EntityType.player).save()
+        [], (game, adapters) => () => new EntityBuilder(adapters.componentRepository)
+            .makeEntity(EntityIds.match).withEntityReferences(EntityType.match, new Map([[EntityType.player, [EntityIds.playerA, EntityIds.playerB]], [EntityType.victory, [EntityIds.victory]], [EntityType.defeat, [EntityIds.defeat]]])).withPhase(playerARobotPhase()).save()
+            .makeEntity(EntityIds.victory).withEntityReferences(EntityType.victory).withPhysical(victoryPosition, ShapeType.victory, false).save()
+            .makeEntity(EntityIds.defeat).withEntityReferences(EntityType.defeat).withPhysical(defeatPosition, ShapeType.defeat, false).save()
+            .makeEntity(EntityIds.playerA).withEntityReferences(EntityType.player).save()
+            .makeEntity(EntityIds.playerB).withEntityReferences(EntityType.player).save()
         , [
             ...whenEventOccured(),
             thereIsServerComponents(TestStep.Then, [
@@ -40,12 +40,12 @@ feature(Action.victory, () => {
             ])
         ])
     serverScenario(`${Action.victory} 2`, victoryEvent(EntityIds.match, EntityIds.playerB),
-        [], (game, adapters) => () => new EntityBuilder(adapters.entityInteractor)
-            .buildEntity(EntityIds.match).withEntityReferences(EntityType.match, new Map([[EntityType.player, [EntityIds.playerA, EntityIds.playerB]], [EntityType.victory, [EntityIds.victory]], [EntityType.defeat, [EntityIds.defeat]]])).withPhase(playerARobotPhase()).save()
-            .buildEntity(EntityIds.victory).withEntityReferences(EntityType.victory).withPhysical(victoryPosition, ShapeType.victory, false).save()
-            .buildEntity(EntityIds.defeat).withEntityReferences(EntityType.defeat).withPhysical(defeatPosition, ShapeType.defeat, false).save()
-            .buildEntity(EntityIds.playerA).withEntityReferences(EntityType.player).save()
-            .buildEntity(EntityIds.playerB).withEntityReferences(EntityType.player).save()
+        [], (game, adapters) => () => new EntityBuilder(adapters.componentRepository)
+            .makeEntity(EntityIds.match).withEntityReferences(EntityType.match, new Map([[EntityType.player, [EntityIds.playerA, EntityIds.playerB]], [EntityType.victory, [EntityIds.victory]], [EntityType.defeat, [EntityIds.defeat]]])).withPhase(playerARobotPhase()).save()
+            .makeEntity(EntityIds.victory).withEntityReferences(EntityType.victory).withPhysical(victoryPosition, ShapeType.victory, false).save()
+            .makeEntity(EntityIds.defeat).withEntityReferences(EntityType.defeat).withPhysical(defeatPosition, ShapeType.defeat, false).save()
+            .makeEntity(EntityIds.playerA).withEntityReferences(EntityType.player).save()
+            .makeEntity(EntityIds.playerB).withEntityReferences(EntityType.player).save()
         , [
             ...whenEventOccured(),
             thereIsServerComponents(TestStep.Then, [

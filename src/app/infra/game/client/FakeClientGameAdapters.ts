@@ -7,9 +7,9 @@ import { InMemoryClientEventInteractor } from '../../eventInteractor/client/InMe
 import { InMemoryEventBus } from '../../eventBus/InMemoryEventBus'
 import { InMemoryControllerAdapter } from '../../controller/InMemoryControllerAdapter'
 import { InMemoryServerEventInteractor } from '../../eventInteractor/server/InMemoryServerEventInteractor'
-import { InMemoryEntityRepository } from '../../entity/InMemoryEntityRepository'
 import { ClientGameAdapters } from '../../../core/port/Game'
 import { Identifier } from '../../../core/port/Identifier'
+import { InMemoryComponentRepository } from '../../component/InMemoryComponentRepository'
 
 export class FakeClientGameAdapters implements ClientGameAdapters {
     constructor (clientId: string, nextIdentifiers?: string[]) {
@@ -25,5 +25,5 @@ export class FakeClientGameAdapters implements ClientGameAdapters {
     identifierInteractor: Identifier;
     notificationInteractor = new InMemoryNotificationAdapter();
     systemInteractor = new InMemorySystemRepository();
-    entityInteractor = new InMemoryEntityRepository();
+    componentRepository = new InMemoryComponentRepository();
 }

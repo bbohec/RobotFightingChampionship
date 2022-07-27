@@ -4,7 +4,7 @@ import { serverScenario, clientScenario } from '../../../test/scenario'
 import { TestStep } from '../../../test/TestStep'
 import { whenEventOccured, eventsAreSent } from '../../../test/unitTest/event'
 import { thereIsANotification } from '../../../test/unitTest/notification'
-import { EntityBuilder } from '../../ecs/entity/entityBuilder'
+import { EntityBuilder } from '../../ecs/entity'
 import { Action } from '../../type/Action'
 import { EntityType } from '../../type/EntityType'
 import { notifyPlayerEvent, notEnoughActionPointNotificationMessage, wrongPlayerNotificationMessage } from './notifyPlayer'
@@ -17,15 +17,15 @@ feature(Action.notifyPlayer, () => {
             eventsAreSent(TestStep.Then, EntityIds.playerA, [notifyPlayerEvent(EntityIds.playerA, notEnoughActionPointNotificationMessage)])
         ])
     clientScenario(`${Action.notifyPlayer} 2 - Client Side`, notifyPlayerEvent(EntityIds.playerA, notEnoughActionPointNotificationMessage), EntityIds.playerA,
-        (game, adapters) => () => new EntityBuilder(adapters.entityInteractor)
-            .buildEntity(EntityIds.playerA).withEntityReferences(EntityType.player).save()
+        (game, adapters) => () => new EntityBuilder(adapters.componentRepository)
+            .makeEntity(EntityIds.playerA).withEntityReferences(EntityType.player).save()
         , [
             ...whenEventOccured(),
             (game, adapters) => thereIsANotification(TestStep.Then, adapters, notEnoughActionPointNotificationMessage)
         ], undefined)
     clientScenario(`${Action.notifyPlayer} 3 - Client Side bad player`, notifyPlayerEvent(EntityIds.playerB, notEnoughActionPointNotificationMessage), EntityIds.playerA,
-        (game, adapters) => () => new EntityBuilder(adapters.entityInteractor)
-            .buildEntity(EntityIds.playerA).withEntityReferences(EntityType.player).save()
+        (game, adapters) => () => new EntityBuilder(adapters.componentRepository)
+            .makeEntity(EntityIds.playerA).withEntityReferences(EntityType.player).save()
         , [
             ...whenEventOccured(),
             (game, adapters) => thereIsANotification(TestStep.Then, adapters, wrongPlayerNotificationMessage(EntityIds.playerB, notEnoughActionPointNotificationMessage))

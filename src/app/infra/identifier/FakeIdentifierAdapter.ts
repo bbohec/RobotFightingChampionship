@@ -1,5 +1,5 @@
 import { v1 as uuid } from 'uuid'
-import { EntityId } from '../../core/ecs/entity/Entity'
+import { EntityId } from '../../core/ecs/entity'
 import { Identifier } from '../../core/port/Identifier'
 
 export class FakeIdentifierAdapter implements Identifier {

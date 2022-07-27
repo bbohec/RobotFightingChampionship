@@ -14,7 +14,7 @@ export const thereIsServerComponents = (
 ) => (game:ServerGameSystem, adapters:FakeServerAdapters) => it(hasComponents(testStep, expectedComponents),
     () => {
         const components = adapters
-            .entityInteractor.retreiveAllComponents()
+            .componentRepository.retreiveAllComponents()
         expect(components).deep.equal(expectedComponents, componentDetailedComparisonMessage(components, expectedComponents))
     })
 
@@ -24,6 +24,6 @@ export const thereIsClientComponents = (
 ) => (game:ClientGameSystem, adapters:FakeClientGameAdapters) => it(hasComponents(testStep, expectedComponents),
     () => {
         const components = adapters
-            .entityInteractor.retreiveAllComponents()
+            .componentRepository.retreiveAllComponents()
         expect(components).deep.equal(expectedComponents, componentDetailedComparisonMessage(components, expectedComponents))
     })

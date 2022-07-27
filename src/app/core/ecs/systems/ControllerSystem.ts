@@ -1,15 +1,15 @@
 import { ControlStatus } from '../../type/ControlStatus'
-import { EntityInteractor } from '../../port/EntityInteractor'
 import { Action } from '../../type/Action'
 import { EntityType } from '../../type/EntityType'
 import { errorMessageOnUnknownEventAction, GameEvent } from '../../type/GameEvent'
 import { updatePointerState } from '../../events/updatePointerState/updatePointerState'
 import { ControllerPort } from '../../port/ControllerPort'
 import { GenericClientSystem, GenericGameEventDispatcherSystem } from '../system'
+import { ComponentRepository } from '../../port/ComponentRepository'
 
 export class ControllerSystem extends GenericClientSystem {
-    constructor (interactWithEntities: EntityInteractor, gameEventDispatcher: GenericGameEventDispatcherSystem, controllerAdapter:ControllerPort) {
-        super(interactWithEntities, gameEventDispatcher)
+    constructor (componentRepository: ComponentRepository, gameEventDispatcher: GenericGameEventDispatcherSystem, controllerAdapter:ControllerPort) {
+        super(componentRepository, gameEventDispatcher)
         this.interactWithControllerAdapter = controllerAdapter
     }
 
@@ -27,9 +27,9 @@ export class ControllerSystem extends GenericClientSystem {
 
     private onUpdatePlayerPointerPosition (gameEvent: GameEvent): Promise<void> {
         const pointerEntityId = this.entityByEntityType(gameEvent, EntityType.pointer)
-        const pointerPhysicalComponent = this.interactWithEntities.retrievePhysical(pointerEntityId)
+        const pointerPhysicalComponent = this.componentRepository.retrievePhysical(pointerEntityId)
         const updatedpointerPhysicalComponent = { ...pointerPhysicalComponent, position: this.retrievePhysical(gameEvent, pointerEntityId).position }
-        this.interactWithEntities.saveComponent(updatedpointerPhysicalComponent)
+        this.componentRepository.saveComponent(updatedpointerPhysicalComponent)
         const event = updatePointerState(pointerEntityId, updatedpointerPhysicalComponent.position, ControlStatus.Active)
         return this.sendEvent(event)
     }

@@ -4,18 +4,18 @@ import { Identifier } from './Identifier'
 import { NotificationPort } from './Notification'
 import { ControllerPort } from './ControllerPort'
 import { Drawing } from './Drawing'
-import { EntityInteractor } from './EntityInteractor'
-import { InMemoryEntityRepository } from '../../infra/entity/InMemoryEntityRepository'
+import { ComponentRepository } from './ComponentRepository'
+import { InMemoryComponentRepository } from '../../infra/component/InMemoryComponentRepository'
 
 export interface GenericGameAdapter {
-    entityInteractor: EntityInteractor;
+    componentRepository: ComponentRepository;
     eventInteractor: EventInteractor;
     systemInteractor: SystemInteractor;
     identifierInteractor: Identifier
 }
 
 export interface TestGenericGameAdapter {
-    entityInteractor: InMemoryEntityRepository;
+    entityInteractor: InMemoryComponentRepository;
     eventInteractor: EventInteractor;
     systemInteractor: SystemInteractor;
     identifierInteractor: Identifier

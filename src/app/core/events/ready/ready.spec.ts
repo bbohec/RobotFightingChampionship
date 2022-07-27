@@ -7,7 +7,7 @@ import { whenEventOccured, eventsAreSent, whenEventOccurs } from '../../../test/
 import { makeEntityReference } from '../../ecs/components/EntityReference'
 import { preparingGamePhase, makePhasing } from '../../ecs/components/Phasing'
 import { position, makePhysical } from '../../ecs/components/Physical'
-import { EntityBuilder } from '../../ecs/entity/entityBuilder'
+import { EntityBuilder } from '../../ecs/entity'
 import { Action } from '../../type/Action'
 import { EntityType } from '../../type/EntityType'
 import { ShapeType } from '../../type/ShapeType'
@@ -18,10 +18,10 @@ import { playerReadyForMatch } from './ready'
 
 feature(Action.ready, () => {
     serverScenario(`${Action.ready} 1`, playerReadyForMatch(EntityIds.match, EntityIds.playerA),
-        [], (game, adapters) => () => new EntityBuilder(adapters.entityInteractor)
-            .buildEntity(EntityIds.match).withPhase(preparingGamePhase).withEntityReferences(EntityType.match, new Map([[EntityType.player, [EntityIds.playerA]]])).save()
-            .buildEntity(EntityIds.playerA).withEntityReferences(EntityType.player, new Map([[EntityType.simpleMatchLobbyMenu, [EntityIds.playerASimpleMatchLobbyMenu]]])).save()
-            .buildEntity(EntityIds.playerASimpleMatchLobbyMenu).withPhysical(position(0, 0), ShapeType.simpleMatchLobbyMenu, true).save()
+        [], (game, adapters) => () => new EntityBuilder(adapters.componentRepository)
+            .makeEntity(EntityIds.match).withPhase(preparingGamePhase).withEntityReferences(EntityType.match, new Map([[EntityType.player, [EntityIds.playerA]]])).save()
+            .makeEntity(EntityIds.playerA).withEntityReferences(EntityType.player, new Map([[EntityType.simpleMatchLobbyMenu, [EntityIds.playerASimpleMatchLobbyMenu]]])).save()
+            .makeEntity(EntityIds.playerASimpleMatchLobbyMenu).withPhysical(position(0, 0), ShapeType.simpleMatchLobbyMenu, true).save()
         , [
             thereIsServerComponents(TestStep.Given, [
                 makePhasing(EntityIds.match, preparingGamePhase),
@@ -42,12 +42,12 @@ feature(Action.ready, () => {
             ])
         ])
     serverScenario(`${Action.ready} 2`, [playerReadyForMatch(EntityIds.match, EntityIds.playerA), playerReadyForMatch(EntityIds.match, EntityIds.playerB)],
-        [], (game, adapters) => () => new EntityBuilder(adapters.entityInteractor)
-            .buildEntity(EntityIds.match).withPhase(preparingGamePhase).withEntityReferences(EntityType.match, new Map([[EntityType.player, [EntityIds.playerA, EntityIds.playerB]]])).save()
-            .buildEntity(EntityIds.playerA).withEntityReferences(EntityType.player, new Map([[EntityType.simpleMatchLobbyMenu, [EntityIds.playerASimpleMatchLobbyMenu]]])).save()
-            .buildEntity(EntityIds.playerB).withEntityReferences(EntityType.player, new Map([[EntityType.simpleMatchLobbyMenu, [EntityIds.playerBSimpleMatchLobbyMenu]]])).save()
-            .buildEntity(EntityIds.playerASimpleMatchLobbyMenu).withPhysical(position(0, 0), ShapeType.simpleMatchLobbyMenu, true).save()
-            .buildEntity(EntityIds.playerBSimpleMatchLobbyMenu).withPhysical(position(0, 0), ShapeType.simpleMatchLobbyMenu, true).save()
+        [], (game, adapters) => () => new EntityBuilder(adapters.componentRepository)
+            .makeEntity(EntityIds.match).withPhase(preparingGamePhase).withEntityReferences(EntityType.match, new Map([[EntityType.player, [EntityIds.playerA, EntityIds.playerB]]])).save()
+            .makeEntity(EntityIds.playerA).withEntityReferences(EntityType.player, new Map([[EntityType.simpleMatchLobbyMenu, [EntityIds.playerASimpleMatchLobbyMenu]]])).save()
+            .makeEntity(EntityIds.playerB).withEntityReferences(EntityType.player, new Map([[EntityType.simpleMatchLobbyMenu, [EntityIds.playerBSimpleMatchLobbyMenu]]])).save()
+            .makeEntity(EntityIds.playerASimpleMatchLobbyMenu).withPhysical(position(0, 0), ShapeType.simpleMatchLobbyMenu, true).save()
+            .makeEntity(EntityIds.playerBSimpleMatchLobbyMenu).withPhysical(position(0, 0), ShapeType.simpleMatchLobbyMenu, true).save()
         , [
             thereIsServerComponents(TestStep.Given, [
                 makePhasing(EntityIds.match, preparingGamePhase),

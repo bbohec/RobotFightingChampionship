@@ -13,7 +13,7 @@ import { makeLifeCycle } from '../../ecs/components/LifeCycle'
 import { makeOffensive } from '../../ecs/components/Offensive'
 import { makePhasing, preparingGamePhase } from '../../ecs/components/Phasing'
 import { makePhysical, mainMenuPosition, position, defaultJoinSimpleMatchButtonPosition, playerNextTurnButtonPosition, defaultPointerPosition, simpleMatchLobbyPosition, victoryPosition, defeatPosition } from '../../ecs/components/Physical'
-import { EntityBuilder } from '../../ecs/entity/entityBuilder'
+import { EntityBuilder } from '../../ecs/entity'
 import { Action } from '../../type/Action'
 import { EntityType } from '../../type/EntityType'
 import { ShapeType } from '../../type/ShapeType'
@@ -24,7 +24,7 @@ import { createPlayerEvent, createMainMenuEvent, createServerGameEvent, createSi
 
 feature(Action.create, () => {
     clientScenario(`${Action.create} 1 - Create Player Client`, createPlayerEvent, EntityIds.playerA,
-        (game, adapters) => () => new EntityBuilder(adapters.entityInteractor)
+        (game, adapters) => () => new EntityBuilder(adapters.componentRepository)
         , [
             ...whenEventOccured(),
             thereIsClientComponents(TestStep.Then, [
@@ -35,8 +35,8 @@ feature(Action.create, () => {
         ],
         [EntityIds.playerA])
     serverScenario(`${Action.create} 2 - Create Main Menu Event`, createMainMenuEvent(EntityIds.game, EntityIds.playerA),
-        [], (game, adapters) => () => new EntityBuilder(adapters.entityInteractor)
-            .buildEntity(EntityIds.playerA).withEntityReferences(EntityType.player, new Map()).save()
+        [], (game, adapters) => () => new EntityBuilder(adapters.componentRepository)
+            .makeEntity(EntityIds.playerA).withEntityReferences(EntityType.player, new Map()).save()
         , [
             ...whenEventOccured(),
             thereIsServerComponents(TestStep.Then, [
@@ -88,8 +88,8 @@ feature(Action.create, () => {
         ])
     ], [EntityIds.playerBTower])
     serverScenario(`${Action.create} 7 - Create Grid Event`, createGridEvent(EntityIds.match, dimension(3, 2)),
-        [], (game, adapters) => () => new EntityBuilder(adapters.entityInteractor)
-            .buildEntity(EntityIds.match).withEntityReferences(EntityType.match).save()
+        [], (game, adapters) => () => new EntityBuilder(adapters.componentRepository)
+            .makeEntity(EntityIds.match).withEntityReferences(EntityType.match).save()
         , [
             ...whenEventOccured(),
             thereIsServerComponents(TestStep.And, [
@@ -122,10 +122,10 @@ feature(Action.create, () => {
 
     ], [EntityIds.match])
     serverScenario(`${Action.create} 9 - Create Player Simple Match Lobby Button`, createPlayerSimpleMatchLobbyButtonEvent(EntityIds.simpleMatchLobby, EntityIds.playerA),
-        [], (game, adapters) => () => new EntityBuilder(adapters.entityInteractor)
-            .buildEntity(EntityIds.playerA).withEntityReferences(EntityType.player, new Map([[EntityType.mainMenu, [EntityIds.playerAMainMenu]]])).save()
-            .buildEntity(EntityIds.playerAMainMenu).withEntityReferences(EntityType.mainMenu, new Map()).save()
-            .buildEntity(EntityIds.simpleMatchLobby).withEntityReferences(EntityType.simpleMatchLobby, new Map()).save()
+        [], (game, adapters) => () => new EntityBuilder(adapters.componentRepository)
+            .makeEntity(EntityIds.playerA).withEntityReferences(EntityType.player, new Map([[EntityType.mainMenu, [EntityIds.playerAMainMenu]]])).save()
+            .makeEntity(EntityIds.playerAMainMenu).withEntityReferences(EntityType.mainMenu, new Map()).save()
+            .makeEntity(EntityIds.simpleMatchLobby).withEntityReferences(EntityType.simpleMatchLobby, new Map()).save()
         , [
             thereIsServerComponents(TestStep.And, [
                 makeEntityReference(EntityIds.playerA, EntityType.player, new Map([[EntityType.mainMenu, [EntityIds.playerAMainMenu]]])),
@@ -144,9 +144,9 @@ feature(Action.create, () => {
             eventsAreSent(TestStep.And, 'server', [drawEvent(EntityIds.playerA, makePhysical(EntityIds.playerAJoinSimpleMatchButton, defaultJoinSimpleMatchButtonPosition, ShapeType.simpleMatchLobbyButton, true))])
         ], [EntityIds.playerAJoinSimpleMatchButton])
     serverScenario(`${Action.create} 10 - Create Player Next Turn Match Button`, createPlayerNextTurnMatchButtonEvent(EntityIds.match, EntityIds.playerA),
-        [], (game, adapters) => () => new EntityBuilder(adapters.entityInteractor)
-            .buildEntity(EntityIds.playerA).withEntityReferences(EntityType.player, new Map()).save()
-            .buildEntity(EntityIds.match).withEntityReferences(EntityType.match, new Map()).save()
+        [], (game, adapters) => () => new EntityBuilder(adapters.componentRepository)
+            .makeEntity(EntityIds.playerA).withEntityReferences(EntityType.player, new Map()).save()
+            .makeEntity(EntityIds.match).withEntityReferences(EntityType.match, new Map()).save()
         , [
             thereIsServerComponents(TestStep.And, [
                 makeEntityReference(EntityIds.playerA, EntityType.player, new Map()),
@@ -165,8 +165,8 @@ feature(Action.create, () => {
             ])
         ], [EntityIds.playerANextTurnButton])
     serverScenario(`${Action.create} 11 - Create Pointer Event`, createPlayerPointerEvent(EntityIds.playerA),
-        [], (game, adapters) => () => new EntityBuilder(adapters.entityInteractor)
-            .buildEntity(EntityIds.playerA).withEntityReferences(EntityType.player).save()
+        [], (game, adapters) => () => new EntityBuilder(adapters.componentRepository)
+            .makeEntity(EntityIds.playerA).withEntityReferences(EntityType.player).save()
         , [
             ...whenEventOccured(),
             thereIsServerComponents(TestStep.And, [
@@ -179,10 +179,10 @@ feature(Action.create, () => {
             eventsAreSent(TestStep.And, 'server', [registerPlayerPointerEvent(EntityIds.playerAPointer, EntityIds.playerA)])
         ], [EntityIds.playerAPointer])
     serverScenario(`${Action.create} 12 - Create Simple Match Lobby Menu`, createPlayerSimpleMatchLobbyMenu(EntityIds.playerA),
-        [], (game, adapters) => () => new EntityBuilder(adapters.entityInteractor)
-            .buildEntity(EntityIds.playerA).withEntityReferences(EntityType.player, new Map([[EntityType.mainMenu, [EntityIds.playerAMainMenu]], [EntityType.button, [EntityIds.playerAJoinSimpleMatchButton]]])).save()
-            .buildEntity(EntityIds.playerAMainMenu).withEntityReferences(EntityType.mainMenu, new Map([[EntityType.button, [EntityIds.playerAJoinSimpleMatchButton]]])).withPhysical(mainMenuPosition, ShapeType.mainMenu, true).save()
-            .buildEntity(EntityIds.playerAJoinSimpleMatchButton).withEntityReferences(EntityType.button).withPhysical(defaultJoinSimpleMatchButtonPosition, ShapeType.simpleMatchLobbyButton, true).save()
+        [], (game, adapters) => () => new EntityBuilder(adapters.componentRepository)
+            .makeEntity(EntityIds.playerA).withEntityReferences(EntityType.player, new Map([[EntityType.mainMenu, [EntityIds.playerAMainMenu]], [EntityType.button, [EntityIds.playerAJoinSimpleMatchButton]]])).save()
+            .makeEntity(EntityIds.playerAMainMenu).withEntityReferences(EntityType.mainMenu, new Map([[EntityType.button, [EntityIds.playerAJoinSimpleMatchButton]]])).withPhysical(mainMenuPosition, ShapeType.mainMenu, true).save()
+            .makeEntity(EntityIds.playerAJoinSimpleMatchButton).withEntityReferences(EntityType.button).withPhysical(defaultJoinSimpleMatchButtonPosition, ShapeType.simpleMatchLobbyButton, true).save()
         , [
             ...whenEventOccured(),
             thereIsServerComponents(TestStep.And, [
@@ -202,9 +202,9 @@ feature(Action.create, () => {
             ])
         ], [EntityIds.playerASimpleMatchLobbyMenu])
     serverScenario(`${Action.create} 13 - Create Cell`, createCellEvent(EntityIds.grid, position(1, 1)),
-        [], (game, adapters) => () => new EntityBuilder(adapters.entityInteractor)
-            .buildEntity(EntityIds.match).withEntityReferences(EntityType.match, new Map([[EntityType.player, [EntityIds.playerA, EntityIds.playerB]]])).save()
-            .buildEntity(EntityIds.grid).withEntityReferences(EntityType.grid, new Map([[EntityType.match, [EntityIds.match]]])).save()
+        [], (game, adapters) => () => new EntityBuilder(adapters.componentRepository)
+            .makeEntity(EntityIds.match).withEntityReferences(EntityType.match, new Map([[EntityType.player, [EntityIds.playerA, EntityIds.playerB]]])).save()
+            .makeEntity(EntityIds.grid).withEntityReferences(EntityType.grid, new Map([[EntityType.match, [EntityIds.match]]])).save()
         , [
             thereIsServerComponents(TestStep.Given, [
                 makeEntityReference(EntityIds.match, EntityType.match, new Map([[EntityType.player, [EntityIds.playerA, EntityIds.playerB]]])),
@@ -224,8 +224,8 @@ feature(Action.create, () => {
             ])
         ], [EntityIds.cellx1y1])
     serverScenario(`${Action.create} 14 - Create Victory`, createVictoryEvent(EntityIds.match),
-        [], (game, adapters) => () => new EntityBuilder(adapters.entityInteractor)
-            .buildEntity(EntityIds.match).withEntityReferences(EntityType.match).save()
+        [], (game, adapters) => () => new EntityBuilder(adapters.componentRepository)
+            .makeEntity(EntityIds.match).withEntityReferences(EntityType.match).save()
         , [
             ...whenEventOccured(),
             thereIsServerComponents(TestStep.And, [
@@ -237,8 +237,8 @@ feature(Action.create, () => {
             eventsAreSent(TestStep.And, 'server', [])
         ], [EntityIds.victory])
     serverScenario(`${Action.create} 15 - Create Defeat`, createDefeatEvent(EntityIds.match),
-        [], (game, adapters) => () => new EntityBuilder(adapters.entityInteractor)
-            .buildEntity(EntityIds.match).withEntityReferences(EntityType.match).save()
+        [], (game, adapters) => () => new EntityBuilder(adapters.componentRepository)
+            .makeEntity(EntityIds.match).withEntityReferences(EntityType.match).save()
         , [
             ...whenEventOccured(),
             thereIsServerComponents(TestStep.And, [

@@ -1,7 +1,9 @@
 import { EntityType } from '../../type/EntityType'
 import { Component, GenericComponent } from '../component'
-import { EntityId } from '../entity/Entity'
+import { EntityId } from '../entity'
 import { componentIsNot, noEntityTypeOnEntityReference, multipleEntityTypeOnEntityReference, multipleEntitiesReferencedByEntityType, missingEntityReferenceByEntityType } from '../../../messages'
+import { ComponentRepository } from '../../port/ComponentRepository'
+import { missingentityReference } from '../../../infra/entity/InMemoryEntityRepository'
 
 export type EntityReferences = Map<EntityType, Array<string>>
 
@@ -49,4 +51,33 @@ export const hasReferences = (entityReference:EntityReference, entityType:Entity
     const entityReferences = entityReference.entityReferences.get(entityType)
     if (!entityReferences || entityReferences.length === 0) return false
     return true
+}
+
+export const unlinkEntities = (originEntityReference: EntityReference, targetEntityReference: EntityReference): void => {
+    deleteReference(originEntityReference, targetEntityReference.entityType, targetEntityReference.entityId)
+    deleteReference(targetEntityReference, originEntityReference.entityType, originEntityReference.entityId)
+}
+const deleteReference = (entityReference: EntityReference, entityTypes: EntityType[], entityIdToRemovefromReferences: string) => {
+    entityTypes.forEach(entityType => entityReference.entityReferences.set(entityType, retrieveReferences(entityReference, entityType).filter(reference => reference !== entityIdToRemovefromReferences)))
+}
+
+export const linkEntityToEntities = (componentRepository:ComponentRepository, originEntityId: string, targetEntityIds: string[]): void => {
+    targetEntityIds.forEach(targetEntityId => linkEntities(componentRepository, originEntityId, targetEntityId))
+}
+
+const linkEntities = (componentRepository:ComponentRepository, originEntityId: string, targetEntityId: string): void => {
+    const entityReferenceOriginEntity = componentRepository.retrieveEntityReference(originEntityId)
+    if (!entityReferenceOriginEntity) throw new Error(missingentityReference(originEntityId))
+    const entityReferenceTargetEntity = componentRepository.retrieveEntityReference(targetEntityId)
+    if (!entityReferenceTargetEntity) throw new Error(missingentityReference(targetEntityId))
+    entityReferenceOriginEntity.entityType.forEach(entityType => addReference(entityType, originEntityId, entityReferenceTargetEntity))
+    entityReferenceTargetEntity.entityType.forEach(entityType => addReference(entityType, targetEntityId, entityReferenceOriginEntity))
+}
+
+const addReference = (entityType: EntityType, entityId:string, entityReference: EntityReference): void => {
+    let references = entityReference.entityReferences.get(entityType)
+    if (references) {
+        if (!references.some(referenceEntityIds => referenceEntityIds === entityId))references.push(entityId)
+    } else { references = [entityId] }
+    entityReference.entityReferences.set(entityType, references)
 }

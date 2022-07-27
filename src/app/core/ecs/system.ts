@@ -1,5 +1,5 @@
 import { noEntitiesReferenced, multipleEntityReferenced, noEntityReferenced } from '../../messages'
-import { EntityInteractor } from '../port/EntityInteractor'
+import { ComponentRepository } from '../port/ComponentRepository'
 import { EventInteractor } from '../port/EventInteractor'
 import { SystemInteractor } from '../port/SystemInteractor'
 import { EntityType } from '../type/EntityType'
@@ -77,7 +77,7 @@ export abstract class GameEventHandler {
 
 export abstract class GenericServerSystem extends GameEventHandler implements System {
     constructor (
-        protected readonly interactWithEntities: EntityInteractor,
+        protected readonly componentRepository: ComponentRepository,
         private readonly gameEventDispatcher:GenericGameEventDispatcherSystem
     ) { super() }
 
@@ -92,7 +92,7 @@ export abstract class GenericServerSystem extends GameEventHandler implements Sy
     }
 
     protected entityReferencesByEntityId (entityId: string) {
-        return this.interactWithEntities.retreiveEntityReference(entityId)
+        return this.componentRepository.retrieveEntityReference(entityId)
     }
 
     abstract onGameEvent(gameEvent: GameEvent): Promise<void>;
@@ -106,7 +106,7 @@ export abstract class ArtithmeticSystem extends GenericServerSystem {
 
 export abstract class GenericClientSystem extends GameEventHandler implements System {
     constructor (
-        protected readonly interactWithEntities: EntityInteractor,
+        protected readonly componentRepository: ComponentRepository,
         private readonly gameEventDispatcher:GenericGameEventDispatcherSystem
     ) { super() }
 
@@ -121,7 +121,7 @@ export abstract class GenericClientSystem extends GameEventHandler implements Sy
     }
 
     protected entityReferencesByEntityId (entityId: string) {
-        return this.interactWithEntities.retreiveEntityReference(entityId)
+        return this.componentRepository.retrieveEntityReference(entityId)
     }
 
     abstract onGameEvent(gameEvent: GameEvent): Promise<void>;

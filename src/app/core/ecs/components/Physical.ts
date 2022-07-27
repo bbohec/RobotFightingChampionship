@@ -1,4 +1,4 @@
-import { EntityId } from '../entity/Entity'
+import { EntityId } from '../entity'
 import { Component, GenericComponent } from '../component'
 import { ShapeType } from '../../type/ShapeType'
 import { Dimension, gameScreenDimension } from './Dimensional'

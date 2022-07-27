@@ -1,15 +1,6 @@
-import { Component, ComponentType } from '../../core/ecs/component'
-import { Controller } from '../../core/ecs/components/Controller'
-import { Dimensional } from '../../core/ecs/components/Dimensional'
-import { EntityReference, retrieveReferences } from '../../core/ecs/components/EntityReference'
-import { Hittable } from '../../core/ecs/components/Hittable'
-import { LifeCycle } from '../../core/ecs/components/LifeCycle'
-import { Offensive } from '../../core/ecs/components/Offensive'
-import { Phasing } from '../../core/ecs/components/Phasing'
-import { Physical } from '../../core/ecs/components/Physical'
-import { Entity } from '../../core/ecs/entity/Entity'
-import { EntityInteractor } from '../../core/port/EntityInteractor'
-import { EntityType } from '../../core/type/EntityType'
+import { Component } from '../../core/ecs/component'
+
+/*
 
 export class InMemoryEntityRepository implements EntityInteractor {
     retrieveOffensive (entityId: string): Offensive {
@@ -55,13 +46,13 @@ export class InMemoryEntityRepository implements EntityInteractor {
         return entities.map(entity => entity.retrieveComponents()).flat()
     }
 
+    hasEntity (entityId: string): boolean {
+        return this.entities.has(entityId)
+    }
+
     unlinkEntities (originEntityReference: EntityReference, targetEntityReference: EntityReference): void {
         this.deleteReference(originEntityReference, targetEntityReference.entityType, targetEntityReference.entityId)
         this.deleteReference(targetEntityReference, originEntityReference.entityType, originEntityReference.entityId)
-    }
-
-    hasEntity (entityId: string): boolean {
-        return this.entities.has(entityId)
     }
 
     linkEntityToEntities (originEntityId: string, targetEntityIds: string[]): void {
@@ -105,7 +96,7 @@ export class InMemoryEntityRepository implements EntityInteractor {
         throw new Error(missingEntityId(entityId, entityIds))
     }
 
-    retrieveEntitiesThatHaveComponent (componentType:ComponentType): Entity[] {
+    retrieveComponentsOfType (componentType:ComponentType): Entity[] {
         const entitiesWithComponent:Entity[] = []
         for (const entity of this.entities.values()) if (entity.hasComponent(componentType)) entitiesWithComponent.push(entity)
         return entitiesWithComponent
@@ -125,8 +116,13 @@ export class InMemoryEntityRepository implements EntityInteractor {
 
     entities: Map<string, Entity> = new Map([])
 }
+*/
 export const missingEntityId = (entityId: string, entityIds?: string[]): string => `Entity with id '${entityId}' missing on entity repository. ${entityIds ? `Current entities: ${entityIds}` : ''}`
 export const cannotRetrieveComponentOnMissingEntity = <T extends Component> (entityId: string): string => `Cannot retrieve component '${({} as T).componentType}'. The entity '${entityId}' is missing on Entity Repository.`
-function missingentityReference (originEntityId: string): string | undefined {
+export function missingentityReference (originEntityId: string): string {
     return `Entity ${originEntityId} missing entity reference component.`
 }
+
+/*
+
+*/

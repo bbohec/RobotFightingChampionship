@@ -17,7 +17,7 @@ export class MovingSystem extends ArtithmeticSystem {
     onGameEvent (gameEvent: GameEvent): Promise<void> {
         if (gameEvent.action === Action.updatePlayerPointerState) return this.onUpdatePointerPosition(gameEvent)
         const playerId = this.entityByEntityType(gameEvent, EntityType.player)
-        const matchPhasingComponent = this.interactWithEntities.retreivePhasing(retrieveReference(this.entityReferencesByEntityId(playerId), EntityType.match))
+        const matchPhasingComponent = this.componentRepository.retrievePhasing(retrieveReference(this.entityReferencesByEntityId(playerId), EntityType.match))
         const movingEntityId = this.movingEntityIdBySupportedEntityTypeAndPhase(gameEvent, matchPhasingComponent)
         return movingEntityId
             ? this.onSupportedMovingEntity(gameEvent, movingEntityId, playerId, matchPhasingComponent)
@@ -25,8 +25,8 @@ export class MovingSystem extends ArtithmeticSystem {
     }
 
     private onSupportedMovingEntity (gameEvent: GameEvent, movingEntityId: string, playerId: string, matchPhasingComponent:Phasing): Promise<void> {
-        const cellPhysicalComponent = this.interactWithEntities.retrievePhysical(this.entityByEntityType(gameEvent, EntityType.cell))
-        const movingEntityPhysicalComponent = this.interactWithEntities.retrievePhysical(movingEntityId)
+        const cellPhysicalComponent = this.componentRepository.retrievePhysical(this.entityByEntityType(gameEvent, EntityType.cell))
+        const movingEntityPhysicalComponent = this.componentRepository.retrievePhysical(movingEntityId)
         const actionPoints = this.movingDistanceBetweenPositions(movingEntityPhysicalComponent.position, cellPhysicalComponent.position)
         return this.isNotPlayerPhase(matchPhasingComponent, playerId)
             ? this.sendEvent(notifyPlayerEvent(playerId, wrongPlayerPhaseNotificationMessage(playerId)))
@@ -42,17 +42,17 @@ export class MovingSystem extends ArtithmeticSystem {
     private onUpdatePointerPosition (gameEvent: GameEvent): Promise<void> {
         const pointerId = this.entityByEntityType(gameEvent, EntityType.pointer)
         const physicalComponent:Physical = {
-            ...this.interactWithEntities.retrievePhysical(pointerId),
+            ...this.componentRepository.retrievePhysical(pointerId),
             position: this.retrievePhysical(gameEvent, pointerId).position
         }
         const controllerComponent:Controller = {
             ...this
-                .interactWithEntities
-                .retreiveController(pointerId),
+                .componentRepository
+                .retrieveController(pointerId),
             primaryButton: this.retrieveController(gameEvent, pointerId).primaryButton
         }
-        this.interactWithEntities.saveComponent(physicalComponent)
-        this.interactWithEntities.saveComponent(controllerComponent)
+        this.componentRepository.saveComponent(physicalComponent)
+        this.componentRepository.saveComponent(controllerComponent)
         return Promise.resolve()
     }
 
@@ -74,7 +74,7 @@ export class MovingSystem extends ArtithmeticSystem {
             ...this.entityByEntityTypeFromPlayers(players, EntityType.tower),
             ...this.entityByEntityTypeFromPlayers(players, EntityType.robot)
         ]
-            .map(entityId => this.interactWithEntities.retrievePhysical(entityId))
+            .map(entityId => this.componentRepository.retrievePhysical(entityId))
             .some(physicalComponent => isPositionIdentical(physicalComponent.position, cellPosition))
     }
 
@@ -89,13 +89,13 @@ export class MovingSystem extends ArtithmeticSystem {
     }
 
     private move (movingEntityPhysicalComponent:Physical, destinationCellPhysicalComponent:Physical, phasingComponent:Phasing, actionPoints:number, matchId:string):Promise<void> {
-        const entityReferenceComponent = this.interactWithEntities.retreiveEntityReference(matchId)
+        const entityReferenceComponent = this.componentRepository.retrieveEntityReference(matchId)
         this.removeActionPoint(phasingComponent, actionPoints)
         const updatedMovingEntityPhysicalComponent:Physical = {
             ...movingEntityPhysicalComponent,
             position: destinationCellPhysicalComponent.position
         }
-        this.interactWithEntities.saveComponent(updatedMovingEntityPhysicalComponent)
+        this.componentRepository.saveComponent(updatedMovingEntityPhysicalComponent)
         const events:GameEvent[] = []
         if (phasingComponent.currentPhase.phaseType === PhaseType.Placement && phasingComponent.currentPhase.auto) events.push(nextTurnEvent(matchId))
         retrieveReferences(entityReferenceComponent, EntityType.player).forEach(playerId => events.push(drawEvent(playerId, updatedMovingEntityPhysicalComponent)))

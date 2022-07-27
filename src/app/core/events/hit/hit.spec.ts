@@ -7,7 +7,7 @@ import { whenEventOccured, eventsAreSent } from '../../../test/unitTest/event'
 import { makeEntityReference } from '../../ecs/components/EntityReference'
 import { makeHittable } from '../../ecs/components/Hittable'
 import { makeOffensive } from '../../ecs/components/Offensive'
-import { EntityBuilder } from '../../ecs/entity/entityBuilder'
+import { EntityBuilder } from '../../ecs/entity'
 import { Action } from '../../type/Action'
 import { EntityType } from '../../type/EntityType'
 import { victoryEvent } from '../victory/victory'
@@ -15,9 +15,9 @@ import { hitEvent } from './hit'
 
 feature(Action.hit, () => {
     serverScenario(`${Action.hit} 1 - Robot Hit Tower`, hitEvent(EntityIds.playerARobot, EntityIds.playerBTower),
-        [], (game, adapters) => () => new EntityBuilder(adapters.entityInteractor)
-            .buildEntity(EntityIds.playerARobot).withDamagePoints(20).save()
-            .buildEntity(EntityIds.playerBTower).withHitPoints(100).save()
+        [], (game, adapters) => () => new EntityBuilder(adapters.componentRepository)
+            .makeEntity(EntityIds.playerARobot).withDamagePoints(20).save()
+            .makeEntity(EntityIds.playerBTower).withHitPoints(100).save()
         , [
             thereIsServerComponents(TestStep.Given, [
                 makeOffensive(EntityIds.playerARobot, 20),
@@ -31,12 +31,12 @@ feature(Action.hit, () => {
         ])
 
     serverScenario(`${Action.hit} 2 - Robot Kill Tower`, hitEvent(EntityIds.playerARobot, EntityIds.playerBTower),
-        [], (game, adapters) => () => new EntityBuilder(adapters.entityInteractor)
-            .buildEntity(EntityIds.match).withEntityReferences(EntityType.match, new Map([[EntityType.player, [EntityIds.playerA, EntityIds.playerB]]])).save()
-            .buildEntity(EntityIds.playerA).withEntityReferences(EntityType.player, new Map([[EntityType.match, [EntityIds.match]]])).save()
-            .buildEntity(EntityIds.playerB).withEntityReferences(EntityType.player, new Map([[EntityType.match, [EntityIds.match]]])).save()
-            .buildEntity(EntityIds.playerARobot).withEntityReferences(EntityType.robot, new Map([[EntityType.player, [EntityIds.playerA]]])).withDamagePoints(20).save()
-            .buildEntity(EntityIds.playerBTower).withEntityReferences(EntityType.tower, new Map([[EntityType.player, [EntityIds.playerB]]])).withHitPoints(100).save()
+        [], (game, adapters) => () => new EntityBuilder(adapters.componentRepository)
+            .makeEntity(EntityIds.match).withEntityReferences(EntityType.match, new Map([[EntityType.player, [EntityIds.playerA, EntityIds.playerB]]])).save()
+            .makeEntity(EntityIds.playerA).withEntityReferences(EntityType.player, new Map([[EntityType.match, [EntityIds.match]]])).save()
+            .makeEntity(EntityIds.playerB).withEntityReferences(EntityType.player, new Map([[EntityType.match, [EntityIds.match]]])).save()
+            .makeEntity(EntityIds.playerARobot).withEntityReferences(EntityType.robot, new Map([[EntityType.player, [EntityIds.playerA]]])).withDamagePoints(20).save()
+            .makeEntity(EntityIds.playerBTower).withEntityReferences(EntityType.tower, new Map([[EntityType.player, [EntityIds.playerB]]])).withHitPoints(100).save()
         , [
             thereIsServerComponents(TestStep.Given, [
                 makeEntityReference(EntityIds.match, EntityType.match, new Map([[EntityType.player, [EntityIds.playerA, EntityIds.playerB]]])),
@@ -64,12 +64,12 @@ feature(Action.hit, () => {
             eventsAreSent(TestStep.And, 'server', [victoryEvent(EntityIds.match, EntityIds.playerA)])
         ])
     serverScenario(`${Action.hit} 3 - Robot Kill Robot`, hitEvent(EntityIds.playerARobot, EntityIds.playerBRobot),
-        [], (game, adapters) => () => new EntityBuilder(adapters.entityInteractor)
-            .buildEntity(EntityIds.match).withEntityReferences(EntityType.match, new Map([[EntityType.player, [EntityIds.playerA, EntityIds.playerB]]])).save()
-            .buildEntity(EntityIds.playerA).withEntityReferences(EntityType.player, new Map([[EntityType.match, [EntityIds.match]]])).save()
-            .buildEntity(EntityIds.playerB).withEntityReferences(EntityType.player, new Map([[EntityType.match, [EntityIds.match]]])).save()
-            .buildEntity(EntityIds.playerARobot).withEntityReferences(EntityType.robot, new Map([[EntityType.player, [EntityIds.playerA]]])).withDamagePoints(20).save()
-            .buildEntity(EntityIds.playerBRobot).withEntityReferences(EntityType.robot, new Map([[EntityType.player, [EntityIds.playerB]]])).withHitPoints(50).save()
+        [], (game, adapters) => () => new EntityBuilder(adapters.componentRepository)
+            .makeEntity(EntityIds.match).withEntityReferences(EntityType.match, new Map([[EntityType.player, [EntityIds.playerA, EntityIds.playerB]]])).save()
+            .makeEntity(EntityIds.playerA).withEntityReferences(EntityType.player, new Map([[EntityType.match, [EntityIds.match]]])).save()
+            .makeEntity(EntityIds.playerB).withEntityReferences(EntityType.player, new Map([[EntityType.match, [EntityIds.match]]])).save()
+            .makeEntity(EntityIds.playerARobot).withEntityReferences(EntityType.robot, new Map([[EntityType.player, [EntityIds.playerA]]])).withDamagePoints(20).save()
+            .makeEntity(EntityIds.playerBRobot).withEntityReferences(EntityType.robot, new Map([[EntityType.player, [EntityIds.playerB]]])).withHitPoints(50).save()
         , [
             thereIsServerComponents(TestStep.Given, [
                 makeEntityReference(EntityIds.match, EntityType.match, new Map([[EntityType.player, [EntityIds.playerA, EntityIds.playerB]]])),
@@ -95,12 +95,12 @@ feature(Action.hit, () => {
             eventsAreSent(TestStep.And, 'server', [victoryEvent(EntityIds.match, EntityIds.playerA)])
         ])
     serverScenario(`${Action.hit} 4 - Tower Kill Robot`, hitEvent(EntityIds.playerATower, EntityIds.playerBRobot),
-        [], (game, adapters) => () => new EntityBuilder(adapters.entityInteractor)
-            .buildEntity(EntityIds.match).withEntityReferences(EntityType.match, new Map([[EntityType.player, [EntityIds.playerA, EntityIds.playerB]]])).save()
-            .buildEntity(EntityIds.playerA).withEntityReferences(EntityType.player, new Map([[EntityType.match, [EntityIds.match]]])).save()
-            .buildEntity(EntityIds.playerB).withEntityReferences(EntityType.player, new Map([[EntityType.match, [EntityIds.match]]])).save()
-            .buildEntity(EntityIds.playerATower).withEntityReferences(EntityType.tower, new Map([[EntityType.player, [EntityIds.playerA]]])).withDamagePoints(5).save()
-            .buildEntity(EntityIds.playerBRobot).withEntityReferences(EntityType.robot, new Map([[EntityType.player, [EntityIds.playerB]]])).withHitPoints(50).save()
+        [], (game, adapters) => () => new EntityBuilder(adapters.componentRepository)
+            .makeEntity(EntityIds.match).withEntityReferences(EntityType.match, new Map([[EntityType.player, [EntityIds.playerA, EntityIds.playerB]]])).save()
+            .makeEntity(EntityIds.playerA).withEntityReferences(EntityType.player, new Map([[EntityType.match, [EntityIds.match]]])).save()
+            .makeEntity(EntityIds.playerB).withEntityReferences(EntityType.player, new Map([[EntityType.match, [EntityIds.match]]])).save()
+            .makeEntity(EntityIds.playerATower).withEntityReferences(EntityType.tower, new Map([[EntityType.player, [EntityIds.playerA]]])).withDamagePoints(5).save()
+            .makeEntity(EntityIds.playerBRobot).withEntityReferences(EntityType.robot, new Map([[EntityType.player, [EntityIds.playerB]]])).withHitPoints(50).save()
         , [
             thereIsServerComponents(TestStep.Given, [
                 makeEntityReference(EntityIds.match, EntityType.match, new Map([[EntityType.player, [EntityIds.playerA, EntityIds.playerB]]])),
@@ -133,12 +133,12 @@ feature(Action.hit, () => {
             eventsAreSent(TestStep.And, 'server', [victoryEvent(EntityIds.match, EntityIds.playerA)])
         ])
     serverScenario(`${Action.hit} 5 - Tower Kill Tower`, hitEvent(EntityIds.playerBTower, EntityIds.playerATower),
-        [], (game, adapters) => () => new EntityBuilder(adapters.entityInteractor)
-            .buildEntity(EntityIds.match).withEntityReferences(EntityType.match, new Map([[EntityType.player, [EntityIds.playerA, EntityIds.playerB]]])).save()
-            .buildEntity(EntityIds.playerA).withEntityReferences(EntityType.player, new Map([[EntityType.match, [EntityIds.match]]])).save()
-            .buildEntity(EntityIds.playerB).withEntityReferences(EntityType.player, new Map([[EntityType.match, [EntityIds.match]]])).save()
-            .buildEntity(EntityIds.playerATower).withEntityReferences(EntityType.tower, new Map([[EntityType.player, [EntityIds.playerA]]])).withHitPoints(100).save()
-            .buildEntity(EntityIds.playerBTower).withEntityReferences(EntityType.tower, new Map([[EntityType.player, [EntityIds.playerB]]])).withDamagePoints(5).save()
+        [], (game, adapters) => () => new EntityBuilder(adapters.componentRepository)
+            .makeEntity(EntityIds.match).withEntityReferences(EntityType.match, new Map([[EntityType.player, [EntityIds.playerA, EntityIds.playerB]]])).save()
+            .makeEntity(EntityIds.playerA).withEntityReferences(EntityType.player, new Map([[EntityType.match, [EntityIds.match]]])).save()
+            .makeEntity(EntityIds.playerB).withEntityReferences(EntityType.player, new Map([[EntityType.match, [EntityIds.match]]])).save()
+            .makeEntity(EntityIds.playerATower).withEntityReferences(EntityType.tower, new Map([[EntityType.player, [EntityIds.playerA]]])).withHitPoints(100).save()
+            .makeEntity(EntityIds.playerBTower).withEntityReferences(EntityType.tower, new Map([[EntityType.player, [EntityIds.playerB]]])).withDamagePoints(5).save()
         , [
             thereIsServerComponents(TestStep.Given, [
                 makeEntityReference(EntityIds.match, EntityType.match, new Map([[EntityType.player, [EntityIds.playerA, EntityIds.playerB]]])),

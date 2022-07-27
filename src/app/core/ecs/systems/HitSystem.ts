@@ -14,13 +14,13 @@ export class HitSystem extends GenericServerSystem {
     }
 
     private onHit (hittableEntityId:string, offensiveEntityId:string): Promise<void> {
-        const hittable = this.removeHitPoints(this.interactWithEntities.retrieveHittable(hittableEntityId), this.interactWithEntities.retrieveOffensive(offensiveEntityId))
+        const hittable = this.removeHitPoints(this.componentRepository.retrieveHittable(hittableEntityId), this.componentRepository.retrieveOffensive(offensiveEntityId))
         return (hittable.hitPoints <= 0) ? this.onNoMoreHitPoints(offensiveEntityId) : Promise.resolve()
     }
 
     private removeHitPoints (hittable:Hittable, offensive:Offensive):Hittable {
         const updatedHittable:Hittable = { ...hittable, hitPoints: hittable.hitPoints - offensive.damagePoints }
-        this.interactWithEntities.saveComponent(updatedHittable)
+        this.componentRepository.saveComponent(updatedHittable)
         return updatedHittable
     }
 

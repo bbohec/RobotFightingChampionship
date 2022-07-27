@@ -3,7 +3,7 @@ import { Drawing } from '../../../core/port/Drawing'
 import { EventInteractor } from '../../../core/port/EventInteractor'
 import { ClientGameAdapters } from '../../../core/port/Game'
 import { Identifier } from '../../../core/port/Identifier'
-import { InMemoryEntityRepository } from '../../entity/InMemoryEntityRepository'
+import { InMemoryComponentRepository } from '../../component/InMemoryComponentRepository'
 import { FakeIdentifierAdapter } from '../../identifier/FakeIdentifierAdapter'
 import { InMemoryNotificationAdapter } from '../../notification/InMemoryNotificationAdapter'
 import { InMemorySystemRepository } from '../../system/InMemorySystemInteractor'
@@ -22,5 +22,5 @@ export class ProductionClientGameAdapters implements ClientGameAdapters {
     drawingInteractor: Drawing;
     notificationInteractor = new InMemoryNotificationAdapter();
     systemInteractor = new InMemorySystemRepository();
-    entityInteractor = new InMemoryEntityRepository();
+    componentRepository = new InMemoryComponentRepository()
 }
