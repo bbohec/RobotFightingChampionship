@@ -9,7 +9,9 @@ import { Action } from '../../Event/Action'
 import { EntityIds } from '../../Event/entityIds'
 import { EntityType } from '../../Event/EntityType'
 import { GameEvent } from '../../Event/GameEvent'
-import { eventsAreSent, feature, serverScenario, thereIsServerComponents, whenEventOccured } from '../../Event/test'
+import { serverScenario } from '../../test/scenario'
+import { thereIsServerComponents } from '../../test/unitTest/component'
+import { whenEventOccured, eventsAreSent } from '../../test/unitTest/event'
 import { TestStep } from '../../Event/TestStep'
 import { FakeServerAdapters } from '../../Systems/Game/infra/FakeServerAdapters'
 import { ServerGameSystem } from '../../Systems/Game/ServerGame'
@@ -17,6 +19,7 @@ import { PhaseSequence } from '../../Systems/Phasing/PhasingSystem'
 import { drawEvent } from '../draw/draw'
 import { moveEvent } from '../move/move'
 import { nextTurnEvent } from './nextTurn'
+import { feature } from '../../test/feature'
 
 feature(Action.nextTurn, () => {
     interface Scenario {
@@ -177,7 +180,7 @@ feature(Action.nextTurn, () => {
                 makePhysical(EntityIds.playerANextTurnButton, playerNextTurnButtonPosition, ShapeType.nextTurnButton, scenario.isplayerANextTurnButtonVisible),
                 makePhysical(EntityIds.playerBNextTurnButton, playerNextTurnButtonPosition, ShapeType.nextTurnButton, scenario.isplayerBNextTurnButtonVisible)
             ]),
-            (game, adapters) => eventsAreSent(TestStep.And, adapters, 'server', scenario.expectedEvents)
+            eventsAreSent(TestStep.And, 'server', scenario.expectedEvents)
         ]
         serverScenario(`${Action.nextTurn} ${scenario.number}: ${scenario.phaseSequence.currentPhase.phaseType} ${scenario.phaseSequence.nextPhase.currentUnitId}  > ${scenario.phaseSequence.nextPhase.phaseType} ${scenario.phaseSequence.currentPhase.currentUnitId}`, nextTurnEvent(EntityIds.match),
             [], (game, adapters) => () => new EntityBuilder(adapters.entityInteractor)

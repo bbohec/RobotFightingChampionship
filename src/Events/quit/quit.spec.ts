@@ -7,11 +7,14 @@ import { EntityBuilder } from '../../Entities/entityBuilder'
 import { Action } from '../../Event/Action'
 import { EntityIds } from '../../Event/entityIds'
 import { EntityType } from '../../Event/EntityType'
-import { eventsAreSent, feature, serverScenario, thereIsServerComponents, whenEventOccured } from '../../Event/test'
+import { serverScenario } from '../../test/scenario'
+import { thereIsServerComponents } from '../../test/unitTest/component'
+import { whenEventOccured, eventsAreSent } from '../../test/unitTest/event'
 import { TestStep } from '../../Event/TestStep'
 import { destroyMatchEvent, destroyRobotEvent, destroyTowerEvent } from '../destroy/destroy'
 import { drawEvent } from '../draw/draw'
 import { quitMatchEvent } from './quit'
+import { feature } from '../../test/feature'
 
 feature(Action.quit, () => {
     serverScenario(`${Action.quit} 1`, quitMatchEvent(EntityIds.match, EntityIds.playerA),
@@ -99,7 +102,7 @@ feature(Action.quit, () => {
                 makePhysical(EntityIds.playerBRobot, position(10, 11), ShapeType.robot, false),
                 makePhysical(EntityIds.victory, position(24, 24), ShapeType.victory, true)
             ]),
-            (game, adapters) => eventsAreSent(TestStep.And, adapters, 'server', [
+            eventsAreSent(TestStep.And, 'server', [
                 drawEvent(EntityIds.playerA, makePhysical(EntityIds.playerARobot, position(0, 0), ShapeType.robot, false)),
                 drawEvent(EntityIds.playerB, makePhysical(EntityIds.playerARobot, position(0, 0), ShapeType.robot, false)),
                 drawEvent(EntityIds.playerA, makePhysical(EntityIds.playerATower, position(0, 1), ShapeType.tower, false)),
@@ -160,7 +163,7 @@ feature(Action.quit, () => {
                 makePhysical(EntityIds.playerBNextTurnButton, position(24, 24), ShapeType.nextTurnButton, false),
                 makePhysical(EntityIds.defeat, position(24, 24), ShapeType.defeat, true)
             ]),
-            (game, adapters) => eventsAreSent(TestStep.Then, adapters, 'server', [
+            eventsAreSent(TestStep.Then, 'server', [
                 drawEvent(EntityIds.playerB, makePhysical(EntityIds.playerBRobot, position(10, 11), ShapeType.robot, false)),
                 drawEvent(EntityIds.playerB, makePhysical(EntityIds.playerBTower, position(10, 10), ShapeType.tower, false)),
                 drawEvent(EntityIds.playerB, makePhysical(EntityIds.cellx0y0, position(0, 0), ShapeType.cell, false)),

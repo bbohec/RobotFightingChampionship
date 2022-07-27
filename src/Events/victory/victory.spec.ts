@@ -7,10 +7,13 @@ import { EntityBuilder } from '../../Entities/entityBuilder'
 import { Action } from '../../Event/Action'
 import { EntityIds } from '../../Event/entityIds'
 import { EntityType } from '../../Event/EntityType'
-import { eventsAreSent, feature, serverScenario, thereIsServerComponents, whenEventOccured } from '../../Event/test'
+import { serverScenario } from '../../test/scenario'
+import { thereIsServerComponents } from '../../test/unitTest/component'
+import { whenEventOccured, eventsAreSent } from '../../test/unitTest/event'
 import { TestStep } from '../../Event/TestStep'
 import { drawEvent } from '../draw/draw'
 import { victoryEvent } from './victory'
+import { feature } from '../../test/feature'
 feature(Action.victory, () => {
     serverScenario(`${Action.victory} 1`, victoryEvent(EntityIds.match, EntityIds.playerA),
         [], (game, adapters) => () => new EntityBuilder(adapters.entityInteractor)
@@ -31,7 +34,7 @@ feature(Action.victory, () => {
                 makeEntityReference(EntityIds.playerA, EntityType.player, new Map([[EntityType.victory, [EntityIds.victory]]])),
                 makeEntityReference(EntityIds.playerB, EntityType.player, new Map([[EntityType.defeat, [EntityIds.defeat]]]))
             ]),
-            (game, adapters) => eventsAreSent(TestStep.And, adapters, 'server', [
+            eventsAreSent(TestStep.And, 'server', [
                 drawEvent(EntityIds.playerA, makePhysical(EntityIds.victory, victoryPosition, ShapeType.victory, true)),
                 drawEvent(EntityIds.playerB, makePhysical(EntityIds.defeat, defeatPosition, ShapeType.defeat, true))
             ])
@@ -56,7 +59,7 @@ feature(Action.victory, () => {
                 makeEntityReference(EntityIds.playerB, EntityType.player, new Map([[EntityType.victory, [EntityIds.victory]]]))
 
             ]),
-            (game, adapters) => eventsAreSent(TestStep.And, adapters, 'server', [
+            eventsAreSent(TestStep.And, 'server', [
                 drawEvent(EntityIds.playerB, makePhysical(EntityIds.victory, victoryPosition, ShapeType.victory, true)),
                 drawEvent(EntityIds.playerA, makePhysical(EntityIds.defeat, defeatPosition, ShapeType.defeat, true))
             ])

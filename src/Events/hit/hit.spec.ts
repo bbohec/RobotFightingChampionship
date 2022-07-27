@@ -6,10 +6,13 @@ import { EntityBuilder } from '../../Entities/entityBuilder'
 import { Action } from '../../Event/Action'
 import { EntityIds } from '../../Event/entityIds'
 import { EntityType } from '../../Event/EntityType'
-import { eventsAreSent, feature, serverScenario, thereIsServerComponents, whenEventOccured } from '../../Event/test'
+import { serverScenario } from '../../test/scenario'
+import { thereIsServerComponents } from '../../test/unitTest/component'
+import { whenEventOccured, eventsAreSent } from '../../test/unitTest/event'
 import { TestStep } from '../../Event/TestStep'
 import { victoryEvent } from '../victory/victory'
 import { hitEvent } from './hit'
+import { feature } from '../../test/feature'
 feature(Action.hit, () => {
     serverScenario(`${Action.hit} 1 - Robot Hit Tower`, hitEvent(EntityIds.playerARobot, EntityIds.playerBTower),
         [], (game, adapters) => () => new EntityBuilder(adapters.entityInteractor)
@@ -58,7 +61,7 @@ feature(Action.hit, () => {
                 makeEntityReference(EntityIds.playerBTower, EntityType.tower, new Map([[EntityType.player, [EntityIds.playerB]]])),
                 makeHittable(EntityIds.playerBTower, 0)
             ]),
-            (game, adapters) => eventsAreSent(TestStep.And, adapters, 'server', [victoryEvent(EntityIds.match, EntityIds.playerA)])
+            eventsAreSent(TestStep.And, 'server', [victoryEvent(EntityIds.match, EntityIds.playerA)])
         ])
     serverScenario(`${Action.hit} 3 - Robot Kill Robot`, hitEvent(EntityIds.playerARobot, EntityIds.playerBRobot),
         [], (game, adapters) => () => new EntityBuilder(adapters.entityInteractor)
@@ -89,7 +92,7 @@ feature(Action.hit, () => {
                 makeEntityReference(EntityIds.playerBRobot, EntityType.robot, new Map([[EntityType.player, [EntityIds.playerB]]])),
                 makeHittable(EntityIds.playerBRobot, -10)
             ]),
-            (game, adapters) => eventsAreSent(TestStep.And, adapters, 'server', [victoryEvent(EntityIds.match, EntityIds.playerA)])
+            eventsAreSent(TestStep.And, 'server', [victoryEvent(EntityIds.match, EntityIds.playerA)])
         ])
     serverScenario(`${Action.hit} 4 - Tower Kill Robot`, hitEvent(EntityIds.playerATower, EntityIds.playerBRobot),
         [], (game, adapters) => () => new EntityBuilder(adapters.entityInteractor)
@@ -127,7 +130,7 @@ feature(Action.hit, () => {
                 makeEntityReference(EntityIds.playerBRobot, EntityType.robot, new Map([[EntityType.player, [EntityIds.playerB]]])),
                 makeHittable(EntityIds.playerBRobot, 0)
             ]),
-            (game, adapters) => eventsAreSent(TestStep.And, adapters, 'server', [victoryEvent(EntityIds.match, EntityIds.playerA)])
+            eventsAreSent(TestStep.And, 'server', [victoryEvent(EntityIds.match, EntityIds.playerA)])
         ])
     serverScenario(`${Action.hit} 5 - Tower Kill Tower`, hitEvent(EntityIds.playerBTower, EntityIds.playerATower),
         [], (game, adapters) => () => new EntityBuilder(adapters.entityInteractor)
@@ -175,7 +178,7 @@ feature(Action.hit, () => {
                 makeEntityReference(EntityIds.playerBTower, EntityType.tower, new Map([[EntityType.player, [EntityIds.playerB]]])),
                 makeOffensive(EntityIds.playerBTower, 5)
             ]),
-            (game, adapters) => eventsAreSent(TestStep.And, adapters, 'server', [victoryEvent(EntityIds.match, EntityIds.playerB)])
+            eventsAreSent(TestStep.And, 'server', [victoryEvent(EntityIds.match, EntityIds.playerB)])
         ])
     serverScenario(`${Action.hit} 6 - Friendly Fire`, hitEvent(EntityIds.playerATower, EntityIds.playerBRobot), [], undefined, [
         ...whenEventOccured()

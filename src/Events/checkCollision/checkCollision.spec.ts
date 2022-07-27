@@ -4,8 +4,11 @@ import { EntityBuilder } from '../../Entities/entityBuilder'
 import { Action } from '../../Event/Action'
 import { EntityIds } from '../../Event/entityIds'
 import { EntityType } from '../../Event/EntityType'
-import { eventsAreSent, feature, serverScenario, thereIsServerComponents, whenEventOccured } from '../../Event/test'
 import { TestStep } from '../../Event/TestStep'
+import { feature } from '../../test/feature'
+import { serverScenario } from '../../test/scenario'
+import { thereIsServerComponents } from '../../test/unitTest/component'
+import { whenEventOccured, eventsAreSent } from '../../test/unitTest/event'
 import { collisionGameEvent } from '../collision/collision'
 import { checkCollisionGameEvent } from './checkCollision'
 feature(Action.checkCollision, () => {
@@ -21,7 +24,7 @@ feature(Action.checkCollision, () => {
                 makePhysical(EntityIds.playerBTower, position(0, 1), ShapeType.tower, true)
             ]),
             ...whenEventOccured(),
-            (game, adapters) => eventsAreSent(TestStep.Then, adapters, 'server', [collisionGameEvent(new Map([[EntityType.unknown, [EntityIds.playerARobot, EntityIds.playerBRobot]]]))])
+            eventsAreSent(TestStep.Then, 'server', [collisionGameEvent(new Map([[EntityType.unknown, [EntityIds.playerARobot, EntityIds.playerBRobot]]]))])
         ])
     serverScenario(`${Action.checkCollision} 2 - Check Collision Game Event - Collision with 2 entities on average position`, checkCollisionGameEvent(),
         [], (game, adapters) => () => new EntityBuilder(adapters.entityInteractor)
@@ -35,6 +38,6 @@ feature(Action.checkCollision, () => {
                 makePhysical(EntityIds.playerBTower, position(0, 1), ShapeType.tower, true)
             ]),
             ...whenEventOccured(),
-            (game, adapters) => eventsAreSent(TestStep.Then, adapters, 'server', [collisionGameEvent(new Map([[EntityType.unknown, [EntityIds.playerARobot, EntityIds.playerBRobot]]]))])
+            eventsAreSent(TestStep.Then, 'server', [collisionGameEvent(new Map([[EntityType.unknown, [EntityIds.playerARobot, EntityIds.playerBRobot]]]))])
         ])
 })

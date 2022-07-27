@@ -1,7 +1,7 @@
 import { Action } from '../../Event/Action'
-
-import { feature, serverScenario, whenEventOccured } from '../../Event/test'
-
+import { feature } from '../../test/feature'
+import { serverScenario } from '../../test/scenario'
+import { whenEventOccured } from '../../test/unitTest/event'
 import { notifyServerEvent } from './notifyServer'
 
 feature(Action.notifyServer, () => {

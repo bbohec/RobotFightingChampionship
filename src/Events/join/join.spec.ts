@@ -8,8 +8,12 @@ import { EntityBuilder } from '../../Entities/entityBuilder'
 import { Action } from '../../Event/Action'
 import { EntityIds, mainMenus, players, simpleMatchButtons } from '../../Event/entityIds'
 import { EntityType } from '../../Event/EntityType'
-import { eventsAreSent, feature, serverScenario, thereIsServerComponents, whenEventOccured, whenEventOccurs } from '../../Event/test'
+
 import { TestStep } from '../../Event/TestStep'
+import { feature } from '../../test/feature'
+import { serverScenario } from '../../test/scenario'
+import { thereIsServerComponents } from '../../test/unitTest/component'
+import { whenEventOccured, eventsAreSent, whenEventOccurs } from '../../test/unitTest/event'
 import { createGridEvent, createMatchEvent, createPlayerNextTurnMatchButtonEvent, createPlayerSimpleMatchLobbyMenu, createRobotEvent, createTowerEvent } from '../create/create'
 import { drawEvent } from '../draw/draw'
 import { playerJoinMatchEvent, playerWantJoinSimpleMatchLobby } from './join'
@@ -29,7 +33,7 @@ feature(Action.join, () => {
                 makeEntityReference(EntityIds.match, EntityType.match, new Map([[EntityType.player, [EntityIds.playerA]]])),
                 makeEntityReference(EntityIds.playerA, EntityType.player, new Map([[EntityType.match, [EntityIds.match]]]))
             ]),
-            (game, adapters) => eventsAreSent(TestStep.And, adapters, 'server', [])
+            eventsAreSent(TestStep.And, 'server', [])
         ])
     serverScenario(`${Action.join} 2`, playerJoinMatchEvent(EntityIds.playerB, EntityIds.match),
         [], (game, adapters) => () => new EntityBuilder(adapters.entityInteractor)
@@ -48,7 +52,7 @@ feature(Action.join, () => {
                 makeEntityReference(EntityIds.playerA, EntityType.player, new Map()),
                 makeEntityReference(EntityIds.playerB, EntityType.player, new Map([[EntityType.match, [EntityIds.match]]]))
             ]),
-            (game, adapters) => eventsAreSent(TestStep.And, adapters, 'server', [
+            eventsAreSent(TestStep.And, 'server', [
                 createGridEvent(EntityIds.match, matchGridDimension),
                 createTowerEvent(EntityIds.playerA),
                 createTowerEvent(EntityIds.playerB),
@@ -82,7 +86,7 @@ feature(Action.join, () => {
                 makePhysical(EntityIds.playerAMainMenu, mainMenuPosition, ShapeType.mainMenu, true),
                 makePhysical(EntityIds.playerAJoinSimpleMatchButton, defaultJoinSimpleMatchButtonPosition, ShapeType.simpleMatchLobbyButton, true)
             ]),
-            (game, adapters) => eventsAreSent(TestStep.And, adapters, 'server', [
+            eventsAreSent(TestStep.And, 'server', [
                 drawEvent(EntityIds.playerA, makePhysical(EntityIds.playerAMainMenu, mainMenuPosition, ShapeType.mainMenu, false)),
                 drawEvent(EntityIds.playerA, makePhysical(EntityIds.playerAJoinSimpleMatchButton, defaultJoinSimpleMatchButtonPosition, ShapeType.simpleMatchLobbyButton, false)),
                 createPlayerSimpleMatchLobbyMenu(players[0])
@@ -125,14 +129,7 @@ feature(Action.join, () => {
                 ...simpleMatchButtons.map(simpleMatchButton => makePhysical(simpleMatchButton, defaultJoinSimpleMatchButtonPosition, ShapeType.simpleMatchLobbyButton, true)),
                 ...players.map((player, index) => makeEntityReference(player, EntityType.player, new Map([[EntityType.button, [simpleMatchButtons[index]]], [EntityType.mainMenu, [mainMenus[index]]]])))
             ]),
-            (game, adapters) => whenEventOccurs(game, adapters, playerWantJoinSimpleMatchLobby(players[0], EntityIds.simpleMatchLobby)),
-            (game, adapters) => whenEventOccurs(game, adapters, playerWantJoinSimpleMatchLobby(players[1], EntityIds.simpleMatchLobby)),
-            (game, adapters) => whenEventOccurs(game, adapters, playerWantJoinSimpleMatchLobby(players[2], EntityIds.simpleMatchLobby)),
-            (game, adapters) => whenEventOccurs(game, adapters, playerWantJoinSimpleMatchLobby(players[3], EntityIds.simpleMatchLobby)),
-            (game, adapters) => whenEventOccurs(game, adapters, playerWantJoinSimpleMatchLobby(players[4], EntityIds.simpleMatchLobby)),
-            (game, adapters) => whenEventOccurs(game, adapters, playerWantJoinSimpleMatchLobby(players[5], EntityIds.simpleMatchLobby)),
-            (game, adapters) => whenEventOccurs(game, adapters, playerWantJoinSimpleMatchLobby(players[6], EntityIds.simpleMatchLobby)),
-            (game, adapters) => whenEventOccurs(game, adapters, playerWantJoinSimpleMatchLobby(players[7], EntityIds.simpleMatchLobby)),
+            ...players.map(player => whenEventOccurs(playerWantJoinSimpleMatchLobby(player, EntityIds.simpleMatchLobby))),
             thereIsServerComponents(TestStep.Then, [
                 makeLifeCycle(EntityIds.simpleMatchLobby, true),
                 makeEntityReference(EntityIds.simpleMatchLobby, EntityType.simpleMatchLobby, new Map([[EntityType.player, players], [EntityType.button, simpleMatchButtons]])),
@@ -141,7 +138,7 @@ feature(Action.join, () => {
                 ...simpleMatchButtons.map(simpleMatchButton => makePhysical(simpleMatchButton, defaultJoinSimpleMatchButtonPosition, ShapeType.simpleMatchLobbyButton, true)),
                 ...players.map((player, index) => makeEntityReference(player, EntityType.player, new Map([[EntityType.button, [simpleMatchButtons[index]]], [EntityType.mainMenu, [mainMenus[index]]]])))
             ]),
-            (game, adapters) => eventsAreSent(TestStep.And, adapters, 'server',
+            eventsAreSent(TestStep.And, 'server',
                 players.map((player, index) => {
                     const events = []
                     events.push(drawEvent(player, makePhysical(mainMenus[index], mainMenuPosition, ShapeType.mainMenu, false)))

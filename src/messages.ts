@@ -6,6 +6,7 @@ import { Action } from './Event/Action'
 import { stringifyWithDetailledSetAndMap } from './Event/detailledStringify'
 import { EntityType } from './Event/EntityType'
 import { GameEvent } from './Event/GameEvent'
+import { TestStep } from './Event/TestStep'
 
 export const gameEventNotFoundOnEventInteractor = (expectedEvent: GameEvent, existingEvents: GameEvent[], to:'client'|'server'): string =>
     `The following game event is not found on '${to}' event repository:\n${stringifyWithDetailledSetAndMap(expectedEvent)}
@@ -25,3 +26,33 @@ export const noEntitiesReferenced = (entityType: EntityType, action: Action, ent
 export const noEntityReferenced = (entityType: EntityType): string => `No '${entityType}' entities is not supported.`
 export const multipleEntityReferenced = (entityType: EntityType): string => `Multiple '${entityType}' entities referenced.`
 export const featureEventDescription = (action:Action): string => `Feature : ${action} events`
+
+export const hasComponents = (testStep: TestStep, expectedComponents: Component[]): string => `${testStep} there is components :
+            ${expectedComponents.map(component => stringifyWithDetailledSetAndMap(component)).join('\n\t')}`
+
+export const detailedComparisonMessage = (thing:unknown, expectedThing:unknown):string => `DETAILS\nexpected >>>>>>>> ${stringifyWithDetailledSetAndMap(thing)} \nto deeply equal > ${stringifyWithDetailledSetAndMap(expectedThing)} \n`
+
+export const eventMessage = (event:GameEvent): string => `When the event action '${event.action}' occurs with entity references '${stringifyWithDetailledSetAndMap(event.entityRefences)}'.`
+export const eventsAreSentMessage = (testStep: TestStep, gameEvents: GameEvent[], to:'server'|string): string =>
+    (gameEvents.length === 0)
+        ? `${testStep} no events are sent to '${to}.`
+        : `${testStep} following events are sent to '${to}' :
+        ${gameEvents.map(gameEvent => stringifyWithDetailledSetAndMap(gameEvent)).join('\n\t')}'`
+
+export const thereIsANotificationMessage = (testStep: TestStep, notification: string): string => `${testStep} there is a notification : '${notification}'`
+
+export const entityIsNotVisibleMessage = (testStep: TestStep, entityId: string): string => `${testStep} the entity with id '${entityId}' is not visible.`
+export const entityIsVisibleMessage = (testStep: TestStep, entityId: string): string => `${testStep} the entity with id '${entityId}' is visible.`
+
+export const theControllerAdapterIsInteractiveMessage = (testStep: TestStep): string => `${testStep} the controller adapter is interactive.`
+export const theControllerAdapterIsNotInteractiveMessage = (testStep: TestStep): string => `${testStep} the controller adapter is not interactive.`
+
+export const eventDetailedComparisonMessage = (gameEvents: GameEvent[], expectedGameEvents: GameEvent[]): string => `DETAILS
+    expected >>> ${stringifyWithDetailledSetAndMap(expectedGameEvents)}
+    actual >>>>> ${stringifyWithDetailledSetAndMap(gameEvents)} \n`
+
+export const componentDetailedComparisonMessage = (components: Component[], expectedComponents: Component[]): string => `DETAILS
+expected >>\n${expectedComponents.map(component => stringifyWithDetailledSetAndMap(sorted(component))).join('\n    ')}}
+actual >>>>\n${components.map(component => stringifyWithDetailledSetAndMap(sorted(component))).join('\n    ')}\n`
+
+const sorted = (component:Component):any => Object.fromEntries(Object.entries(component).sort((a, b) => a[0] > b[0] ? 1 : -1))

@@ -7,9 +7,12 @@ import { EntityBuilder } from '../../Entities/entityBuilder'
 import { Action } from '../../Event/Action'
 import { EntityIds } from '../../Event/entityIds'
 import { EntityType } from '../../Event/EntityType'
-import { eventsAreSent, feature, serverScenario, thereIsServerComponents, whenEventOccured } from '../../Event/test'
+import { serverScenario } from '../../test/scenario'
+import { thereIsServerComponents } from '../../test/unitTest/component'
+import { whenEventOccured, eventsAreSent } from '../../test/unitTest/event'
 import { TestStep } from '../../Event/TestStep'
 import { destroyCellEvent, destroyDefeatEvent, destroyGridEvent, destroyMatchEvent, destroyNextTurnButtonEvent, destroyRobotEvent, destroySimpleMatchLobbyMenuEvent, destroyTowerEvent, destroyVictoryEvent } from './destroy'
+import { feature } from '../../test/feature'
 
 feature(Action.destroy, () => {
     serverScenario(`${Action.destroy} 1`, destroyMatchEvent(EntityIds.match),
@@ -26,7 +29,7 @@ feature(Action.destroy, () => {
             thereIsServerComponents(TestStep.Then, [
                 makeEntityReference(EntityIds.grid, EntityType.grid, new Map([[EntityType.match, []]]))
             ]),
-            (game, adapters) => eventsAreSent(TestStep.And, adapters, 'server', [
+            eventsAreSent(TestStep.And, 'server', [
                 destroyGridEvent(EntityIds.grid),
                 destroyVictoryEvent(EntityIds.victory),
                 destroyDefeatEvent(EntityIds.defeat),
@@ -75,7 +78,7 @@ feature(Action.destroy, () => {
             thereIsServerComponents(TestStep.Then, [
 
             ]),
-            (game, adapters) => eventsAreSent(TestStep.And, adapters, 'server', [
+            eventsAreSent(TestStep.And, 'server', [
                 destroyCellEvent(EntityIds.cellx0y0),
                 destroyCellEvent(EntityIds.cellx1y1)
             ])

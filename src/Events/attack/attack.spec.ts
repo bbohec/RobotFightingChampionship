@@ -6,8 +6,11 @@ import { EntityBuilder } from '../../Entities/entityBuilder'
 import { Action } from '../../Event/Action'
 import { EntityIds } from '../../Event/entityIds'
 import { EntityType } from '../../Event/EntityType'
-import { eventsAreSent, feature, serverScenario, thereIsServerComponents, whenEventOccured } from '../../Event/test'
 import { TestStep } from '../../Event/TestStep'
+import { feature } from '../../test/feature'
+import { serverScenario } from '../../test/scenario'
+import { thereIsServerComponents } from '../../test/unitTest/component'
+import { whenEventOccured, eventsAreSent } from '../../test/unitTest/event'
 import { hitEvent } from '../hit/hit'
 import { notEnoughActionPointNotificationMessage, notifyPlayerEvent, outOfRangeNotificationMessage, wrongPlayerPhaseNotificationMessage, wrongUnitPhaseNotificationMessage } from '../notifyPlayer/notifyPlayer'
 import { attackEvent } from './attack'
@@ -35,7 +38,7 @@ feature(Action.attack, () => {
                 makePhysical(EntityIds.playerBTower, position(3, 2), ShapeType.tower, true)
             ]),
             ...whenEventOccured(),
-            (game, adapters) => eventsAreSent(TestStep.And, adapters, 'server', [hitEvent(EntityIds.playerATower, EntityIds.playerBTower)])
+            eventsAreSent(TestStep.And, 'server', [hitEvent(EntityIds.playerATower, EntityIds.playerBTower)])
         ])
     serverScenario(`${Action.attack} 2 - Attack Game Event - playerB Tower`, attackEvent(EntityIds.playerB, EntityIds.playerBTower, EntityIds.playerATower),
         [], (game, adapters) => () => new EntityBuilder(adapters.entityInteractor)
@@ -54,7 +57,7 @@ feature(Action.attack, () => {
                 makePhysical(EntityIds.playerBRobot, position(4, 2), ShapeType.robot, true)
             ]),
             ...whenEventOccured(),
-            (game, adapters) => eventsAreSent(TestStep.And, adapters, 'server', [hitEvent(EntityIds.playerBTower, EntityIds.playerATower)])
+            eventsAreSent(TestStep.And, 'server', [hitEvent(EntityIds.playerBTower, EntityIds.playerATower)])
         ])
     serverScenario(`${Action.attack} 3 - Attack Game Event - playerA Robot`, attackEvent(EntityIds.playerA, EntityIds.playerARobot, EntityIds.playerBRobot),
         [], (game, adapters) => () => new EntityBuilder(adapters.entityInteractor)
@@ -71,7 +74,7 @@ feature(Action.attack, () => {
                 makePhysical(EntityIds.playerBRobot, position(3, 2), ShapeType.robot, true)
             ]),
             ...whenEventOccured(),
-            (game, adapters) => eventsAreSent(TestStep.And, adapters, 'server', [hitEvent(EntityIds.playerARobot, EntityIds.playerBRobot)])
+            eventsAreSent(TestStep.And, 'server', [hitEvent(EntityIds.playerARobot, EntityIds.playerBRobot)])
         ])
     serverScenario(`${Action.attack} 4 - Attack Game Event - playerB Robot`, attackEvent(EntityIds.playerB, EntityIds.playerBRobot, EntityIds.playerARobot),
         [], (game, adapters) => () => new EntityBuilder(adapters.entityInteractor)
@@ -88,7 +91,7 @@ feature(Action.attack, () => {
                 makePhysical(EntityIds.playerBRobot, position(3, 2), ShapeType.robot, true)
             ]),
             ...whenEventOccured(),
-            (game, adapters) => eventsAreSent(TestStep.And, adapters, 'server', [hitEvent(EntityIds.playerBRobot, EntityIds.playerARobot)])
+            eventsAreSent(TestStep.And, 'server', [hitEvent(EntityIds.playerBRobot, EntityIds.playerARobot)])
         ])
     serverScenario(`${Action.attack} 5 - Can't Attack : Bad Phase for tower player A`, attackEvent(EntityIds.playerA, EntityIds.playerATower, EntityIds.playerBTower),
         [], (game, adapters) => () => new EntityBuilder(adapters.entityInteractor)
@@ -105,7 +108,7 @@ feature(Action.attack, () => {
                 makePhysical(EntityIds.playerBTower, position(3, 2), ShapeType.tower, true)
             ]),
             ...whenEventOccured(),
-            (game, adapters) => eventsAreSent(TestStep.And, adapters, 'server', [notifyPlayerEvent(EntityIds.playerA, wrongUnitPhaseNotificationMessage(playerARobotPhase()))])
+            eventsAreSent(TestStep.And, 'server', [notifyPlayerEvent(EntityIds.playerA, wrongUnitPhaseNotificationMessage(playerARobotPhase()))])
         ])
     serverScenario(`${Action.attack} 6 - Can't Attack: Bad Player`, attackEvent(EntityIds.playerB, EntityIds.playerBTower, EntityIds.playerATower),
         [], (game, adapters) => () => new EntityBuilder(adapters.entityInteractor)
@@ -129,7 +132,7 @@ feature(Action.attack, () => {
                 makePhysical(EntityIds.playerATower, position(2, 2), ShapeType.tower, true),
                 makePhysical(EntityIds.playerBTower, position(3, 2), ShapeType.tower, true)
             ]),
-            (game, adapters) => eventsAreSent(TestStep.And, adapters, 'server', [notifyPlayerEvent(EntityIds.playerB, wrongPlayerPhaseNotificationMessage(EntityIds.playerB))])
+            eventsAreSent(TestStep.And, 'server', [notifyPlayerEvent(EntityIds.playerB, wrongPlayerPhaseNotificationMessage(EntityIds.playerB))])
         ])
     serverScenario(`${Action.attack} 7 - Can't Attack : Out of Range - Horizontal 1`, attackEvent(EntityIds.playerA, EntityIds.playerATower, EntityIds.playerBTower),
         [], (game, adapters) => () => new EntityBuilder(adapters.entityInteractor)
@@ -146,7 +149,7 @@ feature(Action.attack, () => {
                 makePhysical(EntityIds.playerBTower, position(24, 2), ShapeType.tower, true)
             ]),
             ...whenEventOccured(),
-            (game, adapters) => eventsAreSent(TestStep.And, adapters, 'server', [notifyPlayerEvent(EntityIds.playerA, outOfRangeNotificationMessage)])
+            eventsAreSent(TestStep.And, 'server', [notifyPlayerEvent(EntityIds.playerA, outOfRangeNotificationMessage)])
         ])
     serverScenario(`${Action.attack} 8 - Can't Attack : Out of Range - Horizontal 2`, attackEvent(EntityIds.playerA, EntityIds.playerATower, EntityIds.playerBTower),
         [], (game, adapters) => () => new EntityBuilder(adapters.entityInteractor)
@@ -163,7 +166,7 @@ feature(Action.attack, () => {
                 makePhysical(EntityIds.playerBTower, position(1, 1), ShapeType.tower, true)
             ]),
             ...whenEventOccured(),
-            (game, adapters) => eventsAreSent(TestStep.And, adapters, 'server', [notifyPlayerEvent(EntityIds.playerA, outOfRangeNotificationMessage)])
+            eventsAreSent(TestStep.And, 'server', [notifyPlayerEvent(EntityIds.playerA, outOfRangeNotificationMessage)])
         ])
     serverScenario(`${Action.attack} 9 - Can Attack : On Range - Horizontal 3 - Max Range`, attackEvent(EntityIds.playerA, EntityIds.playerATower, EntityIds.playerBTower),
         [], (game, adapters) => () => new EntityBuilder(adapters.entityInteractor)
@@ -180,7 +183,7 @@ feature(Action.attack, () => {
                 makePhysical(EntityIds.playerBTower, position(1, 1), ShapeType.tower, true)
             ]),
             ...whenEventOccured(),
-            (game, adapters) => eventsAreSent(TestStep.And, adapters, 'server', [hitEvent(EntityIds.playerATower, EntityIds.playerBTower)])
+            eventsAreSent(TestStep.And, 'server', [hitEvent(EntityIds.playerATower, EntityIds.playerBTower)])
         ])
     serverScenario(`${Action.attack} 10 - Can't Attack : Out of Range - Vertical 1`, attackEvent(EntityIds.playerA, EntityIds.playerATower, EntityIds.playerBTower),
         [], (game, adapters) => () => new EntityBuilder(adapters.entityInteractor)
@@ -197,7 +200,7 @@ feature(Action.attack, () => {
                 makePhysical(EntityIds.playerBTower, position(1, 24), ShapeType.tower, true)
             ]),
             ...whenEventOccured(),
-            (game, adapters) => eventsAreSent(TestStep.And, adapters, 'server', [notifyPlayerEvent(EntityIds.playerA, outOfRangeNotificationMessage)])
+            eventsAreSent(TestStep.And, 'server', [notifyPlayerEvent(EntityIds.playerA, outOfRangeNotificationMessage)])
         ])
     serverScenario(`${Action.attack} 11 - Can't Attack : Out of Range - Vertical 2`, attackEvent(EntityIds.playerA, EntityIds.playerATower, EntityIds.playerBTower),
         [], (game, adapters) => () => new EntityBuilder(adapters.entityInteractor)
@@ -214,7 +217,7 @@ feature(Action.attack, () => {
                 makePhysical(EntityIds.playerBTower, position(24, 3), ShapeType.tower, true)
             ]),
             ...whenEventOccured(),
-            (game, adapters) => eventsAreSent(TestStep.And, adapters, 'server', [notifyPlayerEvent(EntityIds.playerA, outOfRangeNotificationMessage)])
+            eventsAreSent(TestStep.And, 'server', [notifyPlayerEvent(EntityIds.playerA, outOfRangeNotificationMessage)])
         ])
     serverScenario(`${Action.attack} 12 - Can Attack : On Range - Vertical 3 - Max Range`, attackEvent(EntityIds.playerA, EntityIds.playerATower, EntityIds.playerBTower),
         [], (game, adapters) => () => new EntityBuilder(adapters.entityInteractor)
@@ -231,7 +234,7 @@ feature(Action.attack, () => {
                 makePhysical(EntityIds.playerBTower, position(1, 11), ShapeType.tower, true)
             ]),
             ...whenEventOccured(),
-            (game, adapters) => eventsAreSent(TestStep.And, adapters, 'server', [hitEvent(EntityIds.playerATower, EntityIds.playerBTower)])
+            eventsAreSent(TestStep.And, 'server', [hitEvent(EntityIds.playerATower, EntityIds.playerBTower)])
         ])
     serverScenario(`${Action.attack} 13 - Can't Attack : Out of Range - Diagonal`, attackEvent(EntityIds.playerA, EntityIds.playerATower, EntityIds.playerBTower),
         [], (game, adapters) => () => new EntityBuilder(adapters.entityInteractor)
@@ -255,7 +258,7 @@ feature(Action.attack, () => {
                 makePhysical(EntityIds.playerATower, position(2, 2), ShapeType.tower, true),
                 makePhysical(EntityIds.playerBTower, position(24, 24), ShapeType.tower, true)
             ]),
-            (game, adapters) => eventsAreSent(TestStep.And, adapters, 'server', [notifyPlayerEvent(EntityIds.playerA, outOfRangeNotificationMessage)])
+            eventsAreSent(TestStep.And, 'server', [notifyPlayerEvent(EntityIds.playerA, outOfRangeNotificationMessage)])
         ])
     serverScenario(`${Action.attack} 14 - Can Attack : On Range - Diagonal - Max Range`, attackEvent(EntityIds.playerA, EntityIds.playerATower, EntityIds.playerBTower),
         [], (game, adapters) => () => new EntityBuilder(adapters.entityInteractor)
@@ -279,7 +282,7 @@ feature(Action.attack, () => {
                 makePhysical(EntityIds.playerATower, position(2, 1), ShapeType.tower, true),
                 makePhysical(EntityIds.playerBTower, position(11, 4), ShapeType.tower, true)
             ]),
-            (game, adapters) => eventsAreSent(TestStep.And, adapters, 'server', [hitEvent(EntityIds.playerATower, EntityIds.playerBTower)])
+            eventsAreSent(TestStep.And, 'server', [hitEvent(EntityIds.playerATower, EntityIds.playerBTower)])
         ])
     serverScenario(`${Action.attack} 15 - Can Attack : Reduce action point`, attackEvent(EntityIds.playerA, EntityIds.playerATower, EntityIds.playerBTower),
         [], (game, adapters) => () => new EntityBuilder(adapters.entityInteractor)
@@ -296,7 +299,7 @@ feature(Action.attack, () => {
                 makePhysical(EntityIds.playerBTower, position(11, 4), ShapeType.tower, true)
             ]),
             ...whenEventOccured(),
-            (game, adapters) => eventsAreSent(TestStep.And, adapters, 'server', [hitEvent(EntityIds.playerATower, EntityIds.playerBTower)]),
+            eventsAreSent(TestStep.And, 'server', [hitEvent(EntityIds.playerATower, EntityIds.playerBTower)]),
             thereIsServerComponents(TestStep.Then, [
                 makePhasing(EntityIds.match, playerATowerPhase(defaultActionPoints - weaponAttackActionPoints)),
                 makeEntityReference(EntityIds.match, EntityType.match, new Map([[EntityType.player, [EntityIds.playerA]]])),
@@ -328,6 +331,6 @@ feature(Action.attack, () => {
                 makePhysical(EntityIds.playerATower, position(2, 1), ShapeType.tower, true),
                 makePhysical(EntityIds.playerBTower, position(11, 4), ShapeType.tower, true)
             ]),
-            (game, adapters) => eventsAreSent(TestStep.And, adapters, 'server', [notifyPlayerEvent(EntityIds.playerA, notEnoughActionPointNotificationMessage)])
+            eventsAreSent(TestStep.And, 'server', [notifyPlayerEvent(EntityIds.playerA, notEnoughActionPointNotificationMessage)])
         ])
 })

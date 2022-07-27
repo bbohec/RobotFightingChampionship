@@ -2,8 +2,11 @@ import { EntityBuilder } from '../../Entities/entityBuilder'
 import { Action } from '../../Event/Action'
 import { EntityIds } from '../../Event/entityIds'
 import { EntityType } from '../../Event/EntityType'
-import { clientScenario, feature, serverScenario, theEntityIsOnRepository, eventsAreSent, thereIsANotification, whenEventOccured } from '../../Event/test'
 import { TestStep } from '../../Event/TestStep'
+import { feature } from '../../test/feature'
+import { serverScenario, clientScenario } from '../../test/scenario'
+import { whenEventOccured, eventsAreSent } from '../../test/unitTest/event'
+import { thereIsANotification } from '../../test/unitTest/notification'
 import { notEnoughActionPointNotificationMessage, notifyPlayerEvent, wrongPlayerNotificationMessage } from './notifyPlayer'
 
 feature(Action.notifyPlayer, () => {
@@ -11,7 +14,7 @@ feature(Action.notifyPlayer, () => {
         [EntityIds.playerA], undefined
         , [
             ...whenEventOccured(),
-            (game, adapters) => eventsAreSent(TestStep.Then, adapters, EntityIds.playerA, [notifyPlayerEvent(EntityIds.playerA, notEnoughActionPointNotificationMessage)])
+            eventsAreSent(TestStep.Then, EntityIds.playerA, [notifyPlayerEvent(EntityIds.playerA, notEnoughActionPointNotificationMessage)])
         ])
     clientScenario(`${Action.notifyPlayer} 2 - Client Side`, notifyPlayerEvent(EntityIds.playerA, notEnoughActionPointNotificationMessage), EntityIds.playerA,
         (game, adapters) => () => new EntityBuilder(adapters.entityInteractor)
@@ -24,7 +27,6 @@ feature(Action.notifyPlayer, () => {
         (game, adapters) => () => new EntityBuilder(adapters.entityInteractor)
             .buildEntity(EntityIds.playerA).withEntityReferences(EntityType.player).save()
         , [
-            (game, adapters) => theEntityIsOnRepository(TestStep.Given, adapters, EntityIds.playerA),
             ...whenEventOccured(),
             (game, adapters) => thereIsANotification(TestStep.Then, adapters, wrongPlayerNotificationMessage(EntityIds.playerB, notEnoughActionPointNotificationMessage))
         ], undefined)

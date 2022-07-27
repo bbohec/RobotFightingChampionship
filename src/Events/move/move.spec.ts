@@ -8,13 +8,16 @@ import { EntityBuilder } from '../../Entities/entityBuilder'
 import { Action } from '../../Event/Action'
 import { EntityIds } from '../../Event/entityIds'
 import { EntityType } from '../../Event/EntityType'
-import { eventsAreSent, feature, serverScenario, thereIsServerComponents, whenEventOccured } from '../../Event/test'
+import { serverScenario } from '../../test/scenario'
+import { thereIsServerComponents } from '../../test/unitTest/component'
+import { whenEventOccured, eventsAreSent } from '../../test/unitTest/event'
 import { TestStep } from '../../Event/TestStep'
 import { movingEntityNotSupported } from '../../Systems/Moving/MovingSystem'
 import { drawEvent } from '../draw/draw'
 import { nextTurnEvent } from '../nextTurn/nextTurn'
 import { notEnoughActionPointNotificationMessage, notifyPlayerEvent, positionAlreadyOccupiedNotificationMessage, wrongPlayerPhaseNotificationMessage, wrongUnitPhaseNotificationMessage } from '../notifyPlayer/notifyPlayer'
 import { moveEvent } from './move'
+import { feature } from '../../test/feature'
 
 const gridFirstCellPosition = position(0, 0)
 feature(Action.move, () => {
@@ -48,7 +51,7 @@ feature(Action.move, () => {
                 makePhysical(EntityIds.cellx1y2, position(1, 2), ShapeType.cell, true)
 
             ]),
-            (game, adapters) => eventsAreSent(TestStep.And, adapters, 'server', [
+            eventsAreSent(TestStep.And, 'server', [
                 drawEvent(EntityIds.playerA, makePhysical(EntityIds.playerARobot, position(1, 2), ShapeType.robot, true))
             ])
         ])
@@ -81,7 +84,7 @@ feature(Action.move, () => {
                 makeEntityReference(EntityIds.playerARobot, EntityType.robot),
                 makePhysical(EntityIds.cellx2y1, position(2, 1), ShapeType.cell, true)
             ]),
-            (game, adapters) => eventsAreSent(TestStep.And, adapters, 'server', [
+            eventsAreSent(TestStep.And, 'server', [
                 drawEvent(EntityIds.playerA, makePhysical(EntityIds.playerARobot, position(2, 1), ShapeType.robot, true))
             ])
         ])
@@ -114,7 +117,7 @@ feature(Action.move, () => {
                 makeEntityReference(EntityIds.playerARobot, EntityType.robot),
                 makePhysical(EntityIds.cellx1y1, position(1, 1), ShapeType.cell, true)
             ]),
-            (game, adapters) => eventsAreSent(TestStep.And, adapters, 'server', [
+            eventsAreSent(TestStep.And, 'server', [
                 drawEvent(EntityIds.playerA, makePhysical(EntityIds.playerARobot, position(1, 1), ShapeType.robot, true))
             ])
         ])
@@ -150,7 +153,7 @@ feature(Action.move, () => {
                 makePhysical(EntityIds.playerBTower, position(2, 2), ShapeType.tower, true),
                 makePhysical(EntityIds.cellx2y2, position(2, 2), ShapeType.cell, true)
             ]),
-            (game, adapters) => eventsAreSent(TestStep.And, adapters, 'server', [notifyPlayerEvent(EntityIds.playerA, positionAlreadyOccupiedNotificationMessage)])
+            eventsAreSent(TestStep.And, 'server', [notifyPlayerEvent(EntityIds.playerA, positionAlreadyOccupiedNotificationMessage)])
         ])
     serverScenario(`${Action.move} 5 - Can't Move Game Event - Tower of same player already on destination cell`, moveEvent(EntityIds.playerB, EntityType.robot, EntityIds.playerBRobot, EntityIds.cellx2y2),
         [], (game, adapters) => () => new EntityBuilder(adapters.entityInteractor)
@@ -183,7 +186,7 @@ feature(Action.move, () => {
                 makePhysical(EntityIds.playerBTower, position(2, 2), ShapeType.tower, true),
                 makePhysical(EntityIds.cellx2y2, position(2, 2), ShapeType.cell, true)
             ]),
-            (game, adapters) => eventsAreSent(TestStep.And, adapters, 'server', [notifyPlayerEvent(EntityIds.playerB, positionAlreadyOccupiedNotificationMessage)])
+            eventsAreSent(TestStep.And, 'server', [notifyPlayerEvent(EntityIds.playerB, positionAlreadyOccupiedNotificationMessage)])
         ])
     serverScenario(`${Action.move} 6 - Can't Move Game Event - Robot of the other player already on destination cell`, moveEvent(EntityIds.playerB, EntityType.robot, EntityIds.playerBRobot, EntityIds.cellx2y2),
         [], (game, adapters) => () => new EntityBuilder(adapters.entityInteractor)
@@ -222,7 +225,7 @@ feature(Action.move, () => {
                 makePhysical(EntityIds.playerBTower, position(1, 1), ShapeType.tower, true),
                 makePhysical(EntityIds.cellx2y2, playerARobotFirstPosition(gridFirstCellPosition), ShapeType.cell, true)
             ]),
-            (game, adapters) => eventsAreSent(TestStep.And, adapters, 'server', [notifyPlayerEvent(EntityIds.playerB, positionAlreadyOccupiedNotificationMessage)])
+            eventsAreSent(TestStep.And, 'server', [notifyPlayerEvent(EntityIds.playerB, positionAlreadyOccupiedNotificationMessage)])
         ])
     serverScenario(`${Action.move} 7 - Can't Move Game Event - No action points`, moveEvent(EntityIds.playerA, EntityType.robot, EntityIds.playerARobot, EntityIds.cellx2y1),
         [], (game, adapters) => () => new EntityBuilder(adapters.entityInteractor)
@@ -250,7 +253,7 @@ feature(Action.move, () => {
                 makePhysical(EntityIds.playerARobot, playerARobotFirstPosition(gridFirstCellPosition), ShapeType.robot, true),
                 makePhysical(EntityIds.cellx2y1, position(2, 1), ShapeType.cell, true)
             ]),
-            (game, adapters) => eventsAreSent(TestStep.And, adapters, 'server', [notifyPlayerEvent(EntityIds.playerA, notEnoughActionPointNotificationMessage)])
+            eventsAreSent(TestStep.And, 'server', [notifyPlayerEvent(EntityIds.playerA, notEnoughActionPointNotificationMessage)])
         ])
     serverScenario(`${Action.move} 8 - Can't Move Game Event - Bad Player`, moveEvent(EntityIds.playerB, EntityType.robot, EntityIds.playerARobot, EntityIds.cellx2y1),
         [], (game, adapters) => () => new EntityBuilder(adapters.entityInteractor)
@@ -281,7 +284,7 @@ feature(Action.move, () => {
                 makePhysical(EntityIds.playerBTower, playerBTowerFirstPosition(gridFirstCellPosition, gameScreenDimension), ShapeType.tower, true),
                 makePhysical(EntityIds.cellx2y1, position(2, 1), ShapeType.cell, true)
             ]),
-            (game, adapters) => eventsAreSent(TestStep.And, adapters, 'server', [notifyPlayerEvent(EntityIds.playerB, wrongPlayerPhaseNotificationMessage(EntityIds.playerB))])
+            eventsAreSent(TestStep.And, 'server', [notifyPlayerEvent(EntityIds.playerB, wrongPlayerPhaseNotificationMessage(EntityIds.playerB))])
         ])
     serverScenario(`${Action.move} 9 - Can't Move Game Event - Bad Unit`, moveEvent(EntityIds.playerA, EntityType.robot, EntityIds.playerARobot, EntityIds.cellx2y1),
         [], (game, adapters) => () => new EntityBuilder(adapters.entityInteractor)
@@ -308,7 +311,7 @@ feature(Action.move, () => {
                 makePhysical(EntityIds.playerARobot, position(24, 24), ShapeType.robot, true),
                 makePhysical(EntityIds.cellx2y1, position(24, 23), ShapeType.cell, true)
             ]),
-            (game, adapters) => eventsAreSent(TestStep.And, adapters, 'server', [notifyPlayerEvent(EntityIds.playerA, wrongUnitPhaseNotificationMessage(playerATowerPhase()))])
+            eventsAreSent(TestStep.And, 'server', [notifyPlayerEvent(EntityIds.playerA, wrongUnitPhaseNotificationMessage(playerATowerPhase()))])
         ])
     serverScenario(`${Action.move} 10 - Auto move on player A Tower Placement Phase`, moveEvent(EntityIds.playerA, EntityType.tower, EntityIds.playerATower, EntityIds.cellx1y1),
         [], (game, adapters) => () => new EntityBuilder(adapters.entityInteractor)
@@ -328,7 +331,7 @@ feature(Action.move, () => {
                 makePhysical(EntityIds.playerARobot, position(0, 0), ShapeType.robot, true),
                 makePhysical(EntityIds.cellx1y1, playerATowerFirstPosition(gridFirstCellPosition), ShapeType.cell, true)
             ]),
-            (game, adapters) => eventsAreSent(TestStep.And, adapters, 'server', [
+            eventsAreSent(TestStep.And, 'server', [
                 nextTurnEvent(EntityIds.match),
                 drawEvent(EntityIds.playerA, makePhysical(EntityIds.playerATower, playerATowerFirstPosition(gridFirstCellPosition), ShapeType.tower, true))
             ])
@@ -351,7 +354,7 @@ feature(Action.move, () => {
                 makeEntityReference(EntityIds.playerARobot, EntityType.robot),
                 makePhysical(EntityIds.cellx2y2, playerARobotFirstPosition(gridFirstCellPosition), ShapeType.cell, true)
             ]),
-            (game, adapters) => eventsAreSent(TestStep.And, adapters, 'server', [
+            eventsAreSent(TestStep.And, 'server', [
                 nextTurnEvent(EntityIds.match),
                 drawEvent(EntityIds.playerA, makePhysical(EntityIds.playerARobot, playerARobotFirstPosition(gridFirstCellPosition), ShapeType.robot, true))
             ])
@@ -380,7 +383,7 @@ feature(Action.move, () => {
                 makePhysical(EntityIds.playerBRobot, position(0, 0), ShapeType.robot, true),
                 makePhysical(EntityIds.cellx24y24, playerBTowerFirstPosition(gridFirstCellPosition, gameScreenDimension), ShapeType.cell, true)
             ]),
-            (game, adapters) => eventsAreSent(TestStep.And, adapters, 'server', [
+            eventsAreSent(TestStep.And, 'server', [
                 nextTurnEvent(EntityIds.match),
                 drawEvent(EntityIds.playerA, makePhysical(EntityIds.playerBTower, playerBTowerFirstPosition(gridFirstCellPosition, gameScreenDimension), ShapeType.tower, true)),
                 drawEvent(EntityIds.playerB, makePhysical(EntityIds.playerBTower, playerBTowerFirstPosition(gridFirstCellPosition, gameScreenDimension), ShapeType.tower, true))
@@ -410,7 +413,7 @@ feature(Action.move, () => {
                 makeEntityReference(EntityIds.playerBRobot, EntityType.robot),
                 makePhysical(EntityIds.cellx24y24, playerBRobotFirstPosition(gridFirstCellPosition, gameScreenDimension), ShapeType.cell, true)
             ]),
-            (game, adapters) => eventsAreSent(TestStep.And, adapters, 'server', [
+            eventsAreSent(TestStep.And, 'server', [
                 nextTurnEvent(EntityIds.match),
                 drawEvent(EntityIds.playerA, makePhysical(EntityIds.playerBRobot, playerBRobotFirstPosition(gridFirstCellPosition, gameScreenDimension), ShapeType.robot, true)),
                 drawEvent(EntityIds.playerB, makePhysical(EntityIds.playerBRobot, playerBRobotFirstPosition(gridFirstCellPosition, gameScreenDimension), ShapeType.robot, true))
@@ -440,7 +443,7 @@ feature(Action.move, () => {
                 makeEntityReference(EntityIds.playerBTower, EntityType.tower),
                 makePhysical(EntityIds.cellx0y0, position(18, 57), ShapeType.cell, true)
             ]),
-            (game, adapters) => eventsAreSent(TestStep.And, adapters, 'server', [
+            eventsAreSent(TestStep.And, 'server', [
                 notifyPlayerEvent(EntityIds.playerB, movingEntityNotSupported)
             ])
         ])

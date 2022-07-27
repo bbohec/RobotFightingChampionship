@@ -4,8 +4,11 @@ import { EntityBuilder } from '../../Entities/entityBuilder'
 import { Action } from '../../Event/Action'
 import { EntityIds, expectedAddedPlayers, expectedStillWaitingPlayers } from '../../Event/entityIds'
 import { EntityType } from '../../Event/EntityType'
-import { eventsAreSent, feature, serverScenario, thereIsServerComponents, whenEventOccured } from '../../Event/test'
 import { TestStep } from '../../Event/TestStep'
+import { feature } from '../../test/feature'
+import { serverScenario } from '../../test/scenario'
+import { thereIsServerComponents } from '../../test/unitTest/component'
+import { whenEventOccured, eventsAreSent } from '../../test/unitTest/event'
 import { playerJoinMatchEvent } from '../join/join'
 import { matchWaitingForPlayers } from './waiting'
 
@@ -21,7 +24,7 @@ feature(Action.waitingForPlayers, () => {
             thereIsServerComponents(TestStep.Then, [
                 makeEntityReference(EntityIds.simpleMatchLobby, EntityType.simpleMatchLobby, new Map([[EntityType.player, [...expectedStillWaitingPlayers]]]))
             ]),
-            (game, adapters) => eventsAreSent(TestStep.And, adapters, 'server', [
+            eventsAreSent(TestStep.And, 'server', [
                 playerJoinMatchEvent(expectedAddedPlayers[0], EntityIds.match),
                 playerJoinMatchEvent(expectedAddedPlayers[1], EntityIds.match)
             ])

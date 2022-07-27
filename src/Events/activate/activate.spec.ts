@@ -1,8 +1,11 @@
 import { EntityBuilder } from '../../Entities/entityBuilder'
 import { Action } from '../../Event/Action'
 import { EntityIds } from '../../Event/entityIds'
-import { clientScenario, feature, theControllerAdapterIsInteractive, theControllerAdapterIsNotInteractive, whenEventOccured } from '../../Event/test'
 import { TestStep } from '../../Event/TestStep'
+import { feature } from '../../test/feature'
+import { clientScenario } from '../../test/scenario'
+import { theControllerAdapterIsNotInteractive, theControllerAdapterIsInteractive } from '../../test/unitTest/controller'
+import { whenEventOccured } from '../../test/unitTest/event'
 import { activatePointerEvent } from './activate'
 
 feature(Action.activate, () => {

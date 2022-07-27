@@ -4,13 +4,14 @@ import { GameEvent } from '../../Event/GameEvent'
 import { EntityType } from '../../Event/EntityType'
 import { InMemoryEventBus } from '../../Event/infra/InMemoryEventBus'
 import { InMemoryServerEventInteractor } from './server/InMemoryServerEventInteractor'
-import { detailedComparisonMessage } from '../../Event/test'
+
 import { EventIntegrationTestSuite, makeInMemoryClientsEventIntegrationTestSuite, clientQty, makeRestClientsEventIntegrationTestSuite, beforeFunction, afterFunction } from './testUtilities'
 import { WebServerEventInteractor, defaultHTTPWebServerPort } from './server/WebServerEventInteractor'
 import { ExpressWebServerInstance } from './server/ExpressWebServerInstance'
 import express from 'express'
 import { Log4jsLogger } from '../../Log/infra/log4jsLogger'
 import { InMemoryClientEventInteractor } from './client/InMemoryClientEventInteractor'
+import { detailedComparisonMessage } from '../../messages'
 describe('Integration Test Suite - Event Interactor', () => {
     const testSuites:EventIntegrationTestSuite[] = [
         {

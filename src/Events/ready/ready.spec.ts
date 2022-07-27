@@ -7,8 +7,11 @@ import { EntityBuilder } from '../../Entities/entityBuilder'
 import { Action } from '../../Event/Action'
 import { EntityIds } from '../../Event/entityIds'
 import { EntityType } from '../../Event/EntityType'
-import { eventsAreSent, feature, serverScenario, theEntityIsOnRepository, thereIsServerComponents, whenEventOccured, whenEventOccurs } from '../../Event/test'
 import { TestStep } from '../../Event/TestStep'
+import { feature } from '../../test/feature'
+import { serverScenario } from '../../test/scenario'
+import { thereIsServerComponents } from '../../test/unitTest/component'
+import { whenEventOccured, eventsAreSent, whenEventOccurs } from '../../test/unitTest/event'
 import { destroySimpleMatchLobbyMenuEvent } from '../destroy/destroy'
 import { drawEvent } from '../draw/draw'
 import { nextTurnEvent } from '../nextTurn/nextTurn'
@@ -20,7 +23,6 @@ feature(Action.ready, () => {
             .buildEntity(EntityIds.playerA).withEntityReferences(EntityType.player, new Map([[EntityType.simpleMatchLobbyMenu, [EntityIds.playerASimpleMatchLobbyMenu]]])).save()
             .buildEntity(EntityIds.playerASimpleMatchLobbyMenu).withPhysical(position(0, 0), ShapeType.simpleMatchLobbyMenu, true).save()
         , [
-            (game, adapters) => theEntityIsOnRepository(TestStep.Given, adapters, EntityIds.match),
             thereIsServerComponents(TestStep.Given, [
                 makePhasing(EntityIds.match, preparingGamePhase),
                 makeEntityReference(EntityIds.match, EntityType.match, new Map([[EntityType.player, [EntityIds.playerA]]])),
@@ -34,7 +36,7 @@ feature(Action.ready, () => {
                 makeEntityReference(EntityIds.playerA, EntityType.player, new Map([[EntityType.simpleMatchLobbyMenu, [EntityIds.playerASimpleMatchLobbyMenu]]])),
                 makePhysical(EntityIds.playerASimpleMatchLobbyMenu, position(0, 0), ShapeType.simpleMatchLobbyMenu, false)
             ]),
-            (game, adapters) => eventsAreSent(TestStep.And, adapters, 'server', [
+            eventsAreSent(TestStep.And, 'server', [
                 drawEvent(EntityIds.playerA, makePhysical(EntityIds.playerASimpleMatchLobbyMenu, position(0, 0), ShapeType.simpleMatchLobbyMenu, false)),
                 destroySimpleMatchLobbyMenuEvent(EntityIds.playerASimpleMatchLobbyMenu)
             ])
@@ -47,7 +49,6 @@ feature(Action.ready, () => {
             .buildEntity(EntityIds.playerASimpleMatchLobbyMenu).withPhysical(position(0, 0), ShapeType.simpleMatchLobbyMenu, true).save()
             .buildEntity(EntityIds.playerBSimpleMatchLobbyMenu).withPhysical(position(0, 0), ShapeType.simpleMatchLobbyMenu, true).save()
         , [
-            (game, adapters) => theEntityIsOnRepository(TestStep.Given, adapters, EntityIds.match),
             thereIsServerComponents(TestStep.Given, [
                 makePhasing(EntityIds.match, preparingGamePhase),
                 makeEntityReference(EntityIds.match, EntityType.match, new Map([[EntityType.player, [EntityIds.playerA, EntityIds.playerB]]])),
@@ -56,8 +57,8 @@ feature(Action.ready, () => {
                 makePhysical(EntityIds.playerASimpleMatchLobbyMenu, position(0, 0), ShapeType.simpleMatchLobbyMenu, true),
                 makePhysical(EntityIds.playerBSimpleMatchLobbyMenu, position(0, 0), ShapeType.simpleMatchLobbyMenu, true)
             ]),
-            (game, adapters) => whenEventOccurs(game, adapters, playerReadyForMatch(EntityIds.match, EntityIds.playerA)),
-            (game, adapters) => whenEventOccurs(game, adapters, playerReadyForMatch(EntityIds.match, EntityIds.playerB)),
+            whenEventOccurs(playerReadyForMatch(EntityIds.match, EntityIds.playerA)),
+            whenEventOccurs(playerReadyForMatch(EntityIds.match, EntityIds.playerB)),
             thereIsServerComponents(TestStep.Then, [
                 makePhasing(EntityIds.match, preparingGamePhase, new Set([EntityIds.playerA, EntityIds.playerB])),
                 makeEntityReference(EntityIds.match, EntityType.match, new Map([[EntityType.player, [EntityIds.playerA, EntityIds.playerB]]])),
@@ -66,7 +67,7 @@ feature(Action.ready, () => {
                 makePhysical(EntityIds.playerASimpleMatchLobbyMenu, position(0, 0), ShapeType.simpleMatchLobbyMenu, false),
                 makePhysical(EntityIds.playerBSimpleMatchLobbyMenu, position(0, 0), ShapeType.simpleMatchLobbyMenu, false)
             ]),
-            (game, adapters) => eventsAreSent(TestStep.And, adapters, 'server', [
+            eventsAreSent(TestStep.And, 'server', [
                 drawEvent(EntityIds.playerA, makePhysical(EntityIds.playerASimpleMatchLobbyMenu, position(0, 0), ShapeType.simpleMatchLobbyMenu, false)),
                 destroySimpleMatchLobbyMenuEvent(EntityIds.playerASimpleMatchLobbyMenu),
                 drawEvent(EntityIds.playerB, makePhysical(EntityIds.playerBSimpleMatchLobbyMenu, position(0, 0), ShapeType.simpleMatchLobbyMenu, false)),
