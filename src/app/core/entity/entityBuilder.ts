@@ -8,7 +8,7 @@ import { EntityType } from '../type/EntityType'
 import { entityAlreadyBuild } from '../../messages'
 import { Phase } from '../type/Phase'
 import { Entity } from './Entity'
-import { InMemoryEntityRepository } from '../../../infra/entity/InMemoryEntityRepository'
+import { InMemoryEntityRepository } from '../../infra/entity/InMemoryEntityRepository'
 
 export class EntityBuilder {
     constructor (entityRepository:InMemoryEntityRepository) {

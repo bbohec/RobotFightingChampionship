@@ -22,7 +22,7 @@ import { GenericGameEventDispatcherSystem } from '../system/GenericGameEventDisp
 import { GenericServerSystem } from '../system/GenericServerSystem'
 import { Identifier } from '../port/Identifier'
 import { Entity, EntityId } from '../entity/Entity'
-import { EntityIds } from '../../../test/entityIds'
+import { EntityIds } from '../../test/entityIds'
 
 abstract class GenericServerLifeCycleSystem extends GenericServerSystem {
     constructor (interactWithEntities: EntityInteractor, interactWithGameEventDispatcher:GenericGameEventDispatcherSystem, interactWithIdentifiers:Identifier) {

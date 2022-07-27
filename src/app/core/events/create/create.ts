@@ -1,4 +1,4 @@
-import { EntityIds } from '../../../../test/entityIds'
+import { EntityIds } from '../../../test/entityIds'
 import { Dimension, makeDimensional } from '../../components/Dimensional'
 import { Position, makePhysical } from '../../components/Physical'
 import { Action } from '../../type/Action'

@@ -1,4 +1,4 @@
-import { missingEntityId } from '../../../infra/entity/InMemoryEntityRepository'
+import { missingEntityId } from '../../infra/entity/InMemoryEntityRepository'
 import { Controller } from '../components/Controller'
 import { ControlStatus } from '../components/ControlStatus'
 import { EntityReference, retrieveReference, retrieveReferences, hasReferences } from '../components/EntityReference'

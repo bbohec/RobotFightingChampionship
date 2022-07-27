@@ -1,8 +1,8 @@
 import { v1 as uuid } from 'uuid'
-import { EntityIds } from '../../test/entityIds'
-import { PixijsDrawingAdapter } from '../../infra/drawing/PixijsDrawingAdapter'
 import { ShapeType } from '../../app/core/type/ShapeType'
 import { makePhysical, Physical, position } from '../../app/core/components/Physical'
+import { PixijsDrawingAdapter } from '../../app/infra/drawing/PixijsDrawingAdapter'
+import { EntityIds } from '../../app/test/entityIds'
 
 export function makeHorizontalWall (startingX: number, endingX: number, positionY:number) {
     const physicals:Physical[] = []

@@ -8,7 +8,7 @@ import { Phase } from './core/type/Phase'
 import { Phasing } from './core/components/Phasing'
 import { Position } from './core/components/Physical'
 import { EntityComponents } from './core/entity/Entity'
-import { TestStep } from '../test/TestStep'
+import { TestStep } from './test/TestStep'
 
 export const gameEventNotFoundOnEventInteractor = (expectedEvent: GameEvent, existingEvents: GameEvent[], to:'client'|'server'): string =>
     `The following game event is not found on '${to}' event repository:\n${stringifyWithDetailledSetAndMap(expectedEvent)}

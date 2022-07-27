@@ -4,6 +4,7 @@
     "description": "",
     "scripts": {
         "clean:build": "rimraf dist",
+        "typecheck": "tsc --noEmit",
         "test": "mocha --require esm 'src/**/*.spec.ts'",
         "start": "node dist/main.js",
         "build": "npm run clean:build && parcel build"

@@ -5,7 +5,7 @@ import { NotificationPort } from './Notification'
 import { ControllerPort } from './ControllerPort'
 import { Drawing } from './Drawing'
 import { EntityInteractor } from './EntityInteractor'
-import { InMemoryEntityRepository } from '../../../infra/entity/InMemoryEntityRepository'
+import { InMemoryEntityRepository } from '../../infra/entity/InMemoryEntityRepository'
 
 export interface GenericGameAdapter {
     entityInteractor: EntityInteractor;

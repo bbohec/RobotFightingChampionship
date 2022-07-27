@@ -4,7 +4,7 @@ import { GenericComponent } from '../component/GenericComponent'
 import { Phase } from '../type/Phase'
 import { PhaseType } from '../type/PhaseType'
 import { EntityId } from '../entity/Entity'
-import { EntityIds } from '../../../test/entityIds'
+import { EntityIds } from '../../test/entityIds'
 const noActionPoint = 0
 export const maxPlayerPerMatch = 2
 export const defaultActionPoints = 12
