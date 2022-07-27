@@ -1,5 +1,5 @@
-import { EntityReferences } from '../components/EntityReference'
-import { Component } from '../component/Component'
+import { EntityReferences } from '../ecs/components/EntityReference'
+import { Component } from '../ecs/component'
 import { Action } from './Action'
 import { stringifyWithDetailledSetAndMap } from '../../messages'
 

@@ -1,6 +1,6 @@
 import { Application, Sprite } from 'pixi.js'
-import { Dimension } from '../../core/components/Dimensional'
-import { Physical, Position } from '../../core/components/Physical'
+import { Dimension } from '../../core/ecs/components/Dimensional'
+import { Physical, Position } from '../../core/ecs/components/Physical'
 import { Logger } from '../../core/port/Logger'
 import { ShapeType } from '../../core/type/ShapeType'
 import { PixiApplicationCommon } from '../pixi/PixiApplicationCommon'

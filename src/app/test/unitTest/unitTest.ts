@@ -1,5 +1,5 @@
 import { Test } from 'mocha'
-import { GenericGameSystem } from '../../core/system/GenericGameSystem'
+import { GenericGameSystem } from '../../core/ecs/system'
 import { GameEvent } from '../../core/type/GameEvent'
 import { FakeClientGameAdapters } from '../../infra/game/client/FakeClientGameAdapters'
 import { FakeServerAdapters } from '../../infra/game/server/FakeServerAdapters'

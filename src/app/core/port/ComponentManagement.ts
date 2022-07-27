@@ -1,4 +1,4 @@
-import { Component } from '../component/Component'
+import { Component } from '../ecs/component'
 
 export interface ComponentManagement {
 

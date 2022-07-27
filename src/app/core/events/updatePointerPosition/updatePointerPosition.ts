@@ -1,4 +1,4 @@
-import { makePhysical, Position } from '../../components/Physical'
+import { makePhysical, Position } from '../../ecs/components/Physical'
 import { ShapeType } from '../../type/ShapeType'
 import { Action } from '../../type/Action'
 import { EntityType } from '../../type/EntityType'

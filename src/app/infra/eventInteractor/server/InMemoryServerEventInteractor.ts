@@ -1,6 +1,6 @@
+import { GameEventHandler } from '../../../core/ecs/system'
 import { EventBus } from '../../../core/port/EventBus'
 import { ServerEventInteractor, ClientEventInteractor } from '../../../core/port/EventInteractor'
-import { GameEventHandler } from '../../../core/system/GameEventHandler'
 import { EntityType } from '../../../core/type/EntityType'
 import { GameEvent } from '../../../core/type/GameEvent'
 import { InMemoryClientEventInteractor } from '../client/InMemoryClientEventInteractor'

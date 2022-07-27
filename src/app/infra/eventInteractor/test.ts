@@ -1,5 +1,5 @@
 import { Func } from 'mocha'
-import { position, Position, makePhysical } from '../../core/components/Physical'
+import { position, Position, makePhysical } from '../../core/ecs/components/Physical'
 import { ClientEventInteractor, ServerEventInteractor } from '../../core/port/EventInteractor'
 import { Action } from '../../core/type/Action'
 import { EntityType } from '../../core/type/EntityType'

@@ -1,7 +1,7 @@
 import { v1 as uuid } from 'uuid'
 import { Application } from '@pixi/app'
 import { createPlayerEvent } from '../../app/core/events/create/create'
-import { ClientGameSystem } from '../../app/core/systems/ClientGameSystem'
+import { ClientGameSystem } from '../../app/core/ecs/systems/ClientGameSystem'
 import { shapeAssets } from './shapeAssets'
 import { PixijsControllerAdapter } from '../../app/infra/controller/PixijsControllerAdapter'
 import { PixijsDrawingAdapter } from '../../app/infra/drawing/PixijsDrawingAdapter'

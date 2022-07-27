@@ -1,5 +1,5 @@
 
-import { System } from '../system/System'
+import { System } from '../ecs/system'
 
 export type AbstractSystem<System> = Function & { prototype: System }
 export type SystemType<System> = AbstractSystem<System> | { new(...args: unknown[]): System; };

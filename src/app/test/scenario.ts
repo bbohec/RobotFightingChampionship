@@ -1,6 +1,6 @@
 import { Func, Test, before, describe } from 'mocha'
-import { ClientGameSystem } from '../core/systems/ClientGameSystem'
-import { ServerGameSystem } from '../core/systems/ServerGameSystem'
+import { ClientGameSystem } from '../core/ecs/systems/ClientGameSystem'
+import { ServerGameSystem } from '../core/ecs/systems/ServerGameSystem'
 import { GameEvent } from '../core/type/GameEvent'
 import { FakeClientGameAdapters } from '../infra/game/client/FakeClientGameAdapters'
 import { FakeServerAdapters } from '../infra/game/server/FakeServerAdapters'

@@ -1,4 +1,4 @@
-import { Physical } from '../components/Physical'
+import { Physical } from '../ecs/components/Physical'
 
 export interface Drawing {
     refreshEntity(physicalComponent:Physical): Promise<void>;

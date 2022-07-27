@@ -1,7 +1,7 @@
 
+import { GenericGameSystem } from '../../core/ecs/system'
 import { EventBus } from '../../core/port/EventBus'
 import { Logger } from '../../core/port/Logger'
-import { GenericGameSystem } from '../../core/system/GenericGameSystem'
 import { GameEvent } from '../../core/type/GameEvent'
 import { stringifyWithDetailledSetAndMap } from '../../messages'
 

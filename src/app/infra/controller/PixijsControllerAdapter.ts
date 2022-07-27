@@ -1,6 +1,6 @@
 import { Application, InteractionEvent } from 'pixi.js'
-import { Dimension } from '../../core/components/Dimensional'
-import { position, Position } from '../../core/components/Physical'
+import { Dimension } from '../../core/ecs/components/Dimensional'
+import { position, Position } from '../../core/ecs/components/Physical'
 import { updatePointerPosition } from '../../core/events/updatePointerPosition/updatePointerPosition'
 import { ControllerPort } from '../../core/port/ControllerPort'
 import { EventBus } from '../../core/port/EventBus'

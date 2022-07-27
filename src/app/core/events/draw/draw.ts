@@ -1,4 +1,4 @@
-import { Physical } from '../../components/Physical'
+import { Physical } from '../../ecs/components/Physical'
 import { Action } from '../../type/Action'
 import { EntityType } from '../../type/EntityType'
 import { newGameEvent } from '../../type/GameEvent'

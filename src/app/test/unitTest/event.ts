@@ -1,7 +1,7 @@
 import { expect } from 'chai'
 import { Test, it } from 'mocha'
+import { GenericGameSystem } from '../../core/ecs/system'
 import { EventBus } from '../../core/port/EventBus'
-import { GenericGameSystem } from '../../core/system/GenericGameSystem'
 import { GameEvent } from '../../core/type/GameEvent'
 import { InMemoryEventBus } from '../../infra/eventBus/InMemoryEventBus'
 import { InMemoryClientEventInteractor } from '../../infra/eventInteractor/client/InMemoryClientEventInteractor'

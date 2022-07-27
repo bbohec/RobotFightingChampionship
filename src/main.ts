@@ -1,7 +1,7 @@
 import express from 'express'
 import { createServerGameEvent } from './app/core/events/create/create'
 import { newLoopEvent } from './app/core/events/newLoop/newLoop'
-import { ServerGameSystem } from './app/core/systems/ServerGameSystem'
+import { ServerGameSystem } from './app/core/ecs/systems/ServerGameSystem'
 import { ProductionEventBus } from './app/infra/eventBus/ProductionEventBus'
 import { ExpressWebServerInstance } from './app/infra/eventInteractor/server/ExpressWebServerInstance'
 import { WebServerEventInteractor, defaultHTTPWebServerPort, productionSSERetryInterval } from './app/infra/eventInteractor/server/WebServerEventInteractor'

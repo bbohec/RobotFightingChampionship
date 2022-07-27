@@ -1,5 +1,5 @@
-import { Dimension } from '../../core/components/Dimensional'
-import { Physical, Position } from '../../core/components/Physical'
+import { Dimension } from '../../core/ecs/components/Dimensional'
+import { Physical, Position } from '../../core/ecs/components/Physical'
 import { idNotFoundOnDrawIds, idAlreadyDraw } from '../../core/port/Drawing'
 import { PixiApplicationCommon } from '../pixi/PixiApplicationCommon'
 import { DrawingAdapter } from './DrawingAdapter'

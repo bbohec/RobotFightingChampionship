@@ -1,13 +1,12 @@
-import { EntityReference, EntityReferences } from './core/components/EntityReference'
-import { ComponentType } from './core/component/ComponentType'
-import { Component } from './core/component/Component'
+import { EntityReference, EntityReferences } from './core/ecs/components/EntityReference'
+import { Component, ComponentType } from './core/ecs/component'
 import { Action } from './core/type/Action'
 import { EntityType } from './core/type/EntityType'
 import { GameEvent } from './core/type/GameEvent'
 import { Phase } from './core/type/Phase'
-import { Phasing } from './core/components/Phasing'
-import { Position } from './core/components/Physical'
-import { EntityComponents } from './core/entity/Entity'
+import { Phasing } from './core/ecs/components/Phasing'
+import { Position } from './core/ecs/components/Physical'
+import { EntityComponents } from './core/ecs/entity/Entity'
 import { TestStep } from './test/TestStep'
 
 export const gameEventNotFoundOnEventInteractor = (expectedEvent: GameEvent, existingEvents: GameEvent[], to:'client'|'server'): string =>

@@ -1,5 +1,5 @@
 import { SystemInteractor, systemAlreadyInRepository, SystemType, systemNotFoundOnRepository } from '../../core/port/SystemInteractor'
-import { System } from '../../core/system/System'
+import { System } from '../../core/ecs/system'
 
 export class InMemorySystemRepository implements SystemInteractor {
     addSystem (system: System): void {

@@ -1,6 +1,6 @@
 import { EntityIds } from '../../../test/entityIds'
-import { Dimension, makeDimensional } from '../../components/Dimensional'
-import { Position, makePhysical } from '../../components/Physical'
+import { Dimension, makeDimensional } from '../../ecs/components/Dimensional'
+import { Position, makePhysical } from '../../ecs/components/Physical'
 import { Action } from '../../type/Action'
 import { EntityType } from '../../type/EntityType'
 import { newGameEvent } from '../../type/GameEvent'

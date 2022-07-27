@@ -4,7 +4,7 @@ import { clientScenario } from '../../../test/scenario'
 import { TestStep } from '../../../test/TestStep'
 import { theControllerAdapterIsNotInteractive, theControllerAdapterIsInteractive } from '../../../test/unitTest/controller'
 import { whenEventOccured } from '../../../test/unitTest/event'
-import { EntityBuilder } from '../../entity/entityBuilder'
+import { EntityBuilder } from '../../ecs/entity/entityBuilder'
 import { Action } from '../../type/Action'
 import { activatePointerEvent } from './activate'
 

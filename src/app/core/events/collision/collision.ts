@@ -1,4 +1,4 @@
-import { EntityReferences } from '../../components/EntityReference'
+import { EntityReferences } from '../../ecs/components/EntityReference'
 import { Action } from '../../type/Action'
 import { newGameEvent } from '../../type/GameEvent'
 

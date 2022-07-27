@@ -1,5 +1,5 @@
+import { GameEventHandler } from '../../core/ecs/system'
 import { EventBus } from '../../core/port/EventBus'
-import { GameEventHandler } from '../../core/system/GameEventHandler'
 import { GameEvent } from '../../core/type/GameEvent'
 import { gameEventNotFoundOnEventInteractor, stringifyWithDetailledSetAndMap } from '../../messages'
 
