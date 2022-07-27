@@ -4,9 +4,9 @@ import { Physical } from '../../core/components/Physical'
 import { Action } from '../../core/type/Action'
 import { EntityType } from '../../core/type/EntityType'
 import { errorMessageOnUnknownEventAction, GameEvent } from '../../core/type/GameEvent'
-import { createMatchEvent, createPlayerSimpleMatchLobbyMenu } from '../../Events/create/create'
-import { drawEvent } from '../../Events/draw/draw'
-import { playerJoinMatchEvent } from '../../Events/join/join'
+import { createMatchEvent, createPlayerSimpleMatchLobbyMenu } from '../../core/events/create/create'
+import { drawEvent } from '../../core/events/draw/draw'
+import { playerJoinMatchEvent } from '../../core/events/join/join'
 import { GenericServerSystem } from '../Generic/GenericServerSystem'
 
 export class WaitingAreaSystem extends GenericServerSystem {

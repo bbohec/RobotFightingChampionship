@@ -4,8 +4,8 @@ import { ShapeType } from '../../core/type/ShapeType'
 import { Entity } from '../../Entities/Entity'
 import { EntityType } from '../../core/type/EntityType'
 import { errorMessageOnUnknownEventAction, GameEvent } from '../../core/type/GameEvent'
-import { activatePointerEvent } from '../../Events/activate/activate'
-import { registerPlayerEvent } from '../../Events/register/register'
+import { activatePointerEvent } from '../../core/events/activate/activate'
+import { registerPlayerEvent } from '../../core/events/register/register'
 import { GenericClientLifeCycleSystem } from './GenericClientLifeCycleSystem'
 
 export class ClientLifeCycleSystem extends GenericClientLifeCycleSystem {

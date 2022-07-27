@@ -3,8 +3,8 @@ import { Phasing, weaponAttackActionPoints } from '../../core/components/Phasing
 import { defaultWeaponMaxRange, Position } from '../../core/components/Physical'
 import { EntityType } from '../../core/type/EntityType'
 import { GameEvent } from '../../core/type/GameEvent'
-import { hitEvent } from '../../Events/hit/hit'
-import { notEnoughActionPointNotificationMessage, notifyPlayerEvent, outOfRangeNotificationMessage, wrongPlayerPhaseNotificationMessage, wrongUnitPhaseNotificationMessage } from '../../Events/notifyPlayer/notifyPlayer'
+import { hitEvent } from '../../core/events/hit/hit'
+import { notEnoughActionPointNotificationMessage, notifyPlayerEvent, outOfRangeNotificationMessage, wrongPlayerPhaseNotificationMessage, wrongUnitPhaseNotificationMessage } from '../../core/events/notifyPlayer/notifyPlayer'
 import { ArtithmeticSystem } from '../Generic/ArithmeticSystem'
 export class AttackingSystem extends ArtithmeticSystem {
     onGameEvent (gameEvent: GameEvent): Promise<void> {

@@ -2,7 +2,7 @@ import { Hittable } from '../../core/components/Hittable'
 import { EntityType } from '../../core/type/EntityType'
 import { retrieveReference } from '../../core/components/EntityReference'
 import { errorMessageOnUnknownEventAction, GameEvent } from '../../core/type/GameEvent'
-import { victoryEvent } from '../../Events/victory/victory'
+import { victoryEvent } from '../../core/events/victory/victory'
 import { GenericServerSystem } from '../Generic/GenericServerSystem'
 import { Offensive } from '../../core/components/Offensive'
 

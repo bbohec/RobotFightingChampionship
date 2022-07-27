@@ -1,6 +1,6 @@
 import { Action } from '../../core/type/Action'
 import { errorMessageOnUnknownEventAction, GameEvent } from '../../core/type/GameEvent'
-import { checkCollisionGameEvent } from '../../Events/checkCollision/checkCollision'
+import { checkCollisionGameEvent } from '../../core/events/checkCollision/checkCollision'
 import { GenericServerSystem } from '../Generic/GenericServerSystem'
 
 export class LoopSystem extends GenericServerSystem {

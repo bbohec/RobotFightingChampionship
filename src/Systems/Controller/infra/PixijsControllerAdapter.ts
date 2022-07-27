@@ -4,7 +4,7 @@ import { Dimension } from '../../../core/components/Dimensional'
 import { Position, position } from '../../../core/components/Physical'
 
 import { EventBus } from '../../../core/port/EventBus'
-import { updatePointerPosition } from '../../../Events/updatePointerPosition/updatePointerPosition'
+import { updatePointerPosition } from '../../../core/events/updatePointerPosition/updatePointerPosition'
 import { Logger } from '../../../core/port/Logger'
 import { PixiEvent } from '../../Drawing/port/PixiEvent'
 import { ControllerPort } from '../port/ControllerPort'
