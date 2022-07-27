@@ -1,6 +1,6 @@
 import { Application } from 'pixi.js'
 import { EntityIds } from '../../test/entityIds'
-import { InMemoryEventBus } from '../../infra/event/InMemoryEventBus'
+import { InMemoryEventBus } from '../../infra/eventBus/InMemoryEventBus'
 import { ConsoleLogger } from '../../Log/infra/consoleLogger'
 import { PixijsControllerAdapter } from '../../Systems/Controller/infra/PixijsControllerAdapter'
 import { PixijsDrawingAdapter } from '../../Systems/Drawing/infra/PixijsDrawingAdapter'
