@@ -1,6 +1,6 @@
 import { Func, Test, before, describe } from 'mocha'
-import { stringifyWithDetailledSetAndMap } from '../Event/detailledStringify'
-import { GameEvent } from '../Event/GameEvent'
+import { GameEvent } from '../core/type/GameEvent'
+import { stringifyWithDetailledSetAndMap } from '../messages'
 import { ClientGameSystem } from '../Systems/Game/ClientGame'
 import { FakeClientAdapters } from '../Systems/Game/infra/FakeClientAdapters'
 import { FakeServerAdapters } from '../Systems/Game/infra/FakeServerAdapters'

@@ -1,6 +1,6 @@
-import { EntityReference, retrieveReference } from '../../Components/EntityReference'
-import { EntityType } from '../../Event/EntityType'
-import { errorMessageOnUnknownEventAction, GameEvent } from '../../Event/GameEvent'
+import { EntityReference, retrieveReference } from '../../core/components/EntityReference'
+import { EntityType } from '../../core/type/EntityType'
+import { errorMessageOnUnknownEventAction, GameEvent } from '../../core/type/GameEvent'
 import { createMainMenuEvent, createPlayerPointerEvent, createPlayerSimpleMatchLobbyButtonEvent } from '../../Events/create/create'
 import { GenericServerSystem } from '../Generic/GenericServerSystem'
 

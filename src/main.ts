@@ -3,7 +3,7 @@ import { defaultHTTPWebServerPort, productionSSERetryInterval, WebServerEventInt
 import { ExpressWebServerInstance } from './EventInteractor/infra/server/ExpressWebServerInstance'
 import { ProductionServerAdapters } from './Systems/Game/infra/ProductionServerAdapters'
 import { ServerGameSystem } from './Systems/Game/ServerGame'
-import { ProductionEventBus } from './Event/infra/ProductionEventBus'
+import { ProductionEventBus } from './infra/event/ProductionEventBus'
 import { createServerGameEvent } from './Events/create/create'
 import { Log4jsLogger } from './Log/infra/log4jsLogger'
 import { newLoopEvent } from './Events/newLoop/newLoop'

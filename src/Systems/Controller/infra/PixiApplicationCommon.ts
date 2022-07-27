@@ -1,5 +1,5 @@
-import { Dimension, gameScreenDimension } from '../../../Components/Dimensional'
-import { Position, position } from '../../../Components/Physical'
+import { Dimension, gameScreenDimension } from '../../../core/components/Dimensional'
+import { Position, position } from '../../../core/components/Physical'
 
 import { ScaleRatio } from './PixijsControllerAdapter'
 

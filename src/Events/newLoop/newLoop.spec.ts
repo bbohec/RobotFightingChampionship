@@ -1,8 +1,8 @@
 
-import { Action } from '../../Event/Action'
-import { TestStep } from '../../Event/TestStep'
+import { Action } from '../../core/type/Action'
+import { TestStep } from '../../test/TestStep'
 import { EntityBuilder } from '../../Entities/entityBuilder'
-import { EntityIds } from '../../Event/entityIds'
+import { EntityIds } from '../../test/entityIds'
 import { newLoopEvent } from './newLoop'
 import { checkCollisionGameEvent } from '../checkCollision/checkCollision'
 import { feature } from '../../test/feature'

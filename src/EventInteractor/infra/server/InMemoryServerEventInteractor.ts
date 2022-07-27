@@ -1,8 +1,8 @@
-import { EntityType } from '../../../Event/EntityType'
-import { GameEvent } from '../../../Event/GameEvent'
-import { GameEventHandler } from '../../../Event/GameEventHandler'
-import { EventBus } from '../../../Event/port/EventBus'
-import { ClientEventInteractor, ServerEventInteractor } from '../../port/EventInteractor'
+import { EntityType } from '../../../core/type/EntityType'
+import { GameEvent } from '../../../core/type/GameEvent'
+import { GameEventHandler } from '../../../core/system/GameEventHandler'
+import { EventBus } from '../../../core/port/EventBus'
+import { ClientEventInteractor, ServerEventInteractor } from '../../../core/port/EventInteractor'
 import { InMemoryClientEventInteractor } from '../client/InMemoryClientEventInteractor'
 
 export class InMemoryServerEventInteractor extends GameEventHandler implements ServerEventInteractor {

@@ -1,10 +1,10 @@
-import { makeController } from '../../Components/Controller'
-import { makePhysical, Position } from '../../Components/Physical'
-import { ControlStatus } from '../../Components/port/ControlStatus'
-import { ShapeType } from '../../Components/port/ShapeType'
-import { Action } from '../../Event/Action'
-import { EntityType } from '../../Event/EntityType'
-import { newGameEvent } from '../../Event/GameEvent'
+import { makeController } from '../../core/components/Controller'
+import { makePhysical, Position } from '../../core/components/Physical'
+import { ControlStatus } from '../../core/components/ControlStatus'
+import { ShapeType } from '../../core/type/ShapeType'
+import { Action } from '../../core/type/Action'
+import { EntityType } from '../../core/type/EntityType'
+import { newGameEvent } from '../../core/type/GameEvent'
 
 export const updatePointerState = (playerPointerId: string, position: Position, primaryButtonStatus:ControlStatus) =>
     newGameEvent(

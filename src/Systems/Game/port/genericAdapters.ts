@@ -1,6 +1,6 @@
 import { InMemoryEntityRepository } from '../../../Entities/infra/InMemoryEntityRepository'
 import { EntityInteractor } from '../../../Entities/ports/EntityInteractor'
-import { EventInteractor } from '../../../EventInteractor/port/EventInteractor'
+import { EventInteractor } from '../../../core/port/EventInteractor'
 import { SystemInteractor } from '../../Generic/port/SystemInteractor'
 import { IdentifierAdapter } from '../../LifeCycle/port/IdentifierAdapter'
 export interface GenericAdapter {

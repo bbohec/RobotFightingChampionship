@@ -1,7 +1,8 @@
-import { Phase } from '../../Components/port/Phase'
-import { Action } from '../../Event/Action'
-import { EntityType } from '../../Event/EntityType'
-import { newGameEvent } from '../../Event/GameEvent'
+
+import { Action } from '../../core/type/Action'
+import { EntityType } from '../../core/type/EntityType'
+import { newGameEvent } from '../../core/type/GameEvent'
+import { Phase } from '../../core/type/Phase'
 export const badPlayerEventNotificationMessage = (badPlayerId:string):string => `This is not "${badPlayerId}" player client.`
 export const wrongPlayerPhaseNotificationMessage = (badPlayerId:string):string => `This is not "${badPlayerId}" phase.`
 export const wrongUnitPhaseNotificationMessage = (currentPhase:Phase):string => `Wrong phase. Currently playing "${currentPhase.phaseType}" phase of unit "${currentPhase.currentUnitId}".`

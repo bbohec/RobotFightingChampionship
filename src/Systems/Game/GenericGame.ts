@@ -1,4 +1,4 @@
-import { GameEvent } from '../../Event/GameEvent'
+import { GameEvent } from '../../core/type/GameEvent'
 import { System } from '../Generic/port/System'
 import { SystemInteractor } from '../Generic/port/SystemInteractor'
 

@@ -1,5 +1,5 @@
 
-import { GameEvent } from '../../Event/GameEvent'
+import { GameEvent } from '../../core/type/GameEvent'
 import { AttackingSystem } from '../Attacking/AttackingSystem'
 import { CollisionSystem } from '../Collision/CollisionSystem'
 import { ServerGameEventDispatcherSystem } from '../GameEventDispatcher/ServerGameEventDispatcherSystem'

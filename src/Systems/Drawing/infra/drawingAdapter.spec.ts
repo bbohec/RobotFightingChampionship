@@ -1,12 +1,12 @@
 import { describe, before, it, Func } from 'mocha'
 import { expect } from 'chai'
-import { makePhysical, Physical, Position, position } from '../../../Components/Physical'
-import { EntityIds } from '../../../Event/entityIds'
-import { ShapeType } from '../../../Components/port/ShapeType'
+import { makePhysical, Physical, Position, position } from '../../../core/components/Physical'
+import { EntityIds } from '../../../test/entityIds'
+import { ShapeType } from '../../../core/type/ShapeType'
 import { DrawingAdapter } from '../port/DrawingAdapter'
 // import { PixijsDrawingAdapter } from './PixijsDrawingAdapter'
 import { DrawingIntegration } from '../port/DrawingIntegration'
-import { Dimension } from '../../../Components/Dimensional'
+import { Dimension } from '../../../core/components/Dimensional'
 
 interface DrawingAdapterTestSuite {
     entityPhysicalComponent:Physical

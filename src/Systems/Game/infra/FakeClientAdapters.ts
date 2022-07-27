@@ -6,7 +6,7 @@ import { IdentifierAdapter } from '../../LifeCycle/port/IdentifierAdapter'
 import { clientAdapters } from '../port/clientAdapters'
 import { InMemoryNotificationAdapter } from '../../Notification/infra/InMemoryNotificationAdapter'
 import { InMemoryClientEventInteractor } from '../../../EventInteractor/infra/client/InMemoryClientEventInteractor'
-import { InMemoryEventBus } from '../../../Event/infra/InMemoryEventBus'
+import { InMemoryEventBus } from '../../../infra/event/InMemoryEventBus'
 import { InMemoryControllerAdapter } from '../../Controller/infra/InMemoryControllerAdapter'
 import { InMemoryServerEventInteractor } from '../../../EventInteractor/infra/server/InMemoryServerEventInteractor'
 

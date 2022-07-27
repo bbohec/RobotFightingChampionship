@@ -1,6 +1,6 @@
-import { Action } from '../../Event/Action'
-import { EntityType } from '../../Event/EntityType'
-import { newGameEvent } from '../../Event/GameEvent'
+import { Action } from '../../core/type/Action'
+import { EntityType } from '../../core/type/EntityType'
+import { newGameEvent } from '../../core/type/GameEvent'
 export const playerWantJoinSimpleMatchLobby = (playerId: string, simpleMachtLobbyEntityId:string) => newGameEvent(Action.join, new Map([
     [EntityType.player, [playerId]],
     [EntityType.simpleMatchLobby, [simpleMachtLobbyEntityId]]

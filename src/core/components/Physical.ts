@@ -1,7 +1,8 @@
-import { EntityId } from '../Entities/Entity'
-import { gameScreenDimension, Dimension } from './Dimensional'
-import { Component, GenericComponent } from './port/Component'
-import { ShapeType } from './port/ShapeType'
+import { EntityId } from '../../Entities/Entity'
+import { Component } from '../component/Component'
+import { GenericComponent } from '../component/GenericComponent'
+import { ShapeType } from '../type/ShapeType'
+import { Dimension, gameScreenDimension } from './Dimensional'
 
 export type Position = {
     x:number

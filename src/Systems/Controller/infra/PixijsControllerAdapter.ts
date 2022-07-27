@@ -1,9 +1,9 @@
 import { Application } from '@pixi/app'
 import { InteractionEvent } from '@pixi/interaction'
-import { Dimension } from '../../../Components/Dimensional'
-import { Position, position } from '../../../Components/Physical'
+import { Dimension } from '../../../core/components/Dimensional'
+import { Position, position } from '../../../core/components/Physical'
 
-import { EventBus } from '../../../Event/port/EventBus'
+import { EventBus } from '../../../core/port/EventBus'
 import { updatePointerPosition } from '../../../Events/updatePointerPosition/updatePointerPosition'
 import { Logger } from '../../../Log/port/logger'
 import { PixiEvent } from '../../Drawing/port/PixiEvent'

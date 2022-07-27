@@ -1,10 +1,10 @@
-import { errorMessageOnUnknownEventAction, GameEvent } from '../../Event/GameEvent'
+import { errorMessageOnUnknownEventAction, GameEvent } from '../../core/type/GameEvent'
 import { DrawingSystem } from '../Drawing/DrawingSystem'
 import { GenericGameEventDispatcherSystem } from './GenericGameEventDispatcherSystem'
-import { Action } from '../../Event/Action'
+import { Action } from '../../core/type/Action'
 import { ClientLifeCycleSystem } from '../LifeCycle/ClientLifeCycleSystem'
 import { ControllerSystem } from '../Controller/ControllerSystem'
-import { EntityType } from '../../Event/EntityType'
+import { EntityType } from '../../core/type/EntityType'
 import { NotificationSystem } from '../Notification/NotificationSystem'
 export class ClientGameEventDispatcherSystem extends GenericGameEventDispatcherSystem {
     onGameEvent (gameEvent: GameEvent): Promise<void> {

@@ -1,4 +1,4 @@
-import { Physical } from '../../../Components/Physical'
+import { Physical } from '../../../core/components/Physical'
 
 export interface DrawingPort {
     refreshEntity(physicalComponent:Physical): Promise<void>;

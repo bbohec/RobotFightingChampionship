@@ -1,6 +1,6 @@
-import { Phasing } from '../../../Components/Phasing'
-import { Position } from '../../../Components/Physical'
-import { EntityType } from '../../../Event/EntityType'
+import { Phasing } from '../../../core/components/Phasing'
+import { Position } from '../../../core/components/Physical'
+import { EntityType } from '../../../core/type/EntityType'
 export const cellMissingOnGrid = (position: Position, gridId: string): string => `Cell entity with position '${JSON.stringify(position)}' missing on cell entities of the grid '${gridId}'.`
 export const missingInitialPosition = (entityType: EntityType, playerIndex: number): string => `Missing initial position for entity type '${entityType}' of player '${playerIndex}'`
 export const missingDefeatPlayerId = 'defeatPlayerId missing on playable components'

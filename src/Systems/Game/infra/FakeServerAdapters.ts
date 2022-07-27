@@ -1,5 +1,5 @@
 import { InMemoryEntityRepository } from '../../../Entities/infra/InMemoryEntityRepository'
-import { InMemoryEventBus } from '../../../Event/infra/InMemoryEventBus'
+import { InMemoryEventBus } from '../../../infra/event/InMemoryEventBus'
 import { InMemoryClientEventInteractor } from '../../../EventInteractor/infra/client/InMemoryClientEventInteractor'
 import { InMemoryServerEventInteractor } from '../../../EventInteractor/infra/server/InMemoryServerEventInteractor'
 import { InMemorySystemRepository } from '../../Generic/infra/InMemorySystemInteractor'

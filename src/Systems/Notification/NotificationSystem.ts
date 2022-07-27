@@ -1,6 +1,6 @@
 import { EntityInteractor } from '../../Entities/ports/EntityInteractor'
-import { EntityType } from '../../Event/EntityType'
-import { GameEvent } from '../../Event/GameEvent'
+import { EntityType } from '../../core/type/EntityType'
+import { GameEvent } from '../../core/type/GameEvent'
 import { wrongPlayerNotificationMessage } from '../../Events/notifyPlayer/notifyPlayer'
 import { GenericGameEventDispatcherSystem } from '../GameEventDispatcher/GenericGameEventDispatcherSystem'
 import { GenericClientSystem } from '../Generic/GenericClientSystem'

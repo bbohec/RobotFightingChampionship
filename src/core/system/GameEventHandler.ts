@@ -1,11 +1,12 @@
-import { Controller, toController } from '../Components/Controller'
-import { Dimensional, toDimensional } from '../Components/Dimensional'
-import { LifeCycle, toLifeCycle } from '../Components/LifeCycle'
-import { Physical, toPhysical } from '../Components/Physical'
-import { Component, ComponentType } from '../Components/port/Component'
-import { noEntitiesReferenced, multipleEntityReferenced, noEntityReferenced } from '../messages'
-import { EntityType } from './EntityType'
-import { GameEvent } from './GameEvent'
+import { Controller, toController } from '../components/Controller'
+import { Dimensional, toDimensional } from '../components/Dimensional'
+import { LifeCycle, toLifeCycle } from '../components/LifeCycle'
+import { Physical, toPhysical } from '../components/Physical'
+import { ComponentType } from '../component/ComponentType'
+import { Component } from '../component/Component'
+import { noEntitiesReferenced, multipleEntityReferenced, noEntityReferenced } from '../../messages'
+import { EntityType } from '../type/EntityType'
+import { GameEvent } from '../type/GameEvent'
 
 export class GameEventHandler {
     retrievePhysical (event:GameEvent, entityId:string):Physical {

@@ -1,10 +1,10 @@
-import { Hittable } from '../../Components/Hittable'
-import { EntityType } from '../../Event/EntityType'
-import { retrieveReference } from '../../Components/EntityReference'
-import { errorMessageOnUnknownEventAction, GameEvent } from '../../Event/GameEvent'
+import { Hittable } from '../../core/components/Hittable'
+import { EntityType } from '../../core/type/EntityType'
+import { retrieveReference } from '../../core/components/EntityReference'
+import { errorMessageOnUnknownEventAction, GameEvent } from '../../core/type/GameEvent'
 import { victoryEvent } from '../../Events/victory/victory'
 import { GenericServerSystem } from '../Generic/GenericServerSystem'
-import { Offensive } from '../../Components/Offensive'
+import { Offensive } from '../../core/components/Offensive'
 
 export class HitSystem extends GenericServerSystem {
     onGameEvent (gameEvent: GameEvent): Promise<void> {

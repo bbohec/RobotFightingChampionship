@@ -1,6 +1,6 @@
-import { Action } from '../../Event/Action'
-import { EntityType } from '../../Event/EntityType'
-import { newGameEvent } from '../../Event/GameEvent'
+import { Action } from '../../core/type/Action'
+import { EntityType } from '../../core/type/EntityType'
+import { newGameEvent } from '../../core/type/GameEvent'
 export const destroyMatchEvent = (matchId: string) => destroyEvent(EntityType.match, matchId)
 export const destroyRobotEvent = (robotId: string) => destroyEvent(EntityType.robot, robotId)
 export const destroyTowerEvent = (towerId: string) => destroyEvent(EntityType.tower, towerId)

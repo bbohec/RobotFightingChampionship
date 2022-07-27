@@ -1,8 +1,8 @@
 import { describe, before, it, after } from 'mocha'
 import { expect } from 'chai'
-import { GameEvent } from '../../Event/GameEvent'
-import { EntityType } from '../../Event/EntityType'
-import { InMemoryEventBus } from '../../Event/infra/InMemoryEventBus'
+import { GameEvent } from '../../core/type/GameEvent'
+import { EntityType } from '../../core/type/EntityType'
+import { InMemoryEventBus } from '../../infra/event/InMemoryEventBus'
 import { InMemoryServerEventInteractor } from './server/InMemoryServerEventInteractor'
 
 import { EventIntegrationTestSuite, makeInMemoryClientsEventIntegrationTestSuite, clientQty, makeRestClientsEventIntegrationTestSuite, beforeFunction, afterFunction } from './testUtilities'

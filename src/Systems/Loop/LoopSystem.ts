@@ -1,5 +1,5 @@
-import { Action } from '../../Event/Action'
-import { errorMessageOnUnknownEventAction, GameEvent } from '../../Event/GameEvent'
+import { Action } from '../../core/type/Action'
+import { errorMessageOnUnknownEventAction, GameEvent } from '../../core/type/GameEvent'
 import { checkCollisionGameEvent } from '../../Events/checkCollision/checkCollision'
 import { GenericServerSystem } from '../Generic/GenericServerSystem'
 

@@ -1,12 +1,12 @@
-import { Physical, Position } from '../../../Components/Physical'
+import { Physical, Position } from '../../../core/components/Physical'
 import { DrawingAdapter } from '../port/DrawingAdapter'
 import { PixiJSEntity } from '../port/PixiJSEntity'
-import { ShapeType } from '../../../Components/port/ShapeType'
+import { ShapeType } from '../../../core/type/ShapeType'
 import { Logger } from '../../../Log/port/logger'
 import { PixiApplicationCommon } from '../../Controller/infra/PixiApplicationCommon'
 import { Application } from '@pixi/app'
 import { Sprite } from 'pixi.js'
-import { Dimension } from '../../../Components/Dimensional'
+import { Dimension } from '../../../core/components/Dimensional'
 
 const drawEntityOnPositionMessage = (physicalComponent:Physical) => `Draw entity ${physicalComponent.entityId} on position ${JSON.stringify(physicalComponent.position)}`
 const eraseEntityMessage = (id: string) => `Erase entity ${id}`

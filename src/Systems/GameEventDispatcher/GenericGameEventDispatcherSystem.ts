@@ -1,6 +1,6 @@
-import { GameEvent } from '../../Event/GameEvent'
-import { GameEventHandler } from '../../Event/GameEventHandler'
-import { EventInteractor } from '../../EventInteractor/port/EventInteractor'
+import { GameEvent } from '../../core/type/GameEvent'
+import { GameEventHandler } from '../../core/system/GameEventHandler'
+import { EventInteractor } from '../../core/port/EventInteractor'
 import { System } from '../Generic/port/System'
 import { SystemInteractor } from '../Generic/port/SystemInteractor'
 

@@ -1,8 +1,8 @@
-import { Physical, Position } from '../../../Components/Physical'
+import { Physical, Position } from '../../../core/components/Physical'
 import { idAlreadyDraw, idNotFoundOnDrawIds } from '../port/DrawingPort'
 import { DrawingAdapter } from '../port/DrawingAdapter'
 import { PixiApplicationCommon } from '../../Controller/infra/PixiApplicationCommon'
-import { Dimension } from '../../../Components/Dimensional'
+import { Dimension } from '../../../core/components/Dimensional'
 
 export class InMemoryDrawingAdapter extends PixiApplicationCommon implements DrawingAdapter {
     public refreshEntity (physicalComponent: Physical): Promise<void> {

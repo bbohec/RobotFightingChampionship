@@ -1,8 +1,7 @@
-import { GameEvent } from '../GameEvent'
-import { stringifyWithDetailledSetAndMap } from '../detailledStringify'
-import { EventBus } from '../port/EventBus'
-import { GameEventHandler } from '../GameEventHandler'
-import { gameEventNotFoundOnEventInteractor } from '../../messages'
+import { GameEvent } from '../../core/type/GameEvent'
+import { EventBus } from '../../core/port/EventBus'
+import { GameEventHandler } from '../../core/system/GameEventHandler'
+import { gameEventNotFoundOnEventInteractor, stringifyWithDetailledSetAndMap } from '../../messages'
 
 export class InMemoryEventBus extends GameEventHandler implements EventBus {
     public send (gameEvent: GameEvent): Promise<void> {

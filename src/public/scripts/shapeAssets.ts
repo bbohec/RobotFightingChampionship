@@ -1,4 +1,4 @@
-import { ShapeType } from '../../Components/port/ShapeType'
+import { ShapeType } from '../../core/type/ShapeType'
 export const shapeAssets = new Map([
     [ShapeType.robot, new URL('../shapes/chicken.png', import.meta.url)],
     [ShapeType.tower, new URL('../shapes/tower.png', import.meta.url)],

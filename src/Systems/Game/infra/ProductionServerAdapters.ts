@@ -1,5 +1,5 @@
 import { InMemoryEntityRepository } from '../../../Entities/infra/InMemoryEntityRepository'
-import { EventInteractor, ServerEventInteractor } from '../../../EventInteractor/port/EventInteractor'
+import { EventInteractor, ServerEventInteractor } from '../../../core/port/EventInteractor'
 import { InMemorySystemRepository } from '../../Generic/infra/InMemorySystemInteractor'
 import { FakeIdentifierAdapter } from '../../LifeCycle/infra/FakeIdentifierAdapter'
 import { serverAdapters } from '../port/serverAdapters'

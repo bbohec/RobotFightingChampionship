@@ -1,6 +1,6 @@
-import { Physical } from '../../../Components/Physical'
+import { Physical } from '../../../core/components/Physical'
 import { Sprite } from 'pixi.js'
-import { Dimension } from '../../../Components/Dimensional'
+import { Dimension } from '../../../core/components/Dimensional'
 
 export interface PixiJSEntity {
     physical: Physical;

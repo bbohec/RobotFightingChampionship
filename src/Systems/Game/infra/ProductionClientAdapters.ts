@@ -1,5 +1,5 @@
 import { InMemoryEntityRepository } from '../../../Entities/infra/InMemoryEntityRepository'
-import { EventInteractor } from '../../../EventInteractor/port/EventInteractor'
+import { EventInteractor } from '../../../core/port/EventInteractor'
 import { ControllerPort } from '../../Controller/port/ControllerPort'
 import { DrawingPort } from '../../Drawing/port/DrawingPort'
 import { InMemorySystemRepository } from '../../Generic/infra/InMemorySystemInteractor'

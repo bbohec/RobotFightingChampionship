@@ -1,4 +1,4 @@
-import { Action } from '../../Event/Action'
+import { Action } from '../../core/type/Action'
 import { feature } from '../../test/feature'
 import { serverScenario } from '../../test/scenario'
 import { whenEventOccured } from '../../test/unitTest/event'

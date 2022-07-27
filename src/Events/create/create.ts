@@ -1,11 +1,11 @@
-import { Dimension, makeDimensional } from '../../Components/Dimensional'
-import { makePhysical, Position } from '../../Components/Physical'
+import { Dimension, makeDimensional } from '../../core/components/Dimensional'
+import { makePhysical, Position } from '../../core/components/Physical'
 
-import { ShapeType } from '../../Components/port/ShapeType'
-import { Action } from '../../Event/Action'
-import { EntityIds } from '../../Event/entityIds'
-import { EntityType } from '../../Event/EntityType'
-import { newGameEvent } from '../../Event/GameEvent'
+import { ShapeType } from '../../core/type/ShapeType'
+import { Action } from '../../core/type/Action'
+import { EntityIds } from '../../test/entityIds'
+import { EntityType } from '../../core/type/EntityType'
+import { newGameEvent } from '../../core/type/GameEvent'
 export const createClientGameEvent = (playerId:string) => newGameEvent(Action.create, new Map([[EntityType.game, [EntityIds.create]], [EntityType.player, [playerId]]]))
 export const createServerGameEvent = newGameEvent(Action.create, new Map([[EntityType.game, [EntityIds.create]]]))
 export const createMatchEvent = (simpleMatchLobbyEntityId:string) => newGameEvent(Action.create, new Map([[EntityType.match, [EntityIds.create]], [EntityType.simpleMatchLobby, [simpleMatchLobbyEntityId]]]))

@@ -1,5 +1,5 @@
-import { Dimension } from '../../../Components/Dimensional'
-import { Physical, Position } from '../../../Components/Physical'
+import { Dimension } from '../../../core/components/Dimensional'
+import { Physical, Position } from '../../../core/components/Physical'
 
 export interface DrawingIntegration {
     absolutePositionByEntityId (entityId: string): Position | null

@@ -1,14 +1,14 @@
-import { Dimension } from '../Components/Dimensional'
-import { EntityReferences } from '../Components/EntityReference'
-import { Position } from '../Components/Physical'
-import { Component } from '../Components/port/Component'
-import { ControlStatus } from '../Components/port/ControlStatus'
-import { Phase } from '../Components/port/Phase'
-import { ShapeType } from '../Components/port/ShapeType'
-import { EntityType } from '../Event/EntityType'
+import { Dimension } from '../core/components/Dimensional'
+import { EntityReferences } from '../core/components/EntityReference'
+import { Position } from '../core/components/Physical'
+import { Component } from '../core/component/Component'
+import { ControlStatus } from '../core/components/ControlStatus'
+import { ShapeType } from '../core/type/ShapeType'
+import { EntityType } from '../core/type/EntityType'
 import { entityAlreadyBuild } from '../messages'
 import { Entity } from './Entity'
 import { InMemoryEntityRepository } from './infra/InMemoryEntityRepository'
+import { Phase } from '../core/type/Phase'
 
 export class EntityBuilder {
     constructor (entityRepository:InMemoryEntityRepository) {

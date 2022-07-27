@@ -1,6 +1,6 @@
-import { Action } from '../../Event/Action'
-import { EntityType } from '../../Event/EntityType'
-import { GameEvent, newGameEvent } from '../../Event/GameEvent'
+import { Action } from '../../core/type/Action'
+import { EntityType } from '../../core/type/EntityType'
+import { GameEvent, newGameEvent } from '../../core/type/GameEvent'
 
 export const attackEvent = (playerId:string, attackerId:string, targetId:string): GameEvent => newGameEvent(Action.attack, new Map([
     [EntityType.player, [playerId]],

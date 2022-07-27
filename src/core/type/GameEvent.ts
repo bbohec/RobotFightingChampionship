@@ -1,7 +1,7 @@
-import { EntityReferences } from '../Components/EntityReference'
-import { Component } from '../Components/port/Component'
+import { EntityReferences } from '../components/EntityReference'
+import { Component } from '../component/Component'
 import { Action } from './Action'
-import { stringifyWithDetailledSetAndMap } from './detailledStringify'
+import { stringifyWithDetailledSetAndMap } from '../../messages'
 
 export type GameEvent = {
     action:Action

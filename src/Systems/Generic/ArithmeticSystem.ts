@@ -1,4 +1,4 @@
-import { Position } from '../../Components/Physical'
+import { Position } from '../../core/components/Physical'
 import { GenericServerSystem } from './GenericServerSystem'
 
 export abstract class ArtithmeticSystem extends GenericServerSystem {

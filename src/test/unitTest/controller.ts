@@ -1,6 +1,6 @@
 import { expect } from 'chai'
 import { it } from 'mocha'
-import { TestStep } from '../../Event/TestStep'
+import { TestStep } from '../TestStep'
 import { theControllerAdapterIsInteractiveMessage, theControllerAdapterIsNotInteractiveMessage } from '../../messages'
 import { FakeClientAdapters } from '../../Systems/Game/infra/FakeClientAdapters'
 

@@ -1,4 +1,5 @@
-import { Component, GenericComponent } from './port/Component'
+import { Component } from '../component/Component'
+import { GenericComponent } from '../component/GenericComponent'
 
 export type Offensive = GenericComponent<'Offensive', {
     damagePoints: number;

@@ -1,9 +1,12 @@
-import { EntityId } from '../Entities/Entity'
-import { EntityIds } from '../Event/entityIds'
-import { componentIsNot, missingCurrentUnitIdOnPhase } from '../messages'
-import { Component, GenericComponent } from './port/Component'
-import { Phase, PhaseType } from './port/Phase'
+import { EntityId } from '../../Entities/Entity'
+import { EntityIds } from '../../test/entityIds'
+import { componentIsNot, missingCurrentUnitIdOnPhase } from '../../messages'
+import { Component } from '../component/Component'
+import { GenericComponent } from '../component/GenericComponent'
+import { Phase } from '../type/Phase'
+import { PhaseType } from '../type/PhaseType'
 const noActionPoint = 0
+export const maxPlayerPerMatch = 2
 export const defaultActionPoints = 12
 export const weaponAttackActionPoints = 4
 export const placementActionPoints = 1000

@@ -1,7 +1,8 @@
-import { EntityId } from '../Entities/Entity'
-import { EntityType } from '../Event/EntityType'
-import { componentIsNot, missingEntityReferenceByEntityType, multipleEntitiesReferencedByEntityType, multipleEntityTypeOnEntityReference, noEntityTypeOnEntityReference } from '../messages'
-import { Component, GenericComponent } from './port/Component'
+import { EntityId } from '../../Entities/Entity'
+import { EntityType } from '../type/EntityType'
+import { componentIsNot, missingEntityReferenceByEntityType, multipleEntitiesReferencedByEntityType, multipleEntityTypeOnEntityReference, noEntityTypeOnEntityReference } from '../../messages'
+import { Component } from '../component/Component'
+import { GenericComponent } from '../component/GenericComponent'
 
 export type EntityReferences = Map<EntityType, Array<string>>
 

@@ -1,7 +1,7 @@
-import { Physical, position } from '../../Components/Physical'
+import { Physical, position } from '../../core/components/Physical'
 import { v1 as uuid } from 'uuid'
-import { ShapeType } from '../../Components/port/ShapeType'
-import { EntityIds } from '../../Event/entityIds'
+import { ShapeType } from '../../core/type/ShapeType'
+import { EntityIds } from '../../test/entityIds'
 import { PixijsDrawingAdapter } from '../../Systems/Drawing/infra/PixijsDrawingAdapter'
 
 export function makeHorizontalWall (startingX: number, endingX: number, positionY:number) {

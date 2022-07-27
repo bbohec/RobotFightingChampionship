@@ -1,12 +1,12 @@
-import { EntityReference, EntityReferences } from './Components/EntityReference'
-import { Component, ComponentType } from './Components/port/Component'
-import { Phase } from './Components/port/Phase'
+import { EntityReference, EntityReferences } from './core/components/EntityReference'
+import { ComponentType } from './core/component/ComponentType'
+import { Component } from './core/component/Component'
 import { EntityComponents } from './Entities/Entity'
-import { Action } from './Event/Action'
-import { stringifyWithDetailledSetAndMap } from './Event/detailledStringify'
-import { EntityType } from './Event/EntityType'
-import { GameEvent } from './Event/GameEvent'
-import { TestStep } from './Event/TestStep'
+import { Action } from './core/type/Action'
+import { EntityType } from './core/type/EntityType'
+import { GameEvent } from './core/type/GameEvent'
+import { TestStep } from './test/TestStep'
+import { Phase } from './core/type/Phase'
 
 export const gameEventNotFoundOnEventInteractor = (expectedEvent: GameEvent, existingEvents: GameEvent[], to:'client'|'server'): string =>
     `The following game event is not found on '${to}' event repository:\n${stringifyWithDetailledSetAndMap(expectedEvent)}
@@ -56,3 +56,15 @@ expected >>\n${expectedComponents.map(component => stringifyWithDetailledSetAndM
 actual >>>>\n${components.map(component => stringifyWithDetailledSetAndMap(sorted(component))).join('\n    ')}\n`
 
 const sorted = (component:Component):any => Object.fromEntries(Object.entries(component).sort((a, b) => a[0] > b[0] ? 1 : -1))
+
+export const stringifyWithDetailledSetAndMap = (value:any):string => JSON.stringify(value, detailledStringifyForSetAndMap)
+export const detailledStringifyForSetAndMap = (key: string, value: any): any =>
+    (value instanceof Set)
+        ? [...value.values()]
+        : (value instanceof Map)
+            ? mapToObjectLiteral(value)
+            : value
+export const mapToObjectLiteral = (value: Map<any, any>): Record<string, any> => Array.from(value).reduce((obj: Record<string, any>, [key, value]) => {
+    obj[key] = value
+    return obj
+}, {})

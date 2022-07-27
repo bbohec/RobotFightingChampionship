@@ -1,4 +1,4 @@
-import { Component } from '../../Components/port/Component'
+import { Component } from '../../core/component/Component'
 
 export interface ComponentManagement {
 

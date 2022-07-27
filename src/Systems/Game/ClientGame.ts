@@ -1,4 +1,4 @@
-import { GameEvent } from '../../Event/GameEvent'
+import { GameEvent } from '../../core/type/GameEvent'
 import { ControllerSystem } from '../Controller/ControllerSystem'
 import { DrawingSystem } from '../Drawing/DrawingSystem'
 import { ClientGameEventDispatcherSystem } from '../GameEventDispatcher/ClientGameEventDispatcherSystem'

@@ -1,18 +1,18 @@
-import { EntityReference, retrieveReference, retrieveReferences } from '../../Components/EntityReference'
-import { fightPhase, Phasing, placementActionPoints, placementPhase, preparingGamePhase, victoryPhase } from '../../Components/Phasing'
-import { Physical, playerARobotFirstPosition, playerATowerFirstPosition, playerBRobotFirstPosition, playerBTowerFirstPosition, Position } from '../../Components/Physical'
-import { Phase, PhaseType } from '../../Components/port/Phase'
-import { Action } from '../../Event/Action'
-import { EntityType } from '../../Event/EntityType'
-import { errorMessageOnUnknownEventAction, GameEvent } from '../../Event/GameEvent'
+import { EntityReference, retrieveReference, retrieveReferences } from '../../core/components/EntityReference'
+import { fightPhase, Phasing, placementActionPoints, placementPhase, preparingGamePhase, victoryPhase } from '../../core/components/Phasing'
+import { Physical, playerARobotFirstPosition, playerATowerFirstPosition, playerBRobotFirstPosition, playerBTowerFirstPosition, Position } from '../../core/components/Physical'
+import { Action } from '../../core/type/Action'
+import { EntityType } from '../../core/type/EntityType'
+import { errorMessageOnUnknownEventAction, GameEvent } from '../../core/type/GameEvent'
 import { drawEvent } from '../../Events/draw/draw'
 import { moveEvent } from '../../Events/move/move'
 import { nextTurnEvent } from '../../Events/nextTurn/nextTurn'
 import { GenericServerSystem } from '../Generic/GenericServerSystem'
 import { cellMissingOnGrid, currentPhaseNotSupported, missingDefeatPlayerId, missingInitialPosition, missingPlayerInderOnPlayableComponent, unitMissingOnPlayerTowersAndRobots, victoryPlayerMissingOnPlayableComponent } from './port/phasingSystem'
-
-import { Dimension } from '../../Components/Dimensional'
+import { Dimension } from '../../core/components/Dimensional'
 import { destroySimpleMatchLobbyMenuEvent } from '../../Events/destroy/destroy'
+import { Phase } from '../../core/type/Phase'
+import { PhaseType } from '../../core/type/PhaseType'
 
 export interface PhaseSequence {
     currentPhase:Phase,
