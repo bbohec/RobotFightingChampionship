@@ -1,10 +1,10 @@
 import { Func, Test, before, describe } from 'mocha'
-import { GameEvent } from '../core/type/GameEvent'
-import { stringifyWithDetailledSetAndMap } from '../messages'
-import { ClientGameSystem } from '../Systems/Game/ClientGame'
-import { FakeClientAdapters } from '../Systems/Game/infra/FakeClientAdapters'
-import { FakeServerAdapters } from '../Systems/Game/infra/FakeServerAdapters'
-import { ServerGameSystem } from '../Systems/Game/ServerGame'
+import { ClientGameSystem } from '../app/core/systems/ClientGameSystem'
+import { ServerGameSystem } from '../app/core/systems/ServerGameSystem'
+import { GameEvent } from '../app/core/type/GameEvent'
+import { stringifyWithDetailledSetAndMap } from '../app/messages'
+import { FakeClientGameAdapters } from '../infra/game/client/FakeClientGameAdapters'
+import { FakeServerAdapters } from '../infra/game/server/FakeServerAdapters'
 
 type ScenarioType = 'client' | 'server'
 
@@ -32,13 +32,13 @@ export const clientScenario = (
     title:string,
     gameEvents:GameEvent|GameEvent[],
     clientId:string,
-    beforeMochaFunc:((game:ClientGameSystem, adapters:FakeClientAdapters)=>Func)|undefined,
-    tests:((game:ClientGameSystem, adapters:FakeClientAdapters, gameEvent:GameEvent|GameEvent[])=>Test)[],
+    beforeMochaFunc:((game:ClientGameSystem, adapters:FakeClientGameAdapters)=>Func)|undefined,
+    tests:((game:ClientGameSystem, adapters:FakeClientGameAdapters, gameEvent:GameEvent|GameEvent[])=>Test)[],
     nextIdentifiers?:string[],
     skip?:boolean
 ) => {
     const clientTestSuite = () => {
-        const adapters = new FakeClientAdapters(clientId, nextIdentifiers)
+        const adapters = new FakeClientGameAdapters(clientId, nextIdentifiers)
         const game = new ClientGameSystem(adapters)
         // eslint-disable-next-line no-unused-expressions
         if (beforeMochaFunc)before(beforeMochaFunc(game, adapters))

@@ -1,16 +1,16 @@
-import { WebClientEventInteractor } from '../../infra/eventInteractor/client/WebClientEventInteractor'
-import { serverFullyQualifiedDomainName } from '../../infra/eventInteractor/test'
-import { PixijsDrawingAdapter } from '../../Systems/Drawing/infra/PixijsDrawingAdapter'
 import { v1 as uuid } from 'uuid'
-import { ProductionClientAdapters } from '../../Systems/Game/infra/ProductionClientAdapters'
-import { ClientGameSystem } from '../../Systems/Game/ClientGame'
-import { defaultHTTPWebServerPort } from '../../infra/eventInteractor/server/WebServerEventInteractor'
-import { ProductionEventBus } from '../../infra/eventBus/ProductionEventBus'
-import { shapeAssets } from './shapeAssets'
-import { createPlayerEvent } from '../../core/events/create/create'
-import { ConsoleLogger } from '../../infra/logger/consoleLogger'
-import { PixijsControllerAdapter } from '../../Systems/Controller/infra/PixijsControllerAdapter'
 import { Application } from '@pixi/app'
+import { createPlayerEvent } from '../../app/core/events/create/create'
+import { ClientGameSystem } from '../../app/core/systems/ClientGameSystem'
+import { PixijsControllerAdapter } from '../../infra/controller/PixijsControllerAdapter'
+import { PixijsDrawingAdapter } from '../../infra/drawing/PixijsDrawingAdapter'
+import { ProductionEventBus } from '../../infra/eventBus/ProductionEventBus'
+import { WebClientEventInteractor } from '../../infra/eventInteractor/client/WebClientEventInteractor'
+import { defaultHTTPWebServerPort } from '../../infra/eventInteractor/server/WebServerEventInteractor'
+import { serverFullyQualifiedDomainName } from '../../infra/eventInteractor/test'
+import { ProductionClientGameAdapters } from '../../infra/game/client/ProductionClientGameAdapters'
+import { ConsoleLogger } from '../../infra/logger/consoleLogger'
+import { shapeAssets } from './shapeAssets'
 const loadClient = (playerId:string) => {
     const productionClientEventBus = new ProductionEventBus(new ConsoleLogger('eventBus'))
     const pixiApplication = new Application()
@@ -21,7 +21,7 @@ const loadClient = (playerId:string) => {
     window.addEventListener('resize', resizePixiCanvas)
     productionClientDrawingAdapter.addingViewToDom(document.body)
     resizePixiCanvas()
-    productionClientEventBus.setGameSystem(new ClientGameSystem(new ProductionClientAdapters(productionClientDrawingAdapter, productionClientEventInteractor, playerId, controllerAdapter)))
+    productionClientEventBus.setGameSystem(new ClientGameSystem(new ProductionClientGameAdapters(productionClientDrawingAdapter, productionClientEventInteractor, playerId, controllerAdapter)))
     return productionClientEventInteractor
 }
 const playerId = uuid()

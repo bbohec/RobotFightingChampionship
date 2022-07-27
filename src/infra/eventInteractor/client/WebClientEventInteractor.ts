@@ -1,13 +1,13 @@
 import axios, { AxiosError, AxiosRequestConfig } from 'axios'
 import EventSource from 'eventsource'
-import { GameEvent, newGameEvent } from '../../../core/type/GameEvent'
-import { SSEClient } from '../sse/SSEClient'
+import { EventBus } from '../../../app/core/port/EventBus'
+import { ClientEventInteractor } from '../../../app/core/port/EventInteractor'
+import { Logger } from '../../../app/core/port/Logger'
+import { GameEvent, newGameEvent } from '../../../app/core/type/GameEvent'
+import { stringifyWithDetailledSetAndMap } from '../../../app/messages'
 import { clientGameEventUrlPath } from '../server/WebServerEventInteractor'
-import { ClientEventInteractor } from '../../../core/port/EventInteractor'
-import { EventBus } from '../../../core/port/EventBus'
-import { Logger } from '../../../core/port/Logger'
+import { SSEClient } from '../sse/SSEClient'
 import { SSEMessageType } from '../sse/SSEMessage'
-import { stringifyWithDetailledSetAndMap } from '../../../messages'
 
 export const clientBodyRequest = (stringifiedBody:string): string => `CLIENT POST REQUEST : ${stringifiedBody} `
 const sseRegisteredCheckInterval = 100

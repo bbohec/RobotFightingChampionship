@@ -1,12 +1,12 @@
 import { expect } from 'chai'
 import { it } from 'mocha'
-import { Component } from '../../core/component/Component'
+import { Component } from '../../app/core/component/Component'
+import { ClientGameSystem } from '../../app/core/systems/ClientGameSystem'
+import { ServerGameSystem } from '../../app/core/systems/ServerGameSystem'
+import { hasComponents, componentDetailedComparisonMessage } from '../../app/messages'
+import { FakeClientGameAdapters } from '../../infra/game/client/FakeClientGameAdapters'
+import { FakeServerAdapters } from '../../infra/game/server/FakeServerAdapters'
 import { TestStep } from '../TestStep'
-import { hasComponents, componentDetailedComparisonMessage } from '../../messages'
-import { ClientGameSystem } from '../../Systems/Game/ClientGame'
-import { FakeClientAdapters } from '../../Systems/Game/infra/FakeClientAdapters'
-import { FakeServerAdapters } from '../../Systems/Game/infra/FakeServerAdapters'
-import { ServerGameSystem } from '../../Systems/Game/ServerGame'
 
 export const thereIsServerComponents = (
     testStep:TestStep,
@@ -21,7 +21,7 @@ export const thereIsServerComponents = (
 export const thereIsClientComponents = (
     testStep:TestStep,
     expectedComponents: Component[]
-) => (game:ClientGameSystem, adapters:FakeClientAdapters) => it(hasComponents(testStep, expectedComponents),
+) => (game:ClientGameSystem, adapters:FakeClientGameAdapters) => it(hasComponents(testStep, expectedComponents),
     () => {
         const components = adapters
             .entityInteractor.retreiveAllComponents()

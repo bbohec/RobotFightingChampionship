@@ -1,7 +1,7 @@
 import { Test } from 'mocha'
-import { GameEvent } from '../../core/type/GameEvent'
-import { GenericGameSystem } from '../../Systems/Game/GenericGame'
-import { FakeClientAdapters } from '../../Systems/Game/infra/FakeClientAdapters'
-import { FakeServerAdapters } from '../../Systems/Game/infra/FakeServerAdapters'
+import { GenericGameSystem } from '../../app/core/system/GenericGameSystem'
+import { GameEvent } from '../../app/core/type/GameEvent'
+import { FakeClientGameAdapters } from '../../infra/game/client/FakeClientGameAdapters'
+import { FakeServerAdapters } from '../../infra/game/server/FakeServerAdapters'
 
-export type UnitTestWithContext = (game: GenericGameSystem, adapters: FakeServerAdapters | FakeClientAdapters, gameEvents: GameEvent | GameEvent[]) => Test
+export type UnitTestWithContext = (game: GenericGameSystem, adapters: FakeServerAdapters | FakeClientGameAdapters, gameEvents: GameEvent | GameEvent[]) => Test

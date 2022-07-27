@@ -1,15 +1,15 @@
 import { expect } from 'chai'
 import { Test, it } from 'mocha'
-import { GameEvent } from '../../core/type/GameEvent'
+import { EventBus } from '../../app/core/port/EventBus'
+import { GenericGameSystem } from '../../app/core/system/GenericGameSystem'
+import { GameEvent } from '../../app/core/type/GameEvent'
+import { eventDetailedComparisonMessage, eventsAreSentMessage, eventMessage } from '../../app/messages'
 import { InMemoryEventBus } from '../../infra/eventBus/InMemoryEventBus'
-import { EventBus } from '../../core/port/EventBus'
-import { TestStep } from '../TestStep'
 import { InMemoryClientEventInteractor } from '../../infra/eventInteractor/client/InMemoryClientEventInteractor'
 import { InMemoryServerEventInteractor } from '../../infra/eventInteractor/server/InMemoryServerEventInteractor'
-import { eventDetailedComparisonMessage, eventMessage, eventsAreSentMessage } from '../../messages'
-import { GenericGameSystem } from '../../Systems/Game/GenericGame'
-import { FakeClientAdapters } from '../../Systems/Game/infra/FakeClientAdapters'
-import { FakeServerAdapters } from '../../Systems/Game/infra/FakeServerAdapters'
+import { FakeClientGameAdapters } from '../../infra/game/client/FakeClientGameAdapters'
+import { FakeServerAdapters } from '../../infra/game/server/FakeServerAdapters'
+import { TestStep } from '../TestStep'
 import { UnitTestWithContext } from './unitTest'
 
 export const eventsAreSent = (
@@ -17,7 +17,7 @@ export const eventsAreSent = (
     to:'server'|string,
     expectedGameEvents: GameEvent[],
     skip?:boolean
-) => (game:GenericGameSystem, adapters:FakeClientAdapters | FakeServerAdapters):Test => {
+) => (game:GenericGameSystem, adapters:FakeClientGameAdapters | FakeServerAdapters):Test => {
     const getEventBus = (eventInteractor: InMemoryServerEventInteractor | InMemoryClientEventInteractor):EventBus => {
         if (eventInteractor instanceof InMemoryClientEventInteractor) {
             if (to !== 'server') return eventInteractor.eventBus
@@ -50,4 +50,4 @@ export const whenEventOccured = (): UnitTestWithContext[] => {
     }]
 }
 
-export const whenEventOccurs = (event:GameEvent) => (game:GenericGameSystem, adapters: FakeServerAdapters | FakeClientAdapters, events:GameEvent|GameEvent[]):Test => it(eventMessage(event), () => game.onGameEvent(event))
+export const whenEventOccurs = (event:GameEvent) => (game:GenericGameSystem, adapters: FakeServerAdapters | FakeClientGameAdapters, events:GameEvent|GameEvent[]):Test => it(eventMessage(event), () => game.onGameEvent(event))

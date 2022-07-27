@@ -1,13 +1,13 @@
 import { json, urlencoded } from 'body-parser'
 import { IncomingMessage, OutgoingHttpHeaders, ServerResponse } from 'http'
 import { v1 as uuid } from 'uuid'
-import { EntityType } from '../../../core/type/EntityType'
-import { GameEvent, newGameEvent } from '../../../core/type/GameEvent'
-import { EventBus } from '../../../core/port/EventBus'
-import { Logger } from '../../../core/port/Logger'
-import { ServerEventInteractor } from '../../../core/port/EventInteractor'
 import { ExpressWebServerInstance } from './ExpressWebServerInstance'
 import { SSEMessage, SSEMessageType } from '../sse/SSEMessage'
+import { EventBus } from '../../../app/core/port/EventBus'
+import { ServerEventInteractor } from '../../../app/core/port/EventInteractor'
+import { EntityType } from '../../../app/core/type/EntityType'
+import { GameEvent, newGameEvent } from '../../../app/core/type/GameEvent'
+import { Logger } from '../../../app/core/port/Logger'
 
 export const serverBodyRequest = (stringifiedBody:string): string => `SERVER POST REQUEST : ${stringifiedBody}`
 export const clientGameEventUrlPath = '/clientGameEvent'

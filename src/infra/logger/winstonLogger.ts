@@ -1,5 +1,6 @@
-import { Logger } from '../../core/port/Logger'
+
 import * as Winston from 'winston'
+import { Logger } from '../../app/core/port/Logger'
 
 export class WinstonLogger implements Logger {
     info (message?: any, ...optionalParams: any[]): void {

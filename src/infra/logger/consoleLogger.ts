@@ -1,4 +1,4 @@
-import { Logger, LoggerName } from '../../core/port/Logger'
+import { Logger, LoggerName } from '../../app/core/port/Logger'
 
 export class ConsoleLogger implements Logger {
     constructor (loggerName:LoggerName) {

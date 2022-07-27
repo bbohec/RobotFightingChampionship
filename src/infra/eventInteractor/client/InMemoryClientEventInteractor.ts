@@ -1,6 +1,6 @@
-import { GameEvent } from '../../../core/type/GameEvent'
-import { ClientEventInteractor, ServerEventInteractor } from '../../../core/port/EventInteractor'
-import { EventBus } from '../../../core/port/EventBus'
+import { EventBus } from '../../../app/core/port/EventBus'
+import { ClientEventInteractor, ServerEventInteractor } from '../../../app/core/port/EventInteractor'
+import { GameEvent } from '../../../app/core/type/GameEvent'
 
 export class InMemoryClientEventInteractor implements ClientEventInteractor {
     public serverEventInteractor: ServerEventInteractor | undefined;

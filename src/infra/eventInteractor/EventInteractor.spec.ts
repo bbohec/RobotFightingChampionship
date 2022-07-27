@@ -1,17 +1,17 @@
 import { describe, before, it, after } from 'mocha'
 import { expect } from 'chai'
-import { GameEvent } from '../../core/type/GameEvent'
-import { EntityType } from '../../core/type/EntityType'
 import { InMemoryEventBus } from '../eventBus/InMemoryEventBus'
 import { InMemoryServerEventInteractor } from './server/InMemoryServerEventInteractor'
-
 import { EventIntegrationTestSuite, makeInMemoryClientsEventIntegrationTestSuite, clientQty, makeRestClientsEventIntegrationTestSuite, beforeFunction, afterFunction } from './test'
 import { WebServerEventInteractor, defaultHTTPWebServerPort } from './server/WebServerEventInteractor'
 import { ExpressWebServerInstance } from './server/ExpressWebServerInstance'
 import express from 'express'
 import { Log4jsLogger } from '../logger/log4jsLogger'
 import { InMemoryClientEventInteractor } from './client/InMemoryClientEventInteractor'
-import { detailedComparisonMessage } from '../../messages'
+import { EntityType } from '../../app/core/type/EntityType'
+import { GameEvent } from '../../app/core/type/GameEvent'
+import { detailedComparisonMessage } from '../../app/messages'
+
 describe('Integration Test Suite - Event Interactor', () => {
     const testSuites:EventIntegrationTestSuite[] = [
         {

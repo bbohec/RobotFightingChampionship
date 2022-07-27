@@ -1,12 +1,12 @@
 import { expect } from 'chai'
 import { it } from 'mocha'
+import { thereIsANotificationMessage } from '../../app/messages'
+import { FakeClientGameAdapters } from '../../infra/game/client/FakeClientGameAdapters'
 import { TestStep } from '../TestStep'
-import { thereIsANotificationMessage } from '../../messages'
-import { FakeClientAdapters } from '../../Systems/Game/infra/FakeClientAdapters'
 
 export const thereIsANotification = (
     testStep:TestStep,
-    adapters: FakeClientAdapters,
+    adapters: FakeClientGameAdapters,
     notification:string
 ) => it(thereIsANotificationMessage(testStep, notification),
     () => expect(adapters

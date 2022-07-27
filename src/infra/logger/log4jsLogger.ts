@@ -1,5 +1,5 @@
-import { Logger, LoggerName } from '../../core/port/Logger'
 import { configure, getLogger, Configuration, Logger as log4jsLogger } from 'log4js'
+import { Logger, LoggerName } from '../../app/core/port/Logger'
 
 const configuration:Configuration = { appenders: {}, categories: {} }
 configuration.appenders.default = { type: 'console' }
