@@ -5,7 +5,7 @@ import { ClientGameAdapters } from '../../../core/port/Game'
 import { Identifier } from '../../../core/port/Identifier'
 import { InMemoryComponentRepository } from '../../component/InMemoryComponentRepository'
 import { FakeIdentifierAdapter } from '../../identifier/FakeIdentifierAdapter'
-import { InMemoryNotificationAdapter } from '../../notification/InMemoryNotificationAdapter'
+import { WebClientNotificationAdapter } from '../../notification/WebClientNotificationAdapter'
 import { InMemorySystemRepository } from '../../system/InMemorySystemInteractor'
 
 export class ProductionClientGameAdapters implements ClientGameAdapters {
@@ -20,7 +20,7 @@ export class ProductionClientGameAdapters implements ClientGameAdapters {
     identifierInteractor: Identifier;
     eventInteractor: EventInteractor;
     drawingInteractor: Drawing;
-    notificationInteractor = new InMemoryNotificationAdapter();
+    notificationInteractor = new WebClientNotificationAdapter();
     systemInteractor = new InMemorySystemRepository();
     componentRepository = new InMemoryComponentRepository()
 }
