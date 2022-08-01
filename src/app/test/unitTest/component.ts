@@ -13,8 +13,10 @@ export const thereIsServerComponents = (
     expectedComponents: Component[]
 ) => (game:ServerGameSystem, adapters:FakeServerAdapters) => it(hasComponents(testStep, expectedComponents),
     () => {
-        const components = adapters
+        let components = adapters
             .componentRepository.retreiveAllComponents()
+        components = sortComponents(components)
+        expectedComponents = sortComponents(expectedComponents)
         expect(components).deep.equal(expectedComponents, componentDetailedComparisonMessage(components, expectedComponents))
     })
 
@@ -23,7 +25,11 @@ export const thereIsClientComponents = (
     expectedComponents: Component[]
 ) => (game:ClientGameSystem, adapters:FakeClientGameAdapters) => it(hasComponents(testStep, expectedComponents),
     () => {
-        const components = adapters
+        let components = adapters
             .componentRepository.retreiveAllComponents()
+        components = sortComponents(components)
+        expectedComponents = sortComponents(expectedComponents)
         expect(components).deep.equal(expectedComponents, componentDetailedComparisonMessage(components, expectedComponents))
     })
+
+const sortComponents = (components:Component[]) => components.sort((a, b) => (a.componentType + a.entityId) > (b.componentType + b.entityId) ? 1 : -1)

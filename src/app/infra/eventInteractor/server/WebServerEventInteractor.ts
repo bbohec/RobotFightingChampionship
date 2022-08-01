@@ -1,13 +1,13 @@
 import { json, urlencoded } from 'body-parser'
 import { IncomingMessage, OutgoingHttpHeaders, ServerResponse } from 'http'
 import { v1 as uuid } from 'uuid'
-import { ExpressWebServerInstance } from './ExpressWebServerInstance'
-import { SSEMessage, SSEMessageType } from '../sse/SSEMessage'
 import { EventBus } from '../../../core/port/EventBus'
 import { ServerEventInteractor } from '../../../core/port/EventInteractor'
+import { Logger } from '../../../core/port/Logger'
 import { EntityType } from '../../../core/type/EntityType'
 import { GameEvent, newGameEvent } from '../../../core/type/GameEvent'
-import { Logger } from '../../../core/port/Logger'
+import { gameEventToSseData, sseDataToGameEvent, SSEMessage, SSEMessageType } from '../sse/SSEMessage'
+import { ExpressWebServerInstance } from './ExpressWebServerInstance'
 
 export const serverBodyRequest = (stringifiedBody:string): string => `SERVER POST REQUEST : ${stringifiedBody}`
 export const clientGameEventUrlPath = '/clientGameEvent'
@@ -49,7 +49,7 @@ export class WebServerEventInteractor implements ServerEventInteractor {
                     clearInterval(interval)
                     this.logger.info('All SSE client closed.')
                     resolve()
-                } else { this.logger.info(this.registeredSSEClientResponses.size) }
+                } else { this.logger.info(`${this.registeredSSEClientResponses.size} remaining registered SSE Client Responses to close...`) }
             }, sseClientClosedCheckInterval)
         })
     }
@@ -68,32 +68,9 @@ export class WebServerEventInteractor implements ServerEventInteractor {
             : Promise.reject(new Error(sseClientMissingMessage(playerId)))
     }
 
-    /* private serializeEvent (gameEvent: GameEvent): SerializedGameEvent {
-        const serializedEvent = {
-            action: gameEvent.action,
-            entityRefences: gameEvent.entityRefences,
-            components: gameEvent.components.map(component => this.componentSerializer.serializeComponent(component))
-        }
-        return serializedEvent
-    }
-    */
-
     private gameEventFromBody (body:string):GameEvent {
-        const parsedBody:GameEvent = JSON.parse(body, (key, value) => typeof value === 'object' && value !== null
-            ? value.dataType === 'Map' ? new Map(value.value) : value
-            : value
-        )
-        return newGameEvent(parsedBody.action, parsedBody.entityRefences, parsedBody.components, parsedBody.message)
-        /* return new GameEvent({
-            action: parsedBody.action,
-            components: parsedBody.components.map(serializedComponent => {
-                const component = this.componentBuilder.buildComponent(serializedComponent)
-                if (component instanceof Error) throw component
-                return component
-            }),
-            entityRefences: parsedBody.entityRefences
-        })
-        */
+        const gameEvent = sseDataToGameEvent(body)
+        return newGameEvent(gameEvent.action, gameEvent.entityRefences, gameEvent.components, gameEvent.message)
     }
 
     private registerSSEClient (clientId: string, request:IncomingMessage, response: ServerResponse) {
@@ -130,12 +107,7 @@ export class WebServerEventInteractor implements ServerEventInteractor {
     }
 
     private makeSSEGameEventMessage (sseEventType: SSEMessageType, gameEvent: GameEvent): SSEMessage {
-        // if (gameEvent instanceof GameEvent) gameEvent = this.serializeEvent(gameEvent)
-        const data = JSON.stringify(gameEvent, (key: string, value: unknown) => value instanceof Map
-            ? { dataType: 'Map', value: Array.from(value.entries()) }
-            : value
-        )
-        return sseMessage(uuid(), sseEventType, this.sseRetryIntervalMilliseconds, data)
+        return sseMessage(uuid(), sseEventType, this.sseRetryIntervalMilliseconds, gameEventToSseData(gameEvent))
     }
 
     private sendMessageToSSEClientResponse (playerId:string, sseClientResponse: ServerResponse, sseMessage: SSEMessage) {

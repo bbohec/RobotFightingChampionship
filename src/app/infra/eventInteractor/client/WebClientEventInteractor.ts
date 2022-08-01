@@ -37,7 +37,7 @@ export class WebClientEventInteractor implements ClientEventInteractor, SSEClien
 
     stop (): Promise<void> {
         return new Promise<void>((resolve, reject) => {
-            this.logger.info(`Stoping ${this.constructor.name} ...`)
+            this.logger.info(`Stoping ${this.constructor.name} ${this.clientId} ...`)
             if (this.eventSource) {
                 this.eventSource.close()
                 this.logger.info(`${this.constructor.name} stoped.`)

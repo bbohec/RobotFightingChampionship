@@ -261,7 +261,6 @@ feature(Action.move, () => {
             .makeEntity(EntityIds.playerB).withEntityReferences(EntityType.player, new Map([[EntityType.tower, [EntityIds.playerBTower]], [EntityType.robot, [EntityIds.playerBRobot]], [EntityType.match, [EntityIds.match]]])).save()
             .buildRobot(EntityIds.playerARobot, playerARobotFirstPosition(gridFirstCellPosition)).save()
             .buildTower(EntityIds.playerBTower, playerBTowerFirstPosition(gridFirstCellPosition, gameScreenDimension)).save()
-            .makeEntity(EntityIds.playerBRobot).save()
             .makeEntity(EntityIds.cellx2y1).withPhysical(position(2, 1), ShapeType.cell, true).save()
         , [
             thereIsServerComponents(TestStep.Given, [

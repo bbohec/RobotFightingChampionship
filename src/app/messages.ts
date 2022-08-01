@@ -31,7 +31,7 @@ export const multipleEntityReferenced = (entityType: EntityType): string => `Mul
 export const featureEventDescription = (action:Action): string => `Feature : ${action} events`
 
 export const hasComponents = (testStep: TestStep, expectedComponents: Component[]): string => `${testStep} there is components :
-            ${expectedComponents.map(component => stringifyWithDetailledSetAndMap(component)).join('\n\t')}`
+        ${expectedComponents.map(component => stringifyWithDetailledSetAndMap(component)).join('\n\t')}`
 
 export const detailedComparisonMessage = (thing:unknown, expectedThing:unknown):string => `DETAILS\nexpected >>>>>>>> ${stringifyWithDetailledSetAndMap(thing)} \nto deeply equal > ${stringifyWithDetailledSetAndMap(expectedThing)} \n`
 
@@ -55,8 +55,8 @@ export const eventDetailedComparisonMessage = (gameEvents: GameEvent[], expected
     actual >>>>> ${stringifyWithDetailledSetAndMap(gameEvents)} \n`
 
 export const componentDetailedComparisonMessage = (components: Component[], expectedComponents: Component[]): string => `DETAILS
-expected >>\n${expectedComponents.map(component => stringifyWithDetailledSetAndMap(sorted(component))).join('\n    ')}}
-actual >>>>\n${components.map(component => stringifyWithDetailledSetAndMap(sorted(component))).join('\n    ')}\n`
+expected >>\n\t${expectedComponents.map(component => stringifyWithDetailledSetAndMap(sorted(component))).join('\n\t')}}
+actual >>>>\n\t${components.map(component => stringifyWithDetailledSetAndMap(sorted(component))).join('\n\t')}\n`
 
 const sorted = (component:Component):any => Object.fromEntries(Object.entries(component).sort((a, b) => a[0] > b[0] ? 1 : -1))
 

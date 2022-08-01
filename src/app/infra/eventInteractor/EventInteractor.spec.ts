@@ -21,7 +21,7 @@ describe('Integration Test Suite - Event Interactor', () => {
         },
         {
             adapterType: 'Rest',
-            serverEventInteractor: new WebServerEventInteractor(new ExpressWebServerInstance(express(), defaultHTTPWebServerPort, new Log4jsLogger('expressInstance')), new InMemoryEventBus(), 1000, new Log4jsLogger('eventInteractor')),
+            serverEventInteractor: new WebServerEventInteractor(new ExpressWebServerInstance(express(), defaultHTTPWebServerPort, new Log4jsLogger('expressInstance')), new InMemoryEventBus(), 1000, new Log4jsLogger('webServerEventInteractor')),
             clientsEventIntegrationTestSuite: makeRestClientsEventIntegrationTestSuite(clientQty)
         }
     ]
@@ -65,7 +65,7 @@ describe('Integration Test Suite - Event Interactor', () => {
                     Promise.all(clientsEvents.map(event => testSuite.serverEventInteractor.sendEventToClient(event)))
                         .then(() => done())
                         .catch(error => done(error))
-                }).timeout(5000)
+                }).timeout(30000)
                 testSuite.clientsEventIntegrationTestSuite.forEach((clientEventIntegrationTestSuite, index) => {
                     const clientEventBus = clientEventIntegrationTestSuite.clientEventInteractor.eventBus
                     if (clientEventBus instanceof InMemoryEventBus)

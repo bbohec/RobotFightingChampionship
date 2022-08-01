@@ -1,7 +1,7 @@
 import express from 'express'
+import { ServerGameSystem } from './app/core/ecs/systems/ServerGameSystem'
 import { createServerGameEvent } from './app/core/events/create/create'
 import { newLoopEvent } from './app/core/events/newLoop/newLoop'
-import { ServerGameSystem } from './app/core/ecs/systems/ServerGameSystem'
 import { ProductionEventBus } from './app/infra/eventBus/ProductionEventBus'
 import { ExpressWebServerInstance } from './app/infra/eventInteractor/server/ExpressWebServerInstance'
 import { WebServerEventInteractor, defaultHTTPWebServerPort, productionSSERetryInterval } from './app/infra/eventInteractor/server/WebServerEventInteractor'
@@ -12,7 +12,7 @@ const loadProductionServer = (expressWebServerInstance:ExpressWebServerInstance,
     const eventBus = new ProductionEventBus(new Log4jsLogger('eventBus'))
     const gameSystem = new ServerGameSystem(
         new ProductionServerAdapters(
-            new WebServerEventInteractor(expressWebServerInstance, eventBus, sseRetryInterval, new Log4jsLogger('eventInteractor'))
+            new WebServerEventInteractor(expressWebServerInstance, eventBus, sseRetryInterval, new Log4jsLogger('webServerEventInteractor'))
         )
     )
     eventBus.setGameSystem(gameSystem)

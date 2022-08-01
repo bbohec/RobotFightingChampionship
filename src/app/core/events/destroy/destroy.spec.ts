@@ -108,10 +108,10 @@ feature(Action.destroy, () => {
         ])
     serverScenario(`${Action.destroy} 7`, destroyDefeatEvent(EntityIds.defeat),
         [], (game, adapters) => () => new EntityBuilder(adapters.componentRepository)
-            .makeEntity(EntityIds.defeat).save()
+            .makeEntity(EntityIds.defeat).withPhysical(position(0, 0), ShapeType.defeat, true).save()
         , [
             thereIsServerComponents(TestStep.Given, [
-
+                makePhysical(EntityIds.defeat, position(0, 0), ShapeType.defeat, true)
             ]),
             ...whenEventOccured(),
             thereIsServerComponents(TestStep.Then, [
