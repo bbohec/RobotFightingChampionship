@@ -51,8 +51,8 @@ export const theControllerAdapterIsInteractiveMessage = (testStep: TestStep): st
 export const theControllerAdapterIsNotInteractiveMessage = (testStep: TestStep): string => `${testStep} the controller adapter is not interactive.`
 
 export const eventDetailedComparisonMessage = (gameEvents: GameEvent[], expectedGameEvents: GameEvent[]): string => `DETAILS
-    expected >>> ${stringifyWithDetailledSetAndMap(expectedGameEvents)}
-    actual >>>>> ${stringifyWithDetailledSetAndMap(gameEvents)} \n`
+expected >>\n\t${expectedGameEvents.map(expectedGameEvent => stringifyWithDetailledSetAndMap(expectedGameEvent)).join('\n\t')}}
+actual >>>>\n\t${gameEvents.map(gameEvent => stringifyWithDetailledSetAndMap(gameEvent)).join('\n\t')}\n`
 
 export const componentDetailedComparisonMessage = (components: Component[], expectedComponents: Component[]): string => `DETAILS
 expected >>\n\t${expectedComponents.map(component => stringifyWithDetailledSetAndMap(sorted(component))).join('\n\t')}}
@@ -82,3 +82,6 @@ export const unitMissingOnPlayerTowersAndRobots = (currentUnitId: string): strin
 
 export const playerNotFoundOnMatchPlayers = (playerId: string): string => `Player with Id '${playerId}' not found on match players.`
 export const noMatchWithPlayerOnPlayableComponent = (playerId: string): string => `No match with player that have id ${playerId} on Playable component.`
+
+export const entityHasBeenDetroyed = (attackerEntityId: string, defenderEntityId: string): string => `${attackerEntityId} has been destroyed by ${defenderEntityId}.`
+export const entityHasBeenDamaged = (attackerEntityId: string, defenderEntityId: string, damageTaken:number, remainingHitPoints:number): string => `${attackerEntityId} has been damaged by ${defenderEntityId} for ${damageTaken} hit points. Remaining hit points: ${remainingHitPoints}.`
