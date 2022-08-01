@@ -6,13 +6,14 @@ import { ServerGameSystem } from '../../core/ecs/systems/ServerGameSystem'
 import { FakeClientGameAdapters } from '../../infra/game/client/FakeClientGameAdapters'
 import { FakeServerAdapters } from '../../infra/game/server/FakeServerAdapters'
 import { hasComponents, componentDetailedComparisonMessage } from '../../messages'
-import { TestStep } from '../TestStep'
+import { isGiven, TestStep } from '../TestStep'
 
 export const thereIsServerComponents = (
     testStep:TestStep,
     expectedComponents: Component[]
 ) => (game:ServerGameSystem, adapters:FakeServerAdapters) => it(hasComponents(testStep, expectedComponents),
     () => {
+        if (isGiven(testStep)) adapters.componentRepository.saveComponents(expectedComponents)
         let components = adapters
             .componentRepository.retreiveAllComponents()
         components = sortComponents(components)
@@ -25,6 +26,7 @@ export const thereIsClientComponents = (
     expectedComponents: Component[]
 ) => (game:ClientGameSystem, adapters:FakeClientGameAdapters) => it(hasComponents(testStep, expectedComponents),
     () => {
+        if (isGiven(testStep)) adapters.componentRepository.saveComponents(expectedComponents)
         let components = adapters
             .componentRepository.retreiveAllComponents()
         components = sortComponents(components)

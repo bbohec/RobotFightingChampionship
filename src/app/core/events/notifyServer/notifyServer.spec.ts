@@ -5,7 +5,7 @@ import { Action } from '../../type/Action'
 import { notifyServerEvent } from './notifyServer'
 
 feature(Action.notifyServer, () => {
-    serverScenario(`${Action.notifyServer}`, notifyServerEvent('test message'), [], undefined
+    serverScenario(`${Action.notifyServer}`, notifyServerEvent('test message'), []
         , [
             ...whenEventOccured()
         ])

@@ -1,4 +1,4 @@
-import { Func, Test, before, describe } from 'mocha'
+import { Test, describe } from 'mocha'
 import { ClientGameSystem } from '../core/ecs/systems/ClientGameSystem'
 import { ServerGameSystem } from '../core/ecs/systems/ServerGameSystem'
 import { GameEvent } from '../core/type/GameEvent'
@@ -12,7 +12,6 @@ export const serverScenario = (
     title:string,
     gameEvent:GameEvent|GameEvent[],
     clientIds:string[],
-    beforeMochaFunc:((game:ServerGameSystem, adapters:FakeServerAdapters)=>Func)|undefined,
     tests:((game:ServerGameSystem, adapters:FakeServerAdapters, gameEvent:GameEvent|GameEvent[])=>Test)[],
     nextIdentifiers?:string[],
     skip?:boolean
@@ -20,8 +19,6 @@ export const serverScenario = (
     const serverTestSuite = () => {
         const adapters = new FakeServerAdapters(clientIds, nextIdentifiers)
         const game = new ServerGameSystem(adapters)
-        // eslint-disable-next-line no-unused-expressions
-        if (beforeMochaFunc)before(beforeMochaFunc(game, adapters))
         tests.forEach(test => test(game, adapters, gameEvent))
     }
     return (skip)
@@ -32,7 +29,7 @@ export const clientScenario = (
     title:string,
     gameEvents:GameEvent|GameEvent[],
     clientId:string,
-    beforeMochaFunc:((game:ClientGameSystem, adapters:FakeClientGameAdapters)=>Func)|undefined,
+    // beforeMochaFunc:((game:ClientGameSystem, adapters:FakeClientGameAdapters)=>Func)|undefined,
     tests:((game:ClientGameSystem, adapters:FakeClientGameAdapters, gameEvent:GameEvent|GameEvent[])=>Test)[],
     nextIdentifiers?:string[],
     skip?:boolean
@@ -41,7 +38,7 @@ export const clientScenario = (
         const adapters = new FakeClientGameAdapters(clientId, nextIdentifiers)
         const game = new ClientGameSystem(adapters)
         // eslint-disable-next-line no-unused-expressions
-        if (beforeMochaFunc)before(beforeMochaFunc(game, adapters))
+        // if (beforeMochaFunc)before(beforeMochaFunc(game, adapters))
         tests.forEach(test => test(game, adapters, gameEvents))
     }
     return (skip)

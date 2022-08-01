@@ -3,19 +3,29 @@ import { it } from 'mocha'
 import { Physical } from '../../core/ecs/components/Physical'
 import { GenericGameSystem } from '../../core/ecs/system'
 import { FakeClientGameAdapters } from '../../infra/game/client/FakeClientGameAdapters'
-import { entityIsNotVisibleMessage, entityIsVisibleMessage } from '../../messages'
-import { TestStep } from '../TestStep'
+import { componentDetailedComparisonMessage, entityIsNotVisibleMessage } from '../../messages'
+import { isGiven, TestStep } from '../TestStep'
 
-export const entityIsNotVisible = (
+export const componentsAreVisible = (
     testStep:TestStep,
-    expectedPhysicalComponent:Physical
-) => (game:GenericGameSystem, adapters:FakeClientGameAdapters) => it(entityIsNotVisibleMessage(testStep, expectedPhysicalComponent.entityId),
-    () => expect(adapters.drawingInteractor.drawEntities.get(expectedPhysicalComponent.entityId))
-        .to.not.be.deep.equal(expectedPhysicalComponent))
-
-export const entityIsVisible = (
+    expectedPhysicalComponents:Physical[]
+) => (game:GenericGameSystem, adapters:FakeClientGameAdapters) => it(entityIsNotVisibleMessage(testStep, expectedPhysicalComponents),
+    () => {
+        if (isGiven(testStep)) expectedPhysicalComponents.forEach(component => adapters.drawingInteractor.drawEntities.set(component.entityId, component))
+        const components = [...adapters.drawingInteractor.drawEntities.values()]
+        return expect(components)
+            .to.be.deep.equal(expectedPhysicalComponents, componentDetailedComparisonMessage(components, expectedPhysicalComponents))
+    })
+/*
+export const hasDrawPhysicalComponent = (
     testStep:TestStep,
     expectedPhysicalComponent:Physical
 ) => (game:GenericGameSystem, adapters:FakeClientGameAdapters) => it(entityIsVisibleMessage(testStep, expectedPhysicalComponent.entityId),
-    () => expect(adapters.drawingInteractor.drawEntities.get(expectedPhysicalComponent.entityId))
-        .to.be.deep.equal(expectedPhysicalComponent))
+    () => {
+        if (isGiven(testStep)) adapters.drawingInteractor.refreshEntity(adapters.componentRepository.retrievePhysical(expectedPhysicalComponent.entityId))
+        const component = adapters.drawingInteractor.drawEntities.get(expectedPhysicalComponent.entityId)
+        if (!component) throw new Error(`Component ${expectedPhysicalComponent.entityId} is not visible`)
+        return expect(component)
+            .to.be.deep.equal(expectedPhysicalComponent, componentDetailedComparisonMessage([component], [expectedPhysicalComponent]))
+    })
+*/

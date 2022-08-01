@@ -1,6 +1,9 @@
 /* eslint-disable no-unused-vars */
 export enum TestStep {
     Given = 'Given',
-    And = 'And',
+    AndGiven = 'And given',
+    AndThen = 'And then',
     Then = 'Then'
 }
+
+export const isGiven = (testStep: TestStep) => testStep === TestStep.Given || testStep === TestStep.AndGiven

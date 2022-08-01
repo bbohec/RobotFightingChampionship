@@ -1,14 +1,14 @@
 import { expect } from 'chai'
-import { it } from 'mocha'
+import { it, Test } from 'mocha'
+import { ClientGameSystem } from '../../core/ecs/systems/ClientGameSystem'
 import { FakeClientGameAdapters } from '../../infra/game/client/FakeClientGameAdapters'
 import { thereIsANotificationMessage } from '../../messages'
 import { TestStep } from '../TestStep'
 
 export const thereIsANotification = (
     testStep:TestStep,
-    adapters: FakeClientGameAdapters,
     notification:string
-) => it(thereIsANotificationMessage(testStep, notification),
+) => (game: ClientGameSystem, adapters:FakeClientGameAdapters):Test => it(thereIsANotificationMessage(testStep, notification),
     () => expect(adapters
         .notificationInteractor
         .notifications)

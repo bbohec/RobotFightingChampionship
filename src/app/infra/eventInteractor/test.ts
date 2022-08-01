@@ -23,7 +23,7 @@ export interface EventIntegrationTestSuite {
     clientsEventIntegrationTestSuite: ClientEventIntegrationTestSuite[]
 }
 export const serverFullyQualifiedDomainName = 'localhost'
-export const clientQty = 2000
+export const clientQty = 10
 
 export const makeRestClientsEventIntegrationTestSuite = (qty:number):ClientEventIntegrationTestSuite[] => [...Array(qty).keys()].map(index => makeRestClientEventIntegrationTestSuite((index + 1).toString(), position(0, 0)))
 export const makeInMemoryClientsEventIntegrationTestSuite = (qty:number):ClientEventIntegrationTestSuite[] => [...Array(qty).keys()].map(index => makeInMemoryClientEventIntegrationTestSuite((index + 1).toString(), position(0, 0)))

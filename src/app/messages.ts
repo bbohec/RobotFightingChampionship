@@ -44,8 +44,8 @@ export const eventsAreSentMessage = (testStep: TestStep, gameEvents: GameEvent[]
 
 export const thereIsANotificationMessage = (testStep: TestStep, notification: string): string => `${testStep} there is a notification : '${notification}'`
 
-export const entityIsNotVisibleMessage = (testStep: TestStep, entityId: string): string => `${testStep} the entity with id '${entityId}' is not visible.`
-export const entityIsVisibleMessage = (testStep: TestStep, entityId: string): string => `${testStep} the entity with id '${entityId}' is visible.`
+export const entityIsNotVisibleMessage = (testStep: TestStep, expectedComponents: Component[]): string => `${testStep} the following entities are visible:
+        ${expectedComponents.map(component => stringifyWithDetailledSetAndMap(component)).join('\n\t')}`
 
 export const theControllerAdapterIsInteractiveMessage = (testStep: TestStep): string => `${testStep} the controller adapter is interactive.`
 export const theControllerAdapterIsNotInteractiveMessage = (testStep: TestStep): string => `${testStep} the controller adapter is not interactive.`
