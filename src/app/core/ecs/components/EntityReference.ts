@@ -1,9 +1,8 @@
+import { componentIsNot, missingEntityReferenceByEntityType, multipleEntitiesReferencedByEntityType, multipleEntityTypeOnEntityReference, noEntityTypeOnEntityReference } from '../../../messages'
+import { ComponentRepository } from '../../port/ComponentRepository'
 import { EntityType } from '../../type/EntityType'
 import { Component, GenericComponent } from '../component'
 import { EntityId } from '../entity'
-import { componentIsNot, noEntityTypeOnEntityReference, multipleEntityTypeOnEntityReference, multipleEntitiesReferencedByEntityType, missingEntityReferenceByEntityType } from '../../../messages'
-import { ComponentRepository } from '../../port/ComponentRepository'
-import { missingentityReference } from '../../../infra/entity/InMemoryEntityRepository'
 
 export type EntityReferences = Map<EntityType, Array<string>>
 
@@ -66,10 +65,8 @@ export const linkEntityToEntities = (componentRepository:ComponentRepository, or
 }
 
 const linkEntities = (componentRepository:ComponentRepository, originEntityId: string, targetEntityId: string): void => {
-    const entityReferenceOriginEntity = componentRepository.retrieveEntityReference(originEntityId)
-    if (!entityReferenceOriginEntity) throw new Error(missingentityReference(originEntityId))
-    const entityReferenceTargetEntity = componentRepository.retrieveEntityReference(targetEntityId)
-    if (!entityReferenceTargetEntity) throw new Error(missingentityReference(targetEntityId))
+    const entityReferenceOriginEntity = componentRepository.retrieveComponent(originEntityId, 'EntityReference')
+    const entityReferenceTargetEntity = componentRepository.retrieveComponent(targetEntityId, 'EntityReference')
     entityReferenceOriginEntity.entityType.forEach(entityType => addReference(entityType, originEntityId, entityReferenceTargetEntity))
     entityReferenceTargetEntity.entityType.forEach(entityType => addReference(entityType, targetEntityId, entityReferenceOriginEntity))
 }

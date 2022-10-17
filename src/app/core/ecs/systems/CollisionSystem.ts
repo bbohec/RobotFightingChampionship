@@ -42,7 +42,7 @@ export class CollisionSystem extends GenericServerSystem {
         pointerEntityReference.forEach(pointerEntityReference => {
             pointerCollisionGeneratedEvents.push(...this.onPointerCollisionEvents(
                 retrieveReference(pointerEntityReference, EntityType.player),
-                this.componentRepository.retrieveController(pointerEntityReference.entityId),
+                this.componentRepository.retrieveComponent(pointerEntityReference.entityId, 'Controller'),
                 existingEntityReference
             ))
         })
@@ -77,8 +77,7 @@ export class CollisionSystem extends GenericServerSystem {
         const generatedPointerAndDefeatCollisionEvents:GameEvent[] = []
         victoryEntityReferences.forEach(victoryEntityReference => {
             const matchId = retrieveReference(victoryEntityReference, EntityType.match)
-            const physical = this.componentRepository.retrievePhysical(victoryEntityReference.entityId)
-            if (!physical) throw new Error(`Missing physical for entity ${victoryEntityReference.entityId}`)
+            const physical = this.componentRepository.retrieveComponent(victoryEntityReference.entityId, 'Physical')
             if (
                 this.isPlayerOnMatch(matchId, playerId) &&
                 physical.visible &&
@@ -92,8 +91,7 @@ export class CollisionSystem extends GenericServerSystem {
         const generatedPointerAndDefeatCollisionEvents:GameEvent[] = []
         defeatEntityReferences.forEach(defeatEntityReference => {
             const matchId = retrieveReference(defeatEntityReference, EntityType.match)
-            const physical = this.componentRepository.retrievePhysical(defeatEntityReference.entityId)
-            if (!physical) throw new Error(`Missing physical for entity ${defeatEntityReference.entityId}`)
+            const physical = this.componentRepository.retrieveComponent(defeatEntityReference.entityId, 'Physical')
             if (
                 this.isPlayerOnMatch(matchId, playerId) &&
                 physical.visible &&
@@ -106,10 +104,8 @@ export class CollisionSystem extends GenericServerSystem {
     private pointerAndNextTurnButtonCollisionEvents (playerId: string, nextTurnButtonEntityReferences: EntityReference[]):GameEvent[] {
         const events:GameEvent[] = []
         nextTurnButtonEntityReferences.forEach(nextTurnButtonEntityReference => {
-            const matchPhasing = this.componentRepository.retrievePhasing(retrieveReference(nextTurnButtonEntityReference, EntityType.match))
-            if (!matchPhasing) throw new Error(`Missing phasing for entity ${nextTurnButtonEntityReference.entityId}`)
             if (retrieveReference(nextTurnButtonEntityReference, EntityType.player) === playerId &&
-                matchPhasing.currentPhase.phaseType !== PhaseType.Victory)
+                this.componentRepository.retrieveComponent(retrieveReference(nextTurnButtonEntityReference, EntityType.match), 'Phasing').currentPhase.phaseType !== PhaseType.Victory)
                 events.push(nextTurnEvent(retrieveReference(nextTurnButtonEntityReference, EntityType.match)))
         })
         return events
@@ -118,9 +114,8 @@ export class CollisionSystem extends GenericServerSystem {
     private pointerAndCellAndUnitCollisionEvents (playerId:string, cellEntityReferences: EntityReference[], unitEntityReferences: EntityReference[]): GameEvent[] {
         const generatedPointerAndButtonCollision:GameEvent[] = []
         cellEntityReferences.forEach(cellEntityReference => {
-            const girdEntityRef = this.entityReferencesByEntityId(retrieveReference(cellEntityReference, EntityType.grid))
-            if (!girdEntityRef) throw new Error(`Missing grid for entity ${cellEntityReference.entityId}`)
-            const matchId = retrieveReference(girdEntityRef, EntityType.match)
+            const gridEntityReference = this.entityReferencesByEntityId(retrieveReference(cellEntityReference, EntityType.grid))
+            const matchId = retrieveReference(gridEntityReference, EntityType.match)
             if (this.isPlayerOnMatch(matchId, playerId)) {
                 const matchPhasingComponent = this.retrieveMatchPhasingComponent(matchId)
                 if (matchPhasingComponent.currentPhase.phaseType !== PhaseType.Victory) {
@@ -136,9 +131,7 @@ export class CollisionSystem extends GenericServerSystem {
     }
 
     private retrieveEntityReferenceComponent (entityId: string) :EntityReference {
-        const component = this.componentRepository.retrieveEntityReference(entityId)
-        if (!component) throw new Error(`Missing entity reference component for entity ${entityId}`)
-        return component
+        return this.componentRepository.retrieveComponent(entityId, 'EntityReference')
     }
 
     private pointerAndCellColisionEvents (playerId:string, cellEntityReferences: EntityReference[], towerEntityReferences: EntityReference[], robotEntityReferences: EntityReference[]): GameEvent[] {
@@ -211,9 +204,7 @@ export class CollisionSystem extends GenericServerSystem {
     }
 
     private retrieveMatchPhasingComponent (matchId: string):Phasing {
-        const phasing = this.componentRepository.retrievePhasing(matchId)
-        if (!phasing) throw new Error(`Missing phasing component for match ${matchId}`)
-        return phasing
+        return this.componentRepository.retrieveComponent(matchId, 'Phasing')
     }
 
     private isPlayerOnMatch (matchId: string, playerId: string): boolean {

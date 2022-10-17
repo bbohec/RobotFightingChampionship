@@ -92,7 +92,7 @@ export abstract class GenericServerSystem extends GameEventHandler implements Sy
     }
 
     protected entityReferencesByEntityId (entityId: string) {
-        return this.componentRepository.retrieveEntityReference(entityId)
+        return this.componentRepository.retrieveComponent(entityId, 'EntityReference')
     }
 
     abstract onGameEvent(gameEvent: GameEvent): Promise<void>;
@@ -121,7 +121,7 @@ export abstract class GenericClientSystem extends GameEventHandler implements Sy
     }
 
     protected entityReferencesByEntityId (entityId: string) {
-        return this.componentRepository.retrieveEntityReference(entityId)
+        return this.componentRepository.retrieveComponent(entityId, 'EntityReference')
     }
 
     abstract onGameEvent(gameEvent: GameEvent): Promise<void>;
