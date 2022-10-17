@@ -11,14 +11,16 @@ module.exports = {
     ],
     parser: '@typescript-eslint/parser',
     parserOptions: {
-        ecmaVersion: 12
+        ecmaVersion: 12,
+        project:"./tsconfig.json"
     },
     plugins: [
         '@typescript-eslint'
     ],
     rules: {
         curly: ['error', 'multi', 'consistent'],
-        indent: ['error', 4]
+        indent: ['error', 4],
+        '@typescript-eslint/no-unnecessary-condition': 'warn'
     },
     overrides: [
         {

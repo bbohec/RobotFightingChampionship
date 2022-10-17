@@ -9,6 +9,8 @@
     "eslint.validate": [
         "typescript"
     ],
+    "mochaExplorer.files": "/src/**/*.spec.ts",
+    "mochaExplorer.require": "ts-node/register",
     "mocha.coverage": {
         
         "enable": false
