@@ -17,11 +17,11 @@ export class HitSystem extends GenericServerSystem {
     }
 
     private onHit (hittableEntityId:string, offensiveEntityId:string): Promise<void> {
-        const offensive = this.componentRepository.retrieveOffensive(offensiveEntityId)
+        const offensive = this.componentRepository.retrieveComponent(offensiveEntityId, 'Offensive')
         const offensivePlayer = retrieveReference(this.entityReferencesByEntityId(offensiveEntityId), EntityType.player)
-        const hittable = this.removeHitPoints(this.componentRepository.retrieveHittable(hittableEntityId), offensive)
+        const hittable = this.removeHitPoints(this.componentRepository.retrieveComponent(hittableEntityId, 'Hittable'), offensive)
         const matchId = retrieveReference(this.entityReferencesByEntityId(offensivePlayer), EntityType.match)
-        const players = retrieveReferences(this.componentRepository.retrieveEntityReference(matchId), EntityType.player)
+        const players = retrieveReferences(this.componentRepository.retrieveComponent(matchId, 'EntityReference'), EntityType.player)
         return this.sendEvents([
             ...players.map(player => notifyPlayerEvent(player, entityHasBeenDamaged(offensiveEntityId, hittableEntityId, offensive.damagePoints, hittable.hitPoints))),
             ...(hittable.hitPoints <= 0 ? this.onNoMoreHitPoints(hittableEntityId, offensiveEntityId, matchId, offensivePlayer, players) : [])

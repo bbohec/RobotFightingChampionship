@@ -6,7 +6,7 @@ import { PixijsControllerAdapter } from '../../app/infra/controller/PixijsContro
 import { PixijsDrawingAdapter } from '../../app/infra/drawing/PixijsDrawingAdapter'
 import { ProductionEventBus } from '../../app/infra/eventBus/ProductionEventBus'
 import { WebClientEventInteractor } from '../../app/infra/eventInteractor/client/WebClientEventInteractor'
-import { defaultHTTPWebServerPort } from '../../app/infra/eventInteractor/server/WebServerEventInteractor'
+import { defaultHTTPWebServerPort } from '../../app/infra/eventInteractor/server/webServerInformation'
 import { serverFullyQualifiedDomainName } from '../../app/infra/eventInteractor/test'
 import { ProductionClientGameAdapters } from '../../app/infra/game/client/ProductionClientGameAdapters'
 import { ConsoleLogger } from '../../app/infra/logger/consoleLogger'

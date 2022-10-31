@@ -15,8 +15,7 @@ export class DrawingSystem extends GenericClientSystem {
     }
 
     onGameEvent (gameEvent: GameEvent): Promise<void> {
-        const playerEntityReferenceComponent = this.componentRepository
-            .retrieveEntityReferences(undefined)
+        const playerEntityReferenceComponent = this.componentRepository.retrieveEntityReferences(undefined)
             .filter((entityReference):entityReference is EntityReference => !!entityReference)
             .find(entityReference => entityReference.entityType.includes(EntityType.player))
         const eventPlayerReference = this.entityByEntityType(gameEvent, EntityType.player)

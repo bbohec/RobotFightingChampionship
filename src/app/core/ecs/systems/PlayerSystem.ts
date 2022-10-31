@@ -15,7 +15,7 @@ export class PlayerSystem extends GenericServerSystem {
         const playerId = this.entityByEntityType(gameEvent, EntityType.player)
         linkEntityToEntities(this.componentRepository, playerId, [this.entityByEntityType(gameEvent, EntityType.game)])
         const gameId = this.entityByEntityType(gameEvent, EntityType.game)
-        const gameEntityReferences = this.componentRepository.retrieveEntityReference(gameId)
+        const gameEntityReferences = this.componentRepository.retrieveComponent(gameId, 'EntityReference')
         return this.sendEvents([
             createPlayerPointerEvent(playerId),
             createMainMenuEvent(gameId, playerId),

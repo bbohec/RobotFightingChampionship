@@ -1,99 +1,61 @@
 import { Component, ComponentType } from '../../core/ecs/component'
-import { Controller, toController } from '../../core/ecs/components/Controller'
-import { Dimensional, toDimensional } from '../../core/ecs/components/Dimensional'
-import { EntityReference, toEntityReference } from '../../core/ecs/components/EntityReference'
-import { Hittable, toHittable } from '../../core/ecs/components/Hittable'
-import { LifeCycle, toLifeCycle } from '../../core/ecs/components/LifeCycle'
-import { Offensive, toOffensive } from '../../core/ecs/components/Offensive'
-import { Phasing, toPhasing } from '../../core/ecs/components/Phasing'
-import { Physical, toPhysical } from '../../core/ecs/components/Physical'
+import { EntityReference } from '../../core/ecs/components/EntityReference'
+import { Physical } from '../../core/ecs/components/Physical'
 import { EntityId } from '../../core/ecs/entity'
 import { ComponentRepository } from '../../core/port/ComponentRepository'
 
+type ComponentByIdByType = { [T in ComponentType]: Map<EntityId, Extract<Component, {componentType: T}>> }
+
 export class InMemoryComponentRepository implements ComponentRepository {
+    retrieveComponent<C extends ComponentType> (id: EntityId, componentType: C): Extract<Component, {componentType: C}> {
+        const component = this.componentsByTypeById[componentType].get(id)
+        if (component) return component
+        throw new Error(`Component '${componentType}' missing for entity '${id}'.`)
+    }
+
     retreiveAllComponents ():Component[] {
-        return Array.from(this.components.values()).map(componentType => Array.from(componentType.values())).flat()
+        return Object.entries(this.componentsByTypeById).map(([componentType, componentsById]) => [...componentsById.values()]).flat()
     }
 
     retrievePhysicals (entities: string[] | undefined): (Physical| undefined)[] {
-        const physicals = this.components.get('Physical') as Map<string, Physical>|undefined
-        return physicals
-            ? entities
-                ? entities.map(entity => physicals.get(entity))
-                : [...physicals.values()]
-            : []
+        return entities
+            ? entities.map(entity => this.componentsByTypeById.Physical.get(entity))
+            : [...this.componentsByTypeById.Physical.values()]
     }
 
-    retrieveEntityReferences (entities: string[] | undefined): (EntityReference | undefined)[] {
-        const entityReferences = this.components.get('EntityReference') as Map<string, EntityReference>|undefined
-        return entityReferences
-            ? entities
-                ? entities.map(entity => entityReferences.get(entity))
-                : [...entityReferences.values()]
-            : []
+    retrieveEntityReferences (entityIds: EntityId[] | undefined): (EntityReference | undefined)[] {
+        return entityIds
+            ? entityIds.map(entityId => this.componentsByTypeById.EntityReference.get(entityId))
+            : [...this.componentsByTypeById.EntityReference.values()]
     }
 
-    retrieveOffensive (entityId: string): Offensive {
-        return this.toComponent('Offensive', toOffensive, entityId)
-    }
-
-    retrieveHittable (entityId: string): Hittable {
-        return this.toComponent('Hittable', toHittable, entityId)
-    }
-
-    retrievePhysical (entityId: string): Physical {
-        return this.toComponent('Physical', toPhysical, entityId)
-    }
-
-    retrieveLifeCycle (entityId: string): LifeCycle {
-        return this.toComponent('LifeCycle', toLifeCycle, entityId)
-    }
-
-    retrieveController (entityId: string): Controller {
-        return this.toComponent('Controller', toController, entityId)
-    }
-
-    retrieveDimensional (entityId: string): Dimensional {
-        return this.toComponent('Dimensional', toDimensional, entityId)
-    }
-
-    retrieveEntityReference (entityId: string): EntityReference {
-        return this.toComponent('EntityReference', toEntityReference, entityId)
-    }
-
-    retrievePhasing (entityId: string): Phasing {
-        return this.toComponent('Phasing', toPhasing, entityId)
-    }
-
-    private toComponent<T> (componentType:ComponentType, validator:(component:Component)=>T, entityId:EntityId) : T {
-        const componentTypeRepository = this.components.get(componentType)
-        if (componentTypeRepository) {
-            const component = componentTypeRepository.get(entityId)
-            if (component) return validator(component)
-            throw new Error(`The component '${componentType}' is missing on entity ${entityId}.`)
-        }
-        throw new Error(`There is no '${componentType}' components.`)
-    }
-
-    saveComponent (component: Component): void {
-        const componentType = this.components.get(component.componentType)
-        componentType
-            ? componentType.set(component.entityId, component)
-            : this.components.set(component.componentType, new Map<string, Component>().set(component.entityId, component))
+    saveComponent <T extends ComponentType> (component: Extract<Component, {componentType: T}>): void {
+        const map = this.componentsByTypeById[component.componentType] as Map<EntityId, Component>
+        map.set(component.entityId, component)
     }
 
     saveComponents (components: Component[]): void {
         components.forEach(component => this.saveComponent(component))
     }
 
-    deleteEntityComponents (entityId: string): void {
-        this.components.forEach(componentType => componentType.delete(entityId))
+    deleteEntityComponents (entityId: EntityId): void {
+        Object.values(this.componentsByTypeById)
+            .forEach((componentsById) => componentsById.delete(entityId))
     }
 
     entitiesWithType (componentType: ComponentType): EntityId[] {
-        const componentTypeRepository = this.components.get(componentType)
-        return Array.from(componentTypeRepository ? componentTypeRepository.keys() : [])
+        return Object.keys(this.componentsByTypeById[componentType])
     }
 
-    private components: Map<ComponentType, Map<EntityId, Component>> = new Map()
+    private componentsByTypeById: ComponentByIdByType = {
+        Controller: new Map(),
+        Dimensional: new Map(),
+        EntityReference: new Map(),
+        Hittable: new Map(),
+        LifeCycle: new Map(),
+        Loopable: new Map(),
+        Offensive: new Map(),
+        Phasing: new Map(),
+        Physical: new Map()
+    }
 }

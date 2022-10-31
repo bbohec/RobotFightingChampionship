@@ -43,6 +43,7 @@ setTimeout(() => eventBusLogger.info(inMemoryEventBus.events), waitingTimeSecond
 */
 
 import { Scene, PerspectiveCamera, WebGLRenderer, BoxGeometry, Mesh, MeshBasicMaterial, ColorRepresentation, Vector3, Camera } from 'three'
+
 const makeRenderer = () => {
     const renderer = new WebGLRenderer()
     renderer.setSize(window.innerWidth / 2, window.innerHeight / 2)

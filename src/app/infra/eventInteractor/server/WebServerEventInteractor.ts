@@ -1,4 +1,4 @@
-import { json, urlencoded } from 'body-parser'
+import { json, urlencoded } from 'express'
 import { IncomingMessage, OutgoingHttpHeaders, ServerResponse } from 'http'
 import { v1 as uuid } from 'uuid'
 import { EventBus } from '../../../core/port/EventBus'
@@ -8,11 +8,10 @@ import { EntityType } from '../../../core/type/EntityType'
 import { GameEvent, newGameEvent } from '../../../core/type/GameEvent'
 import { gameEventToSseData, sseDataToGameEvent, SSEMessage, SSEMessageType } from '../sse/SSEMessage'
 import { ExpressWebServerInstance } from './ExpressWebServerInstance'
+import { clientGameEventUrlPath } from './webServerInformation'
 
 export const serverBodyRequest = (stringifiedBody:string): string => `SERVER POST REQUEST : ${stringifiedBody}`
-export const clientGameEventUrlPath = '/clientGameEvent'
-export const productionSSERetryInterval = 5000
-export const defaultHTTPWebServerPort = 80
+
 const sseClientClosedCheckInterval = 100
 const sseSendingMessageIntervalCheck = 50
 const serverGameEventUrlPath = '/serverGameEvents'
@@ -85,8 +84,8 @@ export class WebServerEventInteractor implements ServerEventInteractor {
     }
 
     private config () {
-        this.webServer.instance.use(urlencoded({ extended: true }))
         this.webServer.instance.use(json())
+        this.webServer.instance.use(urlencoded({ extended: true }))
         this.webServer.instance.post(clientGameEventUrlPath, (request, response) => {
             this.sendEventToServer(this.gameEventFromBody(JSON.stringify(request.body)))
                 .then(() => response.status(201).send())
@@ -118,26 +117,26 @@ export class WebServerEventInteractor implements ServerEventInteractor {
                     clearInterval(interval)
                     const sendEventType = (): (error: Error | null | undefined) => void => error => {
                         if (error) reject(error)
-                        this.logger.info('[Stream Send]', 'messageType', `'${sseMessage.type}'`)
+                        // this.logger.info('[Stream Send]', 'messageType', `'${sseMessage.type}'`)
                         sseClientResponse.write(`event: ${sseMessage.type}\n`, sendRetry())
                     }
                     const sendRetry = (): (error: Error | null | undefined) => void => error => {
                         if (error) reject(error)
-                        this.logger.info('[Stream Send]', 'retry', `'${sseMessage.retry}'`)
+                        // this.logger.info('[Stream Send]', 'retry', `'${sseMessage.retry}'`)
                         sseClientResponse.write(`retry: ${sseMessage.retry}\n`, sendData())
                     }
                     const sendData = (): (error: Error | null | undefined) => void => error => {
                         if (error) reject(error)
-                        this.logger.info('[Stream Send]', 'data', `'${sseMessage.data}'`)
+                        // this.logger.info('[Stream Send]', 'data', `'${sseMessage.data}'`)
                         sseClientResponse.write(`data: ${sseMessage.data}\n\n`, onSuccess())
                     }
                     const onSuccess = (): (error: Error | null | undefined) => void => error => {
                         if (error) reject(error)
-                        this.logger.info('[SSE Message Sent]', 'messageId:', sseMessage.id, 'playerId:', playerId, 'messageType:', sseMessage.type)
+                        // this.logger.info('[SSE Message Sent]', 'messageId:', sseMessage.id, 'playerId:', playerId, 'messageType:', sseMessage.type)
                         this.sseSendingMessage = false
                         resolve()
                     }
-                    this.logger.info('[Stream Send]', 'id', sseMessage.id)
+                    // this.logger.info('[Stream Send]', 'id', sseMessage.id)
                     sseClientResponse.write(`id: ${sseMessage.id}\n`, sendEventType())
                 }
             }, sseSendingMessageIntervalCheck)
@@ -150,11 +149,11 @@ export class WebServerEventInteractor implements ServerEventInteractor {
         //
     }
 
-    readonly eventBus: EventBus;
+    readonly eventBus: EventBus
     private sseSendingMessage: boolean = false
     private webServer:ExpressWebServerInstance
-    private registeredSSEClientResponses = new Map<string, ServerResponse>();
-    private sseRetryIntervalMilliseconds: number;
+    private registeredSSEClientResponses = new Map<string, ServerResponse>()
+    private sseRetryIntervalMilliseconds: number
     private logger:Logger
 }
 

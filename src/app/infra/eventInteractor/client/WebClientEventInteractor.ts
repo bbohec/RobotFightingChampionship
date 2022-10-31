@@ -1,11 +1,11 @@
-import axios, { AxiosError, AxiosRequestConfig } from 'axios'
+import axios, { AxiosError } from 'axios'
 import EventSource from 'eventsource'
 import { EventBus } from '../../../core/port/EventBus'
 import { ClientEventInteractor } from '../../../core/port/EventInteractor'
 import { Logger } from '../../../core/port/Logger'
 import { GameEvent, newGameEvent } from '../../../core/type/GameEvent'
 import { stringifyWithDetailledSetAndMap } from '../../../messages'
-import { clientGameEventUrlPath } from '../server/WebServerEventInteractor'
+import { clientGameEventUrlPath } from '../server/webServerInformation'
 import { SSEClient } from '../sse/SSEClient'
 import { SSEMessageType } from '../sse/SSEMessage'
 
@@ -62,8 +62,8 @@ export class WebClientEventInteractor implements ClientEventInteractor, SSEClien
         })
         this.eventSource.addEventListener('gameEvent' as SSEMessageType, event => {
             const messageEvent: MessageEvent<string> = (event as MessageEvent)
-            this.logger.info('SSE Message Received', 'message id:', messageEvent.lastEventId)
-            this.logger.info('SSE Message Data', messageEvent.data)
+            // this.logger.info('SSE Message Received', 'message id:', messageEvent.lastEventId)
+            // this.logger.info('SSE Message Data', messageEvent.data)
             const gameEvent = this.messageEventDataToGameEvent(messageEvent.data)
             this.logger.info('SSE GameEvent', stringifyWithDetailledSetAndMap(gameEvent))
             this.sendEventToClient(gameEvent)
@@ -103,29 +103,25 @@ export class WebClientEventInteractor implements ClientEventInteractor, SSEClien
     } */
 
     sendEventToServer (gameEvent: GameEvent): Promise<void> {
-        /* if (gameEvent instanceof GameEvent)
-            gameEvent = this.serializeEvent(gameEvent) */
-        const body = JSON.stringify(gameEvent, (key: string, value: unknown) => value instanceof Map ? { dataType: 'Map', value: Array.from(value.entries()) } : value
-        )
-        const axiosRequestConfig: AxiosRequestConfig = { headers: { 'Content-type': 'application/json' } }
+        const body = JSON.parse(JSON.stringify(gameEvent, (key: string, value: unknown) => value instanceof Map ? { dataType: 'Map', value: Array.from(value.entries()) } : value))
         const url = `http://${this.serverFullyQualifiedDomainName}:${this.webServerPort}${clientGameEventUrlPath}`
-        return axios.post(url, body, axiosRequestConfig)
+        return axios.post(url, body)
             .then(response => {
-                this.logger.info(`Client Sent OK : ${response.status}`)
+                // this.logger.info(`Client Sent OK : ${response.status}`)
                 return Promise.resolve()
             })
-            .catch((error:AxiosError) => (error.response?.status === 500) ? Promise.reject(new Error(`Internal Server Error - ${error.response?.data}`)) : Promise.reject(error))
+            .catch((error:AxiosError) => (error.response?.status === 500) ? Promise.reject(new Error(`Internal Server Error - ${error.response.data}`)) : Promise.reject(error))
     }
 
     sendEventToClient (gameEvent: GameEvent): Promise<void> {
         return this.eventBus.send(gameEvent)
     }
 
-    readonly clientId: string;
-    readonly eventBus: EventBus;
-    private serverFullyQualifiedDomainName: string;
-    private webServerPort: number;
-    private eventSource: EventSource | undefined;
+    readonly clientId: string
+    readonly eventBus: EventBus
+    private serverFullyQualifiedDomainName: string
+    private webServerPort: number
+    private eventSource: EventSource | undefined
     private sseRegistered: boolean = false
     private logger:Logger
 }
