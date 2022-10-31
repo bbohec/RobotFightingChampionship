@@ -110,7 +110,6 @@ export class PhasingSystem extends GenericServerSystem {
         const events:GameEvent[] = this.eventsOnManualPhases(matchPhasing, matchEntityReference)
         const autoMoveEvent = this.eventsOnPlacementPhase(matchPhasing, gameEvent)
         if (autoMoveEvent) events.push(autoMoveEvent)
-        console.log(events)
         return this.sendEvents(events)
     }
 
@@ -130,7 +129,6 @@ export class PhasingSystem extends GenericServerSystem {
     }
 
     private eventsOnPlacementPhase (matchPhasingComponent: Phasing, gameEvent:GameEvent):GameEvent|undefined {
-        console.log(matchPhasingComponent)
         return (matchPhasingComponent.currentPhase.phaseType === PhaseType.Placement)
             ? (matchPhasingComponent.currentPhase.currentPlayerId && matchPhasingComponent.currentPhase.currentUnitId)
                 ? this.makeMoveToPositionEvent(gameEvent, matchPhasingComponent.currentPhase.currentPlayerId, matchPhasingComponent.currentPhase.currentUnitId)

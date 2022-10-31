@@ -11,7 +11,7 @@ import { ConsoleLogger } from '../logger/consoleLogger'
 import { InMemoryClientEventInteractor } from './client/InMemoryClientEventInteractor'
 import { WebClientEventInteractor } from './client/WebClientEventInteractor'
 import { InMemoryServerEventInteractor } from './server/InMemoryServerEventInteractor'
-import { defaultHTTPWebServerPort } from './server/WebServerEventInteractor'
+import { defaultHTTPWebServerPort } from "./server/webServerInformation"
 
 export interface ClientEventIntegrationTestSuite {
     clientEventInteractor:ClientEventInteractor

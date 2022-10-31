@@ -20,13 +20,13 @@ export class InMemoryComponentRepository implements ComponentRepository {
     retrievePhysicals (entities: string[] | undefined): (Physical| undefined)[] {
         return entities
             ? entities.map(entity => this.componentsByTypeById.Physical.get(entity))
-            : [...Object.values(this.componentsByTypeById.Physical)]
+            : [...this.componentsByTypeById.Physical.values()]
     }
 
     retrieveEntityReferences (entityIds: EntityId[] | undefined): (EntityReference | undefined)[] {
         return entityIds
             ? entityIds.map(entityId => this.componentsByTypeById.EntityReference.get(entityId))
-            : [...Object.values(this.componentsByTypeById.EntityReference)]
+            : [...this.componentsByTypeById.EntityReference.values()]
     }
 
     saveComponent <T extends ComponentType> (component: Extract<Component, {componentType: T}>): void {

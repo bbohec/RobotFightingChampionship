@@ -286,8 +286,10 @@ export class ServerLifeCycleSystem extends GenericServerLifeCycleSystem {
 
     private createPlayerEntity (gameEvent: GameEvent): Promise<void> {
         const playerId = this.entityByEntityType(gameEvent, EntityType.player)
-        const entitiesWithEntityReferenceComponent = this.componentRepository.retrieveEntityReferences(undefined).filter((entityReference): entityReference is EntityReference => !!entityReference)
-        const gameEntity = entitiesWithEntityReferenceComponent.find(entityReference => entityReference.entityType.some(entityType => entityType === EntityType.game))
+        const gameEntity = this.componentRepository
+            .retrieveEntityReferences(undefined)
+            .filter((entityReference): entityReference is EntityReference => !!entityReference)
+            .find(entityReference => entityReference.entityType.some(entityType => entityType === EntityType.game))
         if (!gameEntity) return Promise.reject(new Error('Game entity not found'))
         this.createEntity(playerId,
             [makeEntityReference(playerId, EntityType.player, new Map())]

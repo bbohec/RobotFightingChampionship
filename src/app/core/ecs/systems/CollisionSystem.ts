@@ -77,10 +77,9 @@ export class CollisionSystem extends GenericServerSystem {
         const generatedPointerAndDefeatCollisionEvents:GameEvent[] = []
         victoryEntityReferences.forEach(victoryEntityReference => {
             const matchId = retrieveReference(victoryEntityReference, EntityType.match)
-            const physical = this.componentRepository.retrieveComponent(victoryEntityReference.entityId, 'Physical')
             if (
                 this.isPlayerOnMatch(matchId, playerId) &&
-                physical.visible &&
+                this.componentRepository.retrieveComponent(victoryEntityReference.entityId, 'Physical').visible &&
                 retrieveReference(victoryEntityReference, EntityType.player) === playerId
             ) generatedPointerAndDefeatCollisionEvents.push(quitMatchEvent(matchId, playerId))
         })
@@ -91,10 +90,9 @@ export class CollisionSystem extends GenericServerSystem {
         const generatedPointerAndDefeatCollisionEvents:GameEvent[] = []
         defeatEntityReferences.forEach(defeatEntityReference => {
             const matchId = retrieveReference(defeatEntityReference, EntityType.match)
-            const physical = this.componentRepository.retrieveComponent(defeatEntityReference.entityId, 'Physical')
             if (
                 this.isPlayerOnMatch(matchId, playerId) &&
-                physical.visible &&
+                this.componentRepository.retrieveComponent(defeatEntityReference.entityId, 'Physical').visible &&
                 retrieveReference(defeatEntityReference, EntityType.player) === playerId
             ) generatedPointerAndDefeatCollisionEvents.push(quitMatchEvent(matchId, playerId))
         })
