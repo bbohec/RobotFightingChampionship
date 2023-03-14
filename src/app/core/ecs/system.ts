@@ -151,5 +151,5 @@ export abstract class GenericGameSystem implements System {
 
     abstract onGameEvent(gameEvent: GameEvent): Promise<void>;
 
-    protected interactWithSystems: SystemInteractor;
+    protected interactWithSystems: SystemInteractor
 }
