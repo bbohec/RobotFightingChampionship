@@ -1,33 +1,39 @@
-import { configure, getLogger, Configuration, Logger as log4jsLogger } from 'log4js'
+import { configure, getLogger, Configuration, Appender } from 'log4js'
 import { Logger, LoggerName } from '../../core/port/Logger'
 
-const configuration:Configuration = { appenders: {}, categories: {} }
-configuration.appenders.default = { type: 'file', filename: 'logs/app.log', maxLogSize: '100M' }
-configuration.categories.default = { appenders: ['default'], level: 'debug' }
-configure(configuration)
+const logDir = 'logs'
+const appLog = 'app.log'
+const defaultLoggerName = 'default'
+const defaultAppender:Appender = { type: 'file', filename: `${logDir}/${appLog}`, maxLogSize: '100M' }
+
+export const makeLog4jsDefaultConfiguration = ():Configuration => {
+    const configuration:Configuration = { appenders: {}, categories: {} }
+    configuration.appenders[defaultLoggerName] = defaultAppender
+    configuration.categories[defaultLoggerName] = { appenders: [defaultLoggerName], level: 'debug' }
+    configure(configuration)
+    return configuration
+}
+
 export class Log4jsLogger implements Logger {
-    constructor (loggerName:LoggerName) {
-        configuration.appenders[loggerName] = { type: 'file', filename: `logs/${loggerName}.log`, maxLogSize: '100M' }
-        configuration.categories[loggerName] = { appenders: [loggerName], level: 'debug' }
+    constructor (private loggerName:LoggerName, configuration:Configuration) {
+        configuration.appenders[this.loggerName] = { type: 'file', filename: `logs/${this.loggerName}.log`, maxLogSize: '100M' }
+        configuration.categories[this.loggerName] = { appenders: [this.loggerName, defaultLoggerName], level: 'debug' }
         configure(configuration)
-        this.log4jsLogger = getLogger(loggerName)
     }
 
     info (message?: any, ...optionalParams: any[]): void {
-        this.log4jsLogger.info(message, ...optionalParams)
+        getLogger(this.loggerName).info(message, ...optionalParams)
     }
 
     warn (message?: any, ...optionalParams: any[]): void {
-        this.log4jsLogger.warn(message, ...optionalParams)
+        getLogger(this.loggerName).warn(message, ...optionalParams)
     }
 
     debug (message?: any, ...optionalParams: any[]): void {
-        this.log4jsLogger.debug(message, ...optionalParams)
+        getLogger(this.loggerName).debug(message, ...optionalParams)
     }
 
     error (message?: any, ...optionalParams: any[]): void {
-        this.log4jsLogger.error(message, ...optionalParams)
+        getLogger(this.loggerName).error(message, ...optionalParams)
     }
-
-    private readonly log4jsLogger:log4jsLogger
 }

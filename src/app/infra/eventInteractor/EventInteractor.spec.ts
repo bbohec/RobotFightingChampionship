@@ -7,23 +7,31 @@ import { WebServerEventInteractor } from './server/WebServerEventInteractor'
 import { defaultHTTPWebServerPort } from './server/webServerInformation'
 import { ExpressWebServerInstance } from './server/ExpressWebServerInstance'
 import express from 'express'
-import { Log4jsLogger } from '../logger/log4jsLogger'
+import { Log4jsLogger, makeLog4jsDefaultConfiguration } from '../logger/log4jsLogger'
 import { InMemoryClientEventInteractor } from './client/InMemoryClientEventInteractor'
 import { EntityType } from '../../core/type/EntityType'
 import { GameEvent } from '../../core/type/GameEvent'
 import { detailedComparisonMessage } from '../../messages'
 
 describe('Integration Test Suite - Event Interactor', () => {
+    const configuration = makeLog4jsDefaultConfiguration()
     const testSuites:EventIntegrationTestSuite[] = [
         {
             adapterType: 'InMemory',
-            serverEventInteractor: new InMemoryServerEventInteractor(new InMemoryEventBus(), new Array(clientQty).map((value, index) => new InMemoryClientEventInteractor(index.toLocaleString(), new InMemoryEventBus()))),
+            serverEventInteractor: new InMemoryServerEventInteractor(
+                new InMemoryEventBus(),
+                new Array(clientQty).map((value, index) => new InMemoryClientEventInteractor(index.toLocaleString(), new InMemoryEventBus()))
+            ),
             clientsEventIntegrationTestSuite: makeInMemoryClientsEventIntegrationTestSuite(clientQty)
         },
         {
             adapterType: 'Rest',
-            serverEventInteractor: new WebServerEventInteractor(new ExpressWebServerInstance(express(), defaultHTTPWebServerPort, new Log4jsLogger('expressInstance')), new InMemoryEventBus(), 1000, new Log4jsLogger('webServerEventInteractor')),
-            clientsEventIntegrationTestSuite: makeRestClientsEventIntegrationTestSuite(clientQty)
+            serverEventInteractor: new WebServerEventInteractor(
+                new ExpressWebServerInstance(express(), defaultHTTPWebServerPort, new Log4jsLogger('expressInstance', configuration)),
+                new InMemoryEventBus(),
+                1000,
+                new Log4jsLogger('webServerEventInteractor', configuration)),
+            clientsEventIntegrationTestSuite: makeRestClientsEventIntegrationTestSuite(clientQty, configuration)
         }
     ]
     testSuites.forEach(testSuite => {

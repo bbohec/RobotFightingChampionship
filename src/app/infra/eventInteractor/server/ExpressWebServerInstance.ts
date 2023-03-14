@@ -35,8 +35,8 @@ export class ExpressWebServerInstance {
         })
     }
 
-    readonly instance: Express;
-    readonly port: number;
-    private server: Server | undefined;
+    readonly instance: Express
+    readonly port: number
+    private server: Server | undefined
     private logger:Logger
 }

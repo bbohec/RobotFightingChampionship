@@ -1,3 +1,4 @@
+import { Configuration } from 'log4js'
 import { Func } from 'mocha'
 import { makePhysical, position, Position } from '../../core/ecs/components/Physical'
 import { ClientEventInteractor, ServerEventInteractor } from '../../core/port/EventInteractor'
@@ -25,7 +26,7 @@ export interface EventIntegrationTestSuite {
 export const serverFullyQualifiedDomainName = 'localhost'
 export const clientQty = 10
 
-export const makeRestClientsEventIntegrationTestSuite = (qty:number):ClientEventIntegrationTestSuite[] => [...Array(qty).keys()].map(index => makeRestClientEventIntegrationTestSuite((index + 1).toString(), position(0, 0)))
+export const makeRestClientsEventIntegrationTestSuite = (qty:number, configuration:Configuration):ClientEventIntegrationTestSuite[] => [...Array(qty).keys()].map(index => makeRestClientEventIntegrationTestSuite((index + 1).toString(), position(0, 0), configuration))
 export const makeInMemoryClientsEventIntegrationTestSuite = (qty:number):ClientEventIntegrationTestSuite[] => [...Array(qty).keys()].map(index => makeInMemoryClientEventIntegrationTestSuite((index + 1).toString(), position(0, 0)))
 export const beforeFunction = (testSuite: EventIntegrationTestSuite): Func => function (done) {
     this.timeout(30000)
@@ -61,7 +62,7 @@ export const makeInMemoryClientEventIntegrationTestSuite = (playerId:string, pos
     clientEventInteractor: new InMemoryClientEventInteractor(playerId, new InMemoryEventBus()),
     clientEvents: [sseTestGameEvent(playerId, position)]
 })
-export const makeRestClientEventIntegrationTestSuite = (playerId:string, position:Position): ClientEventIntegrationTestSuite => ({
-    clientEventInteractor: new WebClientEventInteractor(serverFullyQualifiedDomainName, defaultHTTPWebServerPort, playerId, new InMemoryEventBus(), new Log4jsLogger('webClientEventInteractor')),
+export const makeRestClientEventIntegrationTestSuite = (playerId:string, position:Position, configuration:Configuration): ClientEventIntegrationTestSuite => ({
+    clientEventInteractor: new WebClientEventInteractor(serverFullyQualifiedDomainName, defaultHTTPWebServerPort, playerId, new InMemoryEventBus(), new Log4jsLogger('webClientEventInteractor', configuration)),
     clientEvents: [sseTestGameEvent(playerId, position)]
 })
