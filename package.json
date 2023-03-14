@@ -3,11 +3,11 @@
     "version": "0.0.0",
     "description": "",
     "scripts": {
+        "build": "npm run clean:build && parcel build",
         "clean:build": "rimraf dist",
-        "typecheck": "tsc --noEmit",
-        "test": "mocha 'src/**/*.spec.ts'",
         "start": "node dist/main.js",
-        "build": "npm run clean:build && parcel build"
+        "test": "mocha 'src/**/*.spec.ts'",
+        "typecheck": "tsc --noEmit"
     },
     "targets": {
         "frontend-test": {
@@ -81,7 +81,6 @@
         "express": "^4.17.1",
         "https-browserify": "^1.0.0",
         "log4js": "^6.3.0",
-        "madge": "^5.0.1",
         "mocha": "^10.1.0",
         "parcel": "^2.0.0",
         "path-browserify": "^1.0.1",
