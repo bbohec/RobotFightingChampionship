@@ -4,7 +4,7 @@ import { InMemoryEventBus } from '../eventBus/InMemoryEventBus'
 import { InMemoryServerEventInteractor } from './server/InMemoryServerEventInteractor'
 import { EventIntegrationTestSuite, makeInMemoryClientsEventIntegrationTestSuite, clientQty, makeRestClientsEventIntegrationTestSuite, beforeFunction, afterFunction } from './test'
 import { WebServerEventInteractor } from './server/WebServerEventInteractor'
-import { defaultHTTPWebServerPort } from "./server/webServerInformation"
+import { defaultHTTPWebServerPort } from './server/webServerInformation'
 import { ExpressWebServerInstance } from './server/ExpressWebServerInstance'
 import express from 'express'
 import { Log4jsLogger } from '../logger/log4jsLogger'

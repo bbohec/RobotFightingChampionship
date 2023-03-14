@@ -1,5 +1,5 @@
 import { Func } from 'mocha'
-import { position, Position, makePhysical } from '../../core/ecs/components/Physical'
+import { makePhysical, position, Position } from '../../core/ecs/components/Physical'
 import { ClientEventInteractor, ServerEventInteractor } from '../../core/port/EventInteractor'
 import { Action } from '../../core/type/Action'
 import { EntityType } from '../../core/type/EntityType'
@@ -7,11 +7,11 @@ import { GameEvent, newGameEvent } from '../../core/type/GameEvent'
 import { ShapeType } from '../../core/type/ShapeType'
 import { EntityIds } from '../../test/entityIds'
 import { InMemoryEventBus } from '../eventBus/InMemoryEventBus'
-import { ConsoleLogger } from '../logger/consoleLogger'
+import { Log4jsLogger } from '../logger/log4jsLogger'
 import { InMemoryClientEventInteractor } from './client/InMemoryClientEventInteractor'
 import { WebClientEventInteractor } from './client/WebClientEventInteractor'
 import { InMemoryServerEventInteractor } from './server/InMemoryServerEventInteractor'
-import { defaultHTTPWebServerPort } from "./server/webServerInformation"
+import { defaultHTTPWebServerPort } from './server/webServerInformation'
 
 export interface ClientEventIntegrationTestSuite {
     clientEventInteractor:ClientEventInteractor
@@ -29,7 +29,6 @@ export const makeRestClientsEventIntegrationTestSuite = (qty:number):ClientEvent
 export const makeInMemoryClientsEventIntegrationTestSuite = (qty:number):ClientEventIntegrationTestSuite[] => [...Array(qty).keys()].map(index => makeInMemoryClientEventIntegrationTestSuite((index + 1).toString(), position(0, 0)))
 export const beforeFunction = (testSuite: EventIntegrationTestSuite): Func => function (done) {
     this.timeout(30000)
-    console.log(`BEFORE TEST SUITE - ${testSuite.adapterType}`)
     testSuite.clientsEventIntegrationTestSuite.forEach(clientEventIntegrationTestSuite => {
         if (clientEventIntegrationTestSuite.clientEventInteractor instanceof InMemoryClientEventInteractor)
             clientEventIntegrationTestSuite.clientEventInteractor.setServerEventInteractor(testSuite.serverEventInteractor)
@@ -42,7 +41,6 @@ export const beforeFunction = (testSuite: EventIntegrationTestSuite): Func => fu
 }
 export const afterFunction = (testSuite: EventIntegrationTestSuite): Func => function (done) {
     this.timeout(30000)
-    console.log(`AFTER TEST SUITE - ${testSuite.adapterType}`)
     testSuite.serverEventInteractor.stop()
         .then(() => done())
         .catch(error => done(error))
@@ -64,6 +62,6 @@ export const makeInMemoryClientEventIntegrationTestSuite = (playerId:string, pos
     clientEvents: [sseTestGameEvent(playerId, position)]
 })
 export const makeRestClientEventIntegrationTestSuite = (playerId:string, position:Position): ClientEventIntegrationTestSuite => ({
-    clientEventInteractor: new WebClientEventInteractor(serverFullyQualifiedDomainName, defaultHTTPWebServerPort, playerId, new InMemoryEventBus(), new ConsoleLogger('webClientEventInteractor')),
+    clientEventInteractor: new WebClientEventInteractor(serverFullyQualifiedDomainName, defaultHTTPWebServerPort, playerId, new InMemoryEventBus(), new Log4jsLogger('webClientEventInteractor')),
     clientEvents: [sseTestGameEvent(playerId, position)]
 })

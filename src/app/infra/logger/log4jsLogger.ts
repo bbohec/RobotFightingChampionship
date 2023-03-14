@@ -2,12 +2,12 @@ import { configure, getLogger, Configuration, Logger as log4jsLogger } from 'log
 import { Logger, LoggerName } from '../../core/port/Logger'
 
 const configuration:Configuration = { appenders: {}, categories: {} }
-configuration.appenders.default = { type: 'console' }
+configuration.appenders.default = { type: 'file', filename: 'logs/app.log', maxLogSize: '100M' }
 configuration.categories.default = { appenders: ['default'], level: 'debug' }
 configure(configuration)
 export class Log4jsLogger implements Logger {
     constructor (loggerName:LoggerName) {
-        configuration.appenders[loggerName] = { type: 'console' }
+        configuration.appenders[loggerName] = { type: 'file', filename: `logs/${loggerName}.log`, maxLogSize: '100M' }
         configuration.categories[loggerName] = { appenders: [loggerName], level: 'debug' }
         configure(configuration)
         this.log4jsLogger = getLogger(loggerName)
