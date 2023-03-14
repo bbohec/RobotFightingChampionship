@@ -1,27 +1,28 @@
-import { WebClientEventInteractor } from '../../EventInteractor/infra/WebClientEventInteractor'
-import { serverFullyQualifiedDomainName } from '../../EventInteractor/port/testUtilities'
-import { PixijsDrawingAdapter } from '../../Systems/Drawing/infra/PixijsDrawingAdapter'
 import { v1 as uuid } from 'uuid'
-import { ProductionClientAdapters } from '../../Systems/Game/infra/ProductionClientAdapters'
-import { ClientGameSystem } from '../../Systems/Game/ClientGame'
-import { defaultHTTPWebServerPort } from '../../EventInteractor/infra/WebServerEventInteractor'
-import { ProductionEventBus } from '../../Event/infra/ProductionEventBus'
-import { shapeAssets } from './shapeAssets'
-import { createPlayerEvent } from '../../Events/create/create'
-import { ConsoleLogger } from '../../Log/infra/consoleLogger'
-import { PixijsControllerAdapter } from '../../Systems/Controller/infra/PixijsControllerAdapter'
 import { Application } from '@pixi/app'
+import { ClientGameSystem } from '../../app/core/ecs/systems/ClientGameSystem'
+import { createPlayerEvent } from '../../app/core/events/create/create'
+import { PixijsControllerAdapter } from '../../app/infra/controller/PixijsControllerAdapter'
+import { PixijsDrawingAdapter } from '../../app/infra/drawing/PixijsDrawingAdapter'
+import { ProductionEventBus } from '../../app/infra/eventBus/ProductionEventBus'
+import { WebClientEventInteractor } from '../../app/infra/eventInteractor/client/WebClientEventInteractor'
+import { defaultHTTPWebServerPort } from '../../app/infra/eventInteractor/server/webServerInformation'
+import { serverFullyQualifiedDomainName } from '../../app/infra/eventInteractor/test'
+import { ProductionClientGameAdapters } from '../../app/infra/game/client/ProductionClientGameAdapters'
+import { ConsoleLogger } from '../../app/infra/logger/consoleLogger'
+import { shapeAssets } from './shapeAssets'
+
 const loadClient = (playerId:string) => {
     const productionClientEventBus = new ProductionEventBus(new ConsoleLogger('eventBus'))
     const pixiApplication = new Application()
     const controllerAdapter = new PixijsControllerAdapter(productionClientEventBus, pixiApplication, new ConsoleLogger('controllerAdapter'))
     const productionClientDrawingAdapter = new PixijsDrawingAdapter(shapeAssets, new ConsoleLogger('drawingAdapter'), pixiApplication)
-    const productionClientEventInteractor = new WebClientEventInteractor(serverFullyQualifiedDomainName, defaultHTTPWebServerPort, playerId, productionClientEventBus, new ConsoleLogger('eventInteractor'))
+    const productionClientEventInteractor = new WebClientEventInteractor(serverFullyQualifiedDomainName, defaultHTTPWebServerPort, playerId, productionClientEventBus, new ConsoleLogger('webClientEventInteractor'))
     const resizePixiCanvas = () => productionClientDrawingAdapter.changeResolution({ x: window.innerWidth, y: window.innerHeight })
     window.addEventListener('resize', resizePixiCanvas)
     productionClientDrawingAdapter.addingViewToDom(document.body)
     resizePixiCanvas()
-    productionClientEventBus.setGameSystem(new ClientGameSystem(new ProductionClientAdapters(productionClientDrawingAdapter, productionClientEventInteractor, playerId, controllerAdapter)))
+    productionClientEventBus.setGameSystem(new ClientGameSystem(new ProductionClientGameAdapters(productionClientDrawingAdapter, productionClientEventInteractor, playerId, controllerAdapter)))
     return productionClientEventInteractor
 }
 const playerId = uuid()
