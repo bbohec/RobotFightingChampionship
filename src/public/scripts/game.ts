@@ -12,7 +12,7 @@ import { ProductionClientGameAdapters } from '../../app/infra/game/client/Produc
 import { ConsoleLogger } from '../../app/infra/logger/consoleLogger'
 import { shapeAssets } from './shapeAssets'
 
-const loadClient = (playerId:string) => {
+const loadClient = (playerId:string):WebClientEventInteractor => {
     const productionClientEventBus = new ProductionEventBus(new ConsoleLogger('eventBus'))
     const pixiApplication = new Application()
     const controllerAdapter = new PixijsControllerAdapter(productionClientEventBus, pixiApplication, new ConsoleLogger('controllerAdapter'))
