@@ -12,3 +12,20 @@ export const shapeAssets = new Map([
     [ShapeType.victory, new URL('../shapes/victory.png', import.meta.url)],
     [ShapeType.nextTurnButton, new URL('../shapes/nextTurnButton.png', import.meta.url)]
 ])
+
+// const baseUrl = import.meta.url
+// const makeURL = (shapeFileName:string): URL => new URL(`../shapes/${shapeFileName}`, baseUrl)
+
+// export const shapeAssets = new Map([
+//     [ShapeType.robot, makeURL("chicken.png")],
+//     [ShapeType.tower, makeURL('tower.png')],
+//     [ShapeType.cell, makeURL('cell.png')],
+//     [ShapeType.defeat, makeURL('defeat.png')],
+//     [ShapeType.mainMenu, makeURL('mainMenu.png')],
+//     [ShapeType.pointer, makeURL('pointer.png')],
+//     [ShapeType.simpleMatchLobbyButton, makeURL('simpleMatchLobbyButton.png')],
+//     [ShapeType.simpleMatchLobbyMenu, makeURL('simpleMatchLobbyMenu.png')],
+//     [ShapeType.victory, makeURL('victory.png')],
+//     [ShapeType.nextTurnButton, makeURL('nextTurnButton.png')]
+// ])
+
