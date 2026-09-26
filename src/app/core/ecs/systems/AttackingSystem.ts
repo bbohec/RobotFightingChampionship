@@ -1,7 +1,6 @@
-import { retrieveReference } from '../components/EntityReference'
+import { EntityType, retrieveReference } from '../../ecs/components/EntityReference'
 import { Phasing, weaponAttackActionPoints } from '../components/Phasing'
 import { defaultWeaponMaxRange, Position } from '../components/Physical'
-import { EntityType } from '../../type/EntityType'
 import { GameEvent } from '../../type/GameEvent'
 import { hitEvent } from '../../events/hit/hit'
 import { notEnoughActionPointNotificationMessage, notifyPlayerEvent, outOfRangeNotificationMessage, wrongPlayerPhaseNotificationMessage, wrongUnitPhaseNotificationMessage } from '../../events/notifyPlayer/notifyPlayer'

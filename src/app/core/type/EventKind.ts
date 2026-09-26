@@ -1,5 +1,5 @@
-/* eslint-disable no-unused-vars */
-export enum Action {
+ 
+export enum EventKind {
     newLoop = 'New Loop',
     waitingForPlayers = 'Waiting for players',
     join = 'Join',

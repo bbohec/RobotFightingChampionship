@@ -12,15 +12,15 @@ import { preparingGamePhase, playerATowerAutoPlacementPhase, playerARobotAutoPla
 import { Position, position, makePhysical, playerNextTurnButtonPosition, playerATowerFirstPosition, playerARobotFirstPosition, playerBRobotFirstPosition, playerBTowerFirstPosition } from '../../ecs/components/Physical'
 import { PhaseSequence } from '../../ecs/systems/PhasingSystem'
 import { ServerGameSystem } from '../../ecs/systems/ServerGameSystem'
-import { Action } from '../../type/Action'
-import { EntityType } from '../../type/EntityType'
+import { EventKind } from '../../type/EventKind'
+import { EntityType } from '../../ecs/components/EntityReference'
 import { GameEvent } from '../../type/GameEvent'
 import { ShapeType } from '../../type/ShapeType'
 import { drawEvent } from '../draw/draw'
 import { moveEvent } from '../move/move'
 import { nextTurnEvent } from './nextTurn'
 
-feature(Action.nextTurn, () => {
+feature(EventKind.nextTurn, () => {
     interface Scenario {
         number:number
         phaseSequence:PhaseSequence,
@@ -181,7 +181,7 @@ feature(Action.nextTurn, () => {
             ]),
             eventsAreSent(TestStep.Then, 'server', scenario.expectedEvents)
         ]
-        serverScenario(`${Action.nextTurn} ${scenario.number}: ${scenario.phaseSequence.currentPhase.phaseType} ${scenario.phaseSequence.nextPhase.currentUnitId}  > ${scenario.phaseSequence.nextPhase.phaseType} ${scenario.phaseSequence.currentPhase.currentUnitId}`, nextTurnEvent(EntityIds.match),
+        serverScenario(`${EventKind.nextTurn} ${scenario.number}: ${scenario.phaseSequence.currentPhase.phaseType} ${scenario.phaseSequence.nextPhase.currentUnitId}  > ${scenario.phaseSequence.nextPhase.phaseType} ${scenario.phaseSequence.currentPhase.currentUnitId}`, nextTurnEvent(EntityIds.match),
             [], tests, undefined, scenario.skip)
     })
 })

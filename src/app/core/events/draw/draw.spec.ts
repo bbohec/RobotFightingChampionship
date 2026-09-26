@@ -7,20 +7,20 @@ import { whenEventOccured, eventsAreSent } from '../../../test/unitTest/event'
 import { componentsAreVisible } from '../../../test/unitTest/visible'
 import { makeEntityReference } from '../../ecs/components/EntityReference'
 import { makePhysical, mainMenuPosition } from '../../ecs/components/Physical'
-import { Action } from '../../type/Action'
-import { EntityType } from '../../type/EntityType'
+import { EventKind } from '../../type/EventKind'
+import { EntityType } from '../../ecs/components/EntityReference'
 import { ShapeType } from '../../type/ShapeType'
 import { drawEvent } from './draw'
 
-feature(Action.draw, () => {
-    serverScenario(`${Action.draw} 1`, drawEvent(EntityIds.playerA, makePhysical(EntityIds.playerAMainMenu, mainMenuPosition, ShapeType.mainMenu, true)),
+feature(EventKind.draw, () => {
+    serverScenario(`${EventKind.draw} 1`, drawEvent(EntityIds.playerA, makePhysical(EntityIds.playerAMainMenu, mainMenuPosition, ShapeType.mainMenu, true)),
         [EntityIds.playerA], [
             thereIsServerComponents(TestStep.Given, []),
             ...whenEventOccured(),
             thereIsServerComponents(TestStep.Then, []),
             eventsAreSent(TestStep.Then, EntityIds.playerA, [drawEvent(EntityIds.playerA, makePhysical(EntityIds.playerAMainMenu, mainMenuPosition, ShapeType.mainMenu, true))])
         ])
-    serverScenario(`${Action.draw} 2`, drawEvent(EntityIds.playerA, makePhysical(EntityIds.playerAMainMenu, mainMenuPosition, ShapeType.mainMenu, false)),
+    serverScenario(`${EventKind.draw} 2`, drawEvent(EntityIds.playerA, makePhysical(EntityIds.playerAMainMenu, mainMenuPosition, ShapeType.mainMenu, false)),
         [EntityIds.playerA], [
             thereIsServerComponents(TestStep.Given, []),
             ...whenEventOccured(),
@@ -28,7 +28,7 @@ feature(Action.draw, () => {
             eventsAreSent(TestStep.Then, EntityIds.playerA, [drawEvent(EntityIds.playerA, makePhysical(EntityIds.playerAMainMenu, mainMenuPosition, ShapeType.mainMenu, false))])
         ]
     )
-    clientScenario(`${Action.draw} 3`, drawEvent(EntityIds.playerA, makePhysical(EntityIds.playerAMainMenu, mainMenuPosition, ShapeType.mainMenu, true)), EntityIds.playerA,
+    clientScenario(`${EventKind.draw} 3`, drawEvent(EntityIds.playerA, makePhysical(EntityIds.playerAMainMenu, mainMenuPosition, ShapeType.mainMenu, true)), EntityIds.playerA,
         [
             thereIsClientComponents(TestStep.Given, [
                 makeEntityReference(EntityIds.playerA, EntityType.player)
@@ -40,7 +40,7 @@ feature(Action.draw, () => {
             ]),
             componentsAreVisible(TestStep.Then, [makePhysical(EntityIds.playerAMainMenu, mainMenuPosition, ShapeType.mainMenu, true)])
         ])
-    clientScenario(`${Action.draw} 4`, drawEvent(EntityIds.playerA, makePhysical(EntityIds.playerAMainMenu, mainMenuPosition, ShapeType.mainMenu, false)), EntityIds.playerA,
+    clientScenario(`${EventKind.draw} 4`, drawEvent(EntityIds.playerA, makePhysical(EntityIds.playerAMainMenu, mainMenuPosition, ShapeType.mainMenu, false)), EntityIds.playerA,
         [
             thereIsClientComponents(TestStep.Given, [
                 makeEntityReference(EntityIds.playerA, EntityType.player)

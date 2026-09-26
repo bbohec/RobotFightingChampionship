@@ -2,8 +2,8 @@ import { Controller } from '../components/Controller'
 import { EntityReference, retrieveReference, retrieveReferences, hasReferences } from '../components/EntityReference'
 import { Phasing } from '../components/Phasing'
 import { isPositionIdentical, Physical, Position } from '../components/Physical'
-import { Action } from '../../type/Action'
-import { EntityType } from '../../type/EntityType'
+import { EventKind } from '../../type/EventKind'
+import { EntityType } from '../../ecs/components/EntityReference'
 import { GameEvent } from '../../type/GameEvent'
 import { PhaseType } from '../../type/PhaseType'
 import { drawEvent } from '../../events/draw/draw'
@@ -15,7 +15,7 @@ export const movingEntityNotSupported = 'Moving entity not supported.'
 
 export class MovingSystem extends ArtithmeticSystem {
     onGameEvent (gameEvent: GameEvent): Promise<void> {
-        if (gameEvent.action === Action.updatePlayerPointerState) return this.onUpdatePointerPosition(gameEvent)
+        if (gameEvent.action === EventKind.updatePlayerPointerState) return this.onUpdatePointerPosition(gameEvent)
         const playerId = this.entityByEntityType(gameEvent, EntityType.player)
         const matchPhasingComponent = this.componentRepository.retrieveComponent(retrieveReference(this.entityReferencesByEntityId(playerId), EntityType.match), 'Phasing')
         const movingEntityId = this.movingEntityIdBySupportedEntityTypeAndPhase(gameEvent, matchPhasingComponent)

@@ -8,15 +8,15 @@ import { matchGridDimension } from '../../ecs/components/Dimensional'
 import { makeEntityReference } from '../../ecs/components/EntityReference'
 import { makeLifeCycle } from '../../ecs/components/LifeCycle'
 import { simpleMatchLobbyPosition, mainMenuPosition, defaultJoinSimpleMatchButtonPosition, makePhysical } from '../../ecs/components/Physical'
-import { Action } from '../../type/Action'
-import { EntityType } from '../../type/EntityType'
+import { EventKind } from '../../type/EventKind'
+import { EntityType } from '../../ecs/components/EntityReference'
 import { ShapeType } from '../../type/ShapeType'
 import { createGridEvent, createTowerEvent, createRobotEvent, createPlayerNextTurnMatchButtonEvent, createPlayerSimpleMatchLobbyMenu, createMatchEvent } from '../create/create'
 import { drawEvent } from '../draw/draw'
 import { playerJoinMatchEvent, playerWantJoinSimpleMatchLobby } from './join'
 
-feature(Action.join, () => {
-    serverScenario(`${Action.join} 1`, playerJoinMatchEvent(EntityIds.playerA, EntityIds.match),
+feature(EventKind.join, () => {
+    serverScenario(`${EventKind.join} 1`, playerJoinMatchEvent(EntityIds.playerA, EntityIds.match),
         [], [
             thereIsServerComponents(TestStep.Given, [
                 makeEntityReference(EntityIds.match, EntityType.match, new Map()),
@@ -29,7 +29,7 @@ feature(Action.join, () => {
             ]),
             eventsAreSent(TestStep.Then, 'server', [])
         ])
-    serverScenario(`${Action.join} 2`, playerJoinMatchEvent(EntityIds.playerB, EntityIds.match),
+    serverScenario(`${EventKind.join} 2`, playerJoinMatchEvent(EntityIds.playerB, EntityIds.match),
         [], [
             thereIsServerComponents(TestStep.Given, [
                 makeEntityReference(EntityIds.match, EntityType.match, new Map([[EntityType.player, [EntityIds.playerA]]])),
@@ -52,7 +52,7 @@ feature(Action.join, () => {
                 createPlayerNextTurnMatchButtonEvent(EntityIds.match, EntityIds.playerB)
             ])
         ])
-    serverScenario(`${Action.join} 3`, playerWantJoinSimpleMatchLobby(EntityIds.playerA, EntityIds.simpleMatchLobby),
+    serverScenario(`${EventKind.join} 3`, playerWantJoinSimpleMatchLobby(EntityIds.playerA, EntityIds.simpleMatchLobby),
         [], [
             thereIsServerComponents(TestStep.Given, [
                 makeEntityReference(EntityIds.playerA, EntityType.player, new Map([[EntityType.button, [EntityIds.playerAJoinSimpleMatchButton]], [EntityType.mainMenu, [EntityIds.playerAMainMenu]]])),
@@ -77,7 +77,7 @@ feature(Action.join, () => {
                 createPlayerSimpleMatchLobbyMenu(players[0])
             ])
         ])
-    serverScenario(`${Action.join} 4`, players.map(player => playerWantJoinSimpleMatchLobby(player, EntityIds.simpleMatchLobby)),
+    serverScenario(`${EventKind.join} 4`, players.map(player => playerWantJoinSimpleMatchLobby(player, EntityIds.simpleMatchLobby)),
         [], [
             thereIsServerComponents(TestStep.Given, [
                 makeLifeCycle(EntityIds.simpleMatchLobby, true),

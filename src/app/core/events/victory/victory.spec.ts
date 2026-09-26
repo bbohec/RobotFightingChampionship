@@ -7,14 +7,14 @@ import { eventsAreSent, whenEventOccured } from '../../../test/unitTest/event'
 import { makeEntityReference } from '../../ecs/components/EntityReference'
 import { makePhasing, playerARobotPhase, victoryPhase } from '../../ecs/components/Phasing'
 import { defeatPosition, makePhysical, victoryPosition } from '../../ecs/components/Physical'
-import { Action } from '../../type/Action'
-import { EntityType } from '../../type/EntityType'
+import { EventKind } from '../../type/EventKind'
+import { EntityType } from '../../ecs/components/EntityReference'
 import { ShapeType } from '../../type/ShapeType'
 import { drawEvent } from '../draw/draw'
 import { victoryEvent } from './victory'
 
-feature(Action.victory, () => {
-    serverScenario(`${Action.victory} 1`, victoryEvent(EntityIds.match, EntityIds.playerA),
+feature(EventKind.victory, () => {
+    serverScenario(`${EventKind.victory} 1`, victoryEvent(EntityIds.match, EntityIds.playerA),
         [], [
             thereIsServerComponents(TestStep.Given, [
                 makeEntityReference(EntityIds.match, EntityType.match, new Map([[EntityType.player, [EntityIds.playerA, EntityIds.playerB]], [EntityType.victory, [EntityIds.victory]], [EntityType.defeat, [EntityIds.defeat]]])),
@@ -42,7 +42,7 @@ feature(Action.victory, () => {
                 drawEvent(EntityIds.playerB, makePhysical(EntityIds.defeat, defeatPosition, ShapeType.defeat, true))
             ])
         ])
-    serverScenario(`${Action.victory} 2`, victoryEvent(EntityIds.match, EntityIds.playerB),
+    serverScenario(`${EventKind.victory} 2`, victoryEvent(EntityIds.match, EntityIds.playerB),
         [], [
             thereIsServerComponents(TestStep.Given, [
                 makeEntityReference(EntityIds.match, EntityType.match, new Map([[EntityType.player, [EntityIds.playerA, EntityIds.playerB]], [EntityType.victory, [EntityIds.victory]], [EntityType.defeat, [EntityIds.defeat]]])),

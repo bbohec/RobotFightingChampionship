@@ -1,6 +1,6 @@
 
-import { Action } from '../../type/Action'
-import { EntityType } from '../../type/EntityType'
+import { EventKind } from '../../type/EventKind'
+import { EntityType } from '../../ecs/components/EntityReference'
 import { errorMessageOnUnknownEventAction, GameEvent } from '../../type/GameEvent'
 import { badPlayerEventNotificationMessage } from '../../events/notifyPlayer/notifyPlayer'
 import { GenericClientSystem, GenericGameEventDispatcherSystem } from '../system'
@@ -25,7 +25,7 @@ export class DrawingSystem extends GenericClientSystem {
 
     onPlayerEvent (gameEvent: GameEvent):Promise<void> {
         gameEvent.entityRefences.delete(EntityType.player)
-        return gameEvent.action === Action.draw
+        return gameEvent.action === EventKind.draw
             ? this.drawEntities(gameEvent)
             : Promise.reject(errorMessageOnUnknownEventAction(DrawingSystem.name, gameEvent))
     }

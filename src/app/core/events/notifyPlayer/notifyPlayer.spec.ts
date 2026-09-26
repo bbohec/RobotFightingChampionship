@@ -6,12 +6,12 @@ import { thereIsClientComponents, thereIsServerComponents } from '../../../test/
 import { whenEventOccured, eventsAreSent } from '../../../test/unitTest/event'
 import { thereIsANotification } from '../../../test/unitTest/notification'
 import { makeEntityReference } from '../../ecs/components/EntityReference'
-import { Action } from '../../type/Action'
-import { EntityType } from '../../type/EntityType'
+import { EventKind } from '../../type/EventKind'
+import { EntityType } from '../../ecs/components/EntityReference'
 import { notifyPlayerEvent, notEnoughActionPointNotificationMessage, wrongPlayerNotificationMessage } from './notifyPlayer'
 
-feature(Action.notifyPlayer, () => {
-    serverScenario(`${Action.notifyPlayer} 1 - Server Side`, notifyPlayerEvent(EntityIds.playerA, notEnoughActionPointNotificationMessage),
+feature(EventKind.notifyPlayer, () => {
+    serverScenario(`${EventKind.notifyPlayer} 1 - Server Side`, notifyPlayerEvent(EntityIds.playerA, notEnoughActionPointNotificationMessage),
         [EntityIds.playerA]
         , [
             thereIsServerComponents(TestStep.Given, []),
@@ -19,7 +19,7 @@ feature(Action.notifyPlayer, () => {
             thereIsServerComponents(TestStep.Then, []),
             eventsAreSent(TestStep.Then, EntityIds.playerA, [notifyPlayerEvent(EntityIds.playerA, notEnoughActionPointNotificationMessage)])
         ])
-    clientScenario(`${Action.notifyPlayer} 2 - Client Side`, notifyPlayerEvent(EntityIds.playerA, notEnoughActionPointNotificationMessage), EntityIds.playerA,
+    clientScenario(`${EventKind.notifyPlayer} 2 - Client Side`, notifyPlayerEvent(EntityIds.playerA, notEnoughActionPointNotificationMessage), EntityIds.playerA,
         [
             thereIsClientComponents(TestStep.Given, [
                 makeEntityReference(EntityIds.playerA, EntityType.player)
@@ -30,7 +30,7 @@ feature(Action.notifyPlayer, () => {
             ]),
             thereIsANotification(TestStep.Then, notEnoughActionPointNotificationMessage)
         ], undefined)
-    clientScenario(`${Action.notifyPlayer} 3 - Client Side bad player`, notifyPlayerEvent(EntityIds.playerB, notEnoughActionPointNotificationMessage), EntityIds.playerA,
+    clientScenario(`${EventKind.notifyPlayer} 3 - Client Side bad player`, notifyPlayerEvent(EntityIds.playerB, notEnoughActionPointNotificationMessage), EntityIds.playerA,
         [
             thereIsClientComponents(TestStep.Given, [
                 makeEntityReference(EntityIds.playerA, EntityType.player)

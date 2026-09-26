@@ -5,14 +5,14 @@ import { TestStep } from '../../../test/TestStep'
 import { thereIsServerComponents } from '../../../test/unitTest/component'
 import { whenEventOccured, eventsAreSent } from '../../../test/unitTest/event'
 import { position, makePhysical } from '../../ecs/components/Physical'
-import { Action } from '../../type/Action'
-import { EntityType } from '../../type/EntityType'
+import { EventKind } from '../../type/EventKind'
+import { EntityType } from '../../ecs/components/EntityReference'
 import { ShapeType } from '../../type/ShapeType'
 import { collisionGameEvent } from '../collision/collision'
 import { checkCollisionGameEvent } from './checkCollision'
 
-feature(Action.checkCollision, () => {
-    serverScenario(`${Action.checkCollision} 1 - Check Collision Game Event - Collision with 2 entities and 1 entity without collision`, checkCollisionGameEvent(),
+feature(EventKind.checkCollision, () => {
+    serverScenario(`${EventKind.checkCollision} 1 - Check Collision Game Event - Collision with 2 entities and 1 entity without collision`, checkCollisionGameEvent(),
         [], [
             thereIsServerComponents(TestStep.Given, [
                 makePhysical(EntityIds.playerARobot, position(0, 0), ShapeType.robot, true),
@@ -27,7 +27,7 @@ feature(Action.checkCollision, () => {
             ]),
             eventsAreSent(TestStep.Then, 'server', [collisionGameEvent(new Map([[EntityType.unknown, [EntityIds.playerARobot, EntityIds.playerBRobot]]]))])
         ])
-    serverScenario(`${Action.checkCollision} 2 - Check Collision Game Event - Collision with 2 entities on average position`, checkCollisionGameEvent(),
+    serverScenario(`${EventKind.checkCollision} 2 - Check Collision Game Event - Collision with 2 entities on average position`, checkCollisionGameEvent(),
         [], [
             thereIsServerComponents(TestStep.Given, [
                 makePhysical(EntityIds.playerARobot, position(0.25, 0.25), ShapeType.robot, true),

@@ -1,8 +1,8 @@
 import { EntityReference, linkEntityToEntities, retrieveReference, retrieveReferences } from '../components/EntityReference'
-import { fightPhase, Phasing, placementActionPoints, placementPhase, preparingGamePhase, victoryPhase } from '../components/Phasing'
+import { fightPhase, Phase, Phasing, placementActionPoints, placementPhase, preparingGamePhase, victoryPhase } from '../components/Phasing'
 import { Physical, playerARobotFirstPosition, playerATowerFirstPosition, playerBRobotFirstPosition, playerBTowerFirstPosition, Position } from '../components/Physical'
-import { Action } from '../../type/Action'
-import { EntityType } from '../../type/EntityType'
+import { EventKind } from '../../type/EventKind'
+import { EntityType } from '../../ecs/components/EntityReference'
 import { errorMessageOnUnknownEventAction, GameEvent } from '../../type/GameEvent'
 import { drawEvent } from '../../events/draw/draw'
 import { moveEvent } from '../../events/move/move'
@@ -10,7 +10,6 @@ import { nextTurnEvent } from '../../events/nextTurn/nextTurn'
 import { GenericServerSystem } from '../system'
 import { Dimension } from '../components/Dimensional'
 import { destroySimpleMatchLobbyMenuEvent } from '../../events/destroy/destroy'
-import { Phase } from '../../type/Phase'
 import { PhaseType } from '../../type/PhaseType'
 import { victoryPlayerMissingOnPlayableComponent, missingDefeatPlayerId, currentPhaseNotSupported, missingPlayerInderOnPlayableComponent, missingInitialPosition, unitMissingOnPlayerTowersAndRobots, cellMissingOnGrid } from '../../../messages'
 
@@ -21,11 +20,11 @@ export interface PhaseSequence {
 
 export class PhasingSystem extends GenericServerSystem {
     onGameEvent (gameEvent: GameEvent): Promise<void> {
-        return gameEvent.action === Action.ready
+        return gameEvent.action === EventKind.ready
             ? this.onReady(gameEvent)
-            : gameEvent.action === Action.nextTurn
+            : gameEvent.action === EventKind.nextTurn
                 ? this.onNextTurn(gameEvent)
-                : gameEvent.action === Action.victory
+                : gameEvent.action === EventKind.victory
                     ? this.onVictory(gameEvent)
                     : Promise.reject(new Error(errorMessageOnUnknownEventAction(PhasingSystem.name, gameEvent)))
     }

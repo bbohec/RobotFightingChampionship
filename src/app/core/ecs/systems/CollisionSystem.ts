@@ -1,7 +1,6 @@
 import { missingEntityId } from '../../../infra/entity/InMemoryEntityRepository'
-import { Controller } from '../components/Controller'
-import { ControlStatus } from '../../type/ControlStatus'
-import { EntityReference, retrieveReference, retrieveReferences, hasReferences } from '../components/EntityReference'
+import { Controller, ControlStatus } from '../components/Controller'
+import { EntityReference, EntityType, retrieveReference, retrieveReferences, hasReferences } from '../components/EntityReference'
 import { getCurrentUnitId, Phasing } from '../components/Phasing'
 import { Physical, Position, isPositionIdentical } from '../components/Physical'
 import { attackEvent } from '../../events/attack/attack'
@@ -11,17 +10,16 @@ import { moveEvent } from '../../events/move/move'
 import { nextTurnEvent } from '../../events/nextTurn/nextTurn'
 import { notifyServerEvent } from '../../events/notifyServer/notifyServer'
 import { quitMatchEvent } from '../../events/quit/quit'
-import { Action } from '../../type/Action'
-import { EntityType } from '../../type/EntityType'
+import { EventKind } from '../../type/EventKind'
 import { GameEvent, errorMessageOnUnknownEventAction } from '../../type/GameEvent'
 import { PhaseType } from '../../type/PhaseType'
 import { GenericServerSystem } from '../system'
 
 export class CollisionSystem extends GenericServerSystem {
     onGameEvent (gameEvent: GameEvent): Promise<void> {
-        return gameEvent.action === Action.checkCollision
+        return gameEvent.action === EventKind.checkCollision
             ? this.onCheckCollision()
-            : gameEvent.action === Action.collision
+            : gameEvent.action === EventKind.collision
                 ? this.onCollision(gameEvent)
                 : Promise.reject(new Error(errorMessageOnUnknownEventAction(CollisionSystem.name, gameEvent)))
     }

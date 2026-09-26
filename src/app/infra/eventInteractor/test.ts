@@ -2,8 +2,7 @@ import { Configuration } from 'log4js'
 import { Func } from 'mocha'
 import { makePhysical, position, Position } from '../../core/ecs/components/Physical'
 import { ClientEventInteractor, ServerEventInteractor } from '../../core/port/EventInteractor'
-import { Action } from '../../core/type/Action'
-import { EntityType } from '../../core/type/EntityType'
+import { EventKind } from '../../core/type/EventKind'
 import { GameEvent, newGameEvent } from '../../core/type/GameEvent'
 import { ShapeType } from '../../core/type/ShapeType'
 import { EntityIds } from '../../test/entityIds'
@@ -13,6 +12,7 @@ import { InMemoryClientEventInteractor } from './client/InMemoryClientEventInter
 import { WebClientEventInteractor } from './client/WebClientEventInteractor'
 import { InMemoryServerEventInteractor } from './server/InMemoryServerEventInteractor'
 import { defaultHTTPWebServerPort } from './server/webServerInformation'
+import { EntityType } from '../../core/ecs/components/EntityReference'
 
 export interface ClientEventIntegrationTestSuite {
     clientEventInteractor:ClientEventInteractor
@@ -23,7 +23,7 @@ export interface EventIntegrationTestSuite {
     serverEventInteractor: ServerEventInteractor
     clientsEventIntegrationTestSuite: ClientEventIntegrationTestSuite[]
 }
-export const serverFullyQualifiedDomainName = 'localhost'
+export const serverFullyQualifiedDomainName = '127.0.0.1'
 export const clientQty = 10
 
 export const makeRestClientsEventIntegrationTestSuite = (qty:number, configuration:Configuration):ClientEventIntegrationTestSuite[] => [...Array(qty).keys()].map(index => makeRestClientEventIntegrationTestSuite((index + 1).toString(), position(0, 0), configuration))
@@ -55,7 +55,7 @@ const configureInMemoryClientsOnServer = (serverEventInteractor: InMemoryServerE
     }))
 
 const sseTestGameEvent = (playerId:string, position:Position) => newGameEvent(
-    Action.attack,
+    EventKind.attack,
     new Map([[EntityType.player, [playerId]]]),
     [makePhysical(EntityIds.playerAPointer, position, ShapeType.pointer, true)])
 export const makeInMemoryClientEventIntegrationTestSuite = (playerId:string, position:Position): ClientEventIntegrationTestSuite => ({

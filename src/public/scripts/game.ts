@@ -1,5 +1,5 @@
 import { v1 as uuid } from 'uuid'
-import { Application } from '@pixi/app'
+import { Application } from 'pixi.js'
 import { ClientGameSystem } from '../../app/core/ecs/systems/ClientGameSystem'
 import { createPlayerEvent } from '../../app/core/events/create/create'
 import { PixijsControllerAdapter } from '../../app/infra/controller/PixijsControllerAdapter'

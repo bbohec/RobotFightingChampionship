@@ -2,9 +2,9 @@ import { errorMessageOnUnknownEventAction, GameEvent } from '../../type/GameEven
 import { ServerLifeCycleSystem } from './ServerLifeCycleSystem'
 import { WaitingAreaSystem } from './WaitingAreaSystem'
 import { ServerMatchSystem } from './ServerMatchSystem'
-import { Action } from '../../type/Action'
+import { EventKind } from '../../type/EventKind'
 import { PhasingSystem } from './PhasingSystem'
-import { EntityType } from '../../type/EntityType'
+import { EntityType } from '../../ecs/components/EntityReference'
 import { HitSystem } from './HitSystem'
 import { AttackingSystem } from './AttackingSystem'
 import { MovingSystem } from './MovingSystem'
@@ -15,29 +15,29 @@ import { GenericGameEventDispatcherSystem } from '../system'
 
 export class ServerGameEventDispatcherSystem extends GenericGameEventDispatcherSystem {
     onGameEvent (gameEvent: GameEvent): Promise<void> {
-        return gameEvent.action === Action.draw || gameEvent.action === Action.notifyPlayer
+        return gameEvent.action === EventKind.draw || gameEvent.action === EventKind.notifyPlayer
             ? this.sendEventToClient(gameEvent)
-            : gameEvent.action === Action.create || gameEvent.action === Action.destroy
+            : gameEvent.action === EventKind.create || gameEvent.action === EventKind.destroy
                 ? this.interactWithSystems.retrieveSystemByClass(ServerLifeCycleSystem).onGameEvent(gameEvent)
-                : (gameEvent.action === Action.join && this.hasEntitiesByEntityType(gameEvent, EntityType.simpleMatchLobby)) || gameEvent.action === Action.waitingForPlayers
+                : (gameEvent.action === EventKind.join && this.hasEntitiesByEntityType(gameEvent, EntityType.simpleMatchLobby)) || gameEvent.action === EventKind.waitingForPlayers
                     ? this.interactWithSystems.retrieveSystemByClass(WaitingAreaSystem).onGameEvent(gameEvent)
-                    : gameEvent.action === Action.join || gameEvent.action === Action.quit
+                    : gameEvent.action === EventKind.join || gameEvent.action === EventKind.quit
                         ? this.interactWithSystems.retrieveSystemByClass(ServerMatchSystem).onGameEvent(gameEvent)
-                        : gameEvent.action === Action.register
+                        : gameEvent.action === EventKind.register
                             ? this.onRegister(gameEvent)
-                            : gameEvent.action === Action.ready || gameEvent.action === Action.nextTurn || gameEvent.action === Action.victory
+                            : gameEvent.action === EventKind.ready || gameEvent.action === EventKind.nextTurn || gameEvent.action === EventKind.victory
                                 ? this.interactWithSystems.retrieveSystemByClass(PhasingSystem).onGameEvent(gameEvent)
-                                : gameEvent.action === Action.newLoop
+                                : gameEvent.action === EventKind.newLoop
                                     ? this.interactWithSystems.retrieveSystemByClass(LoopSystem).onGameEvent(gameEvent)
-                                    : gameEvent.action === Action.hit
+                                    : gameEvent.action === EventKind.hit
                                         ? this.interactWithSystems.retrieveSystemByClass(HitSystem).onGameEvent(gameEvent)
-                                        : gameEvent.action === Action.move || gameEvent.action === Action.updatePlayerPointerState
+                                        : gameEvent.action === EventKind.move || gameEvent.action === EventKind.updatePlayerPointerState
                                             ? this.interactWithSystems.retrieveSystemByClass(MovingSystem).onGameEvent(gameEvent)
-                                            : gameEvent.action === Action.attack
+                                            : gameEvent.action === EventKind.attack
                                                 ? this.interactWithSystems.retrieveSystemByClass(AttackingSystem).onGameEvent(gameEvent)
-                                                : gameEvent.action === Action.checkCollision || gameEvent.action === Action.collision
+                                                : gameEvent.action === EventKind.checkCollision || gameEvent.action === EventKind.collision
                                                     ? this.interactWithSystems.retrieveSystemByClass(CollisionSystem).onGameEvent(gameEvent)
-                                                    : gameEvent.action === Action.notifyServer
+                                                    : gameEvent.action === EventKind.notifyServer
                                                         ? Promise.resolve()
                                                         : Promise.reject(new Error(errorMessageOnUnknownEventAction(ServerGameEventDispatcherSystem.name, gameEvent)))
     }

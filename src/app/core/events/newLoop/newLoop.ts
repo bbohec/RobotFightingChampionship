@@ -1,3 +1,3 @@
-import { Action } from '../../type/Action'
+import { EventKind } from '../../type/EventKind'
 import { newGameEvent } from '../../type/GameEvent'
-export const newLoopEvent = newGameEvent(Action.newLoop, new Map())
+export const newLoopEvent = newGameEvent(EventKind.newLoop, new Map())

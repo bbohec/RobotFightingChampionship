@@ -7,16 +7,16 @@ import { whenEventOccured, eventsAreSent, whenEventOccurs } from '../../../test/
 import { makeEntityReference } from '../../ecs/components/EntityReference'
 import { preparingGamePhase, makePhasing } from '../../ecs/components/Phasing'
 import { position, makePhysical } from '../../ecs/components/Physical'
-import { Action } from '../../type/Action'
-import { EntityType } from '../../type/EntityType'
+import { EventKind } from '../../type/EventKind'
+import { EntityType } from '../../ecs/components/EntityReference'
 import { ShapeType } from '../../type/ShapeType'
 import { destroySimpleMatchLobbyMenuEvent } from '../destroy/destroy'
 import { drawEvent } from '../draw/draw'
 import { nextTurnEvent } from '../nextTurn/nextTurn'
 import { playerReadyForMatch } from './ready'
 
-feature(Action.ready, () => {
-    serverScenario(`${Action.ready} 1`, playerReadyForMatch(EntityIds.match, EntityIds.playerA),
+feature(EventKind.ready, () => {
+    serverScenario(`${EventKind.ready} 1`, playerReadyForMatch(EntityIds.match, EntityIds.playerA),
         [], [
             thereIsServerComponents(TestStep.Given, [
                 makePhasing(EntityIds.match, preparingGamePhase),
@@ -36,7 +36,7 @@ feature(Action.ready, () => {
                 destroySimpleMatchLobbyMenuEvent(EntityIds.playerASimpleMatchLobbyMenu)
             ])
         ])
-    serverScenario(`${Action.ready} 2`, [playerReadyForMatch(EntityIds.match, EntityIds.playerA), playerReadyForMatch(EntityIds.match, EntityIds.playerB)],
+    serverScenario(`${EventKind.ready} 2`, [playerReadyForMatch(EntityIds.match, EntityIds.playerA), playerReadyForMatch(EntityIds.match, EntityIds.playerB)],
         [], [
             thereIsServerComponents(TestStep.Given, [
                 makePhasing(EntityIds.match, preparingGamePhase),

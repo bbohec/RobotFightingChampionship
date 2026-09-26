@@ -5,13 +5,13 @@ import { TestStep } from '../../../test/TestStep'
 import { thereIsServerComponents } from '../../../test/unitTest/component'
 import { whenEventOccured, eventsAreSent } from '../../../test/unitTest/event'
 import { makeEntityReference } from '../../ecs/components/EntityReference'
-import { Action } from '../../type/Action'
-import { EntityType } from '../../type/EntityType'
+import { EventKind } from '../../type/EventKind'
+import { EntityType } from '../../ecs/components/EntityReference'
 import { playerJoinMatchEvent } from '../join/join'
 import { matchWaitingForPlayers } from './waiting'
 
-feature(Action.waitingForPlayers, () => {
-    serverScenario(`${Action.waitingForPlayers} 1`, matchWaitingForPlayers(EntityIds.match, EntityIds.simpleMatchLobby),
+feature(EventKind.waitingForPlayers, () => {
+    serverScenario(`${EventKind.waitingForPlayers} 1`, matchWaitingForPlayers(EntityIds.match, EntityIds.simpleMatchLobby),
         [], [
             thereIsServerComponents(TestStep.Given, [
                 makeEntityReference(EntityIds.simpleMatchLobby, EntityType.simpleMatchLobby, new Map([[EntityType.player, [...expectedAddedPlayers, ...expectedStillWaitingPlayers]]]))

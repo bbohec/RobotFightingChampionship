@@ -12,10 +12,14 @@ export class ExpressWebServerInstance {
 
     start ():Promise<void> {
         return new Promise<void>((resolve, reject) => {
-            this.server = this.instance.listen(this.port, () => {
-                this.logger.info(serverListeningMessage(this.port))
+            this.server = this.instance.listen(this.port);
+            this.server.on('listening', () => {
+                const address = this.server?.address()
+                if (!address) throw new Error("Missing address")
+                this.logger.info(typeof address === "object" ? serverListeningMessage(address) : `Listening on socket ${address}`)
                 resolve()
-            })
+            });
+         
         })
     }
 

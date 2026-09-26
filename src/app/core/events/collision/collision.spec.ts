@@ -5,13 +5,12 @@ import { serverScenario } from '../../../test/scenario'
 import { TestStep } from '../../../test/TestStep'
 import { thereIsServerComponents } from '../../../test/unitTest/component'
 import { whenEventOccured, eventsAreSent } from '../../../test/unitTest/event'
-import { makeController } from '../../ecs/components/Controller'
-import { ControlStatus } from '../../type/ControlStatus'
+import { ControlStatus, makeController } from '../../ecs/components/Controller'
 import { makeEntityReference } from '../../ecs/components/EntityReference'
 import { playerATowerPhase, makePhasing, playerARobotPhase, victoryPhase } from '../../ecs/components/Phasing'
 import { makePhysical, position } from '../../ecs/components/Physical'
-import { Action } from '../../type/Action'
-import { EntityType } from '../../type/EntityType'
+import { EventKind } from '../../type/EventKind'
+import { EntityType } from '../../ecs/components/EntityReference'
 import { ShapeType } from '../../type/ShapeType'
 import { attackEvent } from '../attack/attack'
 import { joinSimpleMatchLobby } from '../join/join'
@@ -21,8 +20,8 @@ import { notifyServerEvent } from '../notifyServer/notifyServer'
 import { quitMatchEvent } from '../quit/quit'
 import { collisionGameEvent } from './collision'
 
-feature(Action.collision, () => {
-    serverScenario(`${Action.collision} 1 - Collision with player activated pointer &  player join simple match button`, collisionGameEvent(new Map([[EntityType.unknown, [EntityIds.playerAPointer, EntityIds.playerAJoinSimpleMatchButton]]])),
+feature(EventKind.collision, () => {
+    serverScenario(`${EventKind.collision} 1 - Collision with player activated pointer &  player join simple match button`, collisionGameEvent(new Map([[EntityType.unknown, [EntityIds.playerAPointer, EntityIds.playerAJoinSimpleMatchButton]]])),
         [], [
             thereIsServerComponents(TestStep.Given, [
                 makeEntityReference(EntityIds.playerA, EntityType.player, new Map([[EntityType.button, [EntityIds.playerAJoinSimpleMatchButton]], [EntityType.pointer, [EntityIds.playerAPointer]], [EntityType.mainMenu, [EntityIds.playerAMainMenu]]])),
@@ -39,7 +38,7 @@ feature(Action.collision, () => {
                 makeEntityReference(EntityIds.playerAJoinSimpleMatchButton, EntityType.button, new Map([[EntityType.player, [EntityIds.playerA]], [EntityType.simpleMatchLobby, [EntityIds.simpleMatchLobby]]]))
             ])
         ])
-    serverScenario(`${Action.collision} 2 - Collision with player idle pointer &  player join simple match button`, collisionGameEvent(new Map([[EntityType.unknown, [EntityIds.playerAPointer, EntityIds.playerAJoinSimpleMatchButton]]])),
+    serverScenario(`${EventKind.collision} 2 - Collision with player idle pointer &  player join simple match button`, collisionGameEvent(new Map([[EntityType.unknown, [EntityIds.playerAPointer, EntityIds.playerAJoinSimpleMatchButton]]])),
         [], [
             thereIsServerComponents(TestStep.Given, [
                 makeEntityReference(EntityIds.playerA, EntityType.player, new Map([[EntityType.button, [EntityIds.playerAJoinSimpleMatchButton]], [EntityType.pointer, [EntityIds.playerAPointer]], [EntityType.mainMenu, [EntityIds.playerAMainMenu]]])),
@@ -55,7 +54,7 @@ feature(Action.collision, () => {
                 makeEntityReference(EntityIds.playerAJoinSimpleMatchButton, EntityType.button, new Map([[EntityType.player, [EntityIds.playerA]], [EntityType.simpleMatchLobby, [EntityIds.simpleMatchLobby]]]))
             ])
         ])
-    serverScenario(`${Action.collision} 3 - Collision with player pointer &  player end turn button`, collisionGameEvent(new Map([[EntityType.unknown, [EntityIds.playerAPointer, EntityIds.playerANextTurnButton]]])),
+    serverScenario(`${EventKind.collision} 3 - Collision with player pointer &  player end turn button`, collisionGameEvent(new Map([[EntityType.unknown, [EntityIds.playerAPointer, EntityIds.playerANextTurnButton]]])),
         [], [
             thereIsServerComponents(TestStep.Given, [
                 makePhasing(EntityIds.match, playerATowerPhase()),
@@ -72,7 +71,7 @@ feature(Action.collision, () => {
             ]),
             eventsAreSent(TestStep.Then, 'server', [nextTurnEvent(EntityIds.match)])
         ])
-    serverScenario(`${Action.collision} 4 - Collision with player pointer &  match cell`, collisionGameEvent(new Map([[EntityType.unknown, [EntityIds.playerAPointer, EntityIds.cellx1y1]]])),
+    serverScenario(`${EventKind.collision} 4 - Collision with player pointer &  match cell`, collisionGameEvent(new Map([[EntityType.unknown, [EntityIds.playerAPointer, EntityIds.cellx1y1]]])),
         [], [
             thereIsServerComponents(TestStep.Given, [
                 makeEntityReference(EntityIds.playerAPointer, EntityType.pointer, new Map([[EntityType.player, [EntityIds.playerA]]])),
@@ -95,7 +94,7 @@ feature(Action.collision, () => {
             ]),
             eventsAreSent(TestStep.Then, 'server', [moveEvent(EntityIds.playerA, EntityType.robot, EntityIds.playerARobot, EntityIds.cellx1y1)])
         ])
-    serverScenario(`${Action.collision} 5 - Collision with player pointer &  match cell & Tower`, collisionGameEvent(new Map([[EntityType.unknown, [EntityIds.playerAPointer, EntityIds.cellx1y1, EntityIds.playerBTower]]])),
+    serverScenario(`${EventKind.collision} 5 - Collision with player pointer &  match cell & Tower`, collisionGameEvent(new Map([[EntityType.unknown, [EntityIds.playerAPointer, EntityIds.cellx1y1, EntityIds.playerBTower]]])),
         [], [
             thereIsServerComponents(TestStep.Given, [
                 makeEntityReference(EntityIds.playerAPointer, EntityType.pointer, new Map([[EntityType.player, [EntityIds.playerA]]])),
@@ -120,7 +119,7 @@ feature(Action.collision, () => {
             ]),
             eventsAreSent(TestStep.Then, 'server', [attackEvent(EntityIds.playerA, EntityIds.playerARobot, EntityIds.playerBTower)])
         ])
-    serverScenario(`${Action.collision} 6 - Collision with player pointer &  match cell & Robot`, collisionGameEvent(new Map([[EntityType.unknown, [EntityIds.playerAPointer, EntityIds.cellx1y1, EntityIds.playerBRobot]]])),
+    serverScenario(`${EventKind.collision} 6 - Collision with player pointer &  match cell & Robot`, collisionGameEvent(new Map([[EntityType.unknown, [EntityIds.playerAPointer, EntityIds.cellx1y1, EntityIds.playerBRobot]]])),
         [], [
             thereIsServerComponents(TestStep.Given, [
                 makeEntityReference(EntityIds.playerAPointer, EntityType.pointer, new Map([[EntityType.player, [EntityIds.playerA]]])),
@@ -145,7 +144,7 @@ feature(Action.collision, () => {
             ]),
             eventsAreSent(TestStep.Then, 'server', [attackEvent(EntityIds.playerA, EntityIds.playerARobot, EntityIds.playerBRobot)])
         ])
-    serverScenario(`${Action.collision} 7 - Collision with 2 player activated pointer &  2 player join simple match button`, collisionGameEvent(new Map([[EntityType.unknown, [EntityIds.playerAPointer, EntityIds.playerAJoinSimpleMatchButton, EntityIds.playerBPointer, EntityIds.playerBJoinSimpleMatchButton]]])),
+    serverScenario(`${EventKind.collision} 7 - Collision with 2 player activated pointer &  2 player join simple match button`, collisionGameEvent(new Map([[EntityType.unknown, [EntityIds.playerAPointer, EntityIds.playerAJoinSimpleMatchButton, EntityIds.playerBPointer, EntityIds.playerBJoinSimpleMatchButton]]])),
         [], [
             thereIsServerComponents(TestStep.Given, [
                 makeEntityReference(EntityIds.playerA, EntityType.player, new Map([[EntityType.button, [EntityIds.playerAJoinSimpleMatchButton]], [EntityType.pointer, [EntityIds.playerAPointer]], [EntityType.mainMenu, [EntityIds.playerAMainMenu]]])),
@@ -173,7 +172,7 @@ feature(Action.collision, () => {
                 joinSimpleMatchLobby(EntityIds.playerB, EntityIds.playerBMainMenu, EntityIds.simpleMatchLobby)
             ])
         ])
-    serverScenario(`${Action.collision} 8 - Collision with player activated pointer and visible defeat`, collisionGameEvent(new Map([[EntityType.unknown, [EntityIds.playerAPointer, EntityIds.defeat]]])),
+    serverScenario(`${EventKind.collision} 8 - Collision with player activated pointer and visible defeat`, collisionGameEvent(new Map([[EntityType.unknown, [EntityIds.playerAPointer, EntityIds.defeat]]])),
         [], [
             thereIsServerComponents(TestStep.Given, [
                 makeEntityReference(EntityIds.match, EntityType.match, new Map([[EntityType.player, [EntityIds.playerA]]])),
@@ -194,7 +193,7 @@ feature(Action.collision, () => {
                 quitMatchEvent(EntityIds.match, EntityIds.playerA)
             ])
         ])
-    serverScenario(`${Action.collision} 9 - Collision with player activated pointer and invisible defeat`, collisionGameEvent(new Map([[EntityType.unknown, [EntityIds.playerAPointer, EntityIds.defeat]]])),
+    serverScenario(`${EventKind.collision} 9 - Collision with player activated pointer and invisible defeat`, collisionGameEvent(new Map([[EntityType.unknown, [EntityIds.playerAPointer, EntityIds.defeat]]])),
         [], [
             thereIsServerComponents(TestStep.Given, [
                 makeEntityReference(EntityIds.match, EntityType.match, new Map([[EntityType.player, [EntityIds.playerA]]])),
@@ -213,7 +212,7 @@ feature(Action.collision, () => {
             ]),
             eventsAreSent(TestStep.Then, 'server', [])
         ])
-    serverScenario(`${Action.collision} 10 - Collision with player activated pointer and visible victory`, collisionGameEvent(new Map([[EntityType.unknown, [EntityIds.playerBPointer, EntityIds.victory]]])),
+    serverScenario(`${EventKind.collision} 10 - Collision with player activated pointer and visible victory`, collisionGameEvent(new Map([[EntityType.unknown, [EntityIds.playerBPointer, EntityIds.victory]]])),
         [], [
             thereIsServerComponents(TestStep.Given, [
                 makeEntityReference(EntityIds.match, EntityType.match, new Map([[EntityType.player, [EntityIds.playerB]]])),
@@ -234,7 +233,7 @@ feature(Action.collision, () => {
                 quitMatchEvent(EntityIds.match, EntityIds.playerB)
             ])
         ])
-    serverScenario(`${Action.collision} 11 - Collision with player activated pointer and invisible victory`, collisionGameEvent(new Map([[EntityType.unknown, [EntityIds.playerBPointer, EntityIds.victory]]])),
+    serverScenario(`${EventKind.collision} 11 - Collision with player activated pointer and invisible victory`, collisionGameEvent(new Map([[EntityType.unknown, [EntityIds.playerBPointer, EntityIds.victory]]])),
         [], [
             thereIsServerComponents(TestStep.Given, [
                 makeEntityReference(EntityIds.match, EntityType.match, new Map([[EntityType.player, [EntityIds.playerB]]])),
@@ -253,7 +252,7 @@ feature(Action.collision, () => {
             ]),
             eventsAreSent(TestStep.Then, 'server', [])
         ])
-    serverScenario(`${Action.collision} 12 - Collision with player pointer &  match cell & Robot on victory phase`, collisionGameEvent(new Map([[EntityType.unknown, [EntityIds.playerAPointer, EntityIds.cellx1y1, EntityIds.playerBRobot]]])),
+    serverScenario(`${EventKind.collision} 12 - Collision with player pointer &  match cell & Robot on victory phase`, collisionGameEvent(new Map([[EntityType.unknown, [EntityIds.playerAPointer, EntityIds.cellx1y1, EntityIds.playerBRobot]]])),
         [], [
             thereIsServerComponents(TestStep.Given, [
                 makeEntityReference(EntityIds.match, EntityType.match, new Map([[EntityType.player, [EntityIds.playerA]], [EntityType.grid, [EntityIds.grid]]])),
@@ -278,7 +277,7 @@ feature(Action.collision, () => {
             ]),
             eventsAreSent(TestStep.Then, 'server', [])
         ])
-    serverScenario(`${Action.collision} 13 - Collision with player pointer &  match cell & Tower on victory phase`, collisionGameEvent(new Map([[EntityType.unknown, [EntityIds.playerAPointer, EntityIds.cellx1y1, EntityIds.playerBTower]]])),
+    serverScenario(`${EventKind.collision} 13 - Collision with player pointer &  match cell & Tower on victory phase`, collisionGameEvent(new Map([[EntityType.unknown, [EntityIds.playerAPointer, EntityIds.cellx1y1, EntityIds.playerBTower]]])),
         [], [
             thereIsServerComponents(TestStep.Given, [
                 makeEntityReference(EntityIds.match, EntityType.match, new Map([[EntityType.player, [EntityIds.playerA]], [EntityType.grid, [EntityIds.grid]]])),
@@ -303,7 +302,7 @@ feature(Action.collision, () => {
             ]),
             eventsAreSent(TestStep.Then, 'server', [])
         ])
-    serverScenario(`${Action.collision} 14 - Collision with player pointer &  player end turn button on victory phase`, collisionGameEvent(new Map([[EntityType.unknown, [EntityIds.playerAPointer, EntityIds.playerANextTurnButton]]])),
+    serverScenario(`${EventKind.collision} 14 - Collision with player pointer &  player end turn button on victory phase`, collisionGameEvent(new Map([[EntityType.unknown, [EntityIds.playerAPointer, EntityIds.playerANextTurnButton]]])),
         [], [
             thereIsServerComponents(TestStep.Given, [
                 makePhasing(EntityIds.match, victoryPhase(EntityIds.playerA)),
@@ -320,7 +319,7 @@ feature(Action.collision, () => {
             ]),
             eventsAreSent(TestStep.Then, 'server', [])
         ])
-    serverScenario(`${Action.collision} 15 - Collision with player pointer &  match cell on victory phase`, collisionGameEvent(new Map([[EntityType.unknown, [EntityIds.playerAPointer, EntityIds.cellx1y1]]])),
+    serverScenario(`${EventKind.collision} 15 - Collision with player pointer &  match cell on victory phase`, collisionGameEvent(new Map([[EntityType.unknown, [EntityIds.playerAPointer, EntityIds.cellx1y1]]])),
         [], [
             thereIsServerComponents(TestStep.Given, [
                 makeEntityReference(EntityIds.playerAPointer, EntityType.pointer, new Map([[EntityType.player, [EntityIds.playerA]]])),
@@ -343,7 +342,7 @@ feature(Action.collision, () => {
             ]),
             eventsAreSent(TestStep.Then, 'server', [])
         ])
-    serverScenario(`${Action.collision} 16 - Collision with victory player activated pointer and visible victory & defeat`, collisionGameEvent(new Map([[EntityType.unknown, [EntityIds.playerBPointer, EntityIds.victory, EntityIds.defeat]]])),
+    serverScenario(`${EventKind.collision} 16 - Collision with victory player activated pointer and visible victory & defeat`, collisionGameEvent(new Map([[EntityType.unknown, [EntityIds.playerBPointer, EntityIds.victory, EntityIds.defeat]]])),
         [], [
             thereIsServerComponents(TestStep.Given, [
                 makeEntityReference(EntityIds.playerBPointer, EntityType.pointer, new Map([[EntityType.player, [EntityIds.playerB]]])),
@@ -366,7 +365,7 @@ feature(Action.collision, () => {
             ]),
             eventsAreSent(TestStep.Then, 'server', [quitMatchEvent(EntityIds.match, EntityIds.playerB)])
         ])
-    serverScenario(`${Action.collision} 17 - Collision with defeat player activated pointer and visible victory & defeat`, collisionGameEvent(new Map([[EntityType.unknown, [EntityIds.playerAPointer, EntityIds.victory, EntityIds.defeat]]])),
+    serverScenario(`${EventKind.collision} 17 - Collision with defeat player activated pointer and visible victory & defeat`, collisionGameEvent(new Map([[EntityType.unknown, [EntityIds.playerAPointer, EntityIds.victory, EntityIds.defeat]]])),
         [], [
             thereIsServerComponents(TestStep.Given, [
                 makeEntityReference(EntityIds.playerAPointer, EntityType.pointer, new Map([[EntityType.player, [EntityIds.playerA]]])),
@@ -389,7 +388,7 @@ feature(Action.collision, () => {
             ]),
             eventsAreSent(TestStep.Then, 'server', [quitMatchEvent(EntityIds.match, EntityIds.playerA)])
         ])
-    serverScenario(`${Action.collision} 18 - Do nothing on collision with destroyed entities`, collisionGameEvent(new Map([[EntityType.unknown, [EntityIds.cellx0y0, EntityIds.playerATower]]])),
+    serverScenario(`${EventKind.collision} 18 - Do nothing on collision with destroyed entities`, collisionGameEvent(new Map([[EntityType.unknown, [EntityIds.cellx0y0, EntityIds.playerATower]]])),
         [], [
             thereIsServerComponents(TestStep.Given, [
                 makeEntityReference(EntityIds.cellx0y0, EntityType.cell)
@@ -400,7 +399,7 @@ feature(Action.collision, () => {
             ]),
             eventsAreSent(TestStep.AndThen, 'server', [notifyServerEvent(missingEntityId(EntityIds.playerATower))])
         ])
-    serverScenario(`${Action.collision} 19 - Collision with player pointer &  match cell & Tower & Other Match Tower`, collisionGameEvent(new Map([[EntityType.unknown, [EntityIds.playerAPointer, EntityIds.cellx1y1, EntityIds.playerBTower, EntityIds.playerCTower]]])),
+    serverScenario(`${EventKind.collision} 19 - Collision with player pointer &  match cell & Tower & Other Match Tower`, collisionGameEvent(new Map([[EntityType.unknown, [EntityIds.playerAPointer, EntityIds.cellx1y1, EntityIds.playerBTower, EntityIds.playerCTower]]])),
         [], [
             thereIsServerComponents(TestStep.Given, [
                 makeEntityReference(EntityIds.playerAPointer, EntityType.pointer, new Map([[EntityType.player, [EntityIds.playerA]]])),

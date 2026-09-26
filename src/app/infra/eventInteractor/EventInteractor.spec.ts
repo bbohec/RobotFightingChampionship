@@ -9,9 +9,10 @@ import { ExpressWebServerInstance } from './server/ExpressWebServerInstance'
 import express from 'express'
 import { Log4jsLogger, makeLog4jsDefaultConfiguration } from '../logger/log4jsLogger'
 import { InMemoryClientEventInteractor } from './client/InMemoryClientEventInteractor'
-import { EntityType } from '../../core/type/EntityType'
+
 import { GameEvent } from '../../core/type/GameEvent'
 import { detailedComparisonMessage } from '../../messages'
+import { EntityType } from '../../core/ecs/components/EntityReference'
 
 describe('Integration Test Suite - Event Interactor', () => {
     const configuration = makeLog4jsDefaultConfiguration()

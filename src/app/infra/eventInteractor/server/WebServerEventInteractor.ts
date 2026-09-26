@@ -1,14 +1,16 @@
-import { json, urlencoded } from 'express'
+import { json, urlencoded, Express } from 'express'
 import { IncomingMessage, OutgoingHttpHeaders, ServerResponse } from 'http'
 import { v1 as uuid } from 'uuid'
 import { EventBus } from '../../../core/port/EventBus'
 import { ServerEventInteractor } from '../../../core/port/EventInteractor'
 import { Logger } from '../../../core/port/Logger'
-import { EntityType } from '../../../core/type/EntityType'
 import { GameEvent, newGameEvent } from '../../../core/type/GameEvent'
 import { gameEventToSseData, sseDataToGameEvent, SSEMessage, SSEMessageType } from '../sse/SSEMessage'
 import { ExpressWebServerInstance } from './ExpressWebServerInstance'
 import { clientGameEventUrlPath } from './webServerInformation'
+import { EntityType } from '../../../core/ecs/components/EntityReference'
+import { Server } from 'https'
+import { AddressInfo } from 'net'
 
 export const serverBodyRequest = (stringifiedBody:string): string => `SERVER POST REQUEST : ${stringifiedBody}`
 
@@ -122,7 +124,7 @@ export class WebServerEventInteractor implements ServerEventInteractor {
     private registeredSSEClientResponses = new Map<string, ServerResponse>()
 }
 
-export const serverListeningMessage = (port:number): string => `WebServerEventInteractor listening at http://localhost:${port}`
+export const serverListeningMessage = (address:AddressInfo ): string => `WebServerEventInteractor listening at http://${address.address}:${address.port}`
 const closeMessage = (messageId:string, sseRetryIntervalMilliseconds:number): SSEMessage => ({
     id: messageId,
     type: 'closeSSE',
