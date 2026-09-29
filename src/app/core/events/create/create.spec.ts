@@ -4,8 +4,7 @@ import { clientScenario, serverScenario } from '../../../test/scenario'
 import { TestStep } from '../../../test/TestStep'
 import { thereIsClientComponents, thereIsServerComponents } from '../../../test/unitTest/component'
 import { whenEventOccured, eventsAreSent } from '../../../test/unitTest/event'
-import { makeController } from '../../ecs/components/Controller'
-import { ControlStatus } from '../../type/ControlStatus'
+import { ControlStatus, makeController } from '../../ecs/components/Controller'
 import { dimension, makeDimensional, matchGridDimension, matchOffsetOnGameScreen } from '../../ecs/components/Dimensional'
 import { makeEntityReference } from '../../ecs/components/EntityReference'
 import { makeHittable } from '../../ecs/components/Hittable'
@@ -13,16 +12,16 @@ import { makeLifeCycle } from '../../ecs/components/LifeCycle'
 import { makeOffensive } from '../../ecs/components/Offensive'
 import { makePhasing, preparingGamePhase } from '../../ecs/components/Phasing'
 import { makePhysical, mainMenuPosition, position, defaultJoinSimpleMatchButtonPosition, playerNextTurnButtonPosition, defaultPointerPosition, simpleMatchLobbyPosition, victoryPosition, defeatPosition } from '../../ecs/components/Physical'
-import { Action } from '../../type/Action'
-import { EntityType } from '../../type/EntityType'
+import { EventKind } from '../../type/EventKind'
+import { EntityType } from '../../ecs/components/EntityReference'
 import { ShapeType } from '../../type/ShapeType'
 import { drawEvent } from '../draw/draw'
 import { registerPlayerEvent, registerSimpleMatchLobbyOnGame, registerRobotEvent, registerTowerEvent, registerNextTurnButtonEvent, registerPlayerPointerEvent } from '../register/register'
 import { matchWaitingForPlayers } from '../waiting/waiting'
 import { createPlayerEvent, createMainMenuEvent, createServerGameEvent, createSimpleMatchLobbyEvent, createRobotEvent, createTowerEvent, createGridEvent, createCellEvent, createMatchEvent, createVictoryEvent, createDefeatEvent, createPlayerSimpleMatchLobbyButtonEvent, createPlayerNextTurnMatchButtonEvent, createPlayerPointerEvent, createPlayerSimpleMatchLobbyMenu } from './create'
 
-feature(Action.create, () => {
-    clientScenario(`${Action.create} 1 - Create Player Client`, createPlayerEvent, EntityIds.playerA,
+feature(EventKind.create, () => {
+    clientScenario(`${EventKind.create} 1 - Create Player Client`, createPlayerEvent, EntityIds.playerA,
         [
             thereIsClientComponents(TestStep.Given, []),
             ...whenEventOccured(),
@@ -33,7 +32,7 @@ feature(Action.create, () => {
             eventsAreSent(TestStep.AndThen, 'client', [registerPlayerEvent(EntityIds.playerA)])
         ],
         [EntityIds.playerA])
-    serverScenario(`${Action.create} 2 - Create Main Menu Event`, createMainMenuEvent(EntityIds.game, EntityIds.playerA),
+    serverScenario(`${EventKind.create} 2 - Create Main Menu Event`, createMainMenuEvent(EntityIds.game, EntityIds.playerA),
         [], [
             thereIsServerComponents(TestStep.Given, [
                 makeEntityReference(EntityIds.playerA, EntityType.player)
@@ -48,7 +47,7 @@ feature(Action.create, () => {
             eventsAreSent(TestStep.AndThen, 'server', [drawEvent(EntityIds.playerA, makePhysical(EntityIds.playerAMainMenu, mainMenuPosition, ShapeType.mainMenu, true))])
         ],
         [EntityIds.playerAMainMenu])
-    serverScenario(`${Action.create} 3 - Create Game Event`, createServerGameEvent, [], [
+    serverScenario(`${EventKind.create} 3 - Create Game Event`, createServerGameEvent, [], [
         thereIsServerComponents(TestStep.Given, []),
         ...whenEventOccured(),
         thereIsServerComponents(TestStep.Then, [
@@ -58,7 +57,7 @@ feature(Action.create, () => {
         eventsAreSent(TestStep.AndThen, 'server', [createSimpleMatchLobbyEvent(EntityIds.game)])
     ], [EntityIds.game])
 
-    serverScenario(`${Action.create} 4 - Create Simple Match Lobby Event`, createSimpleMatchLobbyEvent(EntityIds.game), [], [
+    serverScenario(`${EventKind.create} 4 - Create Simple Match Lobby Event`, createSimpleMatchLobbyEvent(EntityIds.game), [], [
         thereIsServerComponents(TestStep.Given, []),
         ...whenEventOccured(),
         thereIsServerComponents(TestStep.Then, [
@@ -67,7 +66,7 @@ feature(Action.create, () => {
         ]),
         eventsAreSent(TestStep.AndThen, 'server', [registerSimpleMatchLobbyOnGame(EntityIds.game, EntityIds.simpleMatchLobby)])
     ], [EntityIds.simpleMatchLobby])
-    serverScenario(`${Action.create} 5 - Create Robot Event`, createRobotEvent(EntityIds.playerA), [], [
+    serverScenario(`${EventKind.create} 5 - Create Robot Event`, createRobotEvent(EntityIds.playerA), [], [
         thereIsServerComponents(TestStep.Given, []),
         ...whenEventOccured(),
         eventsAreSent(TestStep.Then, 'server', [registerRobotEvent(EntityIds.playerARobot, EntityIds.playerA)]),
@@ -79,7 +78,7 @@ feature(Action.create, () => {
             makePhysical(EntityIds.playerARobot, position(0, 0), ShapeType.robot, true)
         ])
     ], [EntityIds.playerARobot])
-    serverScenario(`${Action.create} 6 - Create Tower Event`, createTowerEvent(EntityIds.playerA), [], [
+    serverScenario(`${EventKind.create} 6 - Create Tower Event`, createTowerEvent(EntityIds.playerA), [], [
         thereIsServerComponents(TestStep.Given, []),
         ...whenEventOccured(),
         eventsAreSent(TestStep.Then, 'server', [registerTowerEvent(EntityIds.playerBTower, EntityIds.playerA)]),
@@ -91,7 +90,7 @@ feature(Action.create, () => {
             makePhysical(EntityIds.playerBTower, position(0, 0), ShapeType.tower, true)
         ])
     ], [EntityIds.playerBTower])
-    serverScenario(`${Action.create} 7 - Create Grid Event`, createGridEvent(EntityIds.match, dimension(3, 2)),
+    serverScenario(`${EventKind.create} 7 - Create Grid Event`, createGridEvent(EntityIds.match, dimension(3, 2)),
         [], [
             thereIsServerComponents(TestStep.Given, [
                 makeEntityReference(EntityIds.match, EntityType.match)
@@ -112,7 +111,7 @@ feature(Action.create, () => {
                 createCellEvent(EntityIds.grid, position(Math.floor(matchGridDimension.x / 2 + matchOffsetOnGameScreen + 1), Math.floor(matchGridDimension.y / 2 + matchOffsetOnGameScreen)))
             ])
         ], [EntityIds.grid])
-    serverScenario(`${Action.create} 8 - Create Match Event`, createMatchEvent(EntityIds.simpleMatchLobby), [], [
+    serverScenario(`${EventKind.create} 8 - Create Match Event`, createMatchEvent(EntityIds.simpleMatchLobby), [], [
         thereIsServerComponents(TestStep.Given, []),
         ...whenEventOccured(),
         eventsAreSent(TestStep.Given, 'server', [
@@ -127,7 +126,7 @@ feature(Action.create, () => {
         ])
 
     ], [EntityIds.match])
-    serverScenario(`${Action.create} 9 - Create Player Simple Match Lobby Button`, createPlayerSimpleMatchLobbyButtonEvent(EntityIds.simpleMatchLobby, EntityIds.playerA),
+    serverScenario(`${EventKind.create} 9 - Create Player Simple Match Lobby Button`, createPlayerSimpleMatchLobbyButtonEvent(EntityIds.simpleMatchLobby, EntityIds.playerA),
         [], [
             thereIsServerComponents(TestStep.Given, [
                 makeEntityReference(EntityIds.playerA, EntityType.player, new Map([[EntityType.mainMenu, [EntityIds.playerAMainMenu]]])),
@@ -145,7 +144,7 @@ feature(Action.create, () => {
             ]),
             eventsAreSent(TestStep.AndThen, 'server', [drawEvent(EntityIds.playerA, makePhysical(EntityIds.playerAJoinSimpleMatchButton, defaultJoinSimpleMatchButtonPosition, ShapeType.simpleMatchLobbyButton, true))])
         ], [EntityIds.playerAJoinSimpleMatchButton])
-    serverScenario(`${Action.create} 10 - Create Player Next Turn Match Button`, createPlayerNextTurnMatchButtonEvent(EntityIds.match, EntityIds.playerA),
+    serverScenario(`${EventKind.create} 10 - Create Player Next Turn Match Button`, createPlayerNextTurnMatchButtonEvent(EntityIds.match, EntityIds.playerA),
         [], [
             thereIsServerComponents(TestStep.Given, [
                 makeEntityReference(EntityIds.playerA, EntityType.player, new Map()),
@@ -163,7 +162,7 @@ feature(Action.create, () => {
                 registerNextTurnButtonEvent(EntityIds.playerA, EntityIds.match, EntityIds.playerANextTurnButton)
             ])
         ], [EntityIds.playerANextTurnButton])
-    serverScenario(`${Action.create} 11 - Create Pointer Event`, createPlayerPointerEvent(EntityIds.playerA),
+    serverScenario(`${EventKind.create} 11 - Create Pointer Event`, createPlayerPointerEvent(EntityIds.playerA),
         [], [
             thereIsServerComponents(TestStep.Given, [
                 makeEntityReference(EntityIds.playerA, EntityType.player)
@@ -178,7 +177,7 @@ feature(Action.create, () => {
             ]),
             eventsAreSent(TestStep.AndThen, 'server', [registerPlayerPointerEvent(EntityIds.playerAPointer, EntityIds.playerA)])
         ], [EntityIds.playerAPointer])
-    serverScenario(`${Action.create} 12 - Create Simple Match Lobby Menu`, createPlayerSimpleMatchLobbyMenu(EntityIds.playerA),
+    serverScenario(`${EventKind.create} 12 - Create Simple Match Lobby Menu`, createPlayerSimpleMatchLobbyMenu(EntityIds.playerA),
         [], [
             thereIsServerComponents(TestStep.Given, [
                 makeEntityReference(EntityIds.playerA, EntityType.player, new Map([[EntityType.mainMenu, [EntityIds.playerAMainMenu]], [EntityType.button, [EntityIds.playerAJoinSimpleMatchButton]]])),
@@ -204,7 +203,7 @@ feature(Action.create, () => {
                 drawEvent(EntityIds.playerA, makePhysical(EntityIds.playerAJoinSimpleMatchButton, defaultJoinSimpleMatchButtonPosition, ShapeType.simpleMatchLobbyButton, false))
             ])
         ], [EntityIds.playerASimpleMatchLobbyMenu])
-    serverScenario(`${Action.create} 13 - Create Cell`, createCellEvent(EntityIds.grid, position(1, 1)),
+    serverScenario(`${EventKind.create} 13 - Create Cell`, createCellEvent(EntityIds.grid, position(1, 1)),
         [], [
             thereIsServerComponents(TestStep.Given, [
                 makeEntityReference(EntityIds.match, EntityType.match, new Map([[EntityType.player, [EntityIds.playerA, EntityIds.playerB]]])),
@@ -223,7 +222,7 @@ feature(Action.create, () => {
                 drawEvent(EntityIds.playerB, makePhysical(EntityIds.cellx1y1, position(1, 1), ShapeType.cell, true))
             ])
         ], [EntityIds.cellx1y1])
-    serverScenario(`${Action.create} 14 - Create Victory`, createVictoryEvent(EntityIds.match),
+    serverScenario(`${EventKind.create} 14 - Create Victory`, createVictoryEvent(EntityIds.match),
         [], [
             thereIsServerComponents(TestStep.Given, [
                 makeEntityReference(EntityIds.match, EntityType.match)
@@ -237,7 +236,7 @@ feature(Action.create, () => {
             ]),
             eventsAreSent(TestStep.AndThen, 'server', [])
         ], [EntityIds.victory])
-    serverScenario(`${Action.create} 15 - Create Defeat`, createDefeatEvent(EntityIds.match),
+    serverScenario(`${EventKind.create} 15 - Create Defeat`, createDefeatEvent(EntityIds.match),
         [], [
             thereIsServerComponents(TestStep.Given, [
                 makeEntityReference(EntityIds.match, EntityType.match)

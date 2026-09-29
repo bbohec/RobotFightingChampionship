@@ -55,7 +55,7 @@ export class PixijsDrawingAdapter extends PixiApplicationCommon implements Drawi
     }
 
     public retrieveResolution (): Dimension {
-        return { x: this.applicationInstance.renderer.view.width, y: this.applicationInstance.renderer.view.height }
+        return { x: this.applicationInstance.renderer.screen.width, y: this.applicationInstance.renderer.screen.height }
     }
 
     public absolutePositionByEntityId (entityId: string): Position {

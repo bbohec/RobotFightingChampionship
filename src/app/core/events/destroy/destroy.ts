@@ -1,5 +1,5 @@
-import { Action } from '../../type/Action'
-import { EntityType } from '../../type/EntityType'
+import { EventKind } from '../../type/EventKind'
+import { EntityType } from '../../ecs/components/EntityReference'
 import { newGameEvent } from '../../type/GameEvent'
 export const destroyMatchEvent = (matchId: string) => destroyEvent(EntityType.match, matchId)
 export const destroyRobotEvent = (robotId: string) => destroyEvent(EntityType.robot, robotId)
@@ -11,4 +11,4 @@ export const destroyNextTurnButtonEvent = (nextTurnButtonId:string) => destroyEv
 export const destroyCellEvent = (cellId:string) => destroyEvent(EntityType.cell, cellId)
 export const destroySimpleMatchLobbyMenuEvent = (simpleMatchLobbyMenuId:string) => destroyEvent(EntityType.simpleMatchLobbyMenu, simpleMatchLobbyMenuId)
 
-const destroyEvent = (entityType:EntityType, entityId: string) => newGameEvent(Action.destroy, new Map([[entityType, [entityId]]]))
+const destroyEvent = (entityType:EntityType, entityId: string) => newGameEvent(EventKind.destroy, new Map([[entityType, [entityId]]]))

@@ -2,7 +2,7 @@
     "deno.enable": false,
     "editor.detectIndentation": false,
     "editor.codeActionsOnSave": {
-        "source.fixAll.eslint": true
+        "source.fixAll.eslint": "explicit"
     },
     "terminal.integrated.scrollback": 10000,
     "files.autoSave": "onFocusChange",

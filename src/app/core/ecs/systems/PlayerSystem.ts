@@ -1,5 +1,5 @@
 import { linkEntityToEntities, retrieveReference } from '../components/EntityReference'
-import { EntityType } from '../../type/EntityType'
+import { EntityType } from '../../ecs/components/EntityReference'
 import { errorMessageOnUnknownEventAction, GameEvent } from '../../type/GameEvent'
 import { createMainMenuEvent, createPlayerPointerEvent, createPlayerSimpleMatchLobbyButtonEvent } from '../../events/create/create'
 import { GenericServerSystem } from '../system'

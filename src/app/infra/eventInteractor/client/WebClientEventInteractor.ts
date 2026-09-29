@@ -54,6 +54,13 @@ export class WebClientEventInteractor implements ClientEventInteractor, SSEClien
         const sseUrl = `http://${this.serverFullyQualifiedDomainName}:${this.webServerPort}/serverGameEvents?clientId=${this.clientId}`
         this.logger.info(`subscribeServerSentEvent on url '${sseUrl}'.`)
         this.eventSource = new EventSource(sseUrl)
+        this.eventSource.onerror = (error) => {
+            this.logger.error('EventSource failed. See Network tab.', error)
+            throw error
+        };
+        this.eventSource.onopen = (event) => {
+            this.logger.info('EventSource openned.', event)
+        };
         this.eventSource.addEventListener('connected' as SSEMessageType, event => {
             const messageEvent: MessageEvent<string> = (event as MessageEvent)
             this.logger.info('SSE Message Received', 'message id:', messageEvent.lastEventId)
@@ -74,6 +81,7 @@ export class WebClientEventInteractor implements ClientEventInteractor, SSEClien
             this.logger.info('Closing client SSE...')
             this.stop()
         })
+        
     }
 
     private messageEventDataToGameEvent (data: string): GameEvent {

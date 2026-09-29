@@ -1,10 +1,8 @@
-import { EntityReference, EntityReferences } from './core/ecs/components/EntityReference'
+import { EntityReference, EntityReferences, EntityType } from './core/ecs/components/EntityReference'
 import { Component, ComponentType } from './core/ecs/component'
-import { Action } from './core/type/Action'
-import { EntityType } from './core/type/EntityType'
+import { EventKind } from './core/type/EventKind'
 import { GameEvent } from './core/type/GameEvent'
-import { Phase } from './core/type/Phase'
-import { Phasing } from './core/ecs/components/Phasing'
+import { Phase, Phasing } from './core/ecs/components/Phasing'
 import { Position } from './core/ecs/components/Physical'
 import { TestStep } from './test/TestStep'
 import { EntityComponents } from './core/ecs/entity'
@@ -25,10 +23,10 @@ export const componentMissingOnEntity = (id: string, components: EntityComponent
 export const entityAlreadyBuild = (components:Component[]) => `Entity already on builder with components:
     ${components.map(component => stringifyWithDetailledSetAndMap(sorted(component))).join('\n    ')}
 Forget save()?`
-export const noEntitiesReferenced = (entityType: EntityType, action: Action, entityReferences: EntityReferences): string => `No entities referenced with type '${entityType}' on event with action '${action}'.\n Actual references: ${stringifyWithDetailledSetAndMap(entityReferences)}`
+export const noEntitiesReferenced = (entityType: EntityType, action: EventKind, entityReferences: EntityReferences): string => `No entities referenced with type '${entityType}' on event with action '${action}'.\n Actual references: ${stringifyWithDetailledSetAndMap(entityReferences)}`
 export const noEntityReferenced = (entityType: EntityType): string => `No '${entityType}' entities is not supported.`
 export const multipleEntityReferenced = (entityType: EntityType): string => `Multiple '${entityType}' entities referenced.`
-export const featureEventDescription = (action:Action): string => `Feature : ${action} events`
+export const featureEventDescription = (action:EventKind): string => `Feature : ${action} events`
 
 export const hasComponents = (testStep: TestStep, expectedComponents: Component[]): string => `${testStep} there is components :
         ${expectedComponents.map(component => stringifyWithDetailledSetAndMap(component)).join('\n\t')}`

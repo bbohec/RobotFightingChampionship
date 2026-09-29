@@ -1,8 +1,8 @@
 import { hasReferences, retrieveReference, retrieveReferences } from '../components/EntityReference'
 import { maxPlayerPerMatch } from '../components/Phasing'
 import { Physical } from '../components/Physical'
-import { Action } from '../../type/Action'
-import { EntityType } from '../../type/EntityType'
+import { EventKind } from '../../type/EventKind'
+import { EntityType } from '../../ecs/components/EntityReference'
 import { errorMessageOnUnknownEventAction, GameEvent } from '../../type/GameEvent'
 import { createMatchEvent, createPlayerSimpleMatchLobbyMenu } from '../../events/create/create'
 import { drawEvent } from '../../events/draw/draw'
@@ -21,9 +21,9 @@ export class WaitingAreaSystem extends GenericServerSystem {
         const simpleMatchLobbyEntityReference = this.componentRepository.retrieveComponent(simpleMatchLobbyEntityId, 'EntityReference')
         if (!hasReferences(simpleMatchLobbyEntityReference, EntityType.player)) simpleMatchLobbyEntityReference.entityReferences.set(EntityType.player, [])
         const players = retrieveReferences(simpleMatchLobbyEntityReference, EntityType.player)
-        return gameEvent.action === Action.waitingForPlayers
+        return gameEvent.action === EventKind.waitingForPlayers
             ? this.onMatchWaitingForPlayersEvent(this.entityByEntityType(gameEvent, EntityType.match), players)
-            : gameEvent.action === Action.join
+            : gameEvent.action === EventKind.join
                 ? this.onPlayerJoinGameEvent(this.entityByEntityType(gameEvent, EntityType.player), players, simpleMatchLobbyEntityId)
                 : Promise.reject(new Error(errorMessageOnUnknownEventAction(WaitingAreaSystem.name, gameEvent)))
     }

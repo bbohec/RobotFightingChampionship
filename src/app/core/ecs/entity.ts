@@ -1,16 +1,13 @@
 import { ComponentRepository } from '../port/ComponentRepository'
-import { ControlStatus } from '../type/ControlStatus'
-import { EntityType } from '../type/EntityType'
-import { Phase } from '../type/Phase'
 import { ShapeType } from '../type/ShapeType'
 import { Component, ComponentType } from './component'
-import { makeController } from './components/Controller'
+import { ControlStatus, makeController } from './components/Controller'
 import { Dimension, makeDimensional } from './components/Dimensional'
-import { EntityReferences, makeEntityReference } from './components/EntityReference'
+import { EntityReferences, EntityType, makeEntityReference } from './components/EntityReference'
 import { makeHittable } from './components/Hittable'
 import { makeLifeCycle } from './components/LifeCycle'
 import { makeOffensive } from './components/Offensive'
-import { makePhasing } from './components/Phasing'
+import { makePhasing, Phase } from './components/Phasing'
 import { Position, makePhysical } from './components/Physical'
 
 interface Flavoring<FlavorT> {
@@ -21,7 +18,7 @@ export type EntityId = Flavor<string, 'EntityId'>
 export type EntityComponents = Map<ComponentType, Component>
 
 export class EntityBuilder {
-    // eslint-disable-next-line no-useless-constructor
+     
     constructor (private componentRepository:ComponentRepository) {}
 
     public makeEntity (entityId:EntityId):this {

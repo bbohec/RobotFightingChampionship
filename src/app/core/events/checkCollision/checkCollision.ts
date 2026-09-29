@@ -1,4 +1,4 @@
-import { Action } from '../../type/Action'
+import { EventKind } from '../../type/EventKind'
 import { newGameEvent } from '../../type/GameEvent'
 
-export const checkCollisionGameEvent = () => newGameEvent(Action.checkCollision, new Map([]))
+export const checkCollisionGameEvent = () => newGameEvent(EventKind.checkCollision, new Map([]))

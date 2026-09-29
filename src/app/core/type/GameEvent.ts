@@ -1,10 +1,10 @@
 import { EntityReferences } from '../ecs/components/EntityReference'
 import { Component } from '../ecs/component'
-import { Action } from './Action'
+import { EventKind } from './EventKind'
 import { stringifyWithDetailledSetAndMap } from '../../messages'
 
 export type GameEvent = {
-    action:Action
+    action:EventKind
     entityRefences:EntityReferences
     components:Component[]
     message?:string
@@ -17,4 +17,4 @@ export const errorMessageOnUnknownEventAction = (systemName:string, gameEvent: G
 - entity references : '${stringifyWithDetailledSetAndMap(gameEvent.entityRefences)}'
 - component : '${stringifyWithDetailledSetAndMap(gameEvent.components)}'`
 
-export const newGameEvent = (action:Action, entityRefences:EntityReferences, components:Component[] = [], message?:string):GameEvent => ({ action, entityRefences, components, message })
+export const newGameEvent = (action:EventKind, entityRefences:EntityReferences, components:Component[] = [], message?:string):GameEvent => ({ action, entityRefences, components, message })

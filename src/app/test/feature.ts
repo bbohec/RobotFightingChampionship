@@ -1,5 +1,5 @@
 import { Suite, describe } from 'mocha'
-import { Action } from '../core/type/Action'
+import { EventKind } from '../core/type/EventKind'
 import { featureEventDescription } from '../messages'
 
-export const feature = (action:Action, mochaSuite: (this: Suite) => void) => describe(featureEventDescription(action), mochaSuite)
+export const feature = (action:EventKind, mochaSuite: (this: Suite) => void) => describe(featureEventDescription(action), mochaSuite)

@@ -2,11 +2,11 @@ import { noEntitiesReferenced, multipleEntityReferenced, noEntityReferenced } fr
 import { ComponentRepository } from '../port/ComponentRepository'
 import { EventInteractor } from '../port/EventInteractor'
 import { SystemInteractor } from '../port/SystemInteractor'
-import { EntityType } from '../type/EntityType'
 import { GameEvent } from '../type/GameEvent'
 import { ComponentType, Component } from './component'
 import { Controller, toController } from './components/Controller'
 import { Dimensional, toDimensional } from './components/Dimensional'
+import { EntityType } from './components/EntityReference'
 import { LifeCycle, toLifeCycle } from './components/LifeCycle'
 import { Position, Physical, toPhysical } from './components/Physical'
 

@@ -1,5 +1,5 @@
 import { Hittable } from '../components/Hittable'
-import { EntityType } from '../../type/EntityType'
+import { EntityType } from '../../ecs/components/EntityReference'
 import { retrieveReference, retrieveReferences } from '../components/EntityReference'
 import { errorMessageOnUnknownEventAction, GameEvent } from '../../type/GameEvent'
 import { victoryEvent } from '../../events/victory/victory'

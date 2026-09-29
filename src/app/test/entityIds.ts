@@ -1,4 +1,4 @@
-/* eslint-disable no-unused-vars */
+ 
 export enum EntityIds {
     playerA = 'playerAId',
     playerB = 'playerBId',

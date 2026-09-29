@@ -1,8 +1,34 @@
 import { componentIsNot, missingEntityReferenceByEntityType, multipleEntitiesReferencedByEntityType, multipleEntityTypeOnEntityReference, noEntityTypeOnEntityReference } from '../../../messages'
 import { ComponentRepository } from '../../port/ComponentRepository'
-import { EntityType } from '../../type/EntityType'
 import { Component, GenericComponent } from '../component'
 import { EntityId } from '../entity'
+
+export enum EntityType {
+    game = 'Game',
+    nobody = 'Nobody',
+    mainMenu = 'Main Menu',
+    simpleMatchLobby = 'Simple Match Lobby',
+    allEntities = 'All Entities',
+    match = 'Match',
+    tower = 'Tower',
+    robot = 'Robot',
+    grid = 'Grid',
+    player = 'player',
+    nothing = 'nothing',
+    attacker = 'attacker',
+    hittable = 'hittable',
+    victory = 'victory',
+    defeat = 'defeat',
+    cell = 'cell',
+    target = 'target',
+    message = 'message',
+    unknown = 'unknown',
+    button = 'button',
+    pointer = 'pointer',
+    simpleMatchLobbyMenu = 'simpleMatchLobbyMenu',
+    nextTurnButton = 'nextTurnButton'
+}
+export const unsupportedEntityTypeMessage = (entityType:EntityType) => `Entity type ${entityType} is not supported.`
 
 export type EntityReferences = Map<EntityType, Array<string>>
 

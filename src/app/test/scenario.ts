@@ -37,7 +37,7 @@ export const clientScenario = (
     const clientTestSuite = () => {
         const adapters = new FakeClientGameAdapters(clientId, nextIdentifiers)
         const game = new ClientGameSystem(adapters)
-        // eslint-disable-next-line no-unused-expressions
+         
         // if (beforeMochaFunc)before(beforeMochaFunc(game, adapters))
         tests.forEach(test => test(game, adapters, gameEvents))
     }

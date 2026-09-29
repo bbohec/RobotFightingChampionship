@@ -1,14 +1,13 @@
-import { makeController } from '../components/Controller'
+import { ControlStatus, makeController } from '../components/Controller'
 import { Dimensional, gameScreenDimension } from '../components/Dimensional'
 import { EntityReference, linkEntityToEntities, makeEntityReference, retrieveReference, retrieveReferences, unlinkEntities } from '../components/EntityReference'
 import { makeHittable } from '../components/Hittable'
 import { makeOffensive } from '../components/Offensive'
 import { makePhasing, preparingGamePhase } from '../components/Phasing'
 import { defaultJoinSimpleMatchButtonPosition, defaultPointerPosition, defeatPosition, mainMenuPosition, makePhysical, Physical, playerNextTurnButtonPosition, position, simpleMatchLobbyPosition, victoryPosition } from '../components/Physical'
-import { ControlStatus } from '../../type/ControlStatus'
 import { ShapeType } from '../../type/ShapeType'
-import { Action } from '../../type/Action'
-import { EntityType } from '../../type/EntityType'
+import { EventKind } from '../../type/EventKind'
+import { EntityType } from '../../ecs/components/EntityReference'
 import { errorMessageOnUnknownEventAction, GameEvent } from '../../type/GameEvent'
 import { createCellEvent, createDefeatEvent, createSimpleMatchLobbyEvent, createVictoryEvent } from '../../events/create/create'
 import { destroyCellEvent, destroyDefeatEvent, destroyGridEvent, destroyNextTurnButtonEvent, destroyVictoryEvent } from '../../events/destroy/destroy'
@@ -63,11 +62,11 @@ abstract class GenericServerLifeCycleSystem extends GenericServerSystem {
 
 export class ServerLifeCycleSystem extends GenericServerLifeCycleSystem {
     onGameEvent (gameEvent: GameEvent): Promise<void> {
-        return gameEvent.action === Action.destroy
+        return gameEvent.action === EventKind.destroy
             ? this.onDestroyEvent(gameEvent)
-            : gameEvent.action === Action.create
+            : gameEvent.action === EventKind.create
                 ? this.onCreateEvent(gameEvent)
-                : gameEvent.action === Action.register
+                : gameEvent.action === EventKind.register
                     ? this.onCreateEvent(gameEvent)
                     : Promise.reject(new Error(errorMessageOnUnknownEventAction(ServerLifeCycleSystem.name, gameEvent)))
     }

@@ -1,11 +1,11 @@
-import { ControlStatus } from '../../type/ControlStatus'
-import { Action } from '../../type/Action'
-import { EntityType } from '../../type/EntityType'
+import { EventKind } from '../../type/EventKind'
+import { EntityType } from '../../ecs/components/EntityReference'
 import { errorMessageOnUnknownEventAction, GameEvent } from '../../type/GameEvent'
 import { updatePointerState } from '../../events/updatePointerState/updatePointerState'
 import { ControllerPort } from '../../port/ControllerPort'
 import { GenericClientSystem, GenericGameEventDispatcherSystem } from '../system'
 import { ComponentRepository } from '../../port/ComponentRepository'
+import { ControlStatus } from '../components/Controller'
 
 export class ControllerSystem extends GenericClientSystem {
     constructor (componentRepository: ComponentRepository, gameEventDispatcher: GenericGameEventDispatcherSystem, controllerAdapter:ControllerPort) {
@@ -14,9 +14,9 @@ export class ControllerSystem extends GenericClientSystem {
     }
 
     onGameEvent (gameEvent: GameEvent): Promise<void> {
-        return gameEvent.action === Action.updatePlayerPointerPosition
+        return gameEvent.action === EventKind.updatePlayerPointerPosition
             ? this.onUpdatePlayerPointerPosition(gameEvent)
-            : gameEvent.action === Action.activate
+            : gameEvent.action === EventKind.activate
                 ? this.onActivateController(gameEvent)
                 : Promise.reject(new Error(errorMessageOnUnknownEventAction(ControllerSystem.name, gameEvent)))
     }

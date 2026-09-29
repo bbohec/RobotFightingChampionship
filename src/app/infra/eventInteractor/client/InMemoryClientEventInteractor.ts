@@ -4,7 +4,7 @@ import { GameEvent } from '../../../core/type/GameEvent'
 
 export class InMemoryClientEventInteractor implements ClientEventInteractor {
     public serverEventInteractor: ServerEventInteractor | undefined;
-    // eslint-disable-next-line no-useless-constructor
+     
     constructor (
         public clientId: string,
         public eventBus: EventBus

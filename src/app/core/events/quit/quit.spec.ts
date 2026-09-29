@@ -4,18 +4,17 @@ import { serverScenario } from '../../../test/scenario'
 import { TestStep } from '../../../test/TestStep'
 import { thereIsServerComponents } from '../../../test/unitTest/component'
 import { whenEventOccured, eventsAreSent } from '../../../test/unitTest/event'
-import { makeEntityReference } from '../../ecs/components/EntityReference'
+import { makeEntityReference, EntityType } from '../../ecs/components/EntityReference'
 import { victoryPhase, makePhasing } from '../../ecs/components/Phasing'
 import { mainMenuPosition, defaultJoinSimpleMatchButtonPosition, position, makePhysical } from '../../ecs/components/Physical'
-import { Action } from '../../type/Action'
-import { EntityType } from '../../type/EntityType'
+import { EventKind } from '../../type/EventKind'
 import { ShapeType } from '../../type/ShapeType'
 import { destroyRobotEvent, destroyTowerEvent, destroyMatchEvent } from '../destroy/destroy'
 import { drawEvent } from '../draw/draw'
 import { quitMatchEvent } from './quit'
 
-feature(Action.quit, () => {
-    serverScenario(`${Action.quit} 1`, quitMatchEvent(EntityIds.match, EntityIds.playerA),
+feature(EventKind.quit, () => {
+    serverScenario(`${EventKind.quit} 1`, quitMatchEvent(EntityIds.match, EntityIds.playerA),
         [], [
             thereIsServerComponents(TestStep.Given, [
                 makeEntityReference(EntityIds.match, EntityType.match, new Map([[EntityType.player, [EntityIds.playerA, EntityIds.playerB]], [EntityType.grid, [EntityIds.grid]], [EntityType.victory, [EntityIds.victory]]])),
@@ -91,7 +90,7 @@ feature(Action.quit, () => {
                 destroyTowerEvent(EntityIds.playerATower)
             ])
         ])
-    serverScenario(`${Action.quit} 2`, quitMatchEvent(EntityIds.match, EntityIds.playerB),
+    serverScenario(`${EventKind.quit} 2`, quitMatchEvent(EntityIds.match, EntityIds.playerB),
         [], [
             thereIsServerComponents(TestStep.Given, [
                 makeEntityReference(EntityIds.match, EntityType.match, new Map([[EntityType.player, [EntityIds.playerB]], [EntityType.grid, [EntityIds.grid]], [EntityType.defeat, [EntityIds.defeat]]])),

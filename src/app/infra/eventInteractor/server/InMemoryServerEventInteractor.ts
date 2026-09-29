@@ -1,7 +1,7 @@
+import { EntityType } from '../../../core/ecs/components/EntityReference'
 import { GameEventHandler } from '../../../core/ecs/system'
 import { EventBus } from '../../../core/port/EventBus'
 import { ServerEventInteractor, ClientEventInteractor } from '../../../core/port/EventInteractor'
-import { EntityType } from '../../../core/type/EntityType'
 import { GameEvent } from '../../../core/type/GameEvent'
 import { InMemoryClientEventInteractor } from '../client/InMemoryClientEventInteractor'
 
@@ -23,7 +23,7 @@ export class InMemoryServerEventInteractor extends GameEventHandler implements S
 
     clientEventInteractorByGameEventPlayerId (gameEvent: GameEvent): ClientEventInteractor {
         const playerId = this.entityByEntityType(gameEvent, EntityType.player)
-        const clientEventInteractor = this.clientEventInteractors?.find(clientEventInteractor => clientEventInteractor.clientId === playerId)
+        const clientEventInteractor = this.clientEventInteractors.find(clientEventInteractor => clientEventInteractor.clientId === playerId)
         if (clientEventInteractor) return clientEventInteractor
         throw new Error(`Client event interactor with client id '${playerId}' missing.`)
     }

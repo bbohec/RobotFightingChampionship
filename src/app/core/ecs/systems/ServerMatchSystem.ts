@@ -2,8 +2,8 @@ import { matchGridDimension } from '../components/Dimensional'
 import { EntityReference, hasReferences, linkEntityToEntities, retrieveReference, retrieveReferences } from '../components/EntityReference'
 import { maxPlayerPerMatch } from '../components/Phasing'
 import { Physical } from '../components/Physical'
-import { Action } from '../../type/Action'
-import { EntityType } from '../../type/EntityType'
+import { EventKind } from '../../type/EventKind'
+import { EntityType } from '../../ecs/components/EntityReference'
 import { errorMessageOnUnknownEventAction, GameEvent } from '../../type/GameEvent'
 import { createGridEvent, createPlayerNextTurnMatchButtonEvent, createRobotEvent, createTowerEvent } from '../../events/create/create'
 import { destroyMatchEvent, destroyRobotEvent, destroyTowerEvent } from '../../events/destroy/destroy'
@@ -14,11 +14,11 @@ import { GenericServerSystem } from '../system'
 
 export class ServerMatchSystem extends GenericServerSystem {
     onGameEvent (gameEvent: GameEvent): Promise<void> {
-        return gameEvent.action === Action.register
+        return gameEvent.action === EventKind.register
             ? this.onRegister(gameEvent)
-            : gameEvent.action === Action.join
+            : gameEvent.action === EventKind.join
                 ? this.onJoin(gameEvent, this.componentRepository.retrieveComponent(this.entityByEntityType(gameEvent, EntityType.match), 'EntityReference'))
-                : gameEvent.action === Action.quit
+                : gameEvent.action === EventKind.quit
                     ? this.onQuit(gameEvent, this.componentRepository.retrieveComponent(this.entityByEntityType(gameEvent, EntityType.match), 'EntityReference'))
                     : Promise.reject(new Error(errorMessageOnUnknownEventAction(ServerMatchSystem.name, gameEvent)))
     }

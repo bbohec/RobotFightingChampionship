@@ -1,6 +1,10 @@
-import { ControlStatus } from '../../type/ControlStatus'
 import { Component, GenericComponent } from '../component'
 import { EntityId } from '../entity'
+
+export enum ControlStatus {
+    Active = 'Active',
+    Idle = 'Idle'
+}
 
 export type Controller = GenericComponent<'Controller', {
     primaryButton: ControlStatus

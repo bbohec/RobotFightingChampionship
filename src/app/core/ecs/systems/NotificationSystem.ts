@@ -1,4 +1,4 @@
-import { EntityType } from '../../type/EntityType'
+import { EntityType } from '../../ecs/components/EntityReference'
 import { GameEvent } from '../../type/GameEvent'
 import { wrongPlayerNotificationMessage } from '../../events/notifyPlayer/notifyPlayer'
 import { GenericClientSystem, GenericGameEventDispatcherSystem } from '../system'

@@ -1,27 +1,27 @@
 import { errorMessageOnUnknownEventAction, GameEvent } from '../../type/GameEvent'
 import { DrawingSystem } from './DrawingSystem'
-import { Action } from '../../type/Action'
+import { EventKind } from '../../type/EventKind'
 import { ClientLifeCycleSystem } from './ClientLifeCycleSystem'
 import { ControllerSystem } from './ControllerSystem'
-import { EntityType } from '../../type/EntityType'
+import { EntityType } from '../../ecs/components/EntityReference'
 import { NotificationSystem } from './NotificationSystem'
 import { GenericGameEventDispatcherSystem } from '../system'
 
 export class ClientGameEventDispatcherSystem extends GenericGameEventDispatcherSystem {
     onGameEvent (gameEvent: GameEvent): Promise<void> {
-        return gameEvent.action === Action.create
+        return gameEvent.action === EventKind.create
             ? this.interactWithSystems.retrieveSystemByClass(ClientLifeCycleSystem).onGameEvent(gameEvent)
-            : gameEvent.action === Action.updatePlayerPointerPosition
+            : gameEvent.action === EventKind.updatePlayerPointerPosition
                 ? this.interactWithSystems.retrieveSystemByClass(ControllerSystem).onGameEvent(gameEvent)
-                : gameEvent.action === Action.updatePlayerPointerState
+                : gameEvent.action === EventKind.updatePlayerPointerState
                     ? this.sendEventToServer(gameEvent)
-                    : gameEvent.action === Action.register
+                    : gameEvent.action === EventKind.register
                         ? this.onRegister(gameEvent)
-                        : gameEvent.action === Action.activate
+                        : gameEvent.action === EventKind.activate
                             ? this.interactWithSystems.retrieveSystemByClass(ControllerSystem).onGameEvent(gameEvent)
-                            : gameEvent.action === Action.notifyPlayer
+                            : gameEvent.action === EventKind.notifyPlayer
                                 ? this.interactWithSystems.retrieveSystemByClass(NotificationSystem).onGameEvent(gameEvent)
-                                : gameEvent.action === Action.draw
+                                : gameEvent.action === EventKind.draw
                                     ? this.interactWithSystems.retrieveSystemByClass(DrawingSystem).onGameEvent(gameEvent)
                                     : Promise.reject(new Error(errorMessageOnUnknownEventAction(ClientGameEventDispatcherSystem.name, gameEvent)))
     }

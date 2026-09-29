@@ -1,9 +1,17 @@
 import { componentIsNot, missingCurrentUnitIdOnPhase } from '../../../messages'
 import { Component, GenericComponent } from '../component'
-import { Phase } from '../../type/Phase'
 import { PhaseType } from '../../type/PhaseType'
 import { EntityId } from '../entity'
 import { EntityIds } from '../../../test/entityIds'
+
+export interface Phase {
+    auto: boolean;
+    phaseType: PhaseType;
+    currentPlayerId: string | null;
+    currentUnitId: string | null;
+    actionPoints: number;
+}
+
 const noActionPoint = 0
 export const maxPlayerPerMatch = 2
 export const defaultActionPoints = 12
@@ -31,14 +39,11 @@ export type Phasing = GenericComponent<'Phasing', {
     readyPlayers:Set<string>
 }>
 
-const isPhasing = (component:Component): component is Phasing => {
-    return component.componentType === 'Phasing'
-}
-
 export const toPhasing = (component:Component): Phasing => {
-    if (isPhasing(component)) return component as Phasing
+    if (isPhasing(component)) return component
     throw new Error(componentIsNot(component, 'Phasing'))
 }
+const isPhasing = (component:Component): component is Phasing => component.componentType === 'Phasing'
 
 export const makePhasing = (entityId:EntityId, currentPhase:Phase, readyPlayers:Set<string> = new Set()):Phasing => ({
     componentType: 'Phasing',

@@ -8,14 +8,14 @@ import { whenEventOccured, eventsAreSent } from '../../../test/unitTest/event'
 import { makeEntityReference } from '../../ecs/components/EntityReference'
 import { makeHittable } from '../../ecs/components/Hittable'
 import { makeOffensive } from '../../ecs/components/Offensive'
-import { Action } from '../../type/Action'
-import { EntityType } from '../../type/EntityType'
+import { EventKind } from '../../type/EventKind'
+import { EntityType } from '../../ecs/components/EntityReference'
 import { notifyPlayerEvent } from '../notifyPlayer/notifyPlayer'
 import { victoryEvent } from '../victory/victory'
 import { hitEvent } from './hit'
 
-feature(Action.hit, () => {
-    serverScenario(`${Action.hit} 1 - Robot Hit Tower`, hitEvent(EntityIds.playerARobot, EntityIds.playerBTower),
+feature(EventKind.hit, () => {
+    serverScenario(`${EventKind.hit} 1 - Robot Hit Tower`, hitEvent(EntityIds.playerARobot, EntityIds.playerBTower),
         [], [
             thereIsServerComponents(TestStep.Given, [
                 makeEntityReference(EntityIds.match, EntityType.match, new Map([[EntityType.player, [EntityIds.playerA, EntityIds.playerB]]])),
@@ -42,7 +42,7 @@ feature(Action.hit, () => {
             ])
         ])
 
-    serverScenario(`${Action.hit} 2 - Robot Kill Tower`, hitEvent(EntityIds.playerARobot, EntityIds.playerBTower),
+    serverScenario(`${EventKind.hit} 2 - Robot Kill Tower`, hitEvent(EntityIds.playerARobot, EntityIds.playerBTower),
         [], [
             thereIsServerComponents(TestStep.Given, [
                 makeEntityReference(EntityIds.match, EntityType.match, new Map([[EntityType.player, [EntityIds.playerA, EntityIds.playerB]]])),
@@ -83,7 +83,7 @@ feature(Action.hit, () => {
                 notifyPlayerEvent(EntityIds.playerB, entityHasBeenDetroyed(EntityIds.playerARobot, EntityIds.playerBTower))
             ])
         ])
-    serverScenario(`${Action.hit} 3 - Robot Kill Robot`, hitEvent(EntityIds.playerARobot, EntityIds.playerBRobot),
+    serverScenario(`${EventKind.hit} 3 - Robot Kill Robot`, hitEvent(EntityIds.playerARobot, EntityIds.playerBRobot),
         [], [
             thereIsServerComponents(TestStep.Given, [
                 makeEntityReference(EntityIds.match, EntityType.match, new Map([[EntityType.player, [EntityIds.playerA, EntityIds.playerB]]])),
@@ -118,7 +118,7 @@ feature(Action.hit, () => {
                 notifyPlayerEvent(EntityIds.playerB, entityHasBeenDetroyed(EntityIds.playerARobot, EntityIds.playerBRobot))
             ])
         ])
-    serverScenario(`${Action.hit} 4 - Tower Kill Robot`, hitEvent(EntityIds.playerATower, EntityIds.playerBRobot),
+    serverScenario(`${EventKind.hit} 4 - Tower Kill Robot`, hitEvent(EntityIds.playerATower, EntityIds.playerBRobot),
         [], [
             thereIsServerComponents(TestStep.Given, [
                 makeEntityReference(EntityIds.match, EntityType.match, new Map([[EntityType.player, [EntityIds.playerA, EntityIds.playerB]]])),
@@ -174,7 +174,7 @@ feature(Action.hit, () => {
                 notifyPlayerEvent(EntityIds.playerB, entityHasBeenDetroyed(EntityIds.playerATower, EntityIds.playerBRobot))
             ])
         ])
-    serverScenario(`${Action.hit} 5 - Tower Kill Tower`, hitEvent(EntityIds.playerBTower, EntityIds.playerATower),
+    serverScenario(`${EventKind.hit} 5 - Tower Kill Tower`, hitEvent(EntityIds.playerBTower, EntityIds.playerATower),
         [], [
             thereIsServerComponents(TestStep.Given, [
                 makeEntityReference(EntityIds.match, EntityType.match, new Map([[EntityType.player, [EntityIds.playerA, EntityIds.playerB]]])),
@@ -261,7 +261,7 @@ feature(Action.hit, () => {
                 notifyPlayerEvent(EntityIds.playerB, entityHasBeenDetroyed(EntityIds.playerBTower, EntityIds.playerATower))
             ])
         ])
-    serverScenario(`${Action.hit} 6 - Friendly Fire`, hitEvent(EntityIds.playerATower, EntityIds.playerBRobot), [], [
+    serverScenario(`${EventKind.hit} 6 - Friendly Fire`, hitEvent(EntityIds.playerATower, EntityIds.playerBRobot), [], [
         ...whenEventOccured()
     ], undefined, true)
 })

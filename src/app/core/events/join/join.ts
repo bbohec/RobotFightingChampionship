@@ -1,20 +1,20 @@
-import { Action } from '../../type/Action'
-import { EntityType } from '../../type/EntityType'
+import { EventKind } from '../../type/EventKind'
+import { EntityType } from '../../ecs/components/EntityReference'
 import { newGameEvent } from '../../type/GameEvent'
-export const playerWantJoinSimpleMatchLobby = (playerId: string, simpleMachtLobbyEntityId:string) => newGameEvent(Action.join, new Map([
+export const playerWantJoinSimpleMatchLobby = (playerId: string, simpleMachtLobbyEntityId:string) => newGameEvent(EventKind.join, new Map([
     [EntityType.player, [playerId]],
     [EntityType.simpleMatchLobby, [simpleMachtLobbyEntityId]]
 ]))
-export const joinSimpleMatchLobby = (playerId: string, mainMenuId: string, simpleMachtLobbyEntityId:string) => newGameEvent(Action.join, new Map([
+export const joinSimpleMatchLobby = (playerId: string, mainMenuId: string, simpleMachtLobbyEntityId:string) => newGameEvent(EventKind.join, new Map([
     [EntityType.player, [playerId]],
     [EntityType.mainMenu, [mainMenuId]],
     [EntityType.simpleMatchLobby, [simpleMachtLobbyEntityId]]
 ]))
-export const joinSimpleMatchServerEvent = (playerId: string, simpleMachtLobbyEntityId:string) => newGameEvent(Action.join, new Map([
+export const joinSimpleMatchServerEvent = (playerId: string, simpleMachtLobbyEntityId:string) => newGameEvent(EventKind.join, new Map([
     [EntityType.player, [playerId]],
     [EntityType.simpleMatchLobby, [simpleMachtLobbyEntityId]]
 ]))
-export const playerJoinMatchEvent = (playerId:string, matchId:string) => newGameEvent(Action.join, new Map([
+export const playerJoinMatchEvent = (playerId:string, matchId:string) => newGameEvent(EventKind.join, new Map([
     [EntityType.player, [playerId]],
     [EntityType.match, [matchId]]
 ]))

@@ -7,13 +7,13 @@ import { whenEventOccured, eventsAreSent } from '../../../test/unitTest/event'
 import { makeEntityReference } from '../../ecs/components/EntityReference'
 import { makeLifeCycle } from '../../ecs/components/LifeCycle'
 import { position, makePhysical } from '../../ecs/components/Physical'
-import { Action } from '../../type/Action'
-import { EntityType } from '../../type/EntityType'
+import { EventKind } from '../../type/EventKind'
+import { EntityType } from '../../ecs/components/EntityReference'
 import { ShapeType } from '../../type/ShapeType'
 import { destroyMatchEvent, destroyGridEvent, destroyVictoryEvent, destroyDefeatEvent, destroyNextTurnButtonEvent, destroyRobotEvent, destroyTowerEvent, destroyCellEvent, destroySimpleMatchLobbyMenuEvent } from './destroy'
 
-feature(Action.destroy, () => {
-    serverScenario(`${Action.destroy} 1`, destroyMatchEvent(EntityIds.match),
+feature(EventKind.destroy, () => {
+    serverScenario(`${EventKind.destroy} 1`, destroyMatchEvent(EntityIds.match),
         [], [
             thereIsServerComponents(TestStep.Given, [
                 makeLifeCycle(EntityIds.match),
@@ -32,7 +32,7 @@ feature(Action.destroy, () => {
                 destroyNextTurnButtonEvent(EntityIds.playerBNextTurnButton)
             ])
         ])
-    serverScenario(`${Action.destroy} 2`, destroyRobotEvent(EntityIds.playerARobot),
+    serverScenario(`${EventKind.destroy} 2`, destroyRobotEvent(EntityIds.playerARobot),
         [], [
             thereIsServerComponents(TestStep.Given, [
                 makeLifeCycle(EntityIds.playerARobot),
@@ -44,7 +44,7 @@ feature(Action.destroy, () => {
                 makeEntityReference(EntityIds.playerA, EntityType.player, new Map([[EntityType.robot, []]]))
             ])
         ])
-    serverScenario(`${Action.destroy} 3`, destroyTowerEvent(EntityIds.playerATower),
+    serverScenario(`${EventKind.destroy} 3`, destroyTowerEvent(EntityIds.playerATower),
         [], [
             thereIsServerComponents(TestStep.Given, [
                 makeLifeCycle(EntityIds.playerATower),
@@ -56,7 +56,7 @@ feature(Action.destroy, () => {
                 makeEntityReference(EntityIds.playerA, EntityType.player, new Map([[EntityType.tower, []]]))
             ])
         ])
-    serverScenario(`${Action.destroy} 4`, destroyGridEvent(EntityIds.grid),
+    serverScenario(`${EventKind.destroy} 4`, destroyGridEvent(EntityIds.grid),
         [], [
             thereIsServerComponents(TestStep.Given, [
                 makeEntityReference(EntityIds.grid, EntityType.grid, new Map([[EntityType.cell, [EntityIds.cellx0y0, EntityIds.cellx1y1]]]))
@@ -70,7 +70,7 @@ feature(Action.destroy, () => {
                 destroyCellEvent(EntityIds.cellx1y1)
             ])
         ])
-    serverScenario(`${Action.destroy} 5`, destroyCellEvent(EntityIds.cellx0y0),
+    serverScenario(`${EventKind.destroy} 5`, destroyCellEvent(EntityIds.cellx0y0),
         [], [
             thereIsServerComponents(TestStep.Given, [
                 makePhysical(EntityIds.cellx0y0, position(0, 0), ShapeType.cell, false)
@@ -80,7 +80,7 @@ feature(Action.destroy, () => {
 
             ])
         ])
-    serverScenario(`${Action.destroy} 6`, destroyVictoryEvent(EntityIds.victory),
+    serverScenario(`${EventKind.destroy} 6`, destroyVictoryEvent(EntityIds.victory),
         [], [
             thereIsServerComponents(TestStep.Given, [
                 makePhysical(EntityIds.victory, position(0, 0), ShapeType.victory, false)
@@ -90,7 +90,7 @@ feature(Action.destroy, () => {
 
             ])
         ])
-    serverScenario(`${Action.destroy} 7`, destroyDefeatEvent(EntityIds.defeat),
+    serverScenario(`${EventKind.destroy} 7`, destroyDefeatEvent(EntityIds.defeat),
         [], [
             thereIsServerComponents(TestStep.Given, [
                 makePhysical(EntityIds.defeat, position(0, 0), ShapeType.defeat, true)
@@ -100,7 +100,7 @@ feature(Action.destroy, () => {
 
             ])
         ])
-    serverScenario(`${Action.destroy} 8`, destroyNextTurnButtonEvent(EntityIds.playerANextTurnButton),
+    serverScenario(`${EventKind.destroy} 8`, destroyNextTurnButtonEvent(EntityIds.playerANextTurnButton),
         [], [
             thereIsServerComponents(TestStep.Given, [
                 makeEntityReference(EntityIds.playerA, EntityType.player, new Map([[EntityType.nextTurnButton, [EntityIds.playerANextTurnButton]]])),
@@ -111,7 +111,7 @@ feature(Action.destroy, () => {
                 makeEntityReference(EntityIds.playerA, EntityType.player, new Map([[EntityType.nextTurnButton, []]]))
             ])
         ])
-    serverScenario(`${Action.destroy} 9`, destroySimpleMatchLobbyMenuEvent(EntityIds.playerASimpleMatchLobbyMenu),
+    serverScenario(`${EventKind.destroy} 9`, destroySimpleMatchLobbyMenuEvent(EntityIds.playerASimpleMatchLobbyMenu),
         [], [
             thereIsServerComponents(TestStep.Given, [
                 makeEntityReference(EntityIds.playerASimpleMatchLobbyMenu, EntityType.simpleMatchLobbyMenu, new Map([[EntityType.player, [EntityIds.playerA]]])),

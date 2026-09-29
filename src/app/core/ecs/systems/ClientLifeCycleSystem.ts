@@ -1,7 +1,7 @@
 import { linkEntityToEntities, makeEntityReference } from '../components/EntityReference'
 import { makePhysical, position } from '../components/Physical'
 import { ShapeType } from '../../type/ShapeType'
-import { EntityType } from '../../type/EntityType'
+import { EntityType } from '../../ecs/components/EntityReference'
 import { errorMessageOnUnknownEventAction, GameEvent } from '../../type/GameEvent'
 import { activatePointerEvent } from '../../events/activate/activate'
 import { registerPlayerEvent } from '../../events/register/register'
