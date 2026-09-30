@@ -1,14 +1,14 @@
 {
     "deno.enable": false,
     "editor.detectIndentation": false,
+    "editor.defaultFormatter": "biomejs.biome",
+    "editor.formatOnSave": true,
     "editor.codeActionsOnSave": {
-        "source.fixAll.eslint": "explicit"
+        "source.organizeImports.biome": "explicit",
+        "quickfix.biome": "explicit"
     },
     "terminal.integrated.scrollback": 10000,
     "files.autoSave": "onFocusChange",
-    "eslint.validate": [
-        "typescript"
-    ],
     "mochaExplorer.files": "/src/**/*.spec.ts",
     "mochaExplorer.require": "ts-node/register",
     "mocha.coverage": {

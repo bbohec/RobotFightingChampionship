@@ -1,16 +1,14 @@
 {
   "compilerOptions": {
     "incremental": true,
-    "target": "es2016",
-    "module": "commonjs",
-    "types": ["node","mocha"],
+    "target": "es2022",
+    "module": "ESNext",
+    "moduleResolution": "bundler",
+    "types": ["node", "mocha"],
     "esModuleInterop": true,
     "forceConsistentCasingInFileNames": true,
     "isolatedModules": true,
     "strict": true,
     "skipLibCheck": true
-  },
-  "ts-node": {
-    "swc": true
   }
 }
