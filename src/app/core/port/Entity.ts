@@ -1,3 +1,3 @@
 export interface EntityContract {
-    id: string;
+  id: string
 }

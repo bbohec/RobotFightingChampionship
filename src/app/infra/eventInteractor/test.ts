@@ -1,10 +1,10 @@
-import { Configuration } from 'log4js'
-import { Func } from 'mocha'
-import { makePhysical, position, Position } from '../../core/ecs/components/Physical'
-import { ClientEventInteractor, ServerEventInteractor } from '../../core/port/EventInteractor'
-import { Action } from '../../core/type/Action'
-import { EntityType } from '../../core/type/EntityType'
-import { GameEvent, newGameEvent } from '../../core/type/GameEvent'
+import type { Configuration } from 'log4js'
+import type { Func } from 'mocha'
+import { EntityType } from '../../core/ecs/components/EntityReference'
+import { makePhysical, type Position, position } from '../../core/ecs/components/Physical'
+import type { ClientEventInteractor, ServerEventInteractor } from '../../core/port/EventInteractor'
+import { EventKind } from '../../core/type/EventKind'
+import { type GameEvent, newGameEvent } from '../../core/type/GameEvent'
 import { ShapeType } from '../../core/type/ShapeType'
 import { EntityIds } from '../../test/entityIds'
 import { InMemoryEventBus } from '../eventBus/InMemoryEventBus'
@@ -15,54 +15,104 @@ import { InMemoryServerEventInteractor } from './server/InMemoryServerEventInter
 import { defaultHTTPWebServerPort } from './server/webServerInformation'
 
 export interface ClientEventIntegrationTestSuite {
-    clientEventInteractor:ClientEventInteractor
-    clientEvents:GameEvent[]
+  clientEventInteractor: ClientEventInteractor
+  clientEvents: GameEvent[]
 }
 export interface EventIntegrationTestSuite {
-    adapterType: string
-    serverEventInteractor: ServerEventInteractor
-    clientsEventIntegrationTestSuite: ClientEventIntegrationTestSuite[]
+  adapterType: string
+  serverEventInteractor: ServerEventInteractor
+  clientsEventIntegrationTestSuite: ClientEventIntegrationTestSuite[]
 }
-export const serverFullyQualifiedDomainName = 'localhost'
+export const serverFullyQualifiedDomainName = '127.0.0.1'
 export const clientQty = 10
 
-export const makeRestClientsEventIntegrationTestSuite = (qty:number, configuration:Configuration):ClientEventIntegrationTestSuite[] => [...Array(qty).keys()].map(index => makeRestClientEventIntegrationTestSuite((index + 1).toString(), position(0, 0), configuration))
-export const makeInMemoryClientsEventIntegrationTestSuite = (qty:number):ClientEventIntegrationTestSuite[] => [...Array(qty).keys()].map(index => makeInMemoryClientEventIntegrationTestSuite((index + 1).toString(), position(0, 0)))
-export const beforeFunction = (testSuite: EventIntegrationTestSuite): Func => function (done) {
+export const makeRestClientsEventIntegrationTestSuite = (
+  qty: number,
+  configuration: Configuration,
+): ClientEventIntegrationTestSuite[] =>
+  [...Array(qty).keys()].map((index) =>
+    makeRestClientEventIntegrationTestSuite((index + 1).toString(), position(0, 0), configuration),
+  )
+export const makeInMemoryClientsEventIntegrationTestSuite = (
+  qty: number,
+): ClientEventIntegrationTestSuite[] =>
+  [...Array(qty).keys()].map((index) =>
+    makeInMemoryClientEventIntegrationTestSuite((index + 1).toString(), position(0, 0)),
+  )
+export const beforeFunction = (testSuite: EventIntegrationTestSuite): Func =>
+  function (done) {
     this.timeout(30000)
-    testSuite.clientsEventIntegrationTestSuite.forEach(clientEventIntegrationTestSuite => {
-        if (clientEventIntegrationTestSuite.clientEventInteractor instanceof InMemoryClientEventInteractor)
-            clientEventIntegrationTestSuite.clientEventInteractor.setServerEventInteractor(testSuite.serverEventInteractor)
+    testSuite.clientsEventIntegrationTestSuite.forEach((clientEventIntegrationTestSuite) => {
+      if (
+        clientEventIntegrationTestSuite.clientEventInteractor instanceof
+        InMemoryClientEventInteractor
+      )
+        clientEventIntegrationTestSuite.clientEventInteractor.setServerEventInteractor(
+          testSuite.serverEventInteractor,
+        )
     })
-    if (testSuite.serverEventInteractor instanceof InMemoryServerEventInteractor) configureInMemoryClientsOnServer(testSuite.serverEventInteractor, testSuite)
-    testSuite.serverEventInteractor.start()
-        .then(() => Promise.all(testSuite.clientsEventIntegrationTestSuite.map(clientEventIntegrationTestSuite => clientEventIntegrationTestSuite.clientEventInteractor.start())))
-        .then(() => done())
-        .catch(error => done(error))
-}
-export const afterFunction = (testSuite: EventIntegrationTestSuite): Func => function (done) {
+    if (testSuite.serverEventInteractor instanceof InMemoryServerEventInteractor)
+      configureInMemoryClientsOnServer(testSuite.serverEventInteractor, testSuite)
+    testSuite.serverEventInteractor
+      .start()
+      .then(() =>
+        Promise.all(
+          testSuite.clientsEventIntegrationTestSuite.map((clientEventIntegrationTestSuite) =>
+            clientEventIntegrationTestSuite.clientEventInteractor.start(),
+          ),
+        ),
+      )
+      .then(() => done())
+      .catch((error) => done(error))
+  }
+export const afterFunction = (testSuite: EventIntegrationTestSuite): Func =>
+  function (done) {
     this.timeout(30000)
-    testSuite.serverEventInteractor.stop()
-        .then(() => done())
-        .catch(error => done(error))
-}
+    testSuite.serverEventInteractor
+      .stop()
+      .then(() => done())
+      .catch((error) => done(error))
+  }
 
-const configureInMemoryClientsOnServer = (serverEventInteractor: InMemoryServerEventInteractor, testSuite:EventIntegrationTestSuite) =>
-    serverEventInteractor.setClientEventInteractors(testSuite.clientsEventIntegrationTestSuite.map(clientEventIntegrationTestSuite => {
-        if (clientEventIntegrationTestSuite.clientEventInteractor instanceof InMemoryClientEventInteractor)
-            return clientEventIntegrationTestSuite.clientEventInteractor
-        throw new Error(`Unsupported clientEventInteractor ${clientEventIntegrationTestSuite.clientEventInteractor.constructor.name}`)
-    }))
+const configureInMemoryClientsOnServer = (
+  serverEventInteractor: InMemoryServerEventInteractor,
+  testSuite: EventIntegrationTestSuite,
+) =>
+  serverEventInteractor.setClientEventInteractors(
+    testSuite.clientsEventIntegrationTestSuite.map((clientEventIntegrationTestSuite) => {
+      if (
+        clientEventIntegrationTestSuite.clientEventInteractor instanceof
+        InMemoryClientEventInteractor
+      )
+        return clientEventIntegrationTestSuite.clientEventInteractor
+      throw new Error(
+        `Unsupported clientEventInteractor ${clientEventIntegrationTestSuite.clientEventInteractor.constructor.name}`,
+      )
+    }),
+  )
 
-const sseTestGameEvent = (playerId:string, position:Position) => newGameEvent(
-    Action.attack,
-    new Map([[EntityType.player, [playerId]]]),
-    [makePhysical(EntityIds.playerAPointer, position, ShapeType.pointer, true)])
-export const makeInMemoryClientEventIntegrationTestSuite = (playerId:string, position:Position): ClientEventIntegrationTestSuite => ({
-    clientEventInteractor: new InMemoryClientEventInteractor(playerId, new InMemoryEventBus()),
-    clientEvents: [sseTestGameEvent(playerId, position)]
+const sseTestGameEvent = (playerId: string, position: Position) =>
+  newGameEvent(EventKind.attack, new Map([[EntityType.player, [playerId]]]), [
+    makePhysical(EntityIds.playerAPointer, position, ShapeType.pointer, true),
+  ])
+export const makeInMemoryClientEventIntegrationTestSuite = (
+  playerId: string,
+  position: Position,
+): ClientEventIntegrationTestSuite => ({
+  clientEventInteractor: new InMemoryClientEventInteractor(playerId, new InMemoryEventBus()),
+  clientEvents: [sseTestGameEvent(playerId, position)],
 })
-export const makeRestClientEventIntegrationTestSuite = (playerId:string, position:Position, configuration:Configuration): ClientEventIntegrationTestSuite => ({
-    clientEventInteractor: new WebClientEventInteractor(serverFullyQualifiedDomainName, defaultHTTPWebServerPort, playerId, new InMemoryEventBus(), new Log4jsLogger('webClientEventInteractor', configuration)),
-    clientEvents: [sseTestGameEvent(playerId, position)]
+export const makeRestClientEventIntegrationTestSuite = (
+  playerId: string,
+  position: Position,
+  configuration: Configuration,
+): ClientEventIntegrationTestSuite => ({
+  clientEventInteractor: new WebClientEventInteractor({
+    serverFullyQualifiedDomainName,
+    webServerPort: defaultHTTPWebServerPort,
+    clientId: playerId,
+    eventBus: new InMemoryEventBus(),
+    logger: new Log4jsLogger('webClientEventInteractor', configuration),
+  }),
+  clientEvents: [sseTestGameEvent(playerId, position)],
 })

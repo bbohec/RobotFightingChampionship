@@ -1,4 +1,4 @@
-import { Component } from '../../core/ecs/component'
+import type { Component } from '../../core/ecs/component'
 
 /*
 
@@ -117,10 +117,14 @@ export class InMemoryEntityRepository implements EntityInteractor {
     entities: Map<string, Entity> = new Map([])
 }
 */
-export const missingEntityId = (entityId: string, entityIds?: string[]): string => `Entity with id '${entityId}' missing on entity repository. ${entityIds ? `Current entities: ${entityIds}` : ''}`
-export const cannotRetrieveComponentOnMissingEntity = <T extends Component> (entityId: string): string => `Cannot retrieve component '${({} as T).componentType}'. The entity '${entityId}' is missing on Entity Repository.`
-export function missingentityReference (originEntityId: string): string {
-    return `Entity ${originEntityId} missing entity reference component.`
+export const missingEntityId = (entityId: string, entityIds?: string[]): string =>
+  `Entity with id '${entityId}' missing on entity repository. ${entityIds ? `Current entities: ${entityIds}` : ''}`
+export const cannotRetrieveComponentOnMissingEntity = <T extends Component>(
+  entityId: string,
+): string =>
+  `Cannot retrieve component '${({} as T).componentType}'. The entity '${entityId}' is missing on Entity Repository.`
+export function missingentityReference(originEntityId: string): string {
+  return `Entity ${originEntityId} missing entity reference component.`
 }
 
 /*

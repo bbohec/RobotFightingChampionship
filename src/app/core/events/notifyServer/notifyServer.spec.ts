@@ -1,12 +1,14 @@
 import { feature } from '../../../test/feature'
 import { serverScenario } from '../../../test/scenario'
 import { whenEventOccured } from '../../../test/unitTest/event'
-import { Action } from '../../type/Action'
+import { EventKind } from '../../type/EventKind'
 import { notifyServerEvent } from './notifyServer'
 
-feature(Action.notifyServer, () => {
-    serverScenario(`${Action.notifyServer}`, notifyServerEvent('test message'), []
-        , [
-            ...whenEventOccured()
-        ])
+feature(EventKind.notifyServer, () => {
+  serverScenario(
+    `${EventKind.notifyServer}`,
+    notifyServerEvent('test message'),
+    [],
+    [...whenEventOccured()],
+  )
 })

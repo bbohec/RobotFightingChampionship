@@ -1,3 +1,3 @@
 export interface SSEClient {
-    subscribeServerSentEvent(): void;
+  subscribeServerSentEvent(): void
 }

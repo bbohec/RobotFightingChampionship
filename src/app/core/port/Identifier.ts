@@ -1,5 +1,5 @@
-import { EntityId } from '../ecs/entity'
+import type { EntityId } from '../ecs/entity'
 
 export interface Identifier {
-    nextIdentifier(): EntityId;
+  nextIdentifier(): EntityId
 }

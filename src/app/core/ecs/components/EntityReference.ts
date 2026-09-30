@@ -1,80 +1,183 @@
-import { componentIsNot, missingEntityReferenceByEntityType, multipleEntitiesReferencedByEntityType, multipleEntityTypeOnEntityReference, noEntityTypeOnEntityReference } from '../../../messages'
-import { ComponentRepository } from '../../port/ComponentRepository'
-import { EntityType } from '../../type/EntityType'
-import { Component, GenericComponent } from '../component'
-import { EntityId } from '../entity'
+import {
+  componentIsNot,
+  missingEntityReferenceByEntityType,
+  multipleEntitiesReferencedByEntityType,
+  multipleEntityTypeOnEntityReference,
+  noEntityTypeOnEntityReference,
+} from '../../../messages'
+import type { ComponentRepository } from '../../port/ComponentRepository'
+import type { Component, GenericComponent } from '../component'
+import type { EntityId } from '../entity'
+
+export enum EntityType {
+  game = 'Game',
+  nobody = 'Nobody',
+  mainMenu = 'Main Menu',
+  simpleMatchLobby = 'Simple Match Lobby',
+  allEntities = 'All Entities',
+  match = 'Match',
+  tower = 'Tower',
+  robot = 'Robot',
+  grid = 'Grid',
+  player = 'player',
+  nothing = 'nothing',
+  attacker = 'attacker',
+  hittable = 'hittable',
+  victory = 'victory',
+  defeat = 'defeat',
+  cell = 'cell',
+  target = 'target',
+  message = 'message',
+  unknown = 'unknown',
+  button = 'button',
+  pointer = 'pointer',
+  simpleMatchLobbyMenu = 'simpleMatchLobbyMenu',
+  nextTurnButton = 'nextTurnButton',
+}
+export const unsupportedEntityTypeMessage = (entityType: EntityType) =>
+  `Entity type ${entityType} is not supported.`
 
 export type EntityReferences = Map<EntityType, Array<string>>
 
-export type EntityReference = GenericComponent<'EntityReference', {
-    entityReferences:EntityReferences
-    entityType :EntityType[]
-}>
+export type EntityReference = GenericComponent<
+  'EntityReference',
+  {
+    entityReferences: EntityReferences
+    entityType: EntityType[]
+  }
+>
 
-const isEntityReference = (component:Component): component is EntityReference => {
-    return component.componentType === 'EntityReference'
+const isEntityReference = (component: Component): component is EntityReference => {
+  return component.componentType === 'EntityReference'
 }
 
-export const toEntityReference = (component:Component): EntityReference => {
-    if (isEntityReference(component)) return component as EntityReference
-    throw new Error(componentIsNot(component, 'EntityReference'))
+export const toEntityReference = (component: Component): EntityReference => {
+  if (isEntityReference(component)) return component as EntityReference
+  throw new Error(componentIsNot(component, 'EntityReference'))
 }
 
-export const makeEntityReference = (entityId: string, entityType:EntityType|EntityType[], entityReferences:EntityReferences = new Map()): EntityReference => ({
-    componentType: 'EntityReference',
-    entityId,
-    entityReferences,
-    entityType: Array.isArray(entityType) ? entityType : [entityType]
+export const makeEntityReference = (
+  entityId: string,
+  entityType: EntityType | EntityType[],
+  entityReferences: EntityReferences = new Map(),
+): EntityReference => ({
+  componentType: 'EntityReference',
+  entityId,
+  entityReferences,
+  entityType: Array.isArray(entityType) ? entityType : [entityType],
 })
 
-export const retrieveEntityType = (entityReference:EntityReference, entityId:EntityId): EntityType => {
-    if (entityReference.entityType.length === 1) return entityReference.entityType[0]
-    if (entityReference.entityType.length === 0) throw new Error(noEntityTypeOnEntityReference(entityId, entityReference.entityType))
-    throw new Error(multipleEntityTypeOnEntityReference(entityId, entityReference.entityType))
+export const retrieveEntityType = (
+  entityReference: EntityReference,
+  entityId: EntityId,
+): EntityType => {
+  if (entityReference.entityType.length === 1) return entityReference.entityType[0]
+  if (entityReference.entityType.length === 0)
+    throw new Error(noEntityTypeOnEntityReference(entityId, entityReference.entityType))
+  throw new Error(multipleEntityTypeOnEntityReference(entityId, entityReference.entityType))
 }
 
-export const retrieveReference = (entityReference:EntityReference, referenceEntityType:EntityType) => {
-    const references = retrieveReferences(entityReference, referenceEntityType)
-    if (references.length === 1) return references[0]
-    if (references.length > 1) throw new Error(multipleEntitiesReferencedByEntityType(referenceEntityType, entityReference, retrieveReferences(entityReference, referenceEntityType)))
-    throw new Error(missingEntityReferenceByEntityType(referenceEntityType, entityReference))
+export const retrieveReference = (
+  entityReference: EntityReference,
+  referenceEntityType: EntityType,
+) => {
+  const references = retrieveReferences(entityReference, referenceEntityType)
+  if (references.length === 1) return references[0]
+  if (references.length > 1)
+    throw new Error(
+      multipleEntitiesReferencedByEntityType(
+        referenceEntityType,
+        entityReference,
+        retrieveReferences(entityReference, referenceEntityType),
+      ),
+    )
+  throw new Error(missingEntityReferenceByEntityType(referenceEntityType, entityReference))
 }
 
-export const retrieveReferences = (entityReference:EntityReference, entityType:EntityType) => {
-    const entityReferences = entityReference.entityReferences.get(entityType)
-    if (entityReferences) return entityReferences
-    throw new Error(missingEntityReferenceByEntityType(entityType, entityReference))
+export const retrieveReferences = (entityReference: EntityReference, entityType: EntityType) => {
+  const entityReferences = entityReference.entityReferences.get(entityType)
+  if (entityReferences) return entityReferences
+  throw new Error(missingEntityReferenceByEntityType(entityType, entityReference))
 }
 
-export const hasReferences = (entityReference:EntityReference, entityType:EntityType) => {
-    const entityReferences = entityReference.entityReferences.get(entityType)
-    if (!entityReferences || entityReferences.length === 0) return false
-    return true
+export const hasReferences = (entityReference: EntityReference, entityType: EntityType) => {
+  const entityReferences = entityReference.entityReferences.get(entityType)
+  if (!entityReferences || entityReferences.length === 0) return false
+  return true
 }
 
-export const unlinkEntities = (originEntityReference: EntityReference, targetEntityReference: EntityReference): void => {
-    deleteReference(originEntityReference, targetEntityReference.entityType, targetEntityReference.entityId)
-    deleteReference(targetEntityReference, originEntityReference.entityType, originEntityReference.entityId)
+export const unlinkEntities = (
+  originEntityReference: EntityReference,
+  targetEntityReference: EntityReference,
+): void => {
+  deleteReference(
+    originEntityReference,
+    targetEntityReference.entityType,
+    targetEntityReference.entityId,
+  )
+  deleteReference(
+    targetEntityReference,
+    originEntityReference.entityType,
+    originEntityReference.entityId,
+  )
 }
-const deleteReference = (entityReference: EntityReference, entityTypes: EntityType[], entityIdToRemovefromReferences: string) => {
-    entityTypes.forEach(entityType => entityReference.entityReferences.set(entityType, retrieveReferences(entityReference, entityType).filter(reference => reference !== entityIdToRemovefromReferences)))
+const deleteReference = (
+  entityReference: EntityReference,
+  entityTypes: EntityType[],
+  entityIdToRemovefromReferences: string,
+) => {
+  entityTypes.forEach((entityType) => {
+    entityReference.entityReferences.set(
+      entityType,
+      retrieveReferences(entityReference, entityType).filter(
+        (reference) => reference !== entityIdToRemovefromReferences,
+      ),
+    )
+  })
 }
 
-export const linkEntityToEntities = (componentRepository:ComponentRepository, originEntityId: string, targetEntityIds: string[]): void => {
-    targetEntityIds.forEach(targetEntityId => linkEntities(componentRepository, originEntityId, targetEntityId))
+export const linkEntityToEntities = (
+  componentRepository: ComponentRepository,
+  originEntityId: string,
+  targetEntityIds: string[],
+): void => {
+  targetEntityIds.forEach((targetEntityId) => {
+    linkEntities(componentRepository, originEntityId, targetEntityId)
+  })
 }
 
-const linkEntities = (componentRepository:ComponentRepository, originEntityId: string, targetEntityId: string): void => {
-    const entityReferenceOriginEntity = componentRepository.retrieveComponent(originEntityId, 'EntityReference')
-    const entityReferenceTargetEntity = componentRepository.retrieveComponent(targetEntityId, 'EntityReference')
-    entityReferenceOriginEntity.entityType.forEach(entityType => addReference(entityType, originEntityId, entityReferenceTargetEntity))
-    entityReferenceTargetEntity.entityType.forEach(entityType => addReference(entityType, targetEntityId, entityReferenceOriginEntity))
+const linkEntities = (
+  componentRepository: ComponentRepository,
+  originEntityId: string,
+  targetEntityId: string,
+): void => {
+  const entityReferenceOriginEntity = componentRepository.retrieveComponent(
+    originEntityId,
+    'EntityReference',
+  )
+  const entityReferenceTargetEntity = componentRepository.retrieveComponent(
+    targetEntityId,
+    'EntityReference',
+  )
+  entityReferenceOriginEntity.entityType.forEach((entityType) => {
+    addReference(entityType, originEntityId, entityReferenceTargetEntity)
+  })
+  entityReferenceTargetEntity.entityType.forEach((entityType) => {
+    addReference(entityType, targetEntityId, entityReferenceOriginEntity)
+  })
 }
 
-const addReference = (entityType: EntityType, entityId:string, entityReference: EntityReference): void => {
-    let references = entityReference.entityReferences.get(entityType)
-    if (references) {
-        if (!references.some(referenceEntityIds => referenceEntityIds === entityId))references.push(entityId)
-    } else { references = [entityId] }
-    entityReference.entityReferences.set(entityType, references)
+const addReference = (
+  entityType: EntityType,
+  entityId: string,
+  entityReference: EntityReference,
+): void => {
+  let references = entityReference.entityReferences.get(entityType)
+  if (references) {
+    if (!references.some((referenceEntityIds) => referenceEntityIds === entityId))
+      references.push(entityId)
+  } else {
+    references = [entityId]
+  }
+  entityReference.entityReferences.set(entityType, references)
 }

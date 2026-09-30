@@ -1,4 +1,3 @@
-import { GenericComponent } from '../component'
+import type { GenericComponent } from '../component'
 
-export type Loopable = GenericComponent<'Loopable', {
-}>
+export type Loopable = GenericComponent<'Loopable', {}>

@@ -1,8 +1,12 @@
-import { Action } from '../../type/Action'
-import { EntityType } from '../../type/EntityType'
+import { EntityType } from '../../ecs/components/EntityReference'
+import { EventKind } from '../../type/EventKind'
 import { newGameEvent } from '../../type/GameEvent'
 
-export const quitMatchEvent = (matchId: string, playerId: string) => newGameEvent(Action.quit, new Map([
-    [EntityType.match, [matchId]],
-    [EntityType.player, [playerId]]
-]))
+export const quitMatchEvent = (matchId: string, playerId: string) =>
+  newGameEvent(
+    EventKind.quit,
+    new Map([
+      [EntityType.match, [matchId]],
+      [EntityType.player, [playerId]],
+    ]),
+  )

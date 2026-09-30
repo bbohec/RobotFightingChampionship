@@ -1,34 +1,48 @@
-import { errorMessageOnUnknownEventAction, GameEvent } from '../../type/GameEvent'
-import { DrawingSystem } from './DrawingSystem'
-import { Action } from '../../type/Action'
+import { EntityType } from '../../ecs/components/EntityReference'
+import { EventKind } from '../../type/EventKind'
+import { errorMessageOnUnknownEventAction, type GameEvent } from '../../type/GameEvent'
+import { GenericGameEventDispatcherSystem } from '../system'
 import { ClientLifeCycleSystem } from './ClientLifeCycleSystem'
 import { ControllerSystem } from './ControllerSystem'
-import { EntityType } from '../../type/EntityType'
+import { DrawingSystem } from './DrawingSystem'
 import { NotificationSystem } from './NotificationSystem'
-import { GenericGameEventDispatcherSystem } from '../system'
 
 export class ClientGameEventDispatcherSystem extends GenericGameEventDispatcherSystem {
-    onGameEvent (gameEvent: GameEvent): Promise<void> {
-        return gameEvent.action === Action.create
-            ? this.interactWithSystems.retrieveSystemByClass(ClientLifeCycleSystem).onGameEvent(gameEvent)
-            : gameEvent.action === Action.updatePlayerPointerPosition
-                ? this.interactWithSystems.retrieveSystemByClass(ControllerSystem).onGameEvent(gameEvent)
-                : gameEvent.action === Action.updatePlayerPointerState
-                    ? this.sendEventToServer(gameEvent)
-                    : gameEvent.action === Action.register
-                        ? this.onRegister(gameEvent)
-                        : gameEvent.action === Action.activate
-                            ? this.interactWithSystems.retrieveSystemByClass(ControllerSystem).onGameEvent(gameEvent)
-                            : gameEvent.action === Action.notifyPlayer
-                                ? this.interactWithSystems.retrieveSystemByClass(NotificationSystem).onGameEvent(gameEvent)
-                                : gameEvent.action === Action.draw
-                                    ? this.interactWithSystems.retrieveSystemByClass(DrawingSystem).onGameEvent(gameEvent)
-                                    : Promise.reject(new Error(errorMessageOnUnknownEventAction(ClientGameEventDispatcherSystem.name, gameEvent)))
-    }
+  onGameEvent(gameEvent: GameEvent): Promise<void> {
+    return gameEvent.action === EventKind.create
+      ? this.interactWithSystems.retrieveSystemByClass(ClientLifeCycleSystem).onGameEvent(gameEvent)
+      : gameEvent.action === EventKind.updatePlayerPointerPosition
+        ? this.interactWithSystems.retrieveSystemByClass(ControllerSystem).onGameEvent(gameEvent)
+        : gameEvent.action === EventKind.updatePlayerPointerState
+          ? this.sendEventToServer(gameEvent)
+          : gameEvent.action === EventKind.register
+            ? this.onRegister(gameEvent)
+            : gameEvent.action === EventKind.activate
+              ? this.interactWithSystems
+                  .retrieveSystemByClass(ControllerSystem)
+                  .onGameEvent(gameEvent)
+              : gameEvent.action === EventKind.notifyPlayer
+                ? this.interactWithSystems
+                    .retrieveSystemByClass(NotificationSystem)
+                    .onGameEvent(gameEvent)
+                : gameEvent.action === EventKind.draw
+                  ? this.interactWithSystems
+                      .retrieveSystemByClass(DrawingSystem)
+                      .onGameEvent(gameEvent)
+                  : Promise.reject(
+                      new Error(
+                        errorMessageOnUnknownEventAction(
+                          ClientGameEventDispatcherSystem.name,
+                          gameEvent,
+                        ),
+                      ),
+                    )
+  }
 
-    private onRegister (gameEvent: GameEvent): Promise<void> {
-        return this.hasEntitiesByEntityType(gameEvent, EntityType.player) && this.hasEntitiesByEntityType(gameEvent, EntityType.pointer)
-            ? this.interactWithSystems.retrieveSystemByClass(ClientLifeCycleSystem).onGameEvent(gameEvent)
-            : this.sendEventToServer(gameEvent)
-    }
+  private onRegister(gameEvent: GameEvent): Promise<void> {
+    return this.hasEntitiesByEntityType(gameEvent, EntityType.player) &&
+      this.hasEntitiesByEntityType(gameEvent, EntityType.pointer)
+      ? this.interactWithSystems.retrieveSystemByClass(ClientLifeCycleSystem).onGameEvent(gameEvent)
+      : this.sendEventToServer(gameEvent)
+  }
 }

@@ -1,42 +1,49 @@
-import { Express } from 'express'
-import { Server } from 'http'
-import { Logger } from '../../../core/port/Logger'
+import type { Express } from 'express'
+import type { Server } from 'http'
+import type { Logger } from '../../../core/port/Logger'
 import { serverListeningMessage } from './WebServerEventInteractor'
 
 export class ExpressWebServerInstance {
-    constructor (instance: Express, port: number, logger:Logger) {
-        this.logger = logger
-        this.port = port
-        this.instance = instance
-    }
+  constructor(instance: Express, port: number, logger: Logger) {
+    this.logger = logger
+    this.port = port
+    this.instance = instance
+  }
 
-    start ():Promise<void> {
-        return new Promise<void>((resolve, reject) => {
-            this.server = this.instance.listen(this.port, () => {
-                this.logger.info(serverListeningMessage(this.port))
-                resolve()
-            })
+  start(): Promise<void> {
+    return new Promise<void>((resolve, reject) => {
+      this.server = this.instance.listen(this.port)
+      this.server.on('listening', () => {
+        const address = this.server?.address()
+        if (!address) throw new Error('Missing address')
+        this.logger.info(
+          typeof address === 'object'
+            ? serverListeningMessage(address)
+            : `Listening on socket ${address}`,
+        )
+        resolve()
+      })
+    })
+  }
+
+  close(): Promise<void> {
+    return new Promise<void>((resolve, reject) => {
+      this.logger.info(`Closing ${this.constructor.name} ...`)
+      if (this.server) {
+        this.server.close((error) => {
+          if (error) reject(error)
+          this.logger.info(`${this.constructor.name} closed.`)
+          resolve()
         })
-    }
+      } else {
+        this.logger.warn('Server already closed.')
+        resolve()
+      }
+    })
+  }
 
-    close ():Promise<void> {
-        return new Promise<void>((resolve, reject) => {
-            this.logger.info(`Closing ${this.constructor.name} ...`)
-            if (this.server) {
-                this.server.close(error => {
-                    if (error) reject(error)
-                    this.logger.info(`${this.constructor.name} closed.`)
-                    resolve()
-                })
-            } else {
-                this.logger.warn('Server already closed.')
-                resolve()
-            }
-        })
-    }
-
-    readonly instance: Express
-    readonly port: number
-    private server: Server | undefined
-    private logger:Logger
+  readonly instance: Express
+  readonly port: number
+  private server: Server | undefined
+  private logger: Logger
 }

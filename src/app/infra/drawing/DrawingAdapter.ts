@@ -1,4 +1,4 @@
-import { Drawing } from '../../core/port/Drawing'
-import { DrawingIntegration } from './DrawingIntegration'
+import type { Drawing } from '../../core/port/Drawing'
+import type { DrawingIntegration } from './DrawingIntegration'
 
 export interface DrawingAdapter extends Drawing, DrawingIntegration {}

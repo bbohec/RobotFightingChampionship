@@ -1,5 +1,5 @@
-import { GameEvent } from '../type/GameEvent'
+import type { GameEvent } from '../type/GameEvent'
 
 export interface EventBus {
-    send(gameEvent: GameEvent): Promise<void>;
+  send(gameEvent: GameEvent): Promise<void>
 }

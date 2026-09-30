@@ -1,3 +1,3 @@
 export interface ControllerPort {
-    activate(pointerId:string): Promise<void>;
+  activate(pointerId: string): Promise<void>
 }

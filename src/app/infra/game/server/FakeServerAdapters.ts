@@ -1,5 +1,5 @@
-import { ServerGameAdapters } from '../../../core/port/Game'
-import { Identifier } from '../../../core/port/Identifier'
+import type { ServerGameAdapters } from '../../../core/port/Game'
+import type { Identifier } from '../../../core/port/Identifier'
 import { InMemoryComponentRepository } from '../../component/InMemoryComponentRepository'
 import { InMemoryEventBus } from '../../eventBus/InMemoryEventBus'
 import { InMemoryClientEventInteractor } from '../../eventInteractor/client/InMemoryClientEventInteractor'
@@ -8,13 +8,18 @@ import { FakeIdentifierAdapter } from '../../identifier/FakeIdentifierAdapter'
 import { InMemorySystemRepository } from '../../system/InMemorySystemInteractor'
 
 export class FakeServerAdapters implements ServerGameAdapters {
-    constructor (clientIds:string[], nextIdentifiers?:string[]) {
-        this.identifierInteractor = new FakeIdentifierAdapter(nextIdentifiers)
-        this.eventInteractor = new InMemoryServerEventInteractor(new InMemoryEventBus(), clientIds.map(clientId => new InMemoryClientEventInteractor(clientId, new InMemoryEventBus())))
-    }
+  constructor(clientIds: string[], nextIdentifiers?: string[]) {
+    this.identifierInteractor = new FakeIdentifierAdapter(nextIdentifiers)
+    this.eventInteractor = new InMemoryServerEventInteractor(
+      new InMemoryEventBus(),
+      clientIds.map(
+        (clientId) => new InMemoryClientEventInteractor(clientId, new InMemoryEventBus()),
+      ),
+    )
+  }
 
-    identifierInteractor: Identifier;
-    eventInteractor :InMemoryServerEventInteractor
-    systemInteractor = new InMemorySystemRepository();
-    componentRepository = new InMemoryComponentRepository();
+  identifierInteractor: Identifier
+  eventInteractor: InMemoryServerEventInteractor
+  systemInteractor = new InMemorySystemRepository()
+  componentRepository = new InMemoryComponentRepository()
 }

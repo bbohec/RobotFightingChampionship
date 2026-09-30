@@ -1,17 +1,17 @@
-html{
-    height: 100%;
+html {
+  height: 100%;
 }
 
 body {
-    margin: 0;
-    overflow: hidden;
-    background-color: black;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    height: 100%;
+  margin: 0;
+  overflow: hidden;
+  background-color: black;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
 }
 h1 {
-    color: hotpink;
-    font-family: cursive;
-  }
+  color: hotpink;
+  font-family: cursive;
+}

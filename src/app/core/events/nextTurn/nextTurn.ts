@@ -1,6 +1,5 @@
-import { Action } from '../../type/Action'
-import { EntityType } from '../../type/EntityType'
+import { EntityType } from '../../ecs/components/EntityReference'
+import { EventKind } from '../../type/EventKind'
 import { newGameEvent } from '../../type/GameEvent'
-export const nextTurnEvent = (matchId: string) => newGameEvent(Action.nextTurn, new Map([
-    [EntityType.match, [matchId]]
-]))
+export const nextTurnEvent = (matchId: string) =>
+  newGameEvent(EventKind.nextTurn, new Map([[EntityType.match, [matchId]]]))
